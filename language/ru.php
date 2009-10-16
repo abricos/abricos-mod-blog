@@ -1,10 +1,14 @@
 <?php
 /**
-* @version $Id: ru.php 3 2009-06-09 13:41:52Z roosit $
-* @package CMSBrick
-* @copyright Copyright (C) 2008 CMSBrick. All rights reserved.
-* @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
-*/
+ * Фразы русского языка
+ * 
+ * @version $Id: ru.php 3 2009-06-09 13:41:52Z roosit $
+ * @package CMSBrick
+ * @subpackage Blog
+ * @copyright Copyright (C) 2008 CMSBrick. All rights reserved.
+ * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
+ * @author Alexander Kuzmin (roosit@cmsbrick.ru)
+ */
 
 return array(
 	'catblocktitle'=>'Рубрики',

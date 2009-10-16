@@ -1,10 +1,12 @@
 <?php
 /**
-* @version $Id: js_category.php 782 2009-05-04 11:38:08Z AKuzmin $
-* @package CMSBrick
-* @copyright Copyright (C) 2008 CMSBrick. All rights reserved.
-* @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
-*/
+ * @version $Id: js_category.php 782 2009-05-04 11:38:08Z AKuzmin $
+ * @package CMSBrick
+ * @subpackage Blog
+ * @copyright Copyright (C) 2008 CMSBrick. All rights reserved.
+ * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
+ * @author Alexander Kuzmin (roosit@cmsbrick.ru)
+ */
 
 if (!Brick::$session->IsAdminMode()){	return; }
 

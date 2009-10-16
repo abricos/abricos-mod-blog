@@ -1,18 +1,24 @@
 <?php
 /**
-* @version $Id: module.php 789 2009-05-07 13:29:50Z AKuzmin $
-* @package CMSBrick
-* @copyright Copyright (C) 2008 CMSBrick. All rights reserved.
-* @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
-*/
+ * Модуль "Блог"
+ * 
+ * @version $Id: module.php 789 2009-05-07 13:29:50Z AKuzmin $
+ * @package CMSBrick
+ * @subpackage Blog
+ * @copyright Copyright (C) 2008 CMSBrick. All rights reserved.
+ * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
+ * @author Alexander Kuzmin (roosit@cmsbrick.ru)
+ */
 
-
-global $cms;
-
-$cms->modules->GetModule('comment');
+CMSRegistry::$instance->modules->GetModule('comment');
 $mod = new CMSModuleBlog();
-$cms->modules->Register($mod);
+CMSRegistry::$instance->modules->Register($mod);
 
+/**
+ * Модуль "Блог" 
+ * @package CMSBrick
+ * @subpackage Blog
+ */
 class CMSModuleBlog extends CMSModule {
 	
 	public $topicid; 
@@ -23,7 +29,7 @@ class CMSModuleBlog extends CMSModule {
 	public $tag = "";
 	public $taglimit = 50;
 	
-	public function __construct(){
+	public function CMSModuleBlog(){
 		// версия модуля
 		$this->version = "1.0.3";
 		// имя модуля 
@@ -117,6 +123,11 @@ class CMSModuleBlog extends CMSModule {
 	}
 }
 
+/**
+ * Набор статичных функция запросов к базе данных 
+ * @package CMSBrick
+ * @subpackage Blog
+ */
 class CMSQBlog extends CMSBaseClass {
 	
 	private static function GetPageWhere(CMSDatabase $db, $category, $tagid, $from, $count){

@@ -2,8 +2,10 @@
 /**
  * @version $Id: tagblock.php 769 2009-04-27 04:45:07Z AKuzmin $
  * @package CMSBrick
+ * @subpackage Blog
  * @copyright Copyright (C) 2008 CMSBrick. All rights reserved.
- * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
+ * @author Alexander Kuzmin (roosit@cmsbrick.ru)
  */
 
 $brick = Brick::$builder->brick;

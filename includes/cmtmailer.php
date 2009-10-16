@@ -2,9 +2,12 @@
 /**
  * @version $Id: cmtmailer.php 789 2009-05-07 13:29:50Z AKuzmin $
  * @package CMSBrick
+ * @subpackage Blog
  * @copyright Copyright (C) 2008 CMSBrick. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
+ * @author Alexander Kuzmin (roosit@cmsbrick.ru)
  */
+
 $modComt = Brick::$modules->GetModule('comment');
 $modBlog = Brick::$modules->GetModule('blog');
 $comment = $modComt->commentData;
