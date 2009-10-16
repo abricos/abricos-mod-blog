@@ -2,7 +2,7 @@
 /**
  * Фразы русского языка
  * 
- * @version $Id: ru.php 3 2009-06-09 13:41:52Z roosit $
+ * @version $Id$
  * @package CMSBrick
  * @subpackage Blog
  * @copyright Copyright (C) 2008 CMSBrick. All rights reserved.

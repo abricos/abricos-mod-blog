@@ -1,6 +1,6 @@
 <?php
 /**
- * @version $Id: js_topic.php 784 2009-05-05 10:31:57Z AKuzmin $
+ * @version $Id$
  * @package CMSBrick
  * @subpackage Blog
  * @copyright Copyright (C) 2008 CMSBrick. All rights reserved.

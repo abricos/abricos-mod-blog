@@ -1,6 +1,6 @@
 <?php
 /**
- * @version $Id: tagblock.php 769 2009-04-27 04:45:07Z AKuzmin $
+ * @version $Id$
  * @package CMSBrick
  * @subpackage Blog
  * @copyright Copyright (C) 2008 CMSBrick. All rights reserved.

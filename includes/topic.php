@@ -1,6 +1,6 @@
 <?php
 /**
- * @version $Id: topic.php 774 2009-04-28 11:39:40Z AKuzmin $
+ * @version $Id$
  * @package CMSBrick
  * @subpackage Blog
  * @copyright Copyright (C) 2008 CMSBrick. All rights reserved.

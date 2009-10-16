@@ -1,5 +1,5 @@
 /**
-* @version $Id: blog.js 676 2009-02-09 11:15:54Z AKuzmin $
+* @version $Id$
 * @package CMSBrick
 * @copyright Copyright (C) 2008 CMSBrick. All rights reserved.
 * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php

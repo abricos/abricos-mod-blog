@@ -1,6 +1,6 @@
 <?php
 /**
- * @version $Id: js_category.php 782 2009-05-04 11:38:08Z AKuzmin $
+ * @version $Id$
  * @package CMSBrick
  * @subpackage Blog
  * @copyright Copyright (C) 2008 CMSBrick. All rights reserved.

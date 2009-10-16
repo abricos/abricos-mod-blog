@@ -2,7 +2,7 @@
 /**
  * Модуль "Блог"
  * 
- * @version $Id: module.php 789 2009-05-07 13:29:50Z AKuzmin $
+ * @version $Id$
  * @package CMSBrick
  * @subpackage Blog
  * @copyright Copyright (C) 2008 CMSBrick. All rights reserved.
