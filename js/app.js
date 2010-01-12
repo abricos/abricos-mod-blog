@@ -9,6 +9,8 @@ Component.requires = {
 	mod:[{name: 'webos', files: ['os.js']}]
 };
 Component.entryPoint = function(){
+
+	return; 
 	
 	if (!Brick.env.user.isRegister()){ return; }
 	
