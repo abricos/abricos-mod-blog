@@ -116,7 +116,7 @@ Component.entryPoint = function(){
 	 */
 	var TopicListWidget = function(container){
 		container = L.isString(container) ? Dom.get(container) : container;
-		var TM = TMG.build('panel,table,row,rowwait,rowdel'),
+		var TM = TMG.build('panel,table,row,rowwait,rowdel,titledel,bipub'),
 			T = TM.data,
 			TId = TM.idManager;
 		
