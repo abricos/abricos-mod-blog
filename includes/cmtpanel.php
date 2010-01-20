@@ -17,11 +17,8 @@ $info = CMSQBlog::TopicInfo(Brick::$db, 0, $contentId);
 if ($info['status'] != 1){
 	return;
 }
-$obj = new stdClass();
-$obj->uid = $info['userid'];
-$obj->id = $info['topicid'];
 
-$topic = CMSQBlog::Topic(Brick::$db, $obj);
+$topic = CMSQBlog::Topic(Brick::$db, $info['userid'], $info['topicid']);
 if (empty($topic)){
 	return;
 }

@@ -101,9 +101,10 @@
 		return {
 			show: function(contentid){
 				var __self = this;
-				if (typeof Brick.Comment == 'undefined'){
+				if (typeof Brick.mod.comment == 'undefined'){
 					wWait.show();
 					Brick.Loader.add({
+						yahoo: ['resize'],
 						mod:[{name:'comment',files:['comment.js']}], 
 						onSuccess: function() { 
 							wWait.hide();
@@ -141,15 +142,15 @@
 							visible:false,width:"640px"
 						});
 						panel.render();
-						
-						var resize = new YAHOO.util.Resize(id, {
-	            handles: ["br"],
-	            autoRatio: false,
-	            minWidth: 400,
-	            minHeight: 100,
-	            status: false 
-	         });
-						
+						if (YAHOO.util.Resize){
+							var resize = new YAHOO.util.Resize(id, {
+					            handles: ["br"],
+					            autoRatio: false,
+					            minWidth: 400,
+					            minHeight: 100,
+					            status: false 
+					         });
+						}
 						panel.show();
 						
 						man.register(panel);
@@ -172,7 +173,6 @@
 		return {
 			setById: function(id){
 				var a = Dom.get('bk-bg-comtonl-'+id);
-				
 				if (L.isNull(a)){return;}
 				
 				a.style.cursor = 'pointer';
