@@ -9,16 +9,17 @@
  */
 
 $brick = Brick::$builder->brick;
-$limit = 30;
-
-$rows = CMSQBlog::CatBlock(Brick::$db);
+$manager = CMSRegistry::$instance->modules->GetModule('blog')->GetManager();
+$rows =  $manager->CategoryBlock();
 $lst = "";
 while (($row = Brick::$db->fetch_array($rows))){
-	$t = str_replace('#lnk#', $row['nm'], $brick->param->var['t']);
-	$t = str_replace('#cnt#', $row['cnt'], $t);
-	$t = str_replace('#c#', $row['ph'], $t);
-	$lst .= $t . ' ';
+	$lst .= Brick::ReplaceVarByData($brick->param->var['t'], array(
+		"lnk" => $row['nm'],
+		"cnt" => $row['cnt'],
+		"c" => $row['ph']
+	));
 }
 unset($brick->param->var['t']);
 $brick->param->var['lst'] = $lst;
+
 ?>

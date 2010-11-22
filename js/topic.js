@@ -9,12 +9,11 @@
  * @namespace Brick.mod.blog
  */
  
-
 var Component = new Brick.Component();
 Component.requires = {
-    yahoo: ['autocomplete'],
+    yahoo: ['autocomplete','dragdrop'],
 	mod:[
-	     {name: 'sys', files: ['form.js', 'editor.js', 'data.js', 'container.js', 'widgets.js']}
+	     {name: 'sys', files: ['form.js', 'editor.js', 'data.js', 'container.js', 'widgets.js', 'wait.js']}
 	]
 };
 Component.entryPoint = function(){
@@ -27,17 +26,35 @@ Component.entryPoint = function(){
 		NS = this.namespace,
 		API = this.namespace.API;
 	
-	var tSetVar = Brick.util.Template.setProperty;
-	var tSetVarA = Brick.util.Template.setPropertyArray;
-	
-	if (!Brick.objectExists('Brick.mod.blog.data')){
-		Brick.mod.blog.data = new Brick.util.data.byid.DataSet('blog');
+	if (!NS.data){
+		NS.data = new Brick.util.data.byid.DataSet('blog');
 	}
-	var DATA = Brick.mod.blog.data;
+	var DATA = NS.data;
+
+	var LW = Brick.widget.LayWait;
+	
+	// загрузка роли пользователя
+	var isViewRole = false,
+		isWriteRole = false,
+		isAdminRole = false;
+	
+	var loadRoles = function(callback){
+		Brick.Permission.load(function(){
+			isViewRole = Brick.Permission.check('blog', '10') == 1;
+			isWriteRole = Brick.Permission.check('blog', '20') == 1;
+			isAdminRole = Brick.Permission.check('blog', '50') == 1;
+			callback();
+		});
+	};
+
+	var buildTemplate = function(w, templates){
+		var TM = TMG.build(templates), T = TM.data, TId = TM.idManager;
+		w._TM = TM; w._T = T; w._TId = TId;
+	};
 
 	// Шаблон для модальных панелей
 	var TM = TMG.build('topiclistpanel,editor,btnsave,btnpub,btndraft'+
-			',catlistpanel,catlisttable,catlistrowwait,catlistrow,cateditorpanel'),
+			''),
 		T = TM.data,
 		TId = TM.idManager;
 	
@@ -45,7 +62,6 @@ Component.entryPoint = function(){
 //////////////////////////////////////////////////////////////
 //                        TopicListPanel                    //
 //////////////////////////////////////////////////////////////
-(function(){
 	
 	/**
 	 * Панель "Список записей в блоге".
@@ -75,26 +91,13 @@ Component.entryPoint = function(){
 				firstRender = false;
 			};
 		},
-		
-		/**
-		 * Обработать закрытие панели.
-		 * 
-		 * @method onClose
-		 */
-		onClose: function(){
+		destroy: function(){
 			this.topicListWidget.destroy();
+			TopicListPanel.superclass.destroy.call(this);
 		},
-		
-		/**
-		 * Обработать клик мыши по области панели.
-		 * 
-		 * @method onClick
-		 * @param {Object} el HTML элемент по которому был клик мыши.
-		 */
 		onClick: function(el){
-			var tp = TId['topiclistpanel'];
 			switch(el.id){
-			case tp['bclose']: this.close(); return true;
+			case TId['topiclistpanel']['bclose']: this.close(); return true;
 			}
 			return false;
 		}
@@ -102,12 +105,23 @@ Component.entryPoint = function(){
 	
 	NS.TopicListPanel = TopicListPanel;
 	
-})();
+	/**
+	 * Показать панель "Список моих записей в блоге"
+	 * 
+	 * @method showTopicListPanel
+	 * @class API
+	 * @static
+	 */
+	API.showTopicListPanel = function(){
+		var widget = new NS.TopicListPanel();
+		API.addWidget('TopicListPanel', widget);
+		DATA.request();
+		return widget;
+	};
 	
 //////////////////////////////////////////////////////////////
 //                        TopicListWidget                   //
 //////////////////////////////////////////////////////////////
-(function(){
 	
 	/**
 	 * Виджет "Список записей в блоге".
@@ -127,8 +141,8 @@ Component.entryPoint = function(){
 		var config = {
 			rowlimit: 10,
 			tables: {
-				'list': 'topiclistbyuser',
-				'count': 'topiccountbyuser'
+				'list': 'topiclist',
+				'count': 'topiclistcount'
 			},
 			tm: TM,
 			paginators: ['panel.pagtop', 'panel.pagbot'],
@@ -165,9 +179,7 @@ Component.entryPoint = function(){
 			case tp['btnadd']: 
 				API.showTopicEditorPanel(0); 
 				return true;
-			case tp['refresh']: this.Bloglist.refresh(); return true;
-			case tp['rcshow']: this.recycle('show'); return true;
-			case tp['rchide']: this.recycle('hide'); return true;
+			case tp['refresh']: this.refresh(); return true;
 			case tp['rcclear']: this.recycleClear(); return true;
 			}
 			
@@ -178,21 +190,61 @@ Component.entryPoint = function(){
 			case (this._TId['row']['edit']+'-'):
 				API.showTopicEditorPanel(numid);
 				return true;
-			case (this._TId['row']['remove']+'-'): this.topicRemove(numid); return true;
-			case (this._TId['rowdel']['restore']+'-'): this.topicRestore(numid); return true;
-			case (this._TId['bipub']['id']+'-'): this.topicPublish(numid); return true;
+			case (this._TId['row']['remove']+'-'): this.remove(numid); return true;
+			case (this._TId['rowdel']['restore']+'-'): this.restore(numid); return true;
+			case (this._TId['bipub']['id']+'-'): this.publish(numid); return true;
 			}
 			return false;
-    	}
+    	},
+		_createWait: function(){
+			return new LW(this._TM.getEl("panel.table"), true);
+		},
+    	_ajax: function(data){
+			var lw = this._createWait(), __self = this;
+			Brick.ajax('blog',{
+				'data': data,
+				'event': function(request){
+					lw.hide();
+					__self.refresh();
+				}
+			});
+    	},
+		remove: function(topicid){
+			this._ajax({'type': 'topic', 'do': 'remove', 'id': topicid});
+		},
+		restore: function(topicid){
+			this._ajax({'type': 'topic', 'do': 'restore', 'id': topicid});
+		},
+		recycleClear: function(){
+			this._ajax({'type': 'topic', 'do': 'rclear'});
+		},
+		publish: function(topicid){
+			this._ajax({'type': 'topic', 'do': 'publish', 'id': topicid});
+		}
+    	
     });
 	
 	NS.TopicListWidget = TopicListWidget;
-})();
+	
+	/**
+	 * Показать виджет "Список моих записей в блоге"
+	 * 
+	 * @method showTopicListWidget
+	 * @class API
+	 * @static
+	 * @param {Object} container Идентификатор HTML элемента или 
+	 * HTML элемент, контейнер  в котором будет показан виджет.
+	 */
+	API.showTopicListWidget = function(container){
+		loadRoles(function(){
+			new NS.TopicListWidget(container);
+			DATA.request();
+		});
+	};
 
 //////////////////////////////////////////////////////////////
 //                      TopicEditorPanel                    //
 //////////////////////////////////////////////////////////////
-(function(){
 	
 	/**
 	 * Панель "Редактор записи в блоге"
@@ -239,23 +291,14 @@ Component.entryPoint = function(){
 		 */
 		editorBody: null,
 		
-		/**
-		 * Получить элемент по идентификатору базового шаблона
-		 * @method el
-		 * @param {String} name Имя элемента
-		 * @return {HTMLElement | null}
-		 */
 		el: function(name){ return Dom.get(TId['editor'][name]); },
-		
 		elv: function(name){ return Brick.util.Form.getValue(this.el(name)); },
 		setelv: function(name, value){ Brick.util.Form.setValue(this.el(name), value); },
 		
 		initTemplate: function(){
-			var t = T['editor'];
-			var o = this.obj;
-			var btns = this.topicId>0 ? T['btnsave'] : T['btnpub']+T['btndraft'];
-			t = tSetVar(t, 'buttons', btns);
-			return t;
+			return TM.replace('editor', {
+				'buttons': this.topicId>0 ? T['btnsave'] : T['btnpub']+T['btndraft']
+			});
 		},
 		onLoad: function(){
 			this.tagManager = new TagsAutocomplete(TId['editor']['tags'], TId['editor']['tagscont']);
@@ -277,24 +320,18 @@ Component.entryPoint = function(){
 			this.editorBody = new Editor(TId['editor']['bodyman'], {
 				width: '750px', height: '250px', 'mode': Editor.MODE_VISUAL
 			});
-
+			
 			if (this.topicId > 0){
-				this.initTables();
-				if (DATA.isFill(this.tables)){
-					this.renderElements();
-				}
-				DATA.onComplete.subscribe(this.dsComplete, this, true);
+				var __self = this;
+				Brick.ajax('blog', {
+					'data': { 'type': 'topic', 'id': this.topicId },
+					'event': function(request){
+						__self.setData(request.data);
+					}
+				});
 			}else{
-				this.renderElements();
+				this.setData();
 			}
-		},
-		initTables: function(){
-			this.tables = { 'topic': DATA.get('topic', true) };
-			this.rows = this.tables['topic'].getRows({topicid: this.topicId});
-		},
-		dsComplete: function(type, args){
-			var __self = this;
-			if (args[0].checkWithParam('topic', {topicid: this.topicId})){ __self.renderElements(); }
 		},
 		onClick: function(el){
 			var __self = this;
@@ -315,7 +352,18 @@ Component.entryPoint = function(){
 			this.category = d;
 			this.setelv('category', this.category['ph'] || ''); 
 		},
-		renderElements: function(){
+		setData: function(d){
+			this.data = d = L.merge({
+				"id":"0",
+				"mtd":"","mtk":"",
+				"nm":"",	
+				"tl":"","catid":"","catph":"",
+				"catnm":"","ctid":"",
+				"intro":"",
+				"body":"",
+				"uid":"","unm":"","dl":"","de":"","dp":"",
+				"st":"0","dd":"","tags":""
+			}, d || {});
 			
 			var disBtn = function(a){
 				for(var i=0;i<a.length;i++){
@@ -330,32 +378,21 @@ Component.entryPoint = function(){
 			disBtn(['btnpub', 'btndraft', 'btnsave']);
 			
 			if (this.topicId > 0){
-				var table = this.tables['topic'];
-				var row  = this.rows.getByIndex(0);
-				var o = row.cell;
-				
-				this.editorIntro.setContent(o['intro']);
-				this.editorBody.setContent(o['body']);
-				
+				this.editorIntro.setContent(d['intro']);
+				this.editorBody.setContent(d['body']);
 				this.setCategory({
-					'id': o['catid'],
-					'ph': o['catph'],
-					'nm': o['catnm']
+					'id': d['catid'],
+					'ph': d['catph'],
+					'nm': d['catnm']
 				});
-				
-				this.setelv('title', o['tl']);
-				
-				this.setelv('tags', o['tags']);
-				
+				this.setelv('title', d['tl']);
+				this.setelv('tags', d['tags']);
 			}
 		},
-		onClose: function(){
+		destroy: function(){
 			this.editorIntro.destroy();
 			this.editorBody.destroy();
-			
-			if (this.topicId > 0){
-				DATA.onComplete.unsubscribe(this.dsComplete);
-			}
+			TopicEditorPanel.superclass.destroy.call(this);
 		},
 		save: function(status){
 			var errors = this.validator.check();
@@ -369,19 +406,9 @@ Component.entryPoint = function(){
 			
 			var s = sIn + ' ' + sBd;
 			
-			this.initTables();
-
-			var table = this.tables['topic'];
-			var row  = this.topicId > 0 ? this.rows.getByIndex(0) : table.newRow();
-			if (status == 'pub'){
-				row.update({ 'st': 1 });
-			}else if (status == 'draft'){
-				row.update({ 'st': 0 });
-			}
-			
 			var cat = this.category;
-			row.update({
-				// 'mtd': NS.Description.create(s, oTitle.value, oTags.value),
+			var data = {
+				'id': this.data['id'],
 				'nm': Brick.util.Translite.ruen(oTitle.value),
 				'tl': oTitle.value,
 				'intro': sIn,
@@ -390,30 +417,40 @@ Component.entryPoint = function(){
 				'catid': cat.id,
 				'catph': cat.ph,
 				'catnm': cat.nm
-			});
-			
-			if (row.isNew()){
-				this.rows.add(row);
-			}
+			};
 
-			var tbl1 = DATA.get('topiclistbyuser');
-			var tbl2 = DATA.get('topiccountbyuser');
+			if (status == 'pub'){
+				data['st'] = 1;
+			}else if (status == 'draft'){
+				data['st'] = 0;
+			}
 			
-			if (!L.isNull(tbl1)){ tbl1.clear(); }
-			if (!L.isNull(tbl2)){ tbl2.clear(); }
-			
-			table.applyChanges();
-			DATA.request();
-			this.close();
+			var __self = this,
+				lw = new LW(this.body, true);
+			Brick.ajax('blog', {
+				'data': {'type': 'topic', 'do': 'save', 'data': data},
+				'event': function(request){
+					
+					lw.hide();
+					
+					var tbl1 = DATA.get('topiclist');
+					var tbl2 = DATA.get('topiclistcount');
+					if (!L.isNull(tbl1)){ tbl1.clear(); }
+					if (!L.isNull(tbl2)){ tbl2.clear(); }
+					DATA.request();
+
+					__self.close();
+				}
+			});
 		}
 	});
 	
 	NS.TopicEditorPanel = TopicEditorPanel;
 	
 	var TagsAutocomplete = function(input, container){
-	    var ds = new YAHOO.util.XHRDataSource('/ajax/query.html?md=blog&bk=js_tags');
+	    var ds = new YAHOO.util.XHRDataSource('/ajax/blog/js_tags/');
 	    ds.connMethodPost = true;  
-	    ds.responseSchema = {recordDelim: "\n",fieldDelim: "\t"};
+	    ds.responseSchema = {recordDelim:"\n", fieldDelim: "\t"};
 	    ds.responseType = YAHOO.util.XHRDataSource.TYPE_TEXT;
 	    ds.maxCacheEntries = 60;
 
@@ -421,12 +458,23 @@ Component.entryPoint = function(){
 		oAC.delimChar = [",",";"]; // Enable comma and semi-colon delimiters
 	};
 	
-})();
+	/**
+	 * Отобразить панель "Редактор записи в блоге"
+	 * 
+	 * @method showTopicEditorPanel
+	 * @class API
+	 * @static
+	 * @param {Integer} topicid Идентификатор записи в блоге, 
+	 * если 0, создать новый. 
+	 */
+	API.showTopicEditorPanel = function(topicid){
+		return new NS.TopicEditorPanel(topicid);
+	};
+
 
 //////////////////////////////////////////////////////////////
 //                     CategoryListPanel                    //
 //////////////////////////////////////////////////////////////
-(function(){
 
 	/**
 	 * Панель "Список категорий блога"
@@ -440,17 +488,24 @@ Component.entryPoint = function(){
 	};
 	
 	YAHOO.extend(CategoryListPanel, Brick.widget.Panel, {
-		el: function(name){ return Dom.get(TId['catlistpanel'][name]); },
+		el: function(name){ return Dom.get(this._TId['catlistpanel'][name]); },
 		initTemplate: function(){
-			return T['catlistpanel'];
+			buildTemplate(this, 'catlistpanel,catlisttable,catlistrowwait,catlistrow');
+			return this._T['catlistpanel'];
 		},
 		onLoad: function(){
-			this.el('table').innerHTML = tSetVar(T['catlisttable'], 'rows', T['catlistrowwait']);
+			this.el('table').innerHTML = this._TM.replace('catlisttable', {
+				'rows': this._T['catlistrowwait']
+			});
 
 			this.tables = {'categorylist': DATA.get('categorylist', true) };
 			if (DATA.isFill(this.tables)){ this.renderElements(); }
 			
 			DATA.onComplete.subscribe(this.dsComplete, this, true);
+			if (!isAdminRole){
+				this._TM.getEl('catlistpanel.bnew').style.display = 'none';
+			}
+			DATA.request();
 		},
 		dsComplete: function(type, args){
 			if (args[0].checkWithParam('categorylist')){ 
@@ -462,118 +517,120 @@ Component.entryPoint = function(){
 			DATA.onComplete.unsubscribe(this.dsComplete, this); 
 		},
 		renderElements: function(){
+			var TM = this._TM;
 			var rows = this.tables['categorylist'].getRows();
 			var lst = "";
 			rows.foreach(function(row){
 				var di = row.cell;
-				t = T['catlistrow'];
-				t = tSetVar(t, 'ph', di['ph']);
-				t = tSetVar(t, 'cnt', di['cnt']);
-				t = tSetVar(t, 'id', di['id']);
-				lst += t;
+				lst += TM.replace('catlistrow', {
+					'ph': di['ph'],
+					'cnt': di['cnt'],
+					'id': di['id'],
+					'viewedit': isAdminRole ? '' : 'none',
+					'viewremove': isAdminRole ? '' : 'none'
+				});
 			});
-			this.el('table').innerHTML = tSetVar(T['catlisttable'], 'rows', lst); 
+			this.el('table').innerHTML = TM.replace('catlisttable', {'rows': lst}); 
 		},
 		onClick: function(el){
+			var TId = this._TId;
 			var tp = TId['catlistpanel']; 
 			switch(el.id){
 			case tp['bselect']: this.select();	return true;
 			case tp['bcancel']: this.close(); return true;
-			case tp['bnew']: 
-				API.showCategoryEditorPanel();
-				return true;
+			case tp['bnew']: this.edit(); return true;
 			}
 			var prefix = el.id.replace(/([0-9]+$)/, '');
 			var numid = el.id.replace(prefix, "");
-			var row = this.tables['categorylist'].getRows().getById(numid);
-			if (L.isNull(row)){ return false; }
 			
-			var di = row.cell;
-
 			var tp = TId['catlistrow']; 
 			switch(prefix){
 			case tp['td1']+'-':
 			case tp['td2']+'-':
 			case tp['td3']+'-':
-				this.el('category').value = di['ph'];
-				this.el('bselect').disabled = "";
-				this.selectedRow = di;
+				this.selectRow(numid);
 				return true;
-			case tp['edit']+'-':
-				API.showCategoryEditorPanel(row.id);
-				return true;
-			case tp['del']+'-': 
-				this.remove(row); 
+			case tp['edit']+'-': this.edit(numid); return true;
+			case tp['del']+'-':
+				// this.remove(row); 
 				return true;
 			}
 			return false;
 		},
-		select: function(){
-			if (L.isNull(this.selectedRow)){ return; }
+		edit: function(categoryid){
+			categoryid = categoryid || 0;
+			var table = DATA.get('categorylist'), 
+				rows = table.getRows();
+			
+			var row = categoryid == 0 ? table.newRow() : rows.getById(categoryid);
+			
+			new NS.CategoryEditorPanel(row, function(){
+				if (row.isNew()){ rows.add(row); }
+				table.applyChanges();
+				DATA.request();
+			});
+		},
+		selectRow: function(catid){
+			var row = DATA.get('categorylist').getRows().getById(catid);
+			if (L.isNull(row)){ return; }
+			
+			var di = row.cell;
+			this.el('category').value = di['ph'];
+			this.el('bselect').disabled = "";
+
 			this.close();
-			this.callback(this.selectedRow);
+			this.callback(di);
 		}
 	});
 	
 	NS.CategoryListPanel = CategoryListPanel;
 	
-})();
+	/**
+	 * Показать панель "Список категорий блога"
+	 *
+	 * @method showCategoryListPanel
+	 * @static
+	 * @param {Function} callback
+	 */
+	API.showCategoryListPanel = function(callback){
+		loadRoles(function(){
+			new NS.CategoryListPanel(callback);
+		});
+	};
 
 //////////////////////////////////////////////////////////////
 //                     CategoryEditorPanel                  //
 //////////////////////////////////////////////////////////////
-(function(){
 
-	var CategoryEditorPanel = function(categoryId){
-		this.categoryId = categoryId || 0;
+
+	var CategoryEditorPanel = function(row, callback){
+		this.row = row;
+		this.callback = callback;
 		CategoryEditorPanel.superclass.constructor.call(this, {
 			modal: true, fixedcenter: true
 		});
 	};
 	YAHOO.extend(CategoryEditorPanel, Brick.widget.Panel, {
-		el: function(name){ return Dom.get(TId['cateditorpanel'][name]); },
+		el: function(name){ return Dom.get(this._TId['cateditorpanel'][name]); },
 		elv: function(name){ return Brick.util.Form.getValue(this.el(name)); },
 		setelv: function(name, value){ Brick.util.Form.setValue(this.el(name), value); },
 		initTemplate: function(){
-			return T['cateditorpanel'];
+			buildTemplate(this, 'cateditorpanel');
+			return this._T['cateditorpanel']; 
 		},
 		onLoad: function(){
 			var phrase = this.el('phrase');
 			this.validator = new Brick.util.Form.Validator({
 				elements: {'phrase':{ obj: phrase, rules: ["empty"], args:{"field":"Название"}}}
 			});
-			if (this.categoryId > 0){
-				this.initTables();
-				if (DATA.isFill(this.tables)){ 
-					this.renderElements(); 
-				}else{
-					DATA.onComplete.subscribe(this.dsComplete, this, true);
-				}
-			}else {
-				this.renderElements();
-			}
-		},
-		initTables: function(){
-			this.tables = {'category': DATA.get('category', true) };
-			this.rows = this.tables['category'].getRows({'categoryid': this.categoryId});
-		},
-		dsComplete: function(type, args){
-			if (args[0].checkWithParam('category', {categoryid: this.categoryId})){ this.renderElements(); }
-		},
-		destroy: function(){
-			DATA.onComplete.unsubscribe(this.dsComplete, this);
-			CategoryEditorPanel.superclass.destroy.call(this);
-		},
-		renderElements: function(){
-			if (this.categoryId > 0){
-				var row = this.rows.getByIndex(0);
-				this.setelv('phrase', row.cell['ph']);
-				this.setelv('name', row.cell['nm']);
-			}
+			var di = this.row.cell;
+
+			this.setelv('phrase', di['ph']);
+			this.setelv('name', di['nm']);
 			this.el('bsave').disabled = "";
 		},
 		onClick: function(el){
-			var tp = TId['cateditorpanel'];
+			var tp = this._TId['cateditorpanel'];
 			switch(el.id){
 			case tp['bsave']: this.save(); return true;
 			case tp['bcancel']: this.close(); return true;
@@ -592,30 +649,30 @@ Component.entryPoint = function(){
 			this._updateCatName();
 			if (this.validator.check() > 0){ return; }
 			
-			this.initTables();
-			var table = this.tables['category'];
-			var row  = this.categoryId > 0 ? this.rows.getByIndex(0) : table.newRow();
-			
-			row.update({
+			this.row.update({
 				'ph': this.elv('phrase'),
 				'nm': this.elv('name')
 			});
-			
-			if (row.isNew()){ this.rows.add(row); }
-			table.applyChanges();
-			
-			if (table.isFill()){ return; }
-			
-			if (!L.isNull(DATA.get('categorylist'))){
-				DATA.get('categorylist').clear();
-			}
-			DATA.request();
+			this.callback();
 			this.close();
 		}
 	});
 	
 	NS.CategoryEditorPanel = CategoryEditorPanel;
-})();
+	
+	/**
+	 * Показать панель "Редактор категории блога"
+	 *
+	 * @method showCategoryEditorPanel
+	 * @static
+	 * @param {Integer} categoryId Идентификатор категории, если 0, 
+	 * то создание новой категории
+	 */
+	API.showCategoryEditorPanel = function(row, callback){
+		var widget = new NS.CategoryEditorPanel(row, callback);
+		DATA.request();
+		return widget;
+	};
 
 (function(){
 	var cleanSpace = function(s){

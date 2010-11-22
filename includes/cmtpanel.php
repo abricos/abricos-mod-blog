@@ -12,13 +12,15 @@ $brick = Brick::$builder->brick;
 $contentId = Brick::$input->clean_gpc('g', 'contentid', TYPE_INT);
 $brick->param->var['cid'] = $contentId;
 
-$info = CMSQBlog::TopicInfo(Brick::$db, 0, $contentId);
+require_once 'dbquery.php';
+
+$info = BlogQuery::TopicInfo(Brick::$db, 0, $contentId);
 
 if ($info['status'] != 1){
 	return;
 }
 
-$topic = CMSQBlog::Topic(Brick::$db, $info['userid'], $info['topicid']);
+$topic = BlogQuery::Topic(Brick::$db, $info['userid'], $info['topicid']);
 if (empty($topic)){
 	return;
 }

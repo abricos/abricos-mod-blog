@@ -13,7 +13,8 @@ $mod = Brick::$modules->GetModule('blog');
 
 $limit = $mod->taglimit;
 
-$rows = CMSQBlog::TagBlock(Brick::$db, $limit);
+require_once 'dbquery.php';
+$rows = BlogQuery::TagBlock(Brick::$db, $limit);
 
 $tags = array();
 $min = 100000;

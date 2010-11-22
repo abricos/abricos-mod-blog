@@ -8,7 +8,7 @@
  * @author Alexander Kuzmin (roosit@abricos.org)
  */
 
-$userid = Brick::$session->userinfo['userid'];
+$userid = CMSRegistry::$instance->user->info['userid'];
 $brick = Brick::$builder->brick;
 $in = Brick::$input;
 
@@ -21,16 +21,17 @@ $category = $mod->category;
 $tag = $mod->tag;
 $tagid = 0;
 $baseUrl = "/".$mod->takelink."/";
+require_once 'dbquery.php';
 
 $lst = "";
 $title = "";
 if (!empty($category)){
 	$baseUrl .= $category."/";
-	$catInfo = CMSQBlog::CategoryByName(Brick::$db, $category); 
+	$catInfo = BlogQuery::CategoryByName(Brick::$db, $category); 
 	$title = $catInfo['phrase'];
 }else if (!empty($tag)){
 	$baseUrl .= $tag."/";
-	$taginfo = CMSQBlog::Tag(Brick::$db, $tag);
+	$taginfo = BlogQuery::Tag(Brick::$db, $tag);
 	$title = $taginfo['phrase'];
 	$tagid = $taginfo['tagid'];
 	
@@ -39,28 +40,28 @@ if (!empty($category)){
 
 Brick::$builder->SetGlobalVar("page_title", $title);
 
-$topicCount = CMSQBlog::PageTopicCount(Brick::$db, $category, $tagid);
+$topicCount = BlogQuery::PageTopicCount(Brick::$db, $category, $tagid);
 
 $count = 8;
 $from = ($page-1)*$count;
 $ids = array();
-$rows = CMSQBlog::PageTopicIds(Brick::$db, $category, $tagid, $from, $count);
+$rows = BlogQuery::PageTopicIds(Brick::$db, $category, $tagid, $from, $count);
 while (($row = Brick::$db->fetch_array($rows))){
 	array_push($ids, $row['id']);
 }
-$rows = CMSQBlog::TagTopicList(Brick::$db, $ids);
+$rows = BlogQuery::TagTopicList(Brick::$db, $ids);
 $tags = array();
 while (($row = Brick::$db->fetch_array($rows))){
 	array_push($tags, $row);
 }
 
-$rows = CMSQBlog::CommentTopicCount(Brick::$db, $ids);
+$rows = BlogQuery::CommentTopicCount(Brick::$db, $ids);
 $cmts = array();
 while (($row = Brick::$db->fetch_array($rows))){
 	$cmts[$row['contentid']] = $row['cnt'];
 }
 
-$rows = CMSQBlog::Page(Brick::$db, $category, $tagid, $from, $count);
+$rows = BlogQuery::Page(Brick::$db, $category, $tagid, $from, $count);
 $ctids = array();
 while (($row = Brick::$db->fetch_array($rows))){
 	array_push($ctids, $row['ctid']);
@@ -103,7 +104,7 @@ while (($row = Brick::$db->fetch_array($rows))){
 	$lst .=  $brick->param->var['tb'].$t.$brick->param->var['te'];
 }
 
-Brick::$builder->LoadBrickS('sitemap', 'p_paginator', $brick, array("p" => array(
+Brick::$builder->LoadBrickS('sitemap', 'paginator', $brick, array("p" => array(
 	"total" => $topicCount,
 	"page" => $page,
 	"perpage" => $count,

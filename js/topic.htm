@@ -30,9 +30,6 @@
 		</td>
 		<td width="50%">
 			<div style="text-align: right">
-				<a href="#" id="{i#rcshow}" style="display: none">Показать удаленные</a>
-				<a href="#" id="{i#rchide}">Скрыть удаленные</a>
-				&nbsp;|&nbsp;
 				<a href="#" id="{i#rcclear}">Очистить корзину</a>
 			</div>
 		</td>
@@ -186,10 +183,10 @@
 <tr>
 	<td id="{i#td1}-{v#id}" style="cursor: pointer">{v#ph}</td>
 	<td id="{i#td2}-{v#id}" style="cursor: pointer">
-		<a href="#" id="{i#edit}-{v#id}">Править</a>
+		<a href="#" id="{i#edit}-{v#id}" style="display: {v#viewedit}">Править</a>
 	</td>
 	<td id="{i#td3}-{v#id}" style="cursor: pointer">
-		<a href="#" id="{i#del}-{v#id}">Удалить</a>
+		<a href="#" id="{i#del}-{v#id}" style="display: {v#viewremove}">Удалить</a>
 	</td>
 </tr>
 

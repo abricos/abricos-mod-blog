@@ -83,8 +83,8 @@ if ($updateManager->isInstall()){
 	*/
 }
 
-if ($updateManager->isInstall() || $updateManager->isUpdate('0.4')){
-	CMSRegistry::$instance->modules->GetModule('blog')->permission->InstallDefault();
+if ($updateManager->isInstall() || $updateManager->isUpdate('0.4.1')){
+	CMSRegistry::$instance->modules->GetModule('blog')->permission->Install();
 }
 
 ?>

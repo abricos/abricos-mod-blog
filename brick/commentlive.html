@@ -1,0 +1,21 @@
+<!--[*]
+[script]commentlive.php[/script]
+
+[bkvar=lst][/bkvar]
+[bkvar=row]
+	<li>
+		<a class="showuser" id="user:{v#unm}" title="{v#unm}" href="#">{v#unm}</a>
+		<a class="category" href="{v#catlnk}">{v#catnm}</a>&nbsp;&#8594;&nbsp;
+		<a class="topic" href="{v#toplnk}">{v#topnm}</a>
+		<a class="showcomment" id="contentid:{v#cid}" href="{v#toplnk}#comments">({v#count})</a>
+	</li>
+[/bkvar]
+[mcss=blog]blog.css[/mcss]
+
+[*]-->
+<div class="box">
+	<h2>{#blog.commentlivehd} <a id="blog-commentlive-refresh" title="{#blog.commentliverefresh}"><img src="/images/refresh.png" alt="{#blog.pubcommentliverefresh}"/></a></h2>
+	<ul class="blogcommentlive">
+		[bkvar]lst[/bkvar]
+	</ul>
+</div>

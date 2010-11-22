@@ -12,14 +12,14 @@ Component.requires = {
 };
 Component.entryPoint = function(){
 	
-	if (Brick.Permission.check('blog', '50') < 1){ return; }
+	if (Brick.Permission.check('blog', '20') < 1){ return; }
 	
 	var cp = Brick.mod.user.cp;
 	
 	var menuItem = new cp.MenuItem(this.moduleName);
 	menuItem.icon = '/modules/blog/images/cp_icon.gif';
-	menuItem.entryComponent = 'api';
-	menuItem.entryPoint = 'Brick.mod.blog.API.showTopicListByUserWidget';
+	menuItem.entryComponent = 'topic';
+	menuItem.entryPoint = 'Brick.mod.blog.API.showTopicListWidget';
 	
 	cp.MenuManager.add(menuItem);
 };

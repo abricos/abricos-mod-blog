@@ -11,7 +11,9 @@
 $brick = Brick::$builder->brick;
 $limit = 30;
 
-$rows = CMSQBlog::CommentOnlineList(Brick::$db, 5);
+require_once 'dbquery.php';
+
+$rows = BlogQuery::CommentOnlineList(Brick::$db, 5);
 $mod = Brick::$modules->GetModule('blog');
 $baseUrl = "/".$mod->takelink."/";
 
@@ -19,38 +21,38 @@ $p_do = Brick::$input->clean_gpc('g', 'do', TYPE_STR);
 $upd = $p_do == 'updcmtonl';
 
 $lst = "";
-$cids = array();
+// $cids = array();
 while (($row = Brick::$db->fetch_array($rows))){
 	
 	/* fixed bug */
 	if (empty($row['catph']) || empty($row['title'])){
 		continue;
 	}
-	$tt = "";
-	$tt .= str_replace('#unm#', $row['unm'], $brick->param->var['tu']);
-
-	$lnk = $baseUrl;
+	$lst .= Brick::ReplaceVarByData($brick->param->var['row'], array(
+		"unm" => $row['unm'],
+		"catnm" => $row['catph'],
+		"topnm" => $row['title'], 
+		"catlnk" => $baseUrl.$row['catnm']."/",
+		"toplnk" => $baseUrl.$row['catnm']."/".$row['topicid']."/",
+		"cid" => $row['contentid'],
+		"count" => $row['cnt']
+	));
+	/*
 	
-	$lnk .= $row['catnm']."/";
-	$t = str_replace('#ph#', $row['catph'], $brick->param->var['tc']);
-	$t = str_replace('#lnk#', $lnk, $t);
-	$tt .= $t;
-	
-	$lnk .= $row['topicid']."/";
-	$t = str_replace('#lnk#', $lnk, $brick->param->var['tt']); 
-	$t = str_replace('#tl#', $row['title'], $t); 
-	$tt .= $t;
 	
 	array_push($cids, $row['contentid']);
-	$t = str_replace('#cnt#', $row['cnt'], $brick->param->var['tcmt']);
-	$t = str_replace('#cid#', $row['contentid'], $t);
+	$t = str_replace('#cnt#', , $brick->param->var['tcmt']);
+	$t = str_replace('#cid#', , $t);
 	$tt .= $t;
 
 	$tt =  str_replace('#c#', $tt, $brick->param->var['ti']);
 	
 	$lst .= $tt;
+	/**/
 }
+$brick->param->var['lst'] = $lst;
 
+/*
 $brick->param->var['s'] = str_replace('#ids#', implode(',', $cids), 
 	$brick->param->var[($upd ? 's2' : 's')]
 );
@@ -64,4 +66,5 @@ if ($upd){
 }
 
 unset($brick->param->var['t']);
+/**/
 ?>
