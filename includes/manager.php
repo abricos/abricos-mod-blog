@@ -283,6 +283,7 @@ class BlogManager extends ModuleManager {
 						"tl" => $topic['title']
 					));
 					$body = Brick::ReplaceVarByData($brick->param->var['cmtemlbody'], array(
+						"tpclnk" => $tpLink,
 						"tl" => $topic['title'],
 						"unm" => $this->user->info['username'],
 						"cmt1" => $parent['bd'],
@@ -310,6 +311,7 @@ class BlogManager extends ModuleManager {
 				"tl" => $topic['title']
 			));
 			$body = Brick::ReplaceVarByData($brick->param->var['cmtemlautorbody'], array(
+				"tpclnk" => $tpLink,
 				"tl" => $topic['title'],
 				"unm" => $this->user->info['username'],
 				"cmt" => $data->bd,
