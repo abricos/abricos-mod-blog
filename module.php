@@ -143,6 +143,26 @@ class BlogModule extends CMSModule {
 		Brick::$builder->LoadBrickS('blog', 'cmtmailer', null);
 	}
 	
+	public function GetLink(){
+		return $this->registry->adress->host."/".$this->takelink."/";
+	}
+	
+	public function RssWrite(CMSRssWriter2_0 $writer){
+		$rows = $this->GetManager()->TopicLastList(10);
+		while (($row = $this->registry->db->fetch_array($rows))){
+			$title = $row['catph']." / ".$row['tl'];
+			$link = $this->GetLink().$row['catnm']."/".$row['id'];
+			
+			$item = new CMSRssWriter2_0Item($title, $link, $row['intro']);
+			$item->pubDate = $row['dp'];
+			$writer->WriteItem($item);
+		}
+	}
+	
+	public function RssMetaLink(){
+		return $this->registry->adress->host."/rss/blog/";
+	}
+	
 }
 
 /**
