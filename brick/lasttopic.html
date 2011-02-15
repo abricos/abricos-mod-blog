@@ -1,0 +1,20 @@
+<!--[*]
+[script]lasttopic.php[/script]
+
+[bkvar=lst][/bkvar]
+[bkvar=row]
+	<li>
+		<a class="category" href="{v#catlnk}">{v#cattl}</a>&nbsp;&#8594;&nbsp;
+		<a class="topic" href="{v#toplnk}">{v#topnm}</a>
+	</li>
+[/bkvar]
+[mcss=blog]blog.css[/mcss]
+
+[*]-->
+<div class="box">
+	<h2>Записи в блоге</h2>
+	<ul class="bloglasttopic">
+		[bkvar]lst[/bkvar]
+		<li><a href="/blog/">Все записи</a></li>
+	</ul>
+</div>

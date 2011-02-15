@@ -16,21 +16,14 @@ $manager = $module->GetManager();
 $baseUrl = "/".$module->takelink."/";
 
 $lst = "";
-$rows = $manager->CommentLive(5);
+$rows = $manager->TopicLastList(5);
 while (($row = Brick::$db->fetch_array($rows))){
 	
-	/* fixed bug */
-	if (empty($row['catph']) || empty($row['title'])){
-		continue;
-	}
 	$lst .= Brick::ReplaceVarByData($brick->param->var['row'], array(
-		"unm" => $row['unm'],
-		"catnm" => $row['catph'],
-		"topnm" => $row['title'], 
+		"cattl" => $row['catph'],
+		"topnm" => $row['tl'], 
 		"catlnk" => $baseUrl.$row['catnm']."/",
-		"toplnk" => $baseUrl.$row['catnm']."/".$row['topicid']."/",
-		"cid" => $row['contentid'],
-		"count" => $row['cnt']
+		"toplnk" => $baseUrl.$row['catnm']."/".$row['id']."/"
 	));
 }
 $brick->param->var['lst'] = $lst;

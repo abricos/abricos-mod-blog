@@ -199,7 +199,7 @@ class BlogQuery {
 		return $db->query_read($sql);
 	}
 	
-	public static function CommentOnlineList(CMSDatabase $db, $limit=12){
+	public static function CommentLive(CMSDatabase $db, $limit=5){
 		$sql = "
 			SELECT 
 				c.contentid, 
@@ -226,7 +226,6 @@ class BlogQuery {
 			WHERE t.deldate = 0 and t.status = 1
 			ORDER BY dl DESC  
 		";
-		 // echo($sql);
 		return $db->query_read($sql);
 	}
 

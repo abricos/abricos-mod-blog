@@ -98,6 +98,39 @@
 .mod-blog-tags .t145 {font-size: 145%;}
 .mod-blog-tags .t150 {font-size: 150%;}
 
+
+ul.bloglasttopic {
+	color:#6A7398;
+}
+ul.bloglasttopic li {
+	list-style-type:none;
+	padding-bottom:0.6em;
+}
+ul.bloglasttopic a {
+	margin-right:0.5em;
+	text-decoration:none;
+}
+ul.bloglasttopic .category {
+	color:#6A7398;
+	font-size:0.92em;
+	font-weight:bold;
+	margin-right:0.4em;
+}
+ul.bloglasttopic .topic {
+	color:#999999;
+}
+ul.bloglasttopic .topic {
+	}
+
+
+ul.blogcatblock {
+	color:#6A7398;
+}
+ul.blogcatblock li {
+	list-style-type:none;
+	padding-bottom:0.4em;
+}
+
 ul.blogcommentlive {
 	color:#6A7398;
 }

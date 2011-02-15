@@ -22,8 +22,10 @@ CMSRegistry::$instance->modules->Register($mod);
 class BlogModule extends CMSModule {
 	
 
-	// @TODO: на удаление
-	private static $instance = null;
+	/**
+	 * @var BlogModule
+	 */
+	public static $instance = null;
 	
 	public $topicid; 
 	public $topicinfo;
@@ -45,6 +47,8 @@ class BlogModule extends CMSModule {
 		$this->takelink = "blog";
 		
 		$this->permission = new BlogPermission($this);
+		
+		BlogModule::$instance = $this;
 	}
 	
 	/**

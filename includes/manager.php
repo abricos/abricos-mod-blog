@@ -203,43 +203,68 @@ class BlogManager extends ModuleManager {
 		BlogQuery::TopicPublish($this->db, $topicid);
 	}
 	
+	/**
+	 * Список записей в блоге текущего пользователя
+	 * @param unknown_type $page
+	 * @param unknown_type $total
+	 */
 	public function TopicList($page, $total){
+		if (!$this->IsWriteRole()){ return null; }
 		return BlogQuery::TopicListByUserId($this->db, $this->userid, $page, $total);
 	}
 	
+	/**
+	 * Кол-во записей в блоге текущего пользователя
+	 */
 	public function TopicListCount(){
+		if (!$this->IsWriteRole()){ return null; }
 		return BlogQuery::TopicCountByUserId($this->db, $this->userid); 
 	}
 	
 	public function CategoryBlock (){
-		if (!$this->IsViewRole()){ return; }
+		if (!$this->IsViewRole()){ return null; }
 		return BlogQuery::CategoryBlock($this->db);
 	}
 	
 	public function CategoryList(){
-		if (!$this->IsViewRole()){ return; }
+		if (!$this->IsViewRole()){ return null; }
 		return BlogQuery::CategoryList($this->db);
 	}
 	
 	public function Category($categoryid){
-		if (!$this->IsViewRole()){ return; }
+		if (!$this->IsViewRole()){ return null; }
 		return BlogQuery::CategoryById($this->db, $categoryid, true);
 	}
 	
 	public function CategoryAppend($d){
-		if (!$this->IsAdminRole()){ return; }
+		if (!$this->IsAdminRole()){ return null; }
 		BlogQuery::CategoryAppend($this->db, $d);
 	}
 	
 	public function CategoryUpdate($d){
-		if (!$this->IsAdminRole()){ return; }
+		if (!$this->IsAdminRole()){ return null; }
 		BlogQuery::CategoryUpdate($this->db, $d);
 	}
 	
 	public function CategoryRemove($id){
-		if (!$this->IsAdminRole()){ return; }
+		if (!$this->IsAdminRole()){ return null; }
 		BlogQuery::CategoryRemove($this->db, $id);
 	}
+	
+	public function TopicLastList($count){
+		if (!$this->IsViewRole()){ return null; }
+		return BlogQuery::Page($this->db, "", "", 0, $count);
+	}
+	
+	/**
+	 * Список последних комментариев
+	 * @param integer $count вернуть кол-во $count
+	 */
+	public function CommentLive($count){
+		if (!$this->IsViewRole()){ return null; }
+		return BlogQuery::CommentLive($this->db, $count);
+	}
+	
 	
 	// комментарии
 	public function IsCommentList($contentid){

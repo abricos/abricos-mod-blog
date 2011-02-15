@@ -1,12 +1,16 @@
 <!--[*]
 [script]catblock.php[/script]
 [bkvar=lst][/bkvar]
-[bkvar=t]<li><a href="/blog/{v#lnk}/">{v#c}</a>&#160;({v#cnt})</li>[/bkvar]
+[bkvar=t]
+	<li>
+		<a href="/blog/{v#lnk}/">{v#c}</a>&#160;({v#cnt})
+	</li>
+[/bkvar]
 [mcss=blog]blog.css[/mcss]
 [*]-->
 <div class="box">
 	<h2>Рубрики</h2>
-	<ul class="bk_blog_category">
+	<ul class="blogcatblock">
 		[bkvar]lst[/bkvar]
 	</ul>
 </div>
