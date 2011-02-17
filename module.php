@@ -151,9 +151,11 @@ class BlogModule extends CMSModule {
 		$rows = $this->GetManager()->TopicLastList(10);
 		while (($row = $this->registry->db->fetch_array($rows))){
 			$title = $row['catph']." / ".$row['tl'];
-			$link = $this->GetLink().$row['catnm']."/".$row['id'];
+			$link = $this->GetLink().$row['catnm']."/".$row['id']."/";
 			
-			$item = new CMSRssWriter2_0Item($title, $link, $row['intro']);
+			$intro = $row['intro'].""."<p><a href='".$link."'>".$this->lang['pageread']." →</a></p>";
+			
+			$item = new CMSRssWriter2_0Item($title, $link, $intro);
 			$item->pubDate = $row['dp'];
 			$writer->WriteItem($item);
 		}
