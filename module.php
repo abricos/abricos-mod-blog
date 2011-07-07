@@ -10,10 +10,6 @@
  * @author Alexander Kuzmin (roosit@abricos.org)
  */
 
-CMSRegistry::$instance->modules->GetModule('comment');
-$mod = new BlogModule();
-CMSRegistry::$instance->modules->Register($mod);
-
 /**
  * Модуль "Блог" 
  * @package Abricos
@@ -215,5 +211,9 @@ class BlogPermission extends CMSPermission {
 		return $roles;
 	}
 }
+
+CMSRegistry::$instance->modules->GetModule('comment');
+$mod = new BlogModule();
+CMSRegistry::$instance->modules->Register($mod);
 
 ?>
