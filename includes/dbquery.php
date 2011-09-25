@@ -8,6 +8,137 @@
  * @author Alexander Kuzmin (roosit@abricos.org)
  */
 
+/**
+ * Запросы для приложения
+ */
+class BlogQueryApp {
+	
+	public static function CategoryList(CMSDatabase $db){
+		$sql = "
+			SELECT 
+				catid as id, 
+				name as nm, 
+				phrase as tl
+			FROM ".$db->prefix."bg_cat
+			ORDER BY tl
+		";
+		return $db->query_read($sql);
+	}
+	
+	public static function TopicWhere($page, $limit, $topicid = -1){
+		if ($topicid > 0){
+			$limit = 1;
+		}
+		$from = $limit * (max($page, 1) - 1);
+		return "
+			WHERE 
+				t.deldate=0 
+				AND t.status=1 
+				".($topicid > 0 ? " AND topicid=".bkint($topicid) : "")." 
+			ORDER BY t.datepub DESC
+			LIMIT ".$from.",".bkint($limit)."
+		";
+	}
+	
+	public static function TopicList(CMSDatabase $db, $page, $limit, $topicid){
+		$where = BlogQueryApp::TopicWhere($page, $limit, $topicid);
+		
+		$full = "";
+		
+		if ($topicid > 0) {
+			$full = ", 
+				cc.body as bd,
+				'1' as isfull
+			";			
+		}
+		
+		$sql = "
+			SELECT
+				t.topicid as id, 
+				t.catid as catid,
+				cc.contentid as ctid,
+				t.title as tl,
+				t.intro as intro,
+				length(cc.body) as bdlen,
+				t.userid as uid,
+				(
+					SELECT count(cm.contentid) as cnt
+					FROM ".$db->prefix."cmt_comment cm
+					WHERE t.contentid = cm.contentid
+					GROUP by cm.contentid
+				) as cmt,
+				t.datepub as dl
+				".$full."
+			FROM ".$db->prefix."bg_topic t
+			LEFT JOIN ".$db->prefix."content cc ON t.contentid = cc.contentid
+			".$where."
+		";
+		return $db->query_read($sql);
+	}
+	
+	/**
+	 * Таблица тегов для запрашиваемых записей в блоге
+	 * 
+	 * @param CMSDatabase $db
+	 * @param integer $page
+	 * @param integer $limit
+	 */
+	public static function TagList(CMSDatabase $db, $page, $limit, $topicid){
+		$where = BlogQueryApp::TopicWhere($page, $limit, $topicid);
+		
+		$sql = "
+			SELECT 
+				DISTINCT
+				g.tagid as id, 
+				g.phrase as tl
+			FROM ".$db->prefix."bg_toptag tg
+			INNER JOIN (
+				SELECT t.topicid
+				FROM ".$db->prefix."bg_topic t
+				".$where."
+			) t ON tg.topicid = t.topicid
+			INNER JOIN ".$db->prefix."bg_tag g ON tg.tagid = g.tagid
+		";
+		return $db->query_read($sql);
+	}
+	
+	public static function TopicTagList(CMSDatabase $db, $page, $limit, $topicid){
+		$where = BlogQueryApp::TopicWhere($page, $limit, $topicid);
+		
+		$sql = "
+			SELECT 
+				tg.toptagid as id, 
+				tg.tagid as gid,
+				tg.topicid as tid
+			FROM ".$db->prefix."bg_toptag tg
+			INNER JOIN (
+				SELECT t.topicid
+				FROM ".$db->prefix."bg_topic t
+				".$where."
+			) t ON tg.topicid = t.topicid
+		";
+		return $db->query_read($sql);
+	}
+	
+	public static function TopicUserList(CMSDatabase $db, $page, $limit, $topicid){
+		$where = BlogQueryApp::TopicWhere($page, $limit, $topicid);
+		
+		$sql = "
+			SELECT
+				DISTINCT
+				u.userid as id,
+				u.username as unm,
+				u.firstname as fnm,
+				u.lastname as lnm,
+				u.avatar as avt
+			FROM ".$db->prefix."bg_topic t
+			LEFT JOIN ".$db->prefix."user u ON t.userid = u.userid
+			".$where."
+		";
+		return $db->query_read($sql);
+	}
+}
+
 class BlogQuery {
 	
 	private static function GetPageWhere(CMSDatabase $db, $category, $tagid, $from, $count){
@@ -77,7 +208,14 @@ class BlogQuery {
 				b.catid as catid,
 				b.phrase as catph,
 				b.name as catnm,
-				c.username as unm
+				c.username as unm,
+				(
+					SELECT count(cm.contentid) as cnt
+					FROM ".$db->prefix."cmt_comment cm
+					WHERE a.contentid = cm.contentid
+					GROUP by a.contentid
+				) as cmt
+				
 			FROM ".$db->prefix."bg_topic a
 			LEFT JOIN ".$db->prefix."bg_cat b ON a.catid = b.catid
 			LEFT JOIN ".$db->prefix."content cc ON a.contentid = cc.contentid

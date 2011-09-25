@@ -18,8 +18,8 @@ Component.entryPoint = function(){
 	
 	var menuItem = new cp.MenuItem(this.moduleName);
 	menuItem.icon = '/modules/blog/images/cp_icon.gif';
-	menuItem.entryComponent = 'topic';
-	menuItem.entryPoint = 'Brick.mod.blog.API.showTopicListWidget';
+	menuItem.entryComponent = 'manager';
+	menuItem.entryPoint = 'Brick.mod.blog.API.showManagerWidget';
 	
 	cp.MenuManager.add(menuItem);
 };

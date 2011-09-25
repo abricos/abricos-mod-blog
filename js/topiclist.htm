@@ -1,0 +1,54 @@
+<!--{list}-->
+<div id="{i#id}" class="topiclist">
+	<div id="{i#list}"></div>
+	<div class="loadmore" id="{i#loadmore}">
+		<img src="/images/loading.gif" />
+	</div>
+</div>
+
+<!--{row}-->
+<div id="{i#id}-{v#id}"></div>
+
+<!--{topic}-->
+<div id="{i#id}" class="topic">
+	<div class="title">
+		<a href="#app=blog/board/showBoardPanel/{v#catname}/" class="cattl">{v#cattl}</a> → <a href="#app=blog/topiclist/showTopicViewPanel/{v#id}/" class="toptl">{v#tl}</a>
+	</div>
+	<div class="intro aw-page-content">
+		{v#intro}
+
+		{v#body}
+	</div>
+	<div class="clear"></div>
+	
+	<div class="bfull" style="display: {v#dispfull}">
+		<a id="{i#bfull}" href="#app=blog/topiclist/showTopicViewPanel/{v#id}/cat/" >Читать далее</a>
+	</div>
+	
+	<div id="{i#tags}"></div>
+	
+	<div class="topicinfo">
+		<span class="date">{v#date}</span>
+		<span class="user">
+			<a title="автор текста" href="#" class="show-user-profile user-{v#uid}">{v#unm}</a>
+		</span>
+		<a class="comments" href="#app=blog/topiclist/showTopicViewPanel/{v#id}/comments/">комментарии ({v#cmt})</a>
+	</div>
+	<div id="{i#comments}" class="comments"></div>
+</div>
+
+
+<!--{view}-->
+<div class='hd'>{v#tl}</div>
+<div class='bd aw-blog'>
+
+	<div id="{i#gmenu}"></div>
+
+
+	<div id="{i#widget}" class="viewtopic">
+		<div style="text-align: center">
+			<img src="/images/loading.gif" /> Идет загрузка. Пожалуйста, подождите...
+		</div>
+	</div>
+
+</div>

@@ -13,7 +13,8 @@ var Component = new Brick.Component();
 Component.requires = {
     yahoo: ['autocomplete','dragdrop'],
 	mod:[
-	     {name: 'sys', files: ['form.js', 'editor.js', 'data.js', 'container.js', 'widgets.js', 'wait.js']}
+	     {name: 'sys', files: ['form.js', 'editor.js', 'data.js', 'container.js', 'widgets.js', 'wait.js']},
+	     {name: 'blog', files: ['roles.js']}
 	]
 };
 Component.entryPoint = function(){
@@ -24,7 +25,8 @@ Component.entryPoint = function(){
 	
 	var TMG = this.template, 
 		NS = this.namespace,
-		API = this.namespace.API;
+		API = this.namespace.API,
+		R = NS.roles;
 	
 	if (!NS.data){
 		NS.data = new Brick.util.data.byid.DataSet('blog');
@@ -33,28 +35,13 @@ Component.entryPoint = function(){
 
 	var LW = Brick.widget.LayWait;
 	
-	// загрузка роли пользователя
-	var isViewRole = false,
-		isWriteRole = false,
-		isAdminRole = false;
-	
-	var loadRoles = function(callback){
-		Brick.Permission.load(function(){
-			isViewRole = Brick.Permission.check('blog', '10') == 1;
-			isWriteRole = Brick.Permission.check('blog', '20') == 1;
-			isAdminRole = Brick.Permission.check('blog', '50') == 1;
-			callback();
-		});
-	};
-
 	var buildTemplate = function(w, templates){
 		var TM = TMG.build(templates), T = TM.data, TId = TM.idManager;
 		w._TM = TM; w._T = T; w._TId = TId;
 	};
 
 	// Шаблон для модальных панелей
-	var TM = TMG.build('topiclistpanel,editor,btnsave,btnpub,btndraft'+
-			''),
+	var TM = TMG.build('topiclistpanel,editor,btnsave,btnpub,btndraft'),
 		T = TM.data,
 		TId = TM.idManager;
 	
@@ -235,8 +222,8 @@ Component.entryPoint = function(){
 	 * @param {Object} container Идентификатор HTML элемента или 
 	 * HTML элемент, контейнер  в котором будет показан виджет.
 	 */
-	API.showTopicListWidget = function(container){
-		loadRoles(function(){
+	API.showManagerWidget = function(container){
+		R.load(function(){
 			new NS.TopicListWidget(container);
 			DATA.request();
 		});
@@ -502,7 +489,7 @@ Component.entryPoint = function(){
 			if (DATA.isFill(this.tables)){ this.renderElements(); }
 			
 			DATA.onComplete.subscribe(this.dsComplete, this, true);
-			if (!isAdminRole){
+			if (!R.isAdmin){
 				this._TM.getEl('catlistpanel.bnew').style.display = 'none';
 			}
 			DATA.request();
@@ -526,8 +513,8 @@ Component.entryPoint = function(){
 					'ph': di['ph'],
 					'cnt': di['cnt'],
 					'id': di['id'],
-					'viewedit': isAdminRole ? '' : 'none',
-					'viewremove': isAdminRole ? '' : 'none'
+					'viewedit': R.isAdmin ? '' : 'none',
+					'viewremove': R.isAdmin ? '' : 'none'
 				});
 			});
 			this.el('table').innerHTML = TM.replace('catlisttable', {'rows': lst}); 
@@ -593,7 +580,7 @@ Component.entryPoint = function(){
 	 * @param {Function} callback
 	 */
 	API.showCategoryListPanel = function(callback){
-		loadRoles(function(){
+		R.load(function(){
 			new NS.CategoryListPanel(callback);
 		});
 	};

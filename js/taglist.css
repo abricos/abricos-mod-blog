@@ -1,0 +1,18 @@
+.aw-blog .topic .tags {
+    clear: both;
+    margin: 10px 0 0;
+}
+.aw-blog .topic .tags ul {
+	background: url("/modules/blog/images/tag.gif") no-repeat scroll 0 50% #FFFFFF;
+	list-style: none outside none;
+    padding: 0.2em 0 0.1em 20px;
+    display: block;
+}
+.aw-blog .topic .tags li{
+	display: inline;
+	font-size: 0.83em;
+}
+
+.aw-blog .topic  .tags a {
+	color: #666666;
+}

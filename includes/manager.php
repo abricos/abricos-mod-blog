@@ -48,6 +48,7 @@ class BlogManager extends ModuleManager {
 	public function AJAX($d){
 		if ($d->type == 'topic'){
 			switch($d->do){
+				
 				case "save": return $this->TopicSave($d->data);
 				case "remove": return $this->TopicRemove($d->id);
 				case "restore": return $this->TopicRestore($d->id);
@@ -59,6 +60,11 @@ class BlogManager extends ModuleManager {
 			switch($d->do){
 				case "save": return $this->CategorySave($d->data);
 				default: return $this->Category($d->id); 
+			}
+		}else {
+			switch($d->do){
+				case "boardinit": return $this->BoardInit();
+				case "boardtopic": return $this->BoardTopic($d->topicid);
 			}
 		}
 		return -1;
@@ -97,6 +103,59 @@ class BlogManager extends ModuleManager {
 		}
 		
 		return null;
+	}
+	
+	/**
+	 * Данные инициализации приложения
+	 */
+	public function BoardInit(){
+		if (!$this->IsViewRole()){ return null; }
+		
+		$ret =  $this->BoardData(0, 15, -1);
+		
+		$ret->categories = array();
+		$rows = BlogQueryApp::CategoryList($this->db);
+		while (($row = $this->db->fetch_array($rows))){
+			array_push($ret->categories, $row);
+		}
+		
+		return $ret;
+	}
+	
+	private function BoardData($page, $limit, $topicid = -1){
+		$ret =  new stdClass();
+		
+		$ret->topics = array();
+		$rows = BlogQueryApp::TopicList($this->db, $page, $limit, $topicid);
+		while (($row = $this->db->fetch_array($rows))){
+			array_push($ret->topics, $row);
+		}
+		
+		$ret->tags = array();
+		$rows = BlogQueryApp::TagList($this->db, $page, $limit, $topicid);
+		while (($row = $this->db->fetch_array($rows))){
+			array_push($ret->tags, $row);
+		}
+
+		$ret->toptags = array();
+		$rows = BlogQueryApp::TopicTagList($this->db, $page, $limit, $topicid);
+		while (($row = $this->db->fetch_array($rows))){
+			array_push($ret->toptags, $row);
+		}
+		
+		$ret->users = array();
+		$rows = BlogQueryApp::TopicUserList($this->db, $page, $limit, $topicid);
+		while (($row = $this->db->fetch_array($rows))){
+			array_push($ret->users, $row);
+		}
+		
+		return $ret;
+	}
+	
+	public function BoardTopic($topicid){
+		if (!$this->IsViewRole()){ return null; }
+		$ret =  $this->BoardData(0, 1, $topicid);
+		return $ret;
 	}
 
 	/**
@@ -205,8 +264,8 @@ class BlogManager extends ModuleManager {
 	
 	/**
 	 * Список записей в блоге текущего пользователя
-	 * @param unknown_type $page
-	 * @param unknown_type $total
+	 * @param integer $page
+	 * @param integer $total
 	 */
 	public function TopicList($page, $total){
 		if (!$this->IsWriteRole()){ return null; }

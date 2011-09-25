@@ -1,0 +1,30 @@
+.aw-bodraw .board {
+	width: 100%; 
+}
+.aw-bodraw .board .mainmenu {
+	padding-bottom: 10px;
+	border-bottom: 1px dotted #73A110;
+    clear: both;
+}
+.aw-bodraw .board .mainmenu li {
+	margin-top: 10px;
+	text-align: center;
+}
+.aw-bodraw .board .mainmenu li a {
+	color: #000;
+	text-decoration: none;
+}
+.aw-bodraw .board .mainmenu li a:hover {
+	text-decoration: underline;
+}
+.aw-bodraw .board .mainmenu li .cmtnew {
+	font-weight: bold;
+	margin-left: 2px;
+	color: red;
+	vertical-align: top;
+	font-size: 0.7em;
+}
+
+.aw-bodraw .board .colbody .list {
+	margin-top: 1em;
+}

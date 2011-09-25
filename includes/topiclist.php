@@ -55,12 +55,6 @@ while (($row = Brick::$db->fetch_array($rows))){
 	array_push($tags, $row);
 }
 
-$rows = BlogQuery::CommentTopicCount(Brick::$db, $ids);
-$cmts = array();
-while (($row = Brick::$db->fetch_array($rows))){
-	$cmts[$row['contentid']] = $row['cnt'];
-}
-
 $rows = BlogQuery::Page(Brick::$db, $category, $tagid, $from, $count);
 $ctids = array();
 while (($row = Brick::$db->fetch_array($rows))){
@@ -97,7 +91,7 @@ while (($row = Brick::$db->fetch_array($rows))){
 		"date" => rusDateTime(intval($row['dp'])),
 		"user" => $row['unm'],
 		"ctid" => $row['ctid'],
-		"cmt" => intval($cmts[$row['ctid']]),
+		"cmt" => $row['cmt'],
 		"body" => $more
 	));
 	
