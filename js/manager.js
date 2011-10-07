@@ -57,10 +57,10 @@ Component.entryPoint = function(){
 	 */
 	var TopicListPanel = function(){
 		TopicListPanel.superclass.constructor.call(this, {
-			modal: true, fixedcenter: true
+			fixedcenter: true
 		});
 	};
-	YAHOO.extend(TopicListPanel, Brick.widget.Panel, {
+	YAHOO.extend(TopicListPanel, Brick.widget.Dialog, {
 		el: function(name){ return Dom.get(TId['topiclistpanel'][name]); },
 		initTemplate: function(){
 			return T['topiclistpanel'];
@@ -249,11 +249,9 @@ Component.entryPoint = function(){
 		 */
 		this.topicId = topicId;
 		
-		TopicEditorPanel.superclass.constructor.call(this, {
-			modal: true, fixedcenter: true
-		});
+		TopicEditorPanel.superclass.constructor.call(this);
 	};
-	YAHOO.extend(TopicEditorPanel, Brick.widget.Panel, {
+	YAHOO.extend(TopicEditorPanel, Brick.widget.Dialog, {
 		
 		/**
 		 * Рубрика блога.
@@ -469,12 +467,10 @@ Component.entryPoint = function(){
 	var CategoryListPanel = function(callback){
 		this.callback = callback;
 		this.selectedRow = null;
-		CategoryListPanel.superclass.constructor.call(this, {
-			modal: true, fixedcenter: true
-		});
+		CategoryListPanel.superclass.constructor.call(this);
 	};
 	
-	YAHOO.extend(CategoryListPanel, Brick.widget.Panel, {
+	YAHOO.extend(CategoryListPanel, Brick.widget.Dialog, {
 		el: function(name){ return Dom.get(this._TId['catlistpanel'][name]); },
 		initTemplate: function(){
 			buildTemplate(this, 'catlistpanel,catlisttable,catlistrowwait,catlistrow');
@@ -593,11 +589,9 @@ Component.entryPoint = function(){
 	var CategoryEditorPanel = function(row, callback){
 		this.row = row;
 		this.callback = callback;
-		CategoryEditorPanel.superclass.constructor.call(this, {
-			modal: true, fixedcenter: true
-		});
+		CategoryEditorPanel.superclass.constructor.call(this);
 	};
-	YAHOO.extend(CategoryEditorPanel, Brick.widget.Panel, {
+	YAHOO.extend(CategoryEditorPanel, Brick.widget.Dialog, {
 		el: function(name){ return Dom.get(this._TId['cateditorpanel'][name]); },
 		elv: function(name){ return Brick.util.Form.getValue(this.el(name)); },
 		setelv: function(name, value){ Brick.util.Form.setValue(this.el(name), value); },
