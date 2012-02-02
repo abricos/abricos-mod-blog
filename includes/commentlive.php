@@ -17,7 +17,7 @@ $baseUrl = "/".$module->takelink."/";
 
 $lst = "";
 $rows = $manager->CommentLive(5);
-while (($row = Brick::$db->fetch_array($rows))){
+while (($row = Abricos::$db->fetch_array($rows))){
 	
 	/* fixed bug */
 	if (empty($row['catph']) || empty($row['title'])){

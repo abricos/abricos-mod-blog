@@ -45,7 +45,6 @@ Component.entryPoint = function(){
 			this.topic = topic;
 			
 			var cat = NS.blogManager.categoryList.get(topic.catid);
-			
 			buildTemplate(this, 'topic');
 			var TM = this._TM,
 				user = topic.user;
@@ -117,7 +116,7 @@ Component.entryPoint = function(){
 			this.loadPage(catid, 0);
 		},
 		destroy: function(){
-			this._clearList();
+			this.clear();
 		},
 		clear: function(){
 			for (var i=0;i<this.topics.length;i++){
@@ -182,28 +181,50 @@ Component.entryPoint = function(){
 			return this._TM.replace('view');
 		},
 		onLoad: function(){
-			var TM = this._TM;
-			
+			var TM = this._TM, __self = this, topicid = this.topicid;
+
+			this.topicWidget = null;
 			this.globalMenu = new NS.GlobalMenuWidget(TM.getEl('view.gmenu'), 'view');
 			
-			var __self = this;
-			NS.blogManager.topicLoad(this.topicid, function(topic){
-				__self.topicWidget = new TopicWidget(TM.getEl('view.widget'), topic, {
-					'fullview': true
+			NS.buildBlogManager(function(){
+				NS.blogManager.topicLoad(topicid, function(topic){
+					__self.onBuildManager(topic);
 				});
+			});
+			
+		},
+		setTopicConfig: function(topicid, anchor){
+			this.topicid = topicid;
+			if (L.isNull(this.topicWidget)){ return; }
+			this.topicWidget.destroy();
+			var __self = this;
+			NS.blogManager.topicLoad(topicid, function(topic){
+				__self.onBuildManager(topic);
+			});
+		},
+		onBuildManager: function(topic){
+			var TM = this._TM;
+			this.topicWidget = new TopicWidget(TM.getEl('view.widget'), topic, {
+				'fullview': true
 			});
 		},
 		destroy: function(){
-			this.topicList.destroy();
+			if (!L.isNull(this.topicWidget)){
+				this.topicWidget.destroy();
+			}
 			TopicViewPanel.superclass.destroy.call(this);
 		}
 	});
 	NS.TopicViewPanel = TopicViewPanel;
 	
-	API.showTopicViewPanel = function(topicid, anchor){
-		NS.buildBlogManager(function(bm){
-			new TopicViewPanel(topicid, anchor);
-		});
+	var activePanel = null;
+	NS.API.showTopicViewPanel = function(topicid, anchor){
+		if (L.isNull(activePanel) || activePanel.isDestroy()){
+			activePanel = new TopicViewPanel(topicid, anchor);
+		}else{
+			activePanel.setTopicConfig(topicid, anchor);
+		}
+		return activePanel;
 	};
 	
 };

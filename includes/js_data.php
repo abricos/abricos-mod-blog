@@ -12,8 +12,8 @@
 
 $brick = Brick::$builder->brick;
 
-$mod = Brick::$modules->GetModule('sys');
-$manager = Brick::$modules->GetModule('blog')->GetManager();
+$mod = Abricos::GetModule('sys');
+$manager = Abricos::GetModule('blog')->GetManager();
 $ds = $mod->getDataSet();
 
 $ret = new stdClass();

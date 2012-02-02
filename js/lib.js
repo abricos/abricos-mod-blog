@@ -248,7 +248,8 @@ Component.entryPoint = function(){
 				'event': function(request){
 					__self.updateData(request.data);
 					if (L.isFunction(callback)){
-						callback(__self.topicList.get(topicid));
+						var topic = __self.topicList.get(topicid);
+						callback(topic);
 					}
 				}
 			});

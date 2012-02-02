@@ -9,10 +9,11 @@
  */
 
 $brick = Brick::$builder->brick;
-$manager = CMSRegistry::$instance->modules->GetModule('blog')->GetManager();
+$manager = Abricos::GetModuleManager('blog');
+
 $rows =  $manager->CategoryBlock();
 $lst = "";
-while (($row = Brick::$db->fetch_array($rows))){
+while (($row = Abricos::$db->fetch_array($rows))){
 	$lst .= Brick::ReplaceVarByData($brick->param->var['t'], array(
 		"lnk" => $row['nm'],
 		"cnt" => $row['cnt'],

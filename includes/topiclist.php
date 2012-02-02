@@ -8,13 +8,13 @@
  * @author Alexander Kuzmin (roosit@abricos.org)
  */
 
-$userid = CMSRegistry::$instance->user->info['userid'];
 $brick = Brick::$builder->brick;
 $in = Brick::$input;
 
-$adress = Brick::$cms->adress;
+$adress = Abricos::$adress;
 $category = "";
-$mod = Brick::$modules->GetModule('blog');
+$mod = Abricos::GetModule('blog');
+
 
 $page = $mod->page;
 $category = $mod->category;
@@ -27,11 +27,11 @@ $lst = "";
 $title = "";
 if (!empty($category)){
 	$baseUrl .= $category."/";
-	$catInfo = BlogQuery::CategoryByName(Brick::$db, $category); 
+	$catInfo = BlogQuery::CategoryByName(Abricos::$db, $category); 
 	$title = $catInfo['phrase'];
 }else if (!empty($tag)){
 	$baseUrl .= $tag."/";
-	$taginfo = BlogQuery::Tag(Brick::$db, $tag);
+	$taginfo = BlogQuery::Tag(Abricos::$db, $tag);
 	$title = $taginfo['phrase'];
 	$tagid = $taginfo['tagid'];
 	
@@ -40,24 +40,24 @@ if (!empty($category)){
 
 Brick::$builder->SetGlobalVar("page_title", $title);
 
-$topicCount = BlogQuery::PageTopicCount(Brick::$db, $category, $tagid);
+$topicCount = BlogQuery::PageTopicCount(Abricos::$db, $category, $tagid);
 
 $count = 8;
 $from = ($page-1)*$count;
 $ids = array();
-$rows = BlogQuery::PageTopicIds(Brick::$db, $category, $tagid, $from, $count);
-while (($row = Brick::$db->fetch_array($rows))){
+$rows = BlogQuery::PageTopicIds(Abricos::$db, $category, $tagid, $from, $count);
+while (($row = Abricos::$db->fetch_array($rows))){
 	array_push($ids, $row['id']);
 }
-$rows = BlogQuery::TagTopicList(Brick::$db, $ids);
+$rows = BlogQuery::TagTopicList(Abricos::$db, $ids);
 $tags = array();
-while (($row = Brick::$db->fetch_array($rows))){
+while (($row = Abricos::$db->fetch_array($rows))){
 	array_push($tags, $row);
 }
 
-$rows = BlogQuery::Page(Brick::$db, $category, $tagid, $from, $count);
+$rows = BlogQuery::Page(Abricos::$db, $category, $tagid, $from, $count);
 $ctids = array();
-while (($row = Brick::$db->fetch_array($rows))){
+while (($row = Abricos::$db->fetch_array($rows))){
 	array_push($ctids, $row['ctid']);
 	$lcat = "/blog/".$row['catnm']."/";
 	$ltop = $lcat.$row['id']."/";

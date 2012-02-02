@@ -9,18 +9,18 @@
  */
 
 $brick = Brick::$builder->brick;
-$mod = Brick::$modules->GetModule('blog');
+$mod = Abricos::GetModule('blog');
 
 $limit = $mod->taglimit;
 
 require_once 'dbquery.php';
-$rows = BlogQuery::TagBlock(Brick::$db, $limit);
+$rows = BlogQuery::TagBlock(Abricos::$db, $limit);
 
 $tags = array();
 $min = 100000;
 $max = 1;
 
-while (($row = Brick::$db->fetch_array($rows))){
+while (($row = Abricos::$db->fetch_array($rows))){
 	$cnt = intval($row['cnt']);
 	$row['cnt'] = $cnt;
 	if ($cnt < $min){

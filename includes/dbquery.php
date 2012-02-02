@@ -2,7 +2,7 @@
 /**
  * @version $Id$
  * @package Abricos
- * @subpackage User
+ * @subpackage 
  * @copyright Copyright (C) 2008 Abricos. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * @author Alexander Kuzmin (roosit@abricos.org)
@@ -13,7 +13,7 @@
  */
 class BlogQueryApp {
 	
-	public static function CategoryList(CMSDatabase $db){
+	public static function CategoryList(Ab_Database $db){
 		$sql = "
 			SELECT 
 				catid as id, 
@@ -40,7 +40,7 @@ class BlogQueryApp {
 		";
 	}
 	
-	public static function TopicList(CMSDatabase $db, $page, $limit, $topicid){
+	public static function TopicList(Ab_Database $db, $page, $limit, $topicid){
 		$where = BlogQueryApp::TopicWhere($page, $limit, $topicid);
 		
 		$full = "";
@@ -79,11 +79,11 @@ class BlogQueryApp {
 	/**
 	 * Таблица тегов для запрашиваемых записей в блоге
 	 * 
-	 * @param CMSDatabase $db
+	 * @param Ab_Database $db
 	 * @param integer $page
 	 * @param integer $limit
 	 */
-	public static function TagList(CMSDatabase $db, $page, $limit, $topicid){
+	public static function TagList(Ab_Database $db, $page, $limit, $topicid){
 		$where = BlogQueryApp::TopicWhere($page, $limit, $topicid);
 		
 		$sql = "
@@ -102,7 +102,7 @@ class BlogQueryApp {
 		return $db->query_read($sql);
 	}
 	
-	public static function TopicTagList(CMSDatabase $db, $page, $limit, $topicid){
+	public static function TopicTagList(Ab_Database $db, $page, $limit, $topicid){
 		$where = BlogQueryApp::TopicWhere($page, $limit, $topicid);
 		
 		$sql = "
@@ -120,7 +120,7 @@ class BlogQueryApp {
 		return $db->query_read($sql);
 	}
 	
-	public static function TopicUserList(CMSDatabase $db, $page, $limit, $topicid){
+	public static function TopicUserList(Ab_Database $db, $page, $limit, $topicid){
 		$where = BlogQueryApp::TopicWhere($page, $limit, $topicid);
 		
 		$sql = "
@@ -141,7 +141,7 @@ class BlogQueryApp {
 
 class BlogQuery {
 	
-	private static function GetPageWhere(CMSDatabase $db, $category, $tagid, $from, $count){
+	private static function GetPageWhere(Ab_Database $db, $category, $tagid, $from, $count){
 		$where = "";
 		$lj = "";
 		if (!empty($category)){
@@ -157,7 +157,7 @@ class BlogQuery {
 		);
 	}
 	
-	public static function PageTopicCount(CMSDatabase $db, $category, $tagid){
+	public static function PageTopicCount(Ab_Database $db, $category, $tagid){
 		$w = BlogQuery::GetPageWhere($db, $category, $tagid, 0, 0);
 		$sql = "
 			SELECT count(a.topicid) as cnt
@@ -172,7 +172,7 @@ class BlogQuery {
 		return $row['cnt'];
 	}
 	
-	public static function PageTopicIds(CMSDatabase $db, $category, $tagid, $from, $count){
+	public static function PageTopicIds(Ab_Database $db, $category, $tagid, $from, $count){
 		$w = BlogQuery::GetPageWhere($db, $category, $tagid, $from, $count);
 		if (!empty($category)){
 			$w[0] = "LEFT JOIN ".$db->prefix."bg_cat b ON a.catid = b.catid";
@@ -188,7 +188,7 @@ class BlogQuery {
 		return $db->query_read($sql);
 	}
 	
-	public static function Page(CMSDatabase $db, $category, $tagid, $from, $count){
+	public static function Page(Ab_Database $db, $category, $tagid, $from, $count){
 		$w = BlogQuery::GetPageWhere($db, $category, $tagid, $from, $count);
 		
 		$sql = "
@@ -228,7 +228,7 @@ class BlogQuery {
 		return $db->query_read($sql);
 	}
 	
-	public static function CategoryBlock(CMSDatabase $db){
+	public static function CategoryBlock(Ab_Database $db){
 		$sql = "
 			SELECT a.catid as id, a.name as nm, a.phrase as ph, count(b.catid) as cnt
 			FROM ".$db->prefix."bg_cat a
@@ -240,7 +240,7 @@ class BlogQuery {
 		return $db->query_read($sql);
 	}
 	
-	public static function CategoryById(CMSDatabase $db, $categoryId, $retArray = true){
+	public static function CategoryById(Ab_Database $db, $categoryId, $retArray = true){
 		$sql = "
 			SELECT 
 				a.catid as id,
@@ -257,7 +257,7 @@ class BlogQuery {
 		}
 	}
 	
-	public static function CategoryByName(CMSDatabase $db, $category, $retArray = true){
+	public static function CategoryByName(Ab_Database $db, $category, $retArray = true){
 		$sql = "
 			SELECT *
 			FROM ".$db->prefix."bg_cat a
@@ -271,7 +271,7 @@ class BlogQuery {
 		}
 	}
 	
-	public static function CategoryCheck(CMSDatabase $db, $data){
+	public static function CategoryCheck(Ab_Database $db, $data){
 		$sql = "
 			SELECT * 
 			FROM ".$db->prefix."bg_cat
@@ -280,7 +280,7 @@ class BlogQuery {
 		return $db->query_first($sql);
 	}
 	
-	public static function CategoryAppend(CMSDatabase $db, $obj){
+	public static function CategoryAppend(Ab_Database $db, $obj){
 		$sql = "
 			INSERT INTO ".$db->prefix."bg_cat 
 				(parentcatid, name, phrase) VALUES
@@ -293,7 +293,7 @@ class BlogQuery {
 		$db->query_write($sql);
 	}
 	
-	public static function CategoryUpdate(CMSDatabase $db, $d){
+	public static function CategoryUpdate(Ab_Database $db, $d){
 		$sql = "
 			UPDATE ".$db->prefix."bg_cat 
 			SET 
@@ -304,7 +304,7 @@ class BlogQuery {
 		$db->query_read($sql);
 	}
 	
-	public static function CategoryRemove(CMSDatabase $db, $catid){
+	public static function CategoryRemove(Ab_Database $db, $catid){
 		$sql = "
 			DELETE FROM ".$db->prefix."bg_cat
 			WHERE catid=".bkint($catid)." 
@@ -312,7 +312,7 @@ class BlogQuery {
 		$db->query_write($sql);
 	}
 
-	public static function CategoryListCountTopic(CMSDatabase $db){
+	public static function CategoryListCountTopic(Ab_Database $db){
 		$sql = "
 			SELECT catid as id, COUNT(*) as cnt
 			FROM ".$db->prefix."bg_topic
@@ -322,7 +322,7 @@ class BlogQuery {
 		return $db->query_read($sql);
 	}
 	
-	public static function CategoryList(CMSDatabase $db){
+	public static function CategoryList(Ab_Database $db){
 		
 		$sql = "
 			SELECT 
@@ -337,7 +337,7 @@ class BlogQuery {
 		return $db->query_read($sql);
 	}
 	
-	public static function CommentLive(CMSDatabase $db, $limit=5){
+	public static function CommentLive(Ab_Database $db, $limit=5){
 		$sql = "
 			SELECT 
 				c.contentid, 
@@ -367,7 +367,7 @@ class BlogQuery {
 		return $db->query_read($sql);
 	}
 
-	public static function CommentTopicCount(CMSDatabase $db, $ids){
+	public static function CommentTopicCount(Ab_Database $db, $ids){
 		if (empty($ids)){
 			return null;
 		}
@@ -383,7 +383,7 @@ class BlogQuery {
 		return $db->query_read($sql);
 	}
 	
-	public static function TagAC(CMSDatabase $db, $query){
+	public static function TagAC(Ab_Database $db, $query){
 		$sql = "
 			SELECT phrase as ph
 			FROM ".$db->prefix."bg_tag
@@ -394,7 +394,7 @@ class BlogQuery {
 		return $db->query_read($sql);
 	}
 	
-	public static function Tag(CMSDatabase $db, $tagname){
+	public static function Tag(Ab_Database $db, $tagname){
 		$sql = "
 			SELECT *
 			FROM ".$db->prefix."bg_tag
@@ -404,7 +404,7 @@ class BlogQuery {
 		return $db->query_first($sql);
 	}
 	
-	public static function Tags(CMSDatabase $db, $topicid){
+	public static function Tags(Ab_Database $db, $topicid){
 		$sql = "
 			SELECT b.tagid as id, b.phrase as ph, b.name as nm 
 			FROM ".$db->prefix."bg_toptag a
@@ -414,7 +414,7 @@ class BlogQuery {
 		return $db->query_read($sql);
 	}
 	
-	public static function TagList(CMSDatabase $db){
+	public static function TagList(Ab_Database $db){
 		$sql = "
 			SELECT a.tagid as id, sum(a.cnt) as cnt, b.name AS nm, b.phrase AS ph
 			FROM (
@@ -432,7 +432,7 @@ class BlogQuery {
 		
 	}
 	
-	public static function TagBlock(CMSDatabase $db, $limit = 30){
+	public static function TagBlock(Ab_Database $db, $limit = 30){
 		/*
 		$sql = "
 			SELECT a.tagid AS id, b.name as nm, b.phrase as ph, count( a.tagid ) AS cnt
@@ -463,7 +463,7 @@ class BlogQuery {
 		return $db->query_write($sql);
 	}
 	
-	public static function TagTopicList(CMSDatabase $db, $ids){
+	public static function TagTopicList(Ab_Database $db, $ids){
 		if (empty($ids)){
 			return null;
 		}
@@ -480,7 +480,7 @@ class BlogQuery {
 		return $db->query_read($sql);
 	}
 	
-	public static function TagUpdate(CMSDatabase $db, $topicid, &$tags){
+	public static function TagUpdate(Ab_Database $db, $topicid, &$tags){
 		$sql = "
 			DELETE FROM ".$db->prefix."bg_toptag
 			WHERE topicid=".$topicid."
@@ -497,7 +497,7 @@ class BlogQuery {
 		}
 	}
 	
-	public static function TagSetId(CMSDatabase $db, &$tags){
+	public static function TagSetId(Ab_Database $db, &$tags){
 		if (empty($tags)){
 			return;
 		}
@@ -532,7 +532,7 @@ class BlogQuery {
 	}
 	
 	
-	public static function TopicRecycleClear(CMSDatabase $db, $userid){
+	public static function TopicRecycleClear(Ab_Database $db, $userid){
 		$sql = "
 			SELECT contentid
 			FROM ".$db->prefix."bg_topic
@@ -560,7 +560,7 @@ class BlogQuery {
 		$db->query_write($sql);
 	}
 	
-	public static function TopicPublish(CMSDatabase $db, $topicid){
+	public static function TopicPublish(Ab_Database $db, $topicid){
 		$sql = "
 			UPDATE ".$db->prefix."bg_topic
 			SET datepub=".TIMENOW.", status=1
@@ -569,9 +569,9 @@ class BlogQuery {
 		$db->query_write($sql);
 	}
 	
-	public static function TopicRestore(CMSDatabase $db, $topicid){
+	public static function TopicRestore(Ab_Database $db, $topicid){
 		$info = BlogQuery::TopicInfo($db, $topicid);
-		CoreQuery::ContentRestore($db, $info['contentid']);
+		Ab_CoreQuery::ContentRestore($db, $info['contentid']);
 		
 		$sql = "
 			UPDATE ".$db->prefix."bg_topic
@@ -581,10 +581,10 @@ class BlogQuery {
 		$db->query_write($sql);
 	}
 	
-	public static function TopicRemove(CMSDatabase $db, $topicid){
+	public static function TopicRemove(Ab_Database $db, $topicid){
 		
 		$info = BlogQuery::TopicInfo($db, $topicid);
-		CoreQuery::ContentRemove($db, $info['contentid']);
+		Ab_CoreQuery::ContentRemove($db, $info['contentid']);
 		
 		$sql = "
 			UPDATE ".$db->prefix."bg_topic
@@ -594,7 +594,7 @@ class BlogQuery {
 		$db->query_write($sql);
 	}
 	
-	public static function TopicInfo(CMSDatabase $db, $topicid, $contentid = 0){
+	public static function TopicInfo(Ab_Database $db, $topicid, $contentid = 0){
 		if ($contentid > 0){
 			$where = "WHERE contentid=".bkint($contentid);
 		}else{
@@ -616,7 +616,7 @@ class BlogQuery {
 	}
 	
 	
-	public static function Topic(CMSDatabase $db, $topicid){
+	public static function Topic(Ab_Database $db, $topicid){
 		$sql = "
 			SELECT
 				a.topicid as id, 
@@ -663,7 +663,7 @@ class BlogQuery {
 		return $swhere;
 	}
 	
-	public static function TopicCountByUserId(CMSDatabase $db, $userid, $showRecycle = false){
+	public static function TopicCountByUserId(Ab_Database $db, $userid, $showRecycle = false){
 		$swhere = BlogQuery::TopicListWhereByUserId($userid, $showRecycle);
 		$sql = "
 			SELECT count(topicid) as cnt
@@ -674,7 +674,7 @@ class BlogQuery {
 		return $row['cnt'];
 	}
 	
-	public static function TopicListByUserId(CMSDatabase $db, $userid, $page, $total, $showRecycle = false){
+	public static function TopicListByUserId(Ab_Database $db, $userid, $page, $total, $showRecycle = false){
 		$swhere = BlogQuery::TopicListWhereByUserId($userid, $showRecycle);
 		$from = (($page-1)*10);
 		$sql = "
@@ -701,8 +701,8 @@ class BlogQuery {
 		return $db->query_read($sql);
 	}
 	
-	public static function TopicAppend(CMSDatabase $db, $obj){
-		$contentid = CoreQuery::CreateContent($db, $obj->body, 'blog');
+	public static function TopicAppend(Ab_Database $db, $obj){
+		$contentid = Ab_CoreQuery::CreateContent($db, $obj->body, 'blog');
 		
 		$sql = "
 			INSERT INTO ".$db->prefix."bg_topic
@@ -726,8 +726,8 @@ class BlogQuery {
 		return $db->insert_id();
 	}
 
-	public static function TopicUpdate(CMSDatabase $db, $obj){
-		CoreQuery::ContentUpdate($db, $obj->cid, $obj->body);
+	public static function TopicUpdate(Ab_Database $db, $obj){
+		Ab_CoreQuery::ContentUpdate($db, $obj->cid, $obj->body);
 		
 		$sql = "
 			UPDATE ".$db->prefix."bg_topic SET

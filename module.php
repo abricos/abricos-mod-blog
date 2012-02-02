@@ -15,7 +15,7 @@
  * @package Abricos
  * @subpackage Blog
  */
-class BlogModule extends CMSModule {
+class BlogModule extends Ab_Module {
 	
 
 	/**
@@ -35,7 +35,7 @@ class BlogModule extends CMSModule {
 	
 	public function BlogModule(){
 		// версия модуля
-		$this->version = "0.4.1";
+		$this->version = "0.4.2";
 
 		// имя модуля 
 		$this->name = "blog";
@@ -211,9 +211,8 @@ class BlogPermission extends CMSPermission {
 		return $roles;
 	}
 }
+Abricos::GetModule('comment');
+Abricos::ModuleRegister(new BlogModule());
 
-CMSRegistry::$instance->modules->GetModule('comment');
-$mod = new BlogModule();
-CMSRegistry::$instance->modules->Register($mod);
 
 ?>

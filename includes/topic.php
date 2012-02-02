@@ -10,7 +10,7 @@
 
 $brick = Brick::$builder->brick;
 
-$mod = Brick::$modules->GetModule('blog');
+$mod = Abricos::GetModule('blog');
 $topicid = $mod->topicid;
 $manager = $mod->GetManager();
 
@@ -24,9 +24,9 @@ $ltop = $lcat.$topic['id']."/";
 
 $tdata = array();
 
-$tags = BlogQuery::Tags(Brick::$db, $topicid);
+$tags = BlogQuery::Tags(Abricos::$db, $topicid);
 $ttags = array();
-while (($tag = Brick::$db->fetch_array($tags))){
+while (($tag = Abricos::$db->fetch_array($tags))){
 	array_push($ttags, Brick::ReplaceVarByData($brick->param->var['tag'], array(
 		"link" => $tag['nm'],
 		"tag" => $tag['ph']

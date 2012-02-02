@@ -9,18 +9,18 @@
  */
 
 $brick = Brick::$builder->brick;
-$contentId = Brick::$input->clean_gpc('g', 'contentid', TYPE_INT);
+$contentId = Abricos::CleanGPC('g', 'contentid', TYPE_INT);
 $brick->param->var['cid'] = $contentId;
 
 require_once 'dbquery.php';
 
-$info = BlogQuery::TopicInfo(Brick::$db, 0, $contentId);
+$info = BlogQuery::TopicInfo(Abricos::$db, 0, $contentId);
 
 if ($info['status'] != 1){
 	return;
 }
 
-$topic = BlogQuery::Topic(Brick::$db, $info['userid'], $info['topicid']);
+$topic = BlogQuery::Topic(Abricos::$db, $info['userid'], $info['topicid']);
 if (empty($topic)){
 	return;
 }

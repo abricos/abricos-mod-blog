@@ -2,7 +2,7 @@
 /**
  * @version $Id$
  * @package Abricos
- * @subpackage User
+ * @subpackage
  * @copyright Copyright (C) 2008 Abricos. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * @author Alexander Kuzmin (roosit@abricos.org)
@@ -10,7 +10,7 @@
 
 require_once 'dbquery.php';
 
-class BlogManager extends ModuleManager {
+class BlogManager extends Ab_ModuleManager {
 	
 	/**
 	 * 
@@ -18,31 +18,21 @@ class BlogManager extends ModuleManager {
 	 */
 	public $module = null;
 	
-	/**
-	 * User
-	 * @var User
-	 */
-	public $user = null;
-	
-	public $userid = 0;
-
-	public function BlogManager(BlogModule $module){
-		parent::ModuleManager($module);
-		
-		$this->user = CMSRegistry::$instance->user;
-		$this->userid = $this->user->info['userid'];
+	public function __construct($module){
+		parent::__construct($module);
 	}
-	
+
 	public function IsAdminRole(){
-		return $this->module->permission->CheckAction(BlogAction::BLOG_ADMIN) > 0;
+		
+		return $this->IsRoleEnable(BlogAction::BLOG_ADMIN);
 	}
 	
 	public function IsWriteRole(){
-		return $this->module->permission->CheckAction(BlogAction::TOPIC_WRITE) > 0;
+		return $this->IsRoleEnable(BlogAction::TOPIC_WRITE);
 	}
 	
 	public function IsViewRole(){
-		return $this->module->permission->CheckAction(BlogAction::BLOG_VIEW) > 0;
+		return $this->IsRoleEnable(BlogAction::BLOG_VIEW);
 	}
 	
 	public function AJAX($d){
@@ -199,7 +189,7 @@ class BlogManager extends ModuleManager {
 	public function TopicSave($d){
 		$d->id = intval($d->id);
 		$d->nm = translateruen($d->tl);
-		$utm = CMSRegistry::$instance->GetUserTextManager();
+		$utm = Abricos::TextParser();
 		if (!$this->IsAdminRole()){
 			$d->tl = $utm->Parser($d->tl);
 			$d->intro = $utm->Parser($d->intro);
@@ -374,7 +364,7 @@ class BlogManager extends ModuleManager {
 						"cmt2" => $data->bd,
 						"sitename" => Brick::$builder->phrase->Get('sys', 'site_name')
 					));
-					CMSRegistry::$instance->GetNotification()->SendMail($email, $subject, $body);
+					Abricos::Notify()->SendMail($email, $subject, $body);
 				}
 			}
 			if ($parent['userid'] == $topic['userid']){
@@ -401,7 +391,7 @@ class BlogManager extends ModuleManager {
 				"cmt" => $data->bd,
 				"sitename" => Brick::$builder->phrase->Get('sys', 'site_name')
 			));
-			CMSRegistry::$instance->GetNotification()->SendMail($email, $subject, $body);
+			Abricos::Notify()->SendMail($email, $subject, $body);
 		}
 	}
 }

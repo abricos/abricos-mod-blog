@@ -17,7 +17,7 @@ $baseUrl = "/".$module->takelink."/";
 
 $lst = "";
 $rows = $manager->TopicLastList(5);
-while (($row = Brick::$db->fetch_array($rows))){
+while (($row = Abricos::$db->fetch_array($rows))){
 	
 	$lst .= Brick::ReplaceVarByData($brick->param->var['row'], array(
 		"cattl" => $row['catph'],

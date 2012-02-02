@@ -8,14 +8,14 @@
  * @author Alexander Kuzmin (roosit@abricos.org)
  */
 
-$query = Brick::$input->clean_gpc('p', 'query', TYPE_STR);
+$query = Abricos::CleanGPC('p', 'query', TYPE_STR);
 
 header('Content-type: text/plain');
 
 require_once 'dbquery.php';
-$rows = BlogQuery::TagAC(Brick::$db, $query);
+$rows = BlogQuery::TagAC(Abricos::$db, $query);
 
-while (($row = Brick::$db->fetch_array($rows))){
+while (($row = Abricos::$db->fetch_array($rows))){
 	print $row['ph']."\n";
 }
 exit;
