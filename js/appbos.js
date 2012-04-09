@@ -1,5 +1,5 @@
 /*
-@version $Id: appbos.js 258 2011-05-05 14:15:45Z roosit $
+@version $Id$
 @copyright Copyright (C) 2008 Abricos All rights reserved.
 @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 */

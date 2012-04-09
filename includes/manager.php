@@ -95,13 +95,17 @@ class BlogManager extends Ab_ModuleManager {
 		return null;
 	}
 	
+	public function Bos_OnlineData(){
+		return $this->BoardInit(5);
+	}
+	
 	/**
 	 * Данные инициализации приложения
 	 */
-	public function BoardInit(){
+	public function BoardInit($limit = 15){
 		if (!$this->IsViewRole()){ return null; }
 		
-		$ret =  $this->BoardData(0, 15, -1);
+		$ret =  $this->BoardData(0, $limit, -1);
 		
 		$ret->categories = array();
 		$rows = BlogQueryApp::CategoryList($this->db);

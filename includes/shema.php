@@ -64,26 +64,9 @@ if ($updateManager->isInstall()){
 			PRIMARY KEY (`toptagid`)) 
 	". $charset);
 
-	/*
-	$rows = $db->query_read("
-		SELECT contentid as ctid
-		FROM ".$pfx."bg_topic
-	");
-	$wh = array();
-	while (($row = $db->fetch_array($rows))){
-		array_push($wh, "contentid=".$row['ctid']);
-	}
-	if (!empty($wh)){
-		$db->query_write("
-			UPDATE ".$pfx."content
-			SET modman='blog'
-			WHERE ".implode(' OR ', $wh)." 
-		");
-	}
-	*/
 }
 
-if ($updateManager->isInstall() || $updateManager->isUpdate('0.4.1')){
+if ($updateManager->isUpdate('0.4.1')){
 	Abricos::GetModule('blog')->permission->Install();
 }
 
