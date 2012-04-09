@@ -35,7 +35,7 @@ class BlogModule extends Ab_Module {
 	
 	public function BlogModule(){
 		// версия модуля
-		$this->version = "0.4.2";
+		$this->version = "0.4.3";
 
 		// имя модуля 
 		$this->name = "blog";
@@ -143,18 +143,31 @@ class BlogModule extends Ab_Module {
 		return $this->registry->adress->host."/".$this->takelink."/";
 	}
 	
-	public function RssWrite(CMSRssWriter2_0 $writer){
-		$rows = $this->GetManager()->TopicLastList(10);
+	public function RSS_GetItemList($inBosUI = false){
+		$ret = array();
+		
+		$url = $this->registry->adress->host;
+		if ($inBosUI){
+			$url .= "/bos/#app=blog/topiclist/showTopicViewPanel/";
+		} else {
+			$url .= "/".$this->takelink."/";
+		}
+		
+		$manager = $this->GetManager();
+		$rows = $manager->TopicLastList(10);
 		while (($row = $this->registry->db->fetch_array($rows))){
 			$title = $row['catph']." / ".$row['tl'];
-			$link = $this->GetLink().$row['catnm']."/".$row['id']."/";
-			
-			$intro = $row['intro'].""."<p><a href='".$link."'>".$this->lang['pageread']." →</a></p>";
-			
-			$item = new CMSRssWriter2_0Item($title, $link, $intro);
-			$item->pubDate = $row['dp'];
-			$writer->WriteItem($item);
+				
+			if ($inBosUI){
+				$link = $url.$row['id']."/";
+			}else{
+				$link = $url.$row['catnm']."/".$row['id']."/";
+			}
+			$item = new RSSItem($title, $link, $row['intro'], $row['dp']);
+			$item->modTitle = $this->lang['modtitle'];
+			array_push($ret, $item);
 		}
+		return $ret;
 	}
 	
 	public function RssMetaLink(){

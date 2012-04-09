@@ -11,6 +11,8 @@
  */
 
 return array(
+	'modtitle' => 'Блог',
+		
 	'catblocktitle'=>'Рубрики',
 	'cmtmailernewcom'=>'Новый комментарий к топику ',
 	'cmtmaileruser'=>'Пользователь ',

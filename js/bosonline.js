@@ -12,7 +12,7 @@ Component.entryPoint = function(NS){
 	if (!Brick.mod.bos && Brick.mod.bos.onlineManager){ 
 		return; 
 	}
-	
+
 	var Dom = YAHOO.util.Dom,
 		E = YAHOO.util.Event,
 		L = YAHOO.lang;
@@ -24,7 +24,7 @@ Component.entryPoint = function(NS){
 	};
 	YAHOO.extend(OnlineWidget, Brick.mod.bos.OnlineWidget, {
 		init: function(container, rs){
-			var TM = buildTemplate(this, 'widget,item'), lst = "";
+			var TM = buildTemplate(this, 'widget,item,rss'), lst = "";
 			
 			var ts = rs['topics'];
 			
@@ -36,7 +36,11 @@ Component.entryPoint = function(NS){
 				});
 			}
 			
+			var isRSS = Brick.Permission.check('rss', '10')==1,
+				sRSS = !isRSS ? '' : TM.replace('rss');
+			
 			container.innerHTML = TM.replace('widget', {
+				'rss': sRSS,
 				'lst': lst
 			});
 		}

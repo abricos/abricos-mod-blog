@@ -1,6 +1,6 @@
 <!--{widget}-->
 <div id="{i#id}" class='aw-blog-bosonline'>
-	<div class="onlhd">Записи в блоге</div>
+	<div class="onlhd">Записи в блоге {v#rss}</div>
 	<div class="onlbd" id="{i#list}">{v#lst}</div>
 	<div class="onlft" id="{i#more}">
 		<a href="#app=blog/board/showBoardPanel">Открыть блог</a>
@@ -13,3 +13,8 @@
 		<span class="tl">{v#tl}</span>
 	</a>
 </div>
+
+<!--{rss}-->
+<a class="onlrss" target="_blank" title="Блог в формате RSS" href="/rss/bos/blog/">
+	<img src="/modules/rss/images/rss-icon-16px-op50.gif">
+</a>
