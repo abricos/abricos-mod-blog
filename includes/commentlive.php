@@ -15,6 +15,7 @@ $manager = $module->GetManager();
 
 $baseUrl = "/".$module->takelink."/";
 
+$showCount = 0;
 $lst = "";
 $rows = $manager->CommentLive(5);
 while (($row = Abricos::$db->fetch_array($rows))){
@@ -23,6 +24,7 @@ while (($row = Abricos::$db->fetch_array($rows))){
 	if (empty($row['catph']) || empty($row['title'])){
 		continue;
 	}
+	$showCount++;
 	$lst .= Brick::ReplaceVarByData($brick->param->var['row'], array(
 		"unm" => $row['unm'],
 		"catnm" => $row['catph'],
@@ -34,5 +36,8 @@ while (($row = Abricos::$db->fetch_array($rows))){
 	));
 }
 $brick->param->var['lst'] = $lst;
+if ($showCount == 0 && !$brick->param->param['showempty']){
+	$brick->content = "";
+}
 
 ?>

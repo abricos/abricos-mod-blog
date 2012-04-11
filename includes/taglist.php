@@ -39,6 +39,7 @@ if ($min == $max){
 $g1 = log($min+1);
 $g2 = log($max+1);
 
+$showCount = 0;
 $lst = "";
 foreach ($tags as $tag){
 	$cnt = intval($tag['cnt']);
@@ -52,9 +53,14 @@ foreach ($tags as $tag){
 	$t = str_replace('#fnt#', $font, $t);
 	$t = str_replace('#c#', $tag['ph'], $t);
 	$lst .= $t . ' ';
+	$showCount++;
 }
 unset($brick->param->var['t']);
 
 $brick->param->var['lst'] = $lst;
+
+if ($showCount == 0 && !$brick->param->param['showempty']){
+	$brick->content = "";
+}
 
 ?>

@@ -17,8 +17,9 @@ $baseUrl = "/".$module->takelink."/";
 
 $lst = "";
 $rows = $manager->TopicLastList(5);
+$showCount = 0;
 while (($row = Abricos::$db->fetch_array($rows))){
-	
+	$showCount++;
 	$lst .= Brick::ReplaceVarByData($brick->param->var['row'], array(
 		"cattl" => $row['catph'],
 		"topnm" => $row['tl'], 
@@ -27,5 +28,8 @@ while (($row = Abricos::$db->fetch_array($rows))){
 	));
 }
 $brick->param->var['lst'] = $lst;
+if ($showCount == 0 && !$brick->param->param['showempty']){
+	$brick->content = "";
+}
 
 ?>
