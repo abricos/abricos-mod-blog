@@ -18,27 +18,45 @@ class BlogManager extends Ab_ModuleManager {
 	 */
 	public $module = null;
 	
+	/**
+	 * @var BlogManager
+	 */
+	public static $instance = null;
+	
+	private $_disableRoles = false;
+	
 	public function __construct($module){
 		parent::__construct($module);
-	}
-
-	public function IsAdminRole(){
 		
+		BlogManager::$instance = $this;
+	}
+	
+	public function DisableRoles(){
+		$this->_disableRoles = true;
+	}
+	
+	public function EnableRoles(){
+		$this->_disableRoles = false;
+	}
+	
+	public function IsAdminRole(){
+		if ($this->_disableRoles){ return true; }
 		return $this->IsRoleEnable(BlogAction::BLOG_ADMIN);
 	}
 	
 	public function IsWriteRole(){
+		if ($this->_disableRoles){ return true; }
 		return $this->IsRoleEnable(BlogAction::TOPIC_WRITE);
 	}
 	
 	public function IsViewRole(){
+		if ($this->_disableRoles){ return true; }
 		return $this->IsRoleEnable(BlogAction::BLOG_VIEW);
 	}
 	
 	public function AJAX($d){
 		if ($d->type == 'topic'){
 			switch($d->do){
-				
 				case "save": return $this->TopicSave($d->data);
 				case "remove": return $this->TopicRemove($d->id);
 				case "restore": return $this->TopicRestore($d->id);
@@ -194,8 +212,9 @@ class BlogManager extends Ab_ModuleManager {
 		$d->id = intval($d->id);
 		$d->nm = translateruen($d->tl);
 		$utm = Abricos::TextParser();
+		$utmf = Abricos::TextParser(true);
 		if (!$this->IsAdminRole()){
-			$d->tl = $utm->Parser($d->tl);
+			$d->tl = $utmf->Parser($d->tl);
 			$d->intro = $utm->Parser($d->intro);
 			$d->body = $utm->Parser($d->body);
 		}
@@ -291,7 +310,19 @@ class BlogManager extends Ab_ModuleManager {
 	
 	public function CategoryAppend($d){
 		if (!$this->IsAdminRole()){ return null; }
-		BlogQuery::CategoryAppend($this->db, $d);
+		
+		$utm = Abricos::TextParser(true);
+		$d->ph = $utm->Parser($d->ph);
+		$d->nm = $utm->Parser($d->nm);
+		
+		if (empty($d->ph)){
+			return null;
+		}
+		if (empty($d->nm)){
+			$d->nm = translateruen($d->ph);
+		}
+		
+		return BlogQuery::CategoryAppend($this->db, $d);
 	}
 	
 	public function CategoryUpdate($d){
@@ -317,7 +348,6 @@ class BlogManager extends Ab_ModuleManager {
 		if (!$this->IsViewRole()){ return null; }
 		return BlogQuery::CommentLive($this->db, $count);
 	}
-	
 	
 	// комментарии
 	public function IsCommentList($contentid){

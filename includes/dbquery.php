@@ -291,6 +291,7 @@ class BlogQuery {
 				)
 		";
 		$db->query_write($sql);
+		return $db->insert_id();
 	}
 	
 	public static function CategoryUpdate(Ab_Database $db, $d){

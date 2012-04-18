@@ -91,7 +91,7 @@ while (($row = Abricos::$db->fetch_array($rows))){
 		"date" => rusDateTime(intval($row['dp'])),
 		"user" => $row['unm'],
 		"ctid" => $row['ctid'],
-		"cmt" => $row['cmt'],
+		"cmt" => intval($row['cmt']),
 		"body" => $more
 	));
 	

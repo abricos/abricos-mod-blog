@@ -1,3 +1,18 @@
+.mod-blog .topicblock h3 {
+	position: relative;
+}
+.mod-blog .topicblock .rssicon {
+	position: absolute;
+	right: 0px;
+}
+.mod-blog .topicblock .fullblog {
+	text-align: right;
+}
+.mod-blog .topicblock .fullblog a {
+	text-decoration: underline;
+}
+
+
 .mod-blog .title { 
 	color:#767676;
 	font-family:normal Verdana,Tahoma,sans-serif;
@@ -119,9 +134,6 @@ ul.bloglasttopic .category {
 ul.bloglasttopic .topic {
 	color:#999999;
 }
-ul.bloglasttopic .topic {
-	}
-
 
 ul.blogcatblock {
 	color:#6A7398;

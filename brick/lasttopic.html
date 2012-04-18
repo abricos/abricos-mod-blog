@@ -11,11 +11,21 @@
 [mcss=blog]blog.css[/mcss]
 [p=showempty][/p]
 
+[bkvar=rss]
+	<span class="rssicon">
+		<a href='/rss/blog/' title='Записи блога в формате RSS'>
+			<img src='/modules/rss/images/rss-icon-16px-op50.gif' />
+		</a>
+	</span>
+[/bkvar]
+
 [*]-->
-<div class="box">
-	<h3>Записи в блоге</h3>
-	<ul class="bloglasttopic">
-		[bkvar]lst[/bkvar]
-		<li><a href="/blog/">Все записи</a></li>
-	</ul>
+<div class="mod-blog box">
+	<div class="topicblock">
+		<h3>Записи в блоге {v#rss}</h3>
+		<ul class="bloglasttopic">
+			[bkvar]lst[/bkvar]
+			<li class="fullblog"><a href="/blog/">Все записи</a></li>
+		</ul>
+	</div>
 </div>

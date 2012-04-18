@@ -32,4 +32,15 @@ if ($showCount == 0 && !$brick->param->param['showempty']){
 	$brick->content = "";
 }
 
+$modRSS = Abricos::GetModule('rss');
+
+$rss = "";
+if (!empty($modRSS)){
+	$rss = $brick->param->var['rss'];
+}
+
+$brick->content = Brick::ReplaceVarByData($brick->content, array(
+		'rss' => $rss
+));
+
 ?>
