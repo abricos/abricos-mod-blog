@@ -12,9 +12,17 @@ $brick = Brick::$builder->brick;
 
 $mod = Abricos::GetModule('blog');
 $topicid = $mod->topicid;
-$manager = $mod->GetManager();
+$mod->GetManager();
 
-$topic = $manager->Topic($topicid);
+$modUProfile = Abricos::GetModule('uprofile');
+$isUProfileExist = !empty($modUProfile);
+
+$modSocialist = Abricos::GetModule('socialist');
+if (!empty($modSocialist)){
+	$modSocialist->GetManager();
+}
+
+$topic = BlogManager::$instance->Topic($topicid);
 
 $title = $topic['tl'] .' - '. $topic['catph'] ;
 Brick::$builder->SetGlobalVar("page_title", $topic['mtd']);
@@ -33,13 +41,33 @@ while (($tag = Abricos::$db->fetch_array($tags))){
 	)));
 }
 
+$usertpl = Brick::ReplaceVarByData($brick->param->var['user'], array(
+	"avtsrc" => (empty($topic['avt']) ?
+			'/modules/uprofile/images/nofoto24.gif' :
+			'/filemanager/i/'.$topic['avt'].'/w_24-h_24/avatar.gif'),
+	"usrsrc" => ($isUProfileExist ? '/uprofile/#app=uprofile/ws/showws/{v#userid}/' : '#'),
+	"userid" => $topic['uid'],
+	"unm" => (!empty($topic['fnm']) && !empty($topic['lnm']) ? $topic['fnm']." ".$topic['lnm'] : $topic['unm'])
+));
+
+$soclinetpl = "";
+if (!empty($modSocialist)){
+	$soclinetpl = SocialistManager::$instance->LikeLineHTML(array(
+		"uri" => $ltop,
+		"title" => $topic['tl']
+	));
+}
+
 $brick->content = Brick::ReplaceVarByData($brick->content, array(
+	"user" => $usertpl,
+	"userid" => $row['uid'],
+	"socialist" => $soclinetpl,
+		
 	'catlink' => $lcat,
 	'cat' => $topic['catph'],
 	'subj' => $topic['tl'],
 	'subjlink' => $ltop,
-	'user' => $topic['unm'],
-	
+			
 	'date' => rusDateTime(intval($topic['dp'])),
 	'date_m3' => rusMonth(intval($topic['dp']), true),
 	'date_d' => date("d", intval($topic['dp'])),
@@ -48,5 +76,12 @@ $brick->content = Brick::ReplaceVarByData($brick->content, array(
 	'body' => $topic['body'],
 	'tags' => implode(", ", $ttags) 
 ));
+
+// отправить сообщения рассылки из очереди (подобие крона)
+BlogManager::$instance->SubscribeTopicCheck();
+
+$meta_title = $topic['tl']." / ".Brick::$builder->phrase->Get('sys', 'site_name');
+
+Brick::$builder->SetGlobalVar('meta_title', $meta_title);
 
 ?>

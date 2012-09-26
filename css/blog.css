@@ -61,34 +61,46 @@
 .mod-blog div.info {
 	border: 1px solid #e5e5e5;
 	clear: both;
-	font-family: Arial, sans-serif;
-	font-size: 0.75em;
+	font-family: Verdana,"Helvetica Neue",Helvetica,Arial,sans-serif;
+	font-size: 0.85em;
 	font-size-adjust: none;
 	font-stretch: normal;
 	font-style: normal;
 	font-variant: normal;
 	font-weight: normal;
-	line-height: 2em;
 	margin-top: 2.22em;
-	padding: 0;
 	width: 100%;
+	color: #7B848D;
+	padding: 5px 3px 3px 3px;
 }
 
-.mod-blog div.info .date {
-	margin: 0 20px 0 10px;
+.mod-blog div.info span,
+.mod-blog div.info a {
+	vertical-align: top;
 }
-
-.mod-blog div.info a,
-.mod-blog div.info a:visited {
-	background: #fff url(../images/icon-user.gif) no-repeat scroll 0 50%;
+.mod-blog div.info span {
+	vertical-align: top;
+	padding: 2px 2em 3px 2px;
+}
+.mod-blog div.info a {
 	color: #c00;
-	padding: 2px 2em 3px 21px;
+}
+
+.mod-blog div.info .user,
+.mod-blog div.info .date,
+.mod-blog div.info .comments,
+.mod-blog div.info .mod-socialist {
+	float: left;
+	margin-right: 20px;
+}
+.mod-blog div.info .mod-socialist {
+	margin-top: 3px;
 }
 
 .mod-blog div.info a.blog-comments {
 	background: #fff url(../images/balloon-left.gif) no-repeat scroll 0 50%;
-	color: #c00;
-	padding: 2px 0 3px 21px;
+	/* color: #c00; /**/
+	padding-left: 21px; 
 	cursor: pointer;
 }
  

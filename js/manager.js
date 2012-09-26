@@ -14,7 +14,7 @@ Component.requires = {
     yahoo: ['autocomplete','dragdrop'],
 	mod:[
 	     {name: 'sys', files: ['form.js', 'editor.js', 'data.js', 'container.js', 'widgets.js', 'wait.js']},
-	     {name: 'blog', files: ['roles.js']}
+	     {name: 'blog', files: ['category.js']}
 	]
 };
 Component.entryPoint = function(){
@@ -35,10 +35,7 @@ Component.entryPoint = function(){
 
 	var LW = Brick.widget.LayWait;
 	
-	var buildTemplate = function(w, templates){
-		var TM = TMG.build(templates), T = TM.data, TId = TM.idManager;
-		w._TM = TM; w._T = T; w._TId = TId;
-	};
+	var buildTemplate = this.buildTemplate;
 
 	// Шаблон для модальных панелей
 	var TM = TMG.build('topiclistpanel,editor,btnsave,btnpub,btndraft'),
@@ -456,204 +453,6 @@ Component.entryPoint = function(){
 		return new NS.TopicEditorPanel(topicid);
 	};
 
-
-//////////////////////////////////////////////////////////////
-//                     CategoryListPanel                    //
-//////////////////////////////////////////////////////////////
-
-	/**
-	 * Панель "Список категорий блога"
-	 */
-	var CategoryListPanel = function(callback){
-		this.callback = callback;
-		this.selectedRow = null;
-		CategoryListPanel.superclass.constructor.call(this);
-	};
-	
-	YAHOO.extend(CategoryListPanel, Brick.widget.Dialog, {
-		el: function(name){ return Dom.get(this._TId['catlistpanel'][name]); },
-		initTemplate: function(){
-			buildTemplate(this, 'catlistpanel,catlisttable,catlistrowwait,catlistrow');
-			return this._T['catlistpanel'];
-		},
-		onLoad: function(){
-			this.el('table').innerHTML = this._TM.replace('catlisttable', {
-				'rows': this._T['catlistrowwait']
-			});
-
-			this.tables = {'categorylist': DATA.get('categorylist', true) };
-			if (DATA.isFill(this.tables)){ this.renderElements(); }
-			
-			DATA.onComplete.subscribe(this.dsComplete, this, true);
-			if (!R.isAdmin){
-				this._TM.getEl('catlistpanel.bnew').style.display = 'none';
-			}
-			DATA.request();
-		},
-		dsComplete: function(type, args){
-			if (args[0].checkWithParam('categorylist')){ 
-				this.renderElements(); 
-			}
-		},
-		destroy: function(){
-			CategoryListPanel.superclass.destroy.call(this);
-			DATA.onComplete.unsubscribe(this.dsComplete, this); 
-		},
-		renderElements: function(){
-			var TM = this._TM;
-			var rows = this.tables['categorylist'].getRows();
-			var lst = "";
-			rows.foreach(function(row){
-				var di = row.cell;
-				lst += TM.replace('catlistrow', {
-					'ph': di['ph'],
-					'cnt': di['cnt'],
-					'id': di['id'],
-					'viewedit': R.isAdmin ? '' : 'none',
-					'viewremove': R.isAdmin ? '' : 'none'
-				});
-			});
-			this.el('table').innerHTML = TM.replace('catlisttable', {'rows': lst}); 
-		},
-		onClick: function(el){
-			var TId = this._TId;
-			var tp = TId['catlistpanel']; 
-			switch(el.id){
-			case tp['bselect']: this.select();	return true;
-			case tp['bcancel']: this.close(); return true;
-			case tp['bnew']: this.edit(); return true;
-			}
-			var prefix = el.id.replace(/([0-9]+$)/, '');
-			var numid = el.id.replace(prefix, "");
-			
-			var tp = TId['catlistrow']; 
-			switch(prefix){
-			case tp['td1']+'-':
-			case tp['td2']+'-':
-			case tp['td3']+'-':
-				this.selectRow(numid);
-				return true;
-			case tp['edit']+'-': this.edit(numid); return true;
-			case tp['del']+'-':
-				// this.remove(row); 
-				return true;
-			}
-			return false;
-		},
-		edit: function(categoryid){
-			categoryid = categoryid || 0;
-			var table = DATA.get('categorylist'), 
-				rows = table.getRows();
-			
-			var row = categoryid == 0 ? table.newRow() : rows.getById(categoryid);
-			
-			new NS.CategoryEditorPanel(row, function(){
-				if (row.isNew()){ rows.add(row); }
-				table.applyChanges();
-				DATA.request();
-			});
-		},
-		selectRow: function(catid){
-			var row = DATA.get('categorylist').getRows().getById(catid);
-			if (L.isNull(row)){ return; }
-			
-			var di = row.cell;
-			this.el('category').value = di['ph'];
-			this.el('bselect').disabled = "";
-
-			this.close();
-			this.callback(di);
-		}
-	});
-	
-	NS.CategoryListPanel = CategoryListPanel;
-	
-	/**
-	 * Показать панель "Список категорий блога"
-	 *
-	 * @method showCategoryListPanel
-	 * @static
-	 * @param {Function} callback
-	 */
-	API.showCategoryListPanel = function(callback){
-		R.load(function(){
-			new NS.CategoryListPanel(callback);
-		});
-	};
-
-//////////////////////////////////////////////////////////////
-//                     CategoryEditorPanel                  //
-//////////////////////////////////////////////////////////////
-
-
-	var CategoryEditorPanel = function(row, callback){
-		this.row = row;
-		this.callback = callback;
-		CategoryEditorPanel.superclass.constructor.call(this);
-	};
-	YAHOO.extend(CategoryEditorPanel, Brick.widget.Dialog, {
-		el: function(name){ return Dom.get(this._TId['cateditorpanel'][name]); },
-		elv: function(name){ return Brick.util.Form.getValue(this.el(name)); },
-		setelv: function(name, value){ Brick.util.Form.setValue(this.el(name), value); },
-		initTemplate: function(){
-			buildTemplate(this, 'cateditorpanel');
-			return this._T['cateditorpanel']; 
-		},
-		onLoad: function(){
-			var phrase = this.el('phrase');
-			this.validator = new Brick.util.Form.Validator({
-				elements: {'phrase':{ obj: phrase, rules: ["empty"], args:{"field":"Название"}}}
-			});
-			var di = this.row.cell;
-
-			this.setelv('phrase', di['ph']);
-			this.setelv('name', di['nm']);
-			this.el('bsave').disabled = "";
-		},
-		onClick: function(el){
-			var tp = this._TId['cateditorpanel'];
-			switch(el.id){
-			case tp['bsave']: this.save(); return true;
-			case tp['bcancel']: this.close(); return true;
-			case tp['name']: this._updateCatName(); return false;
-			}
-			return false;
-		},
-		_updateCatName: function(){
-			var txtname = this.el('name');
-			if (txtname.value.length == 0){
-				var txtphrase = this.el('phrase');
-				txtname.value = Brick.util.Translite.ruen(txtphrase.value);
-			}
-		},
-		save: function(){
-			this._updateCatName();
-			if (this.validator.check() > 0){ return; }
-			
-			this.row.update({
-				'ph': this.elv('phrase'),
-				'nm': this.elv('name')
-			});
-			this.callback();
-			this.close();
-		}
-	});
-	
-	NS.CategoryEditorPanel = CategoryEditorPanel;
-	
-	/**
-	 * Показать панель "Редактор категории блога"
-	 *
-	 * @method showCategoryEditorPanel
-	 * @static
-	 * @param {Integer} categoryId Идентификатор категории, если 0, 
-	 * то создание новой категории
-	 */
-	API.showCategoryEditorPanel = function(row, callback){
-		var widget = new NS.CategoryEditorPanel(row, callback);
-		DATA.request();
-		return widget;
-	};
 
 (function(){
 	var cleanSpace = function(s){

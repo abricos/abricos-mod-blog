@@ -55,6 +55,7 @@ class BlogManager extends Ab_ModuleManager {
 	}
 	
 	public function AJAX($d){
+
 		if ($d->type == 'topic'){
 			switch($d->do){
 				case "save": return $this->TopicSave($d->data);
@@ -94,6 +95,7 @@ class BlogManager extends Ab_ModuleManager {
 	}
 	
 	public function DSGetData($name, $rows){
+		
 		$p = $rows->p;
 		$db = $this->db;
 		
@@ -108,6 +110,9 @@ class BlogManager extends Ab_ModuleManager {
 				$ret = array();
 				array_push($ret, array("cnt" => $this->TopicListCount()));
 				return $ret;
+				
+			case 'grouplist':
+				return $this->UserGroupList();
 		}
 		
 		return null;
@@ -161,12 +166,19 @@ class BlogManager extends Ab_ModuleManager {
 			array_push($ret->users, $row);
 		}
 		
+		// отправить сообщения рассылки из очереди (подобие крона)
+		$this->SubscribeTopicCheck();
+		
 		return $ret;
 	}
 	
 	public function BoardTopic($topicid){
 		if (!$this->IsViewRole()){ return null; }
 		$ret =  $this->BoardData(0, 1, $topicid);
+		
+		// отправить сообщения рассылки из очереди (подобие крона)
+		$this->SubscribeTopicCheck();
+		
 		return $ret;
 	}
 
@@ -238,7 +250,106 @@ class BlogManager extends Ab_ModuleManager {
 			$d->id = BlogQuery::TopicAppend($this->db, $d); 
 		}
 		$this->TopicTagsUpdate($d);
+		
+		if ($d->dp > 0){
+			$this->SubscribeTopicCheck(250);
+		}
+		
 		return $d->id;
+	}
+	
+	public function SubscribeTopicCheck($sendlimit = 10){
+
+		$cfgSPL = intval(Abricos::$config['blog']['sendPacketLimit']);
+		if ($cfgSPL > 0){
+			$sendlimit = $cfgSPL;
+		}
+		
+		// Топик в блоге из очереди на рассылку
+		$topic = BlogQuery::SubscribeTopic($this->db);
+		if (empty($topic)){ return; }
+		
+		$gps = explode(",", $topic['grouplist']);
+		if (count($gps) == 0){ return; }
+
+		// полчить список пользователей для рассылки
+		$users = array();
+		$lastid = 0;
+		$rows = BlogQuery::SubscribeUserList($this->db, $topic['catid'], $gps, $topic['scblastuserid'], $sendlimit);
+		while (($u = $this->db->fetch_array($rows))){
+			$lastid = max($u['id'], $lastid);
+
+			if ($u['id'] == $topic['userid'] || empty($u['eml']) || $u['scboff']==1 || $u['scboffall']==1){
+				continue; 
+			}
+			if (empty($u['pubkey'])){
+				// Сам пользователь еще не подписан на блог. 
+				// Необходимо его подписать и присвоить ключ отписки
+				$u['pubkey'] = $this->SubscribeUserOnBlog($topic['catid'], $u['id']);
+			}
+			array_push($users, $u);
+		}
+
+		if ($lastid == 0){
+			BlogQuery::SubscribeTopicComplete($this->db, $topic['topicid']);
+		}else{
+			BlogQuery::SubscribeTopicUpdate($this->db, $topic['topicid'], $lastid);
+		}
+		
+		// осуществить рассылку
+		for ($i=0; $i<count($users); $i++){
+			$this->SubscribeTopicSend($topic, $users[$i]);
+		}
+	}
+	
+	private $_brickTemplates = null;
+	
+	private function UserNameBuild($user){
+		$firstname = !empty($user['fnm']) ? $user['fnm'] : $user['firstname'];
+		$lastname = !empty($user['lnm']) ? $user['lnm'] : $user['lastname'];
+		$username = !empty($user['unm']) ? $user['unm'] : $user['username'];
+		return (!empty($firstname) && !empty($lastname)) ? $firstname." ".$lastname : $username;
+	}
+	
+	private function SubscribeTopicSend($topic, $user){
+		$email = $user['eml'];
+		if (empty($email)){ return; }
+		
+		if (is_null($this->_brickTemplates)){
+			$this->_brickTemplates = Brick::$builder->LoadBrickS('blog', 'templates', null, null);
+		}
+		$brick = $this->_brickTemplates;
+		
+		$brick = Brick::$builder->LoadBrickS('blog', 'templates', null, null);
+		
+		$v = $brick->param->var;
+		$host = $_SERVER['HTTP_HOST'] ? $_SERVER['HTTP_HOST'] : $_ENV['HTTP_HOST'];
+		
+		
+		$tLnk = "http://".$host."/blog/".$topic['catname']."/".$topic['topicid']."/";
+		$unLnkBlog = "http://".$host."/blog/_unsubscribe/".$user['id']."/".$user['pubkey']."/".$topic['catid']."/";
+		$unLnkAll = "http://".$host."/blog/_unsubscribe/".$user['id']."/".$user['pubkey']."/all/";
+
+		$subject = Brick::ReplaceVarByData($v['topicnewsubj'], array(
+			"tl" => $topic['cattitle']
+		));
+		$body = Brick::ReplaceVarByData($v['topicnew'], array(
+			"email" => $email,
+			"blog" => $topic['cattitle'],
+			"topic" => $topic['title'],
+			"unm" => $this->UserNameBuild($topic),
+			"tlnk" => $tLnk,
+			"unlnkall" => $unLnkAll,
+			"unlnkallblog" => $unLnkBlog,
+			"sitename" => Brick::$builder->phrase->Get('sys', 'site_name')
+		));
+		Abricos::Notify()->SendMail($email, $subject, $body);
+	}
+	
+	public function SubscribeUserOnBlog($catid, $userid){
+		$pubkey = md5(TIMENOW.$catid.$userid);
+		$id = BlogQuery::SubscribeUserOnBlog($this->db, $catid, $userid, $pubkey);
+		return $pubkey;
 	}
 	
 	private function TopicTagsUpdate($obj){
@@ -282,6 +393,10 @@ class BlogManager extends Ab_ModuleManager {
 	 */
 	public function TopicList($page, $total){
 		if (!$this->IsWriteRole()){ return null; }
+		
+		// отправить сообщения рассылки из очереди (подобие крона)
+		$this->SubscribeTopicCheck();
+		
 		return BlogQuery::TopicListByUserId($this->db, $this->userid, $page, $total);
 	}
 	
@@ -293,6 +408,14 @@ class BlogManager extends Ab_ModuleManager {
 		return BlogQuery::TopicCountByUserId($this->db, $this->userid); 
 	}
 	
+	public function UserGroupList(){
+		if (!$this->IsAdminRole()){ return null; }
+		
+		Abricos::$user->GetManager();
+		
+		return UserQueryExt::GroupList($this->db);
+	}
+	
 	public function CategoryBlock (){
 		if (!$this->IsViewRole()){ return null; }
 		return BlogQuery::CategoryBlock($this->db);
@@ -300,7 +423,8 @@ class BlogManager extends Ab_ModuleManager {
 	
 	public function CategoryList(){
 		if (!$this->IsViewRole()){ return null; }
-		return BlogQuery::CategoryList($this->db);
+		
+		return BlogQuery::CategoryList($this->db, $this->IsAdminRole());
 	}
 	
 	public function Category($categoryid){
@@ -308,9 +432,7 @@ class BlogManager extends Ab_ModuleManager {
 		return BlogQuery::CategoryById($this->db, $categoryid, true);
 	}
 	
-	public function CategoryAppend($d){
-		if (!$this->IsAdminRole()){ return null; }
-		
+	private function CategoryDataParse($d){
 		$utm = Abricos::TextParser(true);
 		$d->ph = $utm->Parser($d->ph);
 		$d->nm = $utm->Parser($d->nm);
@@ -322,17 +444,46 @@ class BlogManager extends Ab_ModuleManager {
 			$d->nm = translateruen($d->ph);
 		}
 		
+		$arr = explode(",", $d->gps);
+		$narr = array();
+		for ($i=0; $i<count($arr); $i++){
+			$n = intval($arr[$i]);
+			if ($n > 0){
+				array_push($narr, $n);
+			}
+		}
+		$d->gps = implode(",", $narr);
+		
+		return $d;
+	}
+	
+	public function CategoryAppend($d){
+		if (!$this->IsAdminRole()){ return null; }
+		
+		$d = $this->CategoryDataParse($d);
+		if (is_null($d)){ return null; }
+		
 		return BlogQuery::CategoryAppend($this->db, $d);
 	}
 	
 	public function CategoryUpdate($d){
 		if (!$this->IsAdminRole()){ return null; }
+		
+		$d = $this->CategoryDataParse($d);
+		if (is_null($d)){ return null; }
+		
 		BlogQuery::CategoryUpdate($this->db, $d);
 	}
 	
 	public function CategoryRemove($id){
 		if (!$this->IsAdminRole()){ return null; }
 		BlogQuery::CategoryRemove($this->db, $id);
+	}
+	
+	public function Page($category, $tagid, $from, $count){
+		if (!$this->IsViewRole()){ return null; }
+		
+		return BlogQuery::Page(Abricos::$db, $category, $tagid, $from, $count);
 	}
 	
 	public function TopicLastList($count){
@@ -391,6 +542,7 @@ class BlogManager extends Ab_ModuleManager {
 						"tl" => $topic['title']
 					));
 					$body = Brick::ReplaceVarByData($brick->param->var['cmtemlbody'], array(
+						"email" => $email,
 						"tpclnk" => $tpLink,
 						"tl" => $topic['title'],
 						"unm" => $this->user->info['username'],
@@ -419,6 +571,7 @@ class BlogManager extends Ab_ModuleManager {
 				"tl" => $topic['title']
 			));
 			$body = Brick::ReplaceVarByData($brick->param->var['cmtemlautorbody'], array(
+				"email" => $email,
 				"tpclnk" => $tpLink,
 				"tl" => $topic['title'],
 				"unm" => $this->user->info['username'],

@@ -1,16 +1,11 @@
-<!--{list}-->
-<div id="{i#id}" class="topiclist">
+<!--{list}--><div id="{i#id}" class="topiclist">
 	<div id="{i#list}"></div>
 	<div class="loadmore" id="{i#loadmore}">
 		<img src="/images/loading.gif" />
 	</div>
 </div>
-
-<!--{row}-->
-<div id="{i#id}-{v#id}"></div>
-
-<!--{topic}-->
-<div id="{i#id}" class="topic">
+<!--{row}--><div id="{i#id}-{v#id}"></div>
+<!--{topic}--><div id="{i#id}" class="topic">
 	<div class="title">
 		<a href="#app=blog/board/showBoardPanel/{v#catname}/" class="cattl">{v#cattl}</a> → <a href="#app=blog/topiclist/showTopicViewPanel/{v#id}/" class="toptl">{v#tl}</a>
 	</div>
@@ -32,14 +27,11 @@
 		<span class="user">
 			<a title="автор текста" href="#" class="show-user-profile user-{v#uid}">{v#unm}</a>
 		</span>
-		<a class="comments" href="#app=blog/topiclist/showTopicViewPanel/{v#id}/comments/">комментарии ({v#cmt})</a>
+		<a class="comments" href="#app=blog/topiclist/showTopicViewPanel/{v#id}/comments/">{#mod.blog.topiclist.topic.1} ({v#cmt})</a>
 	</div>
 	<div id="{i#comments}" class="comments"></div>
 </div>
-
-
-<!--{view}-->
-<div class='hd'>Блог - Просмотр</div>
+<!--{view}--><div class='hd'>{#mod.blog.topiclist.view.1}</div>
 <div class='bd aw-blog'>
 
 	<div id="{i#gmenu}"></div>
@@ -47,7 +39,7 @@
 
 	<div id="{i#widget}" class="viewtopic">
 		<div style="text-align: center">
-			<img src="/images/loading.gif" /> Идет загрузка. Пожалуйста, подождите...
+			<img src="/images/loading.gif" /> {#mod.blog.topiclist.view.2}
 		</div>
 	</div>
 

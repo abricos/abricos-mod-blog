@@ -1,22 +1,17 @@
-<!--{widget}-->
-<div id="{i#id}" class='aw-blog-bosonline'>
+<!--{widget}--><div id="{i#id}" class='aw-blog-bosonline'>
 	<div class="onlhd">
-		<a href="#app=blog/board/showBoardPanel" title="Открыть приложение">
-			Записи в блоге
+		<a href="#app=blog/board/showBoardPanel" title="{#mod.blog.bosonline.widget.1}">
+			{#mod.blog.bosonline.widget.2}
 		</a> 
 		{v#rss}
 	</div>
 	<div class="onlbd" id="{i#list}">{v#lst}</div>
 </div>
-
-<!--{item}-->
-<div id="{i#id}" class='item'>
+<!--{item}--><div id="{i#id}" class='item'>
 	<a href="#app=blog/topiclist/showTopicViewPanel/{v#id}/">
 		<span class="tl">{v#tl}</span>
 	</a>
 </div>
-
-<!--{rss}-->
-<a class="onlrss" target="_blank" title="Блог в формате RSS" href="/rss/bos/blog/">
+<!--{rss}--><a class="onlrss" target="_blank" title="{#mod.blog.bosonline.rss.1}" href="/rss/bos/blog/">
 	<img src="/modules/rss/images/rss-icon-16px-op50.gif">
 </a>

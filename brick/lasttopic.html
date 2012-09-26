@@ -13,7 +13,7 @@
 
 [bkvar=rss]
 	<span class="rssicon">
-		<a href='/rss/blog/' title='Записи блога в формате RSS'>
+		<a href='/rss/blog/' title='{#brick.lasttopic.1}'>
 			<img src='/modules/rss/images/rss-icon-16px-op50.gif' />
 		</a>
 	</span>
@@ -22,10 +22,10 @@
 [*]-->
 <div class="mod-blog box">
 	<div class="topicblock">
-		<h3>Записи в блоге {v#rss}</h3>
+		<h3>{#brick.lasttopic.2} {v#rss}</h3>
 		<ul class="bloglasttopic">
 			[bkvar]lst[/bkvar]
-			<li class="fullblog"><a href="/blog/">Все записи</a></li>
+			<li class="fullblog"><a href="/blog/">{#brick.lasttopic.3}</a></li>
 		</ul>
 	</div>
 </div>

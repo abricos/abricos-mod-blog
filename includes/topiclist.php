@@ -14,7 +14,15 @@ $in = Brick::$input;
 $adress = Abricos::$adress;
 $category = "";
 $mod = Abricos::GetModule('blog');
+$mod->GetManager();
 
+$modUProfile = Abricos::GetModule('uprofile');
+$isUProfileExist = !empty($modUProfile);
+
+$modSocialist = Abricos::GetModule('socialist');
+if (!empty($modSocialist)){
+	$modSocialist->GetManager();
+}
 
 $page = $mod->page;
 $category = $mod->category;
@@ -55,13 +63,14 @@ while (($row = Abricos::$db->fetch_array($rows))){
 	array_push($tags, $row);
 }
 
-$rows = BlogQuery::Page(Abricos::$db, $category, $tagid, $from, $count);
+$rows = BlogManager::$instance->Page($category, $tagid, $from, $count);
+
 $ctids = array();
 while (($row = Abricos::$db->fetch_array($rows))){
 	array_push($ctids, $row['ctid']);
 	$lcat = "/blog/".$row['catnm']."/";
 	$ltop = $lcat.$row['id']."/";
-	
+
 	$ttags = array();
 	foreach ($tags as $tag){
 		if ($tag['topicid'] == $row['id']){
@@ -80,8 +89,27 @@ while (($row = Abricos::$db->fetch_array($rows))){
 			"ltop" => $ltop
 		));
 	}
+	$usertpl = Brick::ReplaceVarByData($brick->param->var['user'], array(
+		"avtsrc" => (empty($row['avt']) ? 
+				'/modules/uprofile/images/nofoto24.gif' : 
+				'/filemanager/i/'.$row['avt'].'/w_24-h_24/avatar.gif'),
+		"usrsrc" => ($isUProfileExist ? '/uprofile/#app=uprofile/ws/showws/{v#userid}/' : '#'),
+		"userid" => $row['uid'],
+		"unm" => (!empty($row['fnm']) && !empty($row['lnm']) ? $row['fnm']." ".$row['lnm'] : $row['unm'])
+	));
+	$soclinetpl = "";
+	if (!empty($modSocialist)){
+		$soclinetpl = SocialistManager::$instance->LikeLineHTML(array(
+			"uri" => $ltop,
+			"title" => $row['tl']
+		));
+	}
 	
 	$t = Brick::ReplaceVarByData($brick->param->var['th'], array(
+		"user" => $usertpl,
+		"userid" => $row['uid'],
+		"socialist" => $soclinetpl,
+		
 		"subj" => $row['tl'],
 		"catlink" => $lcat,
 		"subjlink" => $ltop,
@@ -89,7 +117,6 @@ while (($row = Abricos::$db->fetch_array($rows))){
 		"intro" => $row['intro'],
 		"tags" => $taglist,
 		"date" => rusDateTime(intval($row['dp'])),
-		"user" => $row['unm'],
 		"ctid" => $row['ctid'],
 		"cmt" => intval($row['cmt']),
 		"body" => $more
@@ -115,5 +142,8 @@ $brick->content = Brick::ReplaceVar($brick->content, "result",
 );
 
 $brick->param->var = array();
+
+// отправить сообщения рассылки из очереди (подобие крона)
+BlogManager::$instance->SubscribeTopicCheck();
 
 ?>

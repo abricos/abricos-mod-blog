@@ -35,7 +35,7 @@ class BlogModule extends Ab_Module {
 	
 	public function BlogModule(){
 		// версия модуля
-		$this->version = "0.4.3";
+		$this->version = "0.4.4.2";
 
 		// имя модуля 
 		$this->name = "blog";
@@ -101,7 +101,9 @@ class BlogModule extends Ab_Module {
 			$p = $adress->dir[2];
 			$p1 = $adress->dir[1];
 			$baseUrl = $baseUrl.$adress->dir[1]."/";
-			if ($p1 == 'tag'){
+			if ($p1 == '_unsubscribe'){
+				$cname = 'unsubscribe';
+			}else if ($p1 == 'tag'){
 				$this->tag = $p;
 				$cname = 'index';
 				$this->baseUrl = $baseUrl.$adress->dir[2]."/";

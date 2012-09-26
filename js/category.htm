@@ -1,0 +1,69 @@
+<!--{catlistpanel}-->
+<div class='hd'>{#mod.blog.manager.catlistpanel.1}</div>
+<div class='bd aw-blog'>
+	<div class="catlist">
+		<input id="{i#category}" class="cat" readonly type="text" />
+		
+		<div class="list"id="{i#table}"></div>
+		
+		<table class="buttons">
+			<tr>
+				<td>
+					<input id="{i#bnew}" class="btn" type="button" value="{#mod.blog.manager.catlistpanel.2}" /> 
+				</td>
+				<td class="col2">
+					<input id="{i#bselect}" class="btn" type="button" value="{#mod.blog.manager.catlistpanel.3}" disabled="disabled" />
+					<input id="{i#bcancel}" class="btn" type="button" value="  {#mod.blog.manager.catlistpanel.4} " />
+				</td>
+			</tr>
+		</table>
+	</div>
+</div>
+
+<!--{catlisttable}-->
+<table class="bk-table-def" id="{i#table}">
+	<tbody>{v#rows}</tbody>
+</table>
+
+<!--{catlistrowwait}-->
+<tr valign="top">
+	<td colspan="3">{#mod.blog.manager.catlistrowwait.1}</td>
+</tr>
+
+<!--{catlistrow}-->
+<tr>
+	<td id="{i#td1}-{v#id}" class="tl">{v#ph}</td>
+	<td id="{i#td2}-{v#id}" class="ed">
+		<a href="#" id="{i#edit}-{v#id}" style="display: {v#viewedit}">{#mod.blog.manager.catlistrow.1}</a>
+	</td>
+	<td id="{i#td3}-{v#id}" class="del">
+		<a href="#" id="{i#del}-{v#id}" style="display: {v#viewremove}">{#mod.blog.manager.catlistrow.2}</a>
+	</td>
+</tr>
+
+<!--{cateditorpanel}-->
+<div class='hd'>{#mod.blog.manager.cateditorpanel.1}</div>
+<div class='bd aw-blog'>
+	<div class="catedit">
+		<div class="f">
+			<div class="r">
+				<span>{#mod.blog.manager.cateditorpanel.2}:</span>
+				<input id="{i#phrase}" type="text" onfocus="this.select();" /> 
+			</div>
+			<div class="r">
+				<span>Страниц блога</span> (<span id="{i#url}"></span>):
+				<input id="{i#name}" type="text" onfocus="this.select();"/>
+			</div>
+		</div>
+		<div class="g">
+			<span id="{i#dsc}">
+				Рассылать уведомления о новых записях в блоге по следующим группам пользователей:
+			</span>
+			<div id="{i#group}"></div>
+		</div>
+		<div class="right">
+			<input id="{i#bsave}" type="button" value="{#mod.blog.manager.cateditorpanel.4}" class="btn" />
+			<input id="{i#bcancel}" type="button" value="{#mod.blog.manager.cateditorpanel.5}" class="btn" />
+		</div>
+	</div>
+</div>

@@ -2,13 +2,21 @@
 [script]topiclist.php[/script]
 [mcss=comment]comment.css[/mcss]
 [mcss=blog]blog.css[/mcss]
-[bkvar=h1]<h2 class="title">{v#c}</h2>[/bkvar]
+[bkvar=h1]<h3 class="title">{v#c}</h3>[/bkvar]
+
+[bkvar=user]
+	<div class="user">
+		<img src="{v#avtsrc}" />
+		<a class="show-user-profile user-{v#userid}" href="{v#usrsrc}" title="{#brick.topiclist.1}">{v#unm}</a>
+	</div>
+[/bkvar]
+
 [bkvar=th]
-	<h3 class="title">
+	<h4 class="title">
 		<a href="{v#catlink}" class="category">{v#cat}</a> 
 		&rarr; 
 		<a href="{v#subjlink}" class="subject">{v#subj}</a>
-	</h3>
+	</h4>
 
 	<div class="bd">
 		{v#intro}
@@ -17,11 +25,13 @@
 
 	<ul class="tags">{v#tags}</ul>
 	<div class="info">
-		<span class="date">{v#date}</span>
-		<span class="user">
-			<a href="#" title="автор текста">{v#user}</a>
-		</span>
-		<a href="{v#subjlink}#comments" id="bk-bg-comt-{v#ctid}" class="blog-comments">комментарии ({v#cmt})</a>
+		{v#user}
+		<div class="date">{v#date}</div>
+		<div class="comments">
+			<a href="{v#subjlink}#comments" id="bk-bg-comt-{v#ctid}" class="blog-comments">{#brick.topiclist.2} ({v#cmt})</a>
+		</div>
+		{v#socialist}
+		<div class="clear"></div>
 	</div>
 	<div class="delim"></div>
 [/bkvar]
@@ -29,8 +39,8 @@
 
 [bkvar=more]
 	<div id="bk-bg-topbody-{v#id}" class="blog-readmore">
-		<a href="{v#ltop}">Читать дальше</a>
-		<span id="bk-bg-topload-c-{v#id}" style="display: none"> или <a id="bk-bg-topload-{v#id}" href="#">Открыть продолжение здесь</a></span>
+		<a href="{v#ltop}">{#brick.topiclist.3}</a>
+		<span id="bk-bg-topload-c-{v#id}" style="display: none"> {#brick.topiclist.4} <a id="bk-bg-topload-{v#id}" href="#">{#brick.topiclist.5}</a></span>
 	</div>
 [/bkvar]
 

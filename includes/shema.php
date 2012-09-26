@@ -4,7 +4,6 @@
  * @version $Id$
  * @package Abricos
  * @subpackage Blog
- * @copyright Copyright (C) 2008 Abricos All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * @author Alexander Kuzmin (roosit@abricos.org)
  */
@@ -15,22 +14,27 @@ $db = Abricos::$db;
 $pfx = $db->prefix;
 
 if ($updateManager->isInstall()){
+	
 	$db->query_write("
 		CREATE TABLE `".$pfx."bg_cat` (
 			`catid` INTEGER(10) UNSIGNED NOT NULL AUTO_INCREMENT,
 			`parentcatid` INTEGER(10) UNSIGNED NOT NULL DEFAULT '0',
+			`language` CHAR(2) NOT NULL DEFAULT '' COMMENT 'Язык',
 			`name` VARCHAR(150) NOT NULL,
 			`phrase` VARCHAR(250) NOT NULL,
 			PRIMARY KEY (`catid`),
 			KEY `parentcatid` (`parentcatid`))
 		". $charset);
+	
 	$db->query_write("
 		CREATE TABLE `".$pfx."bg_tag` (
 			`tagid` INTEGER(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+			`language` CHAR(2) NOT NULL DEFAULT '' COMMENT 'Язык',
 			`name` VARCHAR(50) NOT NULL,
 			`phrase` VARCHAR(100) NOT NULL,
 			PRIMARY KEY (`tagid`))
 		". $charset);
+	
 	$db->query_write("
 		CREATE TABLE `".$pfx."bg_topcat` (
 			`topcat` INTEGER(10) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -38,9 +42,11 @@ if ($updateManager->isInstall()){
 			`topicid` INTEGER(10) UNSIGNED NOT NULL,
 			PRIMARY KEY (`topcat`)) 
 		". $charset);
+	
 	$db->query_write("
 		CREATE TABLE `".$pfx."bg_topic` (
 			`topicid` INTEGER(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+			`language` CHAR(2) NOT NULL DEFAULT '' COMMENT 'Язык',
 			`name` VARCHAR(250) NOT NULL,
 			`title` VARCHAR(250) NOT NULL,
 			`metadesc` VARCHAR( 250 ) NOT NULL DEFAULT '',
@@ -55,7 +61,8 @@ if ($updateManager->isInstall()){
 			`status` INTEGER(2) NOT NULL DEFAULT '0',
 			`deldate` INTEGER(10) UNSIGNED NOT NULL DEFAULT '0',
 			PRIMARY KEY (`topicid`), KEY `name` (`name`)) 
-		". $charset);
+	". $charset);
+	
 	$db->query_write("
 		CREATE TABLE `".$pfx."bg_toptag` (
 			`toptagid` INTEGER(10) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -68,6 +75,67 @@ if ($updateManager->isInstall()){
 
 if ($updateManager->isUpdate('0.4.1')){
 	Abricos::GetModule('blog')->permission->Install();
+}
+
+if ($updateManager->isUpdate('0.4.4') && !$updateManager->isInstall()){
+	
+	$db->query_write("
+		ALTER TABLE ".$pfx."bg_cat
+		ADD `language` CHAR(2) NOT NULL DEFAULT '' COMMENT 'Язык'
+	");
+	$db->query_write("UPDATE ".$pfx."bg_cat SET language='ru'");
+	
+	$db->query_write("
+		ALTER TABLE ".$pfx."bg_tag
+		ADD `language` CHAR(2) NOT NULL DEFAULT '' COMMENT 'Язык'
+	");
+	$db->query_write("UPDATE ".$pfx."bg_tag SET language='ru'");
+	
+	$db->query_write("
+		ALTER TABLE ".$pfx."bg_topic
+		ADD `language` CHAR(2) NOT NULL DEFAULT '' COMMENT 'Язык'
+	");
+	$db->query_write("UPDATE ".$pfx."bg_topic SET language='ru'");
+}
+
+
+// Рассылка уведомлений
+if ($updateManager->isUpdate('0.4.4.1')){
+
+	$db->query_write("
+		ALTER TABLE ".$pfx."bg_cat
+		ADD `grouplist` varchar(250) NOT NULL DEFAULT '' COMMENT 'Группы пользователей рассылки, идент. через запятую'
+	");
+
+	$db->query_write("
+		ALTER TABLE ".$pfx."bg_topic
+		ADD `scblastuserid` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Идентификатор пользователя получивший уведомление',
+		ADD `scbcomplete` tinyint(1) unsigned NOT NULL DEFAULT 0 COMMENT '1-рассылка закончена'
+	");
+	// по существующим рассылку делать не нужно
+	$db->query_write("UPDATE ".$pfx."bg_topic SET scbcomplete=1");
+	
+	// отписка пользователя от всех рассылок в блоге
+	$db->query_write("
+		CREATE TABLE `".$pfx."bg_scbunset` (
+		`userid` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Пользователь',
+		`dateline` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата отписки',
+		PRIMARY KEY (`userid`) 
+	)". $charset);
+	
+	// подписка пользователя на новые записи в блоге
+	$db->query_write("
+		CREATE TABLE `".$pfx."bg_scbblog` (
+		  `catid` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Блог',
+		  `userid` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Пользователь',
+		  `pubkey` char(32) NOT NULL DEFAULT '' COMMENT 'Ключ отписки',
+		  
+		  `scboff` tinyint(1) unsigned NOT NULL DEFAULT 0 COMMENT '1-рассылка отключена',
+		  `scbcustom` tinyint(1) unsigned NOT NULL DEFAULT 0 COMMENT '1-пользователь сам подписался',
+			
+		UNIQUE KEY `blog` (`userid`,`catid`)
+	)". $charset);
+	
 }
 
 ?>

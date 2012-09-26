@@ -13,6 +13,9 @@ $brick = Brick::$builder->brick;
 $module = BlogModule::$instance;
 $manager = $module->GetManager();
 
+$modUProfile = Abricos::GetModule('uprofile');
+$isUProfileExist = !empty($modUProfile);
+
 $baseUrl = "/".$module->takelink."/";
 
 $showCount = 0;
@@ -26,6 +29,8 @@ while (($row = Abricos::$db->fetch_array($rows))){
 	}
 	$showCount++;
 	$lst .= Brick::ReplaceVarByData($brick->param->var['row'], array(
+		"usrsrc" => ($isUProfileExist ? '/uprofile/#app=uprofile/ws/showws/'.$row['uid'].'/' : '#'),
+		"uid" => $row['uid'],
 		"unm" => $row['unm'],
 		"catnm" => $row['catph'],
 		"topnm" => $row['title'], 
