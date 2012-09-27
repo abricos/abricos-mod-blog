@@ -19,5 +19,11 @@ Brick.util.Language.add('en',{'mod': {'{C#MODNAME}':{
 			'4': 'Save',
 			'5': 'Cancel'
 		}
+	},
+	'category': {
+		'cateditorpanel': {
+			'1': 'Blog Link',
+			'2': 'Send notifications of new posts in the blog for the following groups of users'
+		}
 	}
 }}});

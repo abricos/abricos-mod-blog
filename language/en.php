@@ -51,7 +51,6 @@ return array(
 	The message was sent to your {v#email} 
 </p>
 ",
-			
 			"3" => "Answer to your comment on post \"{v#tl}\"",
 			"4" => "<p><b>{v#unm}</b> replied to your comment to post \"<a href='{v#tpclnk}'>{v#tl}</a>\":</p>
 	<blockquote>{v#cmt1}</blockquote><br />
@@ -61,7 +60,25 @@ return array(
 <p style='font-size:10px;font-family: tahoma, verdana, arial, sans-serif;color:#999999;'>
 	The message was sent to your {v#email} 
 </p>
-				"
+				",
+			"5" => "A new topic in blog «{v#tl}»",
+			"6" => "<p>
+		User <b>{v#unm}</b> published in blog «{v#blog}» new topic - <a href='{v#tlnk}'>{v#topic}</a>
+	</p>
+	
+	<p>Best regards,<br />
+	 {v#sitename}</p>
+	 
+	 <p style=\"font-size:11px;font-family: tahoma, verdana, arial, sans-serif;color:#999999;\">
+	 	The message was sent to your email {v#email}
+		<br /> 
+		You subscribed to the new blog posts «{v#blog}»
+		<br /> 
+		<a href='{v#unlnkall}' style=\"color:#3b5998;text-decoration:none;\">Unsubscribe all posts</a> 
+		<br /> 
+		<a href='{v#unlnkallblog}' style=\"color:#3b5998;text-decoration:none;\">Unsubscribe from blog «{v#blog}»</a> 
+	</p>
+	 "
 		)
 ,
 		'topic' => array(

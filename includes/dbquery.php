@@ -812,6 +812,8 @@ class BlogQuery {
 	public static function SubscribeUserList(Ab_Database $db, $catid, $gps, $lastUserId, $limit = 100){
 		if (count($gps) == 0){ return; }
 		
+		$modAntibot = Abricos::GetModule('antibot'); 
+		
 		$aw = array();
 		for ($i=0; $i<count($gps); $i++){
 			array_push($aw, "g.groupid=".bkint($gps[$i]));
@@ -833,7 +835,8 @@ class BlogQuery {
 			INNER JOIN ".$db->prefix."user u ON ug.userid = u.userid
 			LEFT JOIN ".$db->prefix."bg_scbblog s ON u.userid=s.userid AND s.catid=".bkint($catid)."
 			LEFT JOIN ".$db->prefix."bg_scbunset s2 ON u.userid=s2.userid
-			WHERE u.email <> '' AND (".implode(" OR ", $aw).") AND u.userid>".bkint($lastUserId)."
+			WHERE u.language='".Abricos::$LNG."' AND u.email <> '' AND (".implode(" OR ", $aw).") AND u.userid>".bkint($lastUserId)."
+			".(!empty($modAntibot) ? " AND u.antibotdetect=0" : "")."
 			ORDER BY u.userid
 			LIMIT ".bkint($limit)."
 		";

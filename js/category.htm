@@ -1,5 +1,4 @@
-<!--{catlistpanel}-->
-<div class='hd'>{#mod.blog.manager.catlistpanel.1}</div>
+<!--{catlistpanel}--><div class='hd'>{#mod.blog.manager.catlistpanel.1}</div>
 <div class='bd aw-blog'>
 	<div class="catlist">
 		<input id="{i#category}" class="cat" readonly type="text" />
@@ -19,19 +18,13 @@
 		</table>
 	</div>
 </div>
-
-<!--{catlisttable}-->
-<table class="bk-table-def" id="{i#table}">
+<!--{catlisttable}--><table class="bk-table-def" id="{i#table}">
 	<tbody>{v#rows}</tbody>
 </table>
-
-<!--{catlistrowwait}-->
-<tr valign="top">
+<!--{catlistrowwait}--><tr valign="top">
 	<td colspan="3">{#mod.blog.manager.catlistrowwait.1}</td>
 </tr>
-
-<!--{catlistrow}-->
-<tr>
+<!--{catlistrow}--><tr>
 	<td id="{i#td1}-{v#id}" class="tl">{v#ph}</td>
 	<td id="{i#td2}-{v#id}" class="ed">
 		<a href="#" id="{i#edit}-{v#id}" style="display: {v#viewedit}">{#mod.blog.manager.catlistrow.1}</a>
@@ -40,9 +33,7 @@
 		<a href="#" id="{i#del}-{v#id}" style="display: {v#viewremove}">{#mod.blog.manager.catlistrow.2}</a>
 	</td>
 </tr>
-
-<!--{cateditorpanel}-->
-<div class='hd'>{#mod.blog.manager.cateditorpanel.1}</div>
+<!--{cateditorpanel}--><div class='hd'>{#mod.blog.manager.cateditorpanel.1}</div>
 <div class='bd aw-blog'>
 	<div class="catedit">
 		<div class="f">
@@ -51,13 +42,13 @@
 				<input id="{i#phrase}" type="text" onfocus="this.select();" /> 
 			</div>
 			<div class="r">
-				<span>Страниц блога</span> (<span id="{i#url}"></span>):
+				<span>{#mod.blog.category.cateditorpanel.1}</span> (<span id="{i#url}"></span>):
 				<input id="{i#name}" type="text" onfocus="this.select();"/>
 			</div>
 		</div>
 		<div class="g">
 			<span id="{i#dsc}">
-				Рассылать уведомления о новых записях в блоге по следующим группам пользователей:
+				{#mod.blog.category.cateditorpanel.2}:
 			</span>
 			<div id="{i#group}"></div>
 		</div>

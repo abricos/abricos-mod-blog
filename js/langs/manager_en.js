@@ -38,7 +38,8 @@ Brick.util.Language.add('en',{'mod': {'{C#MODNAME}':{
 			'4': 'Cancel',
 			'5': 'Title',
 			'6': 'Anons',
-			'7': 'Tags (keywords separated by comma)'
+			'7': 'Tags (keywords separated by comma)',
+			'8': 'Body'
 		},
 		'btnpub': {
 			'1': 'Publish'
