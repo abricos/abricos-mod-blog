@@ -36,7 +36,7 @@ class BlogQueryApp {
 				t.deldate=0 
 				AND t.status=1 
 				".($topicid > 0 ? " AND topicid=".bkint($topicid) : "")." 
-				AND language='".bkstr(Abricos::$LNG)."'
+				AND t.language='".bkstr(Abricos::$LNG)."'
 			ORDER BY t.datepub DESC
 			LIMIT ".$from.",".bkint($limit)."
 		";
