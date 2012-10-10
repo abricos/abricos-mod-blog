@@ -258,9 +258,9 @@ class BlogManager extends Ab_ModuleManager {
 		return $d->id;
 	}
 	
-	public function SubscribeTopicCheck($sendlimit = 10){
+	public function SubscribeTopicCheck($sendlimit = 25){
 
-		$cfgSPL = intval(Abricos::$config['blog']['sendPacketLimit']);
+		$cfgSPL = intval(Abricos::$config['module']['blog']['subscribeSendLimit']);
 		if ($cfgSPL > 0){
 			$sendlimit = $cfgSPL;
 		}

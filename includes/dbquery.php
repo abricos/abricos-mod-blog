@@ -809,7 +809,7 @@ class BlogQuery {
 		$db->query_write($sql);
 	}
 	
-	public static function SubscribeUserList(Ab_Database $db, $catid, $gps, $lastUserId, $limit = 100){
+	public static function SubscribeUserList(Ab_Database $db, $catid, $gps, $lastUserId, $limit = 25){
 		if (count($gps) == 0){ return; }
 		
 		$modAntibot = Abricos::GetModule('antibot'); 
