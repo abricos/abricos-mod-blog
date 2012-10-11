@@ -31,18 +31,25 @@ $tagid = 0;
 $baseUrl = "/".$mod->takelink."/";
 require_once 'dbquery.php';
 
+$site_name = Brick::$builder->phrase->Get('sys', 'site_name');
+
 $lst = "";
 $title = "";
 if (!empty($category)){
 	$baseUrl .= $category."/";
 	$catInfo = BlogQuery::CategoryByName(Abricos::$db, $category); 
 	$title = $catInfo['phrase'];
+	
+	Brick::$builder->SetGlobalVar('meta_title', $title." / ".$site_name);
+	$lst = Brick::ReplaceVar($brick->param->var['h1'], "c", $taginfo['phrase']);
+	
 }else if (!empty($tag)){
 	$baseUrl .= $tag."/";
 	$taginfo = BlogQuery::Tag(Abricos::$db, $tag);
 	$title = $taginfo['phrase'];
 	$tagid = $taginfo['tagid'];
 	
+	Brick::$builder->SetGlobalVar('meta_title', $title." / ".$site_name);
 	$lst = Brick::ReplaceVar($brick->param->var['h1'], "c", $taginfo['phrase']);
 }
 
