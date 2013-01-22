@@ -1,6 +1,12 @@
-<!--{list}--><div id="{i#id}" class="topiclist">
+<!--{list}-->
+<div id="{i#id}" class="topiclist">
+
+	<div id="{i#loading}" class="loading">
+		<img src="/images/loading.gif" /> Идет загрузка данных <br /> Пожалуйста, подождите...
+	</div>
+
 	<div id="{i#list}"></div>
-	<div class="loadmore" id="{i#loadmore}">
+	<div class="loadmore" id="{i#loadmore}" style="display: none">
 		<img src="/images/loading.gif" />
 	</div>
 </div>
@@ -31,6 +37,7 @@
 	</div>
 	<div id="{i#comments}" class="comments"></div>
 </div>
+
 <!--{view}--><div class='hd'>{#mod.blog.topiclist.view.1}</div>
 <div class='bd aw-blog'>
 

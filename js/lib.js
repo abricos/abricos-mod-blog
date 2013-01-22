@@ -272,7 +272,6 @@ Component.entryPoint = function(NS){
 	NS.BlogManager = BlogManager;
 	NS.blogManager = null;
 	
-	
 	NS.buildBlogManager = function(callback){
 		if (!L.isNull(NS.blogManager)){
 			callback(NS.blogManager);
@@ -288,21 +287,56 @@ Component.entryPoint = function(NS){
 			});
 		});
 	};
+
 	
-	
-	var GlobalMenuWidget = function(container, page){
-		this.init(container, page);
+
+	var Manager = function (callback){
+		this.init(callback);
 	};
-	GlobalMenuWidget.prototype = {
-		init: function(container, page){
-			buildTemplate(this, 'gbmenu');
+	Manager.prototype = {
+		init: function(callback){
+			NS.manager = this;
 			
-			container.innerHTML = this._TM.replace('gbmenu', {
-				'topiclist': page == 'topiclist' ? 'current' : '',
-				'comments': page == 'comments' ? 'current' : ''
+			this.users = Brick.mod.uprofile.viewer.users;
+			
+			var __self = this;
+			R.load(function(){
+				NS.life(callback, __self);
+			});
+		},
+		ajax: function(data, callback){
+			data = data || {};
+
+			Brick.ajax('{C#MODNAME}', {
+				'data': data,
+				'event': function(request){
+					NS.life(callback, request.data);
+				}
+			});
+		},
+		topicListLoad: function(callback, cfg){
+			cfg = L.merge({
+				'catid': 0,
+				'page': 1
+			}, cfg || {});
+			
+			this.ajax({}, function(d){
+				var list = new TopicList(d);
+				
+				NS.life(callback, list);
 			});
 		}
 	};
-	NS.GlobalMenuWidget = GlobalMenuWidget;
+	NS.manager = null;
+	
+	NS.initManager = function(callback){
+		if (L.isNull(NS.manager)){
+			NS.manager = new Manager(callback);
+		}else{
+			NS.life(callback, NS.manager);
+		}
+	};
+	
+	
 	
 };

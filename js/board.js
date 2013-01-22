@@ -60,6 +60,23 @@ Component.entryPoint = function(NS){
 	});
 	NS.BoardPanel = BoardPanel;
 	
+	
+	
+	var GlobalMenuWidget = function(container, page){
+		this.init(container, page);
+	};
+	GlobalMenuWidget.prototype = {
+		init: function(container, page){
+			buildTemplate(this, 'gbmenu');
+			
+			container.innerHTML = this._TM.replace('gbmenu', {
+				'topiclist': page == 'topiclist' ? 'current' : '',
+				'comments': page == 'comments' ? 'current' : ''
+			});
+		}
+	};
+	NS.GlobalMenuWidget = GlobalMenuWidget;	
+	
 	var activeBoardPanel = null;
 	NS.API.showBoardPanel = function(){
 		if (L.isNull(activeBoardPanel) || activeBoardPanel.isDestroy()){

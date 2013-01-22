@@ -1,31 +1,7 @@
-.clear { clear: both;}
-.aw-blog .gbmenu a {
-	text-decoration: none;
-	font-size: 1.2em;
-	color: #000;
-}
-.aw-blog .gbmenu .gbitems {
-	margin-left: 10px;
-}
-.aw-blog .gbmenu .gbitem {
-	background-color: #F4F4EE;
+.aw-blog .clear { clear: both;}
+.aw-blog .loading,
+.aw-blog .nullitem { 
 	text-align: center;
-	width: 100px;
-	cursor: pointer;
-	float: left;
-	margin: 0 1px;
-	padding: 5px 15px; 
+	padding: 70px 0; 
 }
-.aw-blog .gbmenu .gbitem:hover {
-	text-decoration: underline;	
-}
-.aw-blog .gbmenu .current {
-	background-color: #E3E3D7;
-}
-.aw-blog .gbmenu .current:hover {
-	text-decoration: none;	
-}
-.aw-blog .gbmenu .line {
-    background: url("/modules/blog/images/gmshadow.png") repeat-x scroll 0 0 transparent;
-	height: 16px;
-}
+

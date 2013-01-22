@@ -91,7 +91,6 @@ Component.entryPoint = function(NS){
 	
 	
 	var TopicListWidget = function(container, catid){
-		
 		TopicListWidget.superclass.constructor.call(this, container, {
 			'buildTemplate': buildTemplate, 'tnames': 'list,row' 
 		}, catid || 0);
@@ -101,39 +100,38 @@ Component.entryPoint = function(NS){
 			this.catid = 0;
 			this.topics = [];
 			
+			this.wsList = [];
 		},
 		onLoad: function(catid){
 			var __self = this;
 			NS.buildBlogManager(function(){
 				__self.loadPage(catid, 0);
 			});
-			
 		},
 		destroy: function(){
 			this.clear();
 		},
 		clear: function(){
-			for (var i=0;i<this.topics.length;i++){
-				this.topics[i].destroy();
+			var ws = this.wsList;
+			for (var i=0;i<ws.length;i++){
+				ws[i].destroy();
 			}
 			this.elSetHTML('list', '');
 		},
 		loadPage: function(catid, inc){
-			this.catid = catid = catid || 0; inc = inc || 0;
-			
-			// отобразить прогруженные
-			this.renderList();
+			this.catid = catid = catid || 0; 
+			inc = inc || 0;
 			
 			var __self = this;
 			
-			this.elShow('loadmore');
+			this.elShow('loading');
 			NS.blogManager.loadPage(catid, inc, function(){
 				__self.renderList();
 			});
 		},
 		renderList: function(){
-			this.elHide('loadmore');
 			this.clear();
+			this.elHide('loading');
 			
 			var TM = this._TM, TId = this._TId,
 				lst = "";
@@ -174,7 +172,6 @@ Component.entryPoint = function(NS){
 			var TM = this._TM, __self = this, topicid = this.topicid;
 
 			this.topicWidget = null;
-			this.globalMenu = new NS.GlobalMenuWidget(TM.getEl('view.gmenu'), 'view');
 			
 			NS.buildBlogManager(function(){
 				NS.blogManager.topicLoad(topicid, function(topic){
