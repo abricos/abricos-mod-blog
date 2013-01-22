@@ -1,14 +1,12 @@
 <?php
 /**
- * @version $Id$
  * @package Abricos
  * @subpackage
- * @copyright Copyright (C) 2008 Abricos. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * @author Alexander Kuzmin (roosit@abricos.org)
  */
 
-require_once 'dbquery.php';
+require_once 'classes.php';
 
 class BlogManager extends Ab_ModuleManager {
 	
@@ -56,6 +54,65 @@ class BlogManager extends Ab_ModuleManager {
 	
 	public function AJAX($d){
 
+		switch($d->do){
+			case "topiclist": 
+				return $this->TopicList();
+		}
+
+		// TODO: Удалить
+		return $this->AJAX_MethodToRemove($d);
+	}
+	
+	public function ToArray($rows, &$ids1 = "", $fnids1 = 'uid', &$ids2 = "", $fnids2 = '', &$ids3 = "", $fnids3 = ''){
+		$ret = array();
+		while (($row = $this->db->fetch_array($rows))){
+			array_push($ret, $row);
+			if (is_array($ids1)){
+				$ids1[$row[$fnids1]] = $row[$fnids1];
+			}
+			if (is_array($ids2)){
+				$ids2[$row[$fnids2]] = $row[$fnids2];
+			}
+			if (is_array($ids3)){
+				$ids3[$row[$fnids3]] = $row[$fnids3];
+			}
+		}
+		return $ret;
+	}
+	
+	public function ToArrayId($rows, $field = "id"){
+		$ret = array();
+		while (($row = $this->db->fetch_array($rows))){
+			$ret[$row[$field]] = $row;
+		}
+		return $ret;
+	}
+	
+	
+	/**
+	 * Список записей блога
+	 * 
+	 * @param object $cfg параметры списка
+	 * @return TopicList
+	 */
+	public function TopicList($cfg){
+		if (!is_object($cfg)){
+			$cfg = new stdClass();
+		}
+		
+	}
+	
+	
+	
+	
+	
+	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+	/*                  МЕТОДЫ НА УДАЛЕНИЕ/ПЕРЕРАБОТКУ               */
+	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+	// TODO: Удалить
+	
+	public function AJAX_MethodToRemove($d){
+		// старая версия, на переработку
 		if ($d->type == 'topic'){
 			switch($d->do){
 				case "save": return $this->TopicSave($d->data);
@@ -63,12 +120,12 @@ class BlogManager extends Ab_ModuleManager {
 				case "restore": return $this->TopicRestore($d->id);
 				case "publish": return $this->TopicPublish($d->id);
 				case "rclear": return $this->TopicRecycleClear();
-				default: return $this->Topic($d->id); 
+				default: return $this->Topic($d->id);
 			}
 		}else if ($d->type == 'category'){
 			switch($d->do){
 				case "save": return $this->CategorySave($d->data);
-				default: return $this->Category($d->id); 
+				default: return $this->Category($d->id);
 			}
 		}else {
 			switch($d->do){
@@ -78,6 +135,7 @@ class BlogManager extends Ab_ModuleManager {
 		}
 		return -1;
 	}
+	
 	
 	public function DSProcess($name, $rows){
 		$p = $rows->p;
@@ -104,7 +162,7 @@ class BlogManager extends Ab_ModuleManager {
 				return $this->CategoryList();
 			
 			case 'topiclist':
-				return $this->TopicList($p->page, $p->limit);
+				return $this->TopicList_methodToRemove($p->page, $p->limit);
 				
 			case 'topiclistcount':
 				$ret = array();
@@ -119,30 +177,6 @@ class BlogManager extends Ab_ModuleManager {
 	}
 	
 	
-	public function ToArray($rows, &$ids1 = "", $fnids1 = 'uid', &$ids2 = "", $fnids2 = '', &$ids3 = "", $fnids3 = ''){
-		$ret = array();
-		while (($row = $this->db->fetch_array($rows))){
-			array_push($ret, $row);
-			if (is_array($ids1)){
-				$ids1[$row[$fnids1]] = $row[$fnids1];
-			}
-			if (is_array($ids2)){
-				$ids2[$row[$fnids2]] = $row[$fnids2];
-			}
-			if (is_array($ids3)){
-				$ids3[$row[$fnids3]] = $row[$fnids3];
-			}
-		}
-		return $ret;
-	}
-	
-	public function ToArrayId($rows, $field = "id"){
-		$ret = array();
-		while (($row = $this->db->fetch_array($rows))){
-			$ret[$row[$field]] = $row;
-		}
-		return $ret;
-	}
 	
 	public function Bos_OnlineData(){
 		return $this->BoardInit(5);
@@ -417,7 +451,7 @@ class BlogManager extends Ab_ModuleManager {
 	 * @param integer $page
 	 * @param integer $total
 	 */
-	public function TopicList($page, $total){
+	public function TopicList_methodToRemove($page, $total){
 		if (!$this->IsWriteRole()){ return null; }
 		
 		// отправить сообщения рассылки из очереди (подобие крона)
