@@ -19,19 +19,21 @@ Component.entryPoint = function(NS){
 	
 	var buildTemplate = this.buildTemplate;
 	
+	
 	var TopicWidget = function(container, topic, cfg){
 		cfg = L.merge({
 			'fullview': false
 		}, cfg || {});
-		this.init(container, topic, cfg);
+		TopicWidget.superclass.constructor.call(this, container, {
+			'buildTemplate': buildTemplate, 'tnames': 'topic' 
+		}, topic, cfg);
 	};
-	TopicWidget.prototype = {
-		init: function(container, topic, cfg){
+	YAHOO.extend(TopicWidget, Brick.mod.widget.Widget, {
+		init: function(topic, cfg){
 			this.topic = topic;
-			
-			var cat = NS.blogManager.categoryList.get(topic.catid);
-			buildTemplate(this, 'topic');
-			var TM = this._TM,
+		},
+		buildTData: function(topic, cfg){
+			var cat = NS.blogManager.categoryList.get(topic.catid),
 				user = topic.user;
 			
 			var r = {
@@ -53,15 +55,22 @@ Component.entryPoint = function(NS){
 				r['body'] = topic.body;
 			}
 			
-			container.innerHTML = TM.replace('topic', r);
+			return r;
+		},
+		destroy: function(){
+			this.tagsWidget.destroy();
+		},
+		onLoad: function(topic, cfg){
 			
-			this.tagsWidget = new NS.TopicTagListWidget(TM.getEl('topic.tags'), topic);
+			var __self = this;
+			
+			this.tagsWidget = new NS.TopicTagListWidget(this.gel('tags'), topic);
 			
 			if (cfg.fullview){
 				// Инициализировать менеджер комментариев
 				Brick.ff('comment', 'comment', function(){
 					Brick.mod.comment.API.buildCommentTree({
-						'container': TM.getEl('topic.comments'),
+						'container': __self.gel('comments'),
 						'dbContentId': topic.contentid,
 						'config': {
 							'onLoadComments': function(){
@@ -76,32 +85,29 @@ Component.entryPoint = function(NS){
 					});
 				});
 			}
-		},
-		destroy: function(){
-			this.tagsWidget.destroy();
-			var el = this._TM.getEl('topic.id');
-			el.parentNode.removeChild(el);
 		}
-	};
+	});
 	NS.TopicWidget = TopicWidget;
-
+	
+	
 	var TopicListWidget = function(container, catid){
-		this.init(container, catid || 0);
+		
+		TopicListWidget.superclass.constructor.call(this, container, {
+			'buildTemplate': buildTemplate, 'tnames': 'list,row' 
+		}, catid || 0);
 	};
-	TopicListWidget.prototype = {
-		init: function(container, catid){
-			
+	YAHOO.extend(TopicListWidget, Brick.mod.widget.Widget, {
+		init: function(catid){
 			this.catid = 0;
 			this.topics = [];
 			
-			buildTemplate(this, 'list,row');
-			
-			container.innerHTML = this._TM.replace('list');
-
+		},
+		onLoad: function(catid){
 			var __self = this;
 			NS.buildBlogManager(function(){
 				__self.loadPage(catid, 0);
 			});
+			
 		},
 		destroy: function(){
 			this.clear();
@@ -110,38 +116,32 @@ Component.entryPoint = function(NS){
 			for (var i=0;i<this.topics.length;i++){
 				this.topics[i].destroy();
 			}
-			this._TM.getEl('list.list').innerHTML = '';
+			this.elSetHTML('list', '');
 		},
 		loadPage: function(catid, inc){
 			this.catid = catid = catid || 0; inc = inc || 0;
 			
-			var bm = NS.blogManager;
-
 			// отобразить прогруженные
-			this.render();
+			this.renderList();
 			
-			var __self = this,
-				TM = this._TM,
-				elLoadMore = TM.getEl('list.loadmore');
+			var __self = this;
 			
-			Dom.setStyle(elLoadMore, 'display', '');
-			bm.loadPage(catid, inc, function(){
-				Dom.setStyle(elLoadMore, 'display', 'none');
-				__self.render();
+			this.elShow('loadmore');
+			NS.blogManager.loadPage(catid, inc, function(){
+				__self.renderList();
 			});
 		},
-		render: function(){
-			
+		renderList: function(){
+			this.elHide('loadmore');
 			this.clear();
 			
 			var TM = this._TM, TId = this._TId,
 				lst = "";
 			
 			NS.blogManager.foreach(function(top){
-				Brick.console(top);
 				lst += TM.replace('row', {'id': top.id});
 			}, this.catid);
-			TM.getEl('list.list').innerHTML = lst;
+			this.elSetHTML('list', lst);
 
 			var topics = [];
 			NS.blogManager.foreach(function(top){
@@ -150,9 +150,10 @@ Component.entryPoint = function(NS){
 			});
 			this.topics = topics;
 		}
-		
-	};
+				
+	});
 	NS.TopicListWidget = TopicListWidget;
+	
 	
 	var TopicViewPanel = function(topicid, anchor){
 		this.topicid = topicid || 0;
@@ -215,5 +216,5 @@ Component.entryPoint = function(NS){
 		}
 		return activePanel;
 	};
-	
+	/**/
 };

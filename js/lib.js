@@ -29,6 +29,26 @@ Component.entryPoint = function(NS){
 	NS.Item = SysNS.Item;
 	NS.ItemList = SysNS.ItemList;
 	
+	var WS = "#app={C#MODNAMEURI}/wspace/ws/";
+	
+	NS.navigator = {
+		'home': function(){ return WS; }, 
+		'toplic': {
+			'list': function(){
+				return WS;
+			},
+			'view': function(topicid){
+				return WS+'/topiclist/TopicViewWidget/'+topicid+'/';
+			}
+		},
+		'about': function(){
+			return WS+'about/AboutWidget/';
+		},
+		'go': function(url){
+			Brick.Page.reload(url);
+		}
+	};		
+	
 	var Tag = function(d){
 		d = L.merge({
 			'id': 0,

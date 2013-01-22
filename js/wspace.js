@@ -35,7 +35,6 @@ Component.entryPoint = function(NS){
 
 	var GMID = {
 		'HomeWidget': 'home',
-		'RaceWorkspaceWidget': 'race',
 		'AboutWidget': 'about'
 	};
 	GMIDI = {
@@ -64,10 +63,7 @@ Component.entryPoint = function(NS){
 			
 			var NG = NS.navigator;
 			return this._TM.replace('panel', {
-				/*
-				'urlhome': NG.home,
-				'urlabout': NG.about()
-				/**/
+				'urlhome': NG.home()
 			});
 		},
 		onLoad: function(){
