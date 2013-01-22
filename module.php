@@ -2,12 +2,10 @@
 /**
  * Модуль "Блог"
  * 
- * @version $Id$
  * @package Abricos
  * @subpackage Blog
- * @copyright Copyright (C) 2008 Abricos All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
- * @author Alexander Kuzmin (roosit@abricos.org)
+ * @author Alexander Kuzmin <roosit@abricos.org>
  */
 
 /**
@@ -16,7 +14,6 @@
  * @subpackage Blog
  */
 class BlogModule extends Ab_Module {
-	
 
 	/**
 	 * @var BlogModule
@@ -35,7 +32,7 @@ class BlogModule extends Ab_Module {
 	
 	public function BlogModule(){
 		// версия модуля
-		$this->version = "0.4.4.2";
+		$this->version = "0.5";
 
 		// имя модуля 
 		$this->name = "blog";

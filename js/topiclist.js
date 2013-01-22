@@ -1,7 +1,5 @@
 /*
-@version $Id$
 @package Abricos
-@copyright Copyright (C) 2008 Abricos All rights reserved.
 @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 */
 
@@ -13,26 +11,13 @@ Component.requires = {
         {name: 'blog', files: ['taglist.js']}
 	]
 };
-Component.entryPoint = function(){
+Component.entryPoint = function(NS){
 	
 	var Dom = YAHOO.util.Dom,
 		E = YAHOO.util.Event,
 		L = YAHOO.lang;
 	
-	var NS = this.namespace, 
-		TMG = this.template,
-		API = NS.API,
-		R = NS.roles;
-
-	var initCSS = false,
-		buildTemplate = function(w, ts){
-		if (!initCSS){
-			Brick.util.CSS.update(Brick.util.CSS['blog']['topiclist']);
-			delete Brick.util.CSS['blog']['topiclist'];
-			initCSS = true;
-		}
-		w._TM = TMG.build(ts); w._T = w._TM.data; w._TId = w._TM.idManager;
-	};
+	var buildTemplate = this.buildTemplate;
 	
 	var TopicWidget = function(container, topic, cfg){
 		cfg = L.merge({
@@ -113,7 +98,10 @@ Component.entryPoint = function(){
 			
 			container.innerHTML = this._TM.replace('list');
 
-			this.loadPage(catid, 0);
+			var __self = this;
+			NS.buildBlogManager(function(){
+				__self.loadPage(catid, 0);
+			});
 		},
 		destroy: function(){
 			this.clear();
@@ -150,6 +138,7 @@ Component.entryPoint = function(){
 				lst = "";
 			
 			NS.blogManager.foreach(function(top){
+				Brick.console(top);
 				lst += TM.replace('row', {'id': top.id});
 			}, this.catid);
 			TM.getEl('list.list').innerHTML = lst;
