@@ -18,15 +18,20 @@ class Topic {
 	public $id;
 	public $catid;
 	public $title;
-	public $userid;
+	public $authorid;
 	public $pubDate;
 	public $intro;
 	public $commentCount;
 	
-	public function __construct(BlogManager $manager, $d){
-		$this->manager = $manager;
+	public $tags = array();
+	
+	public function __construct($d){
+		$this->manager = BlogManager::$instance;
 		
-		$id = $d['id'];
+		$this->id		= $d['id'];
+		$this->title	= $d['tl'];
+		$this->authorid	= $d['uid'];
+		$this->intro	= $d['intro'];
 	}
 	
 	public function Extend(){
@@ -44,6 +49,8 @@ class Topic {
 		$ret = new stdClass();
 		$ret->id		= $this->id;
 		$ret->tl		= $this->title;
+		$ret->uid		= $this->authorid;
+		$ret->intro		= $this->intro;
 		return $ret;
 	}
 	
@@ -90,45 +97,51 @@ class TopicExtended extends Topic {
 
 class TopicList {
 	
-	public $topics = array();
+	public $topics;
+	public $users;
 	
-	public function __construct(){
-		
-		
+	public function __construct($topics, $users){
+		$this->topics = $topics;
+		$this->users = $users;
 	}
-	
-	/*
-	public function Update($rows){
-		$man = BlogManager::$instance;
-		$list = array();
-		while (($row = $man->db->fetch_array($rows))){
-			array_push($list, new Topic($man, $row));
-		}
-		$this->list = $list;
-	}
-	/**/
 	
 	public function ToAJAX(){
-		/*
-		$ret = array();
-		
-		for ($i=0;$i<count($this->list); $i++){
-			array_push($ret, $this->list[$i]->ToAJAX());
+		$ret = new stdClass();
+		$ret->topics = array();
+		for ($i=0;$i<count($this->topics); $i++){
+			array_push($ret->topics, $this->topics[$i]->ToAJAX());
 		}
+		$ret->users = $this->users;
 		return $ret;
-		/**/
 	}
 	
 }
 
 
 
-class Tag {
+class TopicTag {
+	public $id;
+	public $title;
+	public $name;
 	
+	public function __construct($d){
+		$this->id = $d['id'];
+		$this->title = $d['tl'];
+		$this->name = $d['nm'];
+	}
+	
+	public function ToAJAX(){
+		$ret = new stdClass();
+		$ret->id = $this->id;
+		$ret->tl = $this->tl;
+		$ret->nm = $this->name;
+		return $ret;
+	}
 }
 
 class Category {
 	
 }
+
 
 ?>

@@ -107,6 +107,12 @@ Component.entryPoint = function(NS){
 			NS.buildBlogManager(function(){
 				__self.loadPage(catid, 0);
 			});
+			
+			NS.initManager(function(){
+				NS.manager.topicListLoad(function(list){
+					
+				});
+			});
 		},
 		destroy: function(){
 			this.clear();

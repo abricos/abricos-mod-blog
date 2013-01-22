@@ -320,10 +320,15 @@ Component.entryPoint = function(NS){
 				'page': 1
 			}, cfg || {});
 			
-			this.ajax({}, function(d){
+			cfg['do'] = 'topiclist';
+			
+			this.ajax(cfg, function(d){
+				Brick.console(d);
+				/*
 				var list = new TopicList(d);
 				
 				NS.life(callback, list);
+				/**/
 			});
 		}
 	};

@@ -7,8 +7,107 @@
  */
 
 class BlogTopicQuery {
+
+	public static function TopicList(Ab_Database $db, $page, $limit){
+		$from = $limit * (max($page, 1) - 1);
+	
+		$sql = "
+			SELECT
+				t.topicid as id,
+				t.catid as catid,
+				cc.contentid as ctid,
+				t.title as tl,
+				t.intro as intro,
+				length(cc.body) as bdlen,
+				t.userid as uid,
+				(
+					SELECT count(cm.contentid) as cnt
+					FROM ".$db->prefix."cmt_comment cm
+					WHERE t.contentid = cm.contentid
+					GROUP by cm.contentid
+				) as cmt,
+				t.datepub as dl
+		
+			FROM ".$db->prefix."bg_topic t
+			LEFT JOIN ".$db->prefix."content cc ON t.contentid = cc.contentid
+			WHERE t.deldate=0 AND t.status=1 AND t.language='".bkstr(Abricos::$LNG)."'
+			ORDER BY t.datepub DESC
+			LIMIT ".$from.",".bkint($limit)."
+		";
+		return $db->query_read($sql);
+	}
+	
+	public static function TagListByTopicIds(Ab_Database $db, $tids){
+		if (!is_array($tids)){
+			$tids = array(intval($tids));
+		}
+		$awh = array();
+		for ($i=0; $i<count($tids); $i++){
+			array_push($awh, "tg.topicid=".bkint($tids[$i]));
+		}
+	
+		$sql = "
+			SELECT
+				DISTINCT
+				g.tagid as id,
+				g.phrase as tl,
+				g.name as nm
+			FROM ".$db->prefix."bg_toptag tg
+			INNER JOIN ".$db->prefix."bg_tag g ON tg.tagid = g.tagid
+			WHERE ".implode(" OR ", $awh)."
+		";
+		return $db->query_read($sql);
+	}
+
+	public static function TopicTagList(Ab_Database $db, $tids){
+		if (!is_array($tids)){
+			$tids = array(intval($tids));
+		}
+		$awh = array();
+		for ($i=0; $i<count($tids); $i++){
+			array_push($awh, "tg.topicid=".bkint($tids[$i]));
+		}
+	
+		$sql = "
+			SELECT
+				tg.topicid as tid,
+				tg.tagid as tgid
+			FROM ".$db->prefix."bg_toptag tg
+			WHERE ".implode(" OR ", $awh)."
+		";
+		return $db->query_read($sql);
+	}
+	
+	public static function UserList(Ab_Database $db, $uids){
+		if (!is_array($uids)){
+			$uids = array(intval($uids));
+		}
+		$awh = array();
+		for ($i=0; $i<count($uids); $i++){
+			array_push($awh, "u.userid=".bkint($uids[$i]));
+		}
+	
+		$sql = "
+			SELECT
+				DISTINCT
+				u.userid as id,
+				u.avatar as avt,
+				u.username as unm,
+				u.firstname as fnm,
+				u.lastname as lnm
+			FROM ".$db->prefix."user u
+			WHERE ".implode(" OR ", $awh)."
+		";
+		return $db->query_read($sql);
+	}
 	
 }
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+/*                  МЕТОДЫ НА УДАЛЕНИЕ/ПЕРЕРАБОТКУ               */
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+// TODO: Удалить
 
 
 /**

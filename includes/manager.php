@@ -3,7 +3,7 @@
  * @package Abricos
  * @subpackage
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
- * @author Alexander Kuzmin (roosit@abricos.org)
+ * @author Alexander Kuzmin <roosit@abricos.org>
  */
 
 require_once 'classes.php';
@@ -56,7 +56,7 @@ class BlogManager extends Ab_ModuleManager {
 
 		switch($d->do){
 			case "topiclist": 
-				return $this->TopicList();
+				return $this->TopicListToAJAX();
 		}
 
 		// TODO: Удалить
@@ -93,13 +93,60 @@ class BlogManager extends Ab_ModuleManager {
 	 * Список записей блога
 	 * 
 	 * @param object $cfg параметры списка
-	 * @return TopicList
+	 * @return array
 	 */
 	public function TopicList($cfg){
+		if (!$this->IsViewRole()){
+			return null;
+		}
 		if (!is_object($cfg)){
 			$cfg = new stdClass();
 		}
+		$cfg->page = max(intval($cfg->page), 1);
+		$cfg->limit = 15;
 		
+		$topics = array();
+		$tids = array();
+		$uids = array(); 
+		
+		$rows = BlogTopicQuery::TopicList($this->db, $cfg->page, $cfg->limit);
+		while (($row = $this->db->fetch_array($rows))){
+			$topic = new Topic($row);
+			array_push($topics, $topic);
+			array_push($tids, $topic->id);
+			array_push($uids, $topic->authorid);
+		}
+		
+		$rows = BlogTopicQuery::TopicTagList($this->db, $tids);
+		$toptags = $this->ToArray($rows);
+		
+		$rows = BlogTopicQuery::TagListByTopicIds($this->db, $tids);
+		$tags = $this->ToArrayId($rows);
+		
+		for ($i=0; $i<count($topics); $i++){
+			$topic = $topics[$i];
+			$tags = array();
+			for ($ii=0; $ii<count($toptags); $ii++){
+				$tt = $toptags[$ii];
+				if ($tt['tid'] == $topic->id){
+					array_push($tags, new TopicTag($tags[$tt['tgid']]));
+				}
+			}
+			$topic->tags = $tags;
+		}
+		
+		$rows = BlogTopicQuery::UserList($this->db, $uids);
+		$users = $this->ToArrayId($rows);
+		
+		return new TopicList($topics, $users);
+	}
+	
+	public function TopicListToAJAX($cfg){
+		$topicList = $this->TopicList($cfg);
+		if (is_null($topicList)){
+			return null;
+		}
+		return $topicList->ToAJAX();
 	}
 	
 	
