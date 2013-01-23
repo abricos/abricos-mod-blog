@@ -31,11 +31,49 @@
 	text-decoration: underline;
 }
 
-.aw-blog .topic .topicinfo {
-	border: 1px solid #E5E5E5;
-    clear: both;
-    font-family: Arial,sans-serif;
+/* * * * * * Информационный блок топика * * * * */
+.aw-blog .topicinfo {
+    font-family: Verdana,"Helvetica Neue",Helvetica,Arial,sans-serif;
     font-size: 0.9em;
+	color: #7B848D;
+}
+.aw-blog .topicinfo .tpinbox{
+	border: 1px solid #E5E5E5;
+	float: left;
+	padding-right: 17px;
+}
+.aw-blog .topicinfo .user,
+.aw-blog .topicinfo .date,
+.aw-blog .topicinfo .comments {
+	padding-left: 17px;
+	line-height: 30px;
+	float: left;
+}
+
+.aw-blog .topicinfo .user .avtr {
+	margin-top: 4px;
+	margin-right: 10px; 
+	
+}
+.aw-blog .topicinfo .user a {
+	float: left;
+	white-space: nowrap;
+}
+.aw-blog .topicinfo .user a,
+.aw-blog .topicinfo .comments a  {
+    color: #CC0000;
+}
+.aw-blog .topicinfo .comments a  {
+	background: url("/modules/blog/images/balloon-left.gif") no-repeat scroll 0 50%;
+	padding-left: 20px;
+}
+
+
+
+
+/*
+.aw-blog .topic .topicinfo {
+    clear: both;
     font-size-adjust: none;
     font-stretch: normal;
     font-style: normal;
@@ -57,8 +95,10 @@
     padding: 2px 2em 3px 21px;
 }
 .aw-blog .topic .topicinfo a.comments { 
-	 background: url("/modules/blog/images/balloon-left.gif") no-repeat scroll 0 50% #FFFFFF;
+	background: url("/modules/blog/images/balloon-left.gif") no-repeat scroll 0 50% #FFFFFF;
     color: #CC0000;
     cursor: pointer;
     padding: 2px 0 3px 21px;
 }
+/**/
+

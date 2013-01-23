@@ -88,42 +88,101 @@ Component.entryPoint = function(NS){
 		}
 	});
 	NS.TopicWidget = TopicWidget;
+
+	var TopicInfoLineWidget = function(container, topic, cfg){
+		
+		TopicInfoLineWidget.superclass.constructor.call(this, container, {
+			'buildTemplate': buildTemplate, 'tnames': 'info' 
+		}, topic);
+	};
+	YAHOO.extend(TopicInfoLineWidget, Brick.mod.widget.Widget, {
+		init: function(topic){
+			this.topic = topic;
+		},
+		buildTData: function(topic){
+			var user = NS.manager.users.get(topic.userid);
+			return {
+				'date': Brick.dateExt.convert(topic.date),
+				'uid': topic.userid,
+				'avatar': user.avatar24(),
+				'unm': user.getUserName(),
+				'cmt': topic.commentCount
+			};
+		}		
+	});
+	NS.TopicInfoLineWidget = TopicInfoLineWidget;
+	
+	
+	var TopicRowWidget = function(container, topic){
+		TopicRowWidget.superclass.constructor.call(this, container, {
+			'buildTemplate': buildTemplate, 'tnames': 'row' 
+		}, topic);
+	};
+	
+	YAHOO.extend(TopicRowWidget, Brick.mod.widget.Widget, {
+		init: function(topic){
+			this.topic = topic;
+		},
+		destroy: function(){
+			this.infoWidget.destroy();
+		},
+		onLoad: function(topic){
+			this.infoWidget = new NS.TopicInfoLineWidget(this.gel('info'), topic);
+			
+			// var cat = NS.blogManager.categoryList.get(topic.catid);
+
+			this.elSetHTML({
+				'intro': topic.intro,
+				'tl': topic.title
+			});
+		}
+	});
+	NS.TopicRowWidget = TopicRowWidget;
 	
 	
 	var TopicListWidget = function(container, catid){
 		TopicListWidget.superclass.constructor.call(this, container, {
-			'buildTemplate': buildTemplate, 'tnames': 'list,row' 
+			'buildTemplate': buildTemplate, 'tnames': 'widget' 
 		}, catid || 0);
 	};
 	YAHOO.extend(TopicListWidget, Brick.mod.widget.Widget, {
 		init: function(catid){
 			this.catid = 0;
-			this.topics = [];
-			
 			this.wsList = [];
 		},
 		onLoad: function(catid){
 			var __self = this;
-			NS.buildBlogManager(function(){
-				__self.loadPage(catid, 0);
-			});
-			
 			NS.initManager(function(){
 				NS.manager.topicListLoad(function(list){
-					
+					__self.renderList(list);
 				});
 			});
 		},
 		destroy: function(){
-			this.clear();
+			this.clearList();
 		},
-		clear: function(){
+		clearList: function(){
 			var ws = this.wsList;
 			for (var i=0;i<ws.length;i++){
 				ws[i].destroy();
 			}
 			this.elSetHTML('list', '');
 		},
+		
+		renderList: function(list){
+			this.clearList();
+			this.elHide('loading');
+			
+			var elList = this.gel('list');
+			var ws = this.wsList;
+
+			list.foreach(function(topic){
+				var div = document.createElement('div');
+				elList.appendChild(div);
+				ws[ws.length] = new NS.TopicRowWidget(div, topic);
+			});
+		}
+		/*
 		loadPage: function(catid, inc){
 			this.catid = catid = catid || 0; 
 			inc = inc || 0;
@@ -154,70 +213,8 @@ Component.entryPoint = function(NS){
 			});
 			this.topics = topics;
 		}
-				
+		/**/
 	});
 	NS.TopicListWidget = TopicListWidget;
-	
-	
-	var TopicViewPanel = function(topicid, anchor){
-		this.topicid = topicid || 0;
-		this.anchor = anchor;
-		
-		TopicViewPanel.superclass.constructor.call(this, {
-			fixedcenter: true, width: '790px', height: '400px',
-			overflow: false, 
-			controlbox: 1
-		});
-	};
-	YAHOO.extend(TopicViewPanel, Brick.widget.Panel, {
-		initTemplate: function(){
-			buildTemplate(this, 'view');
-			return this._TM.replace('view');
-		},
-		onLoad: function(){
-			var TM = this._TM, __self = this, topicid = this.topicid;
 
-			this.topicWidget = null;
-			
-			NS.buildBlogManager(function(){
-				NS.blogManager.topicLoad(topicid, function(topic){
-					__self.onBuildManager(topic);
-				});
-			});
-			
-		},
-		setTopicConfig: function(topicid, anchor){
-			this.topicid = topicid;
-			if (L.isNull(this.topicWidget)){ return; }
-			this.topicWidget.destroy();
-			var __self = this;
-			NS.blogManager.topicLoad(topicid, function(topic){
-				__self.onBuildManager(topic);
-			});
-		},
-		onBuildManager: function(topic){
-			var TM = this._TM;
-			this.topicWidget = new TopicWidget(TM.getEl('view.widget'), topic, {
-				'fullview': true
-			});
-		},
-		destroy: function(){
-			if (!L.isNull(this.topicWidget)){
-				this.topicWidget.destroy();
-			}
-			TopicViewPanel.superclass.destroy.call(this);
-		}
-	});
-	NS.TopicViewPanel = TopicViewPanel;
-	
-	var activePanel = null;
-	NS.API.showTopicViewPanel = function(topicid, anchor){
-		if (L.isNull(activePanel) || activePanel.isDestroy()){
-			activePanel = new TopicViewPanel(topicid, anchor);
-		}else{
-			activePanel.setTopicConfig(topicid, anchor);
-		}
-		return activePanel;
-	};
-	/**/
 };

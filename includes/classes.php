@@ -21,17 +21,24 @@ class Topic {
 	public $authorid;
 	public $pubDate;
 	public $intro;
+	public $bodyLength;
 	public $commentCount;
+	public $contentId;
 	
 	public $tags = array();
 	
 	public function __construct($d){
 		$this->manager = BlogManager::$instance;
 		
-		$this->id		= $d['id'];
-		$this->title	= $d['tl'];
-		$this->authorid	= $d['uid'];
-		$this->intro	= $d['intro'];
+		$this->id			= $d['id'];
+		$this->catid		= $d['catid'];
+		$this->title		= $d['tl'];
+		$this->authorid		= $d['uid'];
+		$this->intro		= $d['intro'];
+		$this->bodyLength	= $d['bdlen'];
+		$this->commentCount	= $d['cmt'];
+		$this->contentId	= $d['ctid'];
+		$this->pubDate		= $d['dl'];
 	}
 	
 	public function Extend(){
@@ -48,9 +55,19 @@ class Topic {
 	public function ToAJAX(){
 		$ret = new stdClass();
 		$ret->id		= $this->id;
+		$ret->catid		= $this->catid;
 		$ret->tl		= $this->title;
 		$ret->uid		= $this->authorid;
 		$ret->intro		= $this->intro;
+		$ret->bdlen		= $this->bodyLength;
+		$ret->cmt		= $this->commentCount;
+		$ret->ctid		= $this->contentId;
+		$ret->dl		= $this->pubDate;
+		
+		$ret->tags = array();
+		for ($i=0;$i<count($this->tags);$i++){
+			array_push($ret->tags, $this->tags[$i]->ToAJAX());
+		}
 		return $ret;
 	}
 	
@@ -133,7 +150,7 @@ class TopicTag {
 	public function ToAJAX(){
 		$ret = new stdClass();
 		$ret->id = $this->id;
-		$ret->tl = $this->tl;
+		$ret->tl = $this->title;
 		$ret->nm = $this->name;
 		return $ret;
 	}

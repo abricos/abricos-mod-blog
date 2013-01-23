@@ -79,7 +79,8 @@ Component.entryPoint = function(NS){
 			'uid': Brick.env.user.id,
 			'cmt': 0,
 			'bdlen': 0,
-			'intro': ''
+			'intro': '',
+			'tags': []
 		}, d || {});
 		
 		Topic.superclass.constructor.call(this, d);
@@ -88,9 +89,8 @@ Component.entryPoint = function(NS){
 		init: function(d){
 			
 			this.body = null;
-			this.user = null;
-			
 			this.tagList = new TagList();
+			
 			Topic.superclass.init.call(this, d);
 		},
 		update: function(d){
@@ -101,10 +101,12 @@ Component.entryPoint = function(NS){
 			// дата публикации
 			this.date = d['dl']==0 ? null : new Date(d['dl']*1000);
 			this.intro = d['intro'];
-			this.isBody = d['bdlen']>0;
 			this.commentCount = d['cmt']*1;
 			this.contentid = d['ctid']*1;
 			
+			this.tagList.update(d['tags']);
+
+			this.isBody = d['bdlen']>0;
 			if (d['isfull']*1 == 1){
 				this.body = d['bd'];
 			}
@@ -321,14 +323,20 @@ Component.entryPoint = function(NS){
 			}, cfg || {});
 			
 			cfg['do'] = 'topiclist';
-			
+			var __self = this;
 			this.ajax(cfg, function(d){
-				Brick.console(d);
-				/*
-				var list = new TopicList(d);
+				var list = null;
+				
+				if (!L.isNull(d)){
+					if (!L.isNull(d['users'])){
+						__self.users.update(d['users']);
+					}
+					if (!L.isNull(d['topics'])){
+						list = new NS.TopicList(d['topics']);
+					}
+				}
 				
 				NS.life(callback, list);
-				/**/
 			});
 		}
 	};

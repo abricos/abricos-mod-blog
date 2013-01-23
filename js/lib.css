@@ -5,3 +5,16 @@
 	padding: 70px 0; 
 }
 
+/* * * * Превьюшки * * * * */
+.aw-blog .tmb24 { width: 24px; height: 24px; }
+.aw-blog .tmb24 img { max-width: 24px; max-height: 24px; }
+
+.aw-blog .tmb { display: table; }
+.aw-blog .tmb .tmbpre {
+	display: table-cell;
+	vertical-align: middle;
+}
+.aw-blog .tmb .tmbpre img {
+	display: block;
+	margin: 0 auto;
+}

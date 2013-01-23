@@ -121,7 +121,7 @@ class BlogManager extends Ab_ModuleManager {
 		$toptags = $this->ToArray($rows);
 		
 		$rows = BlogTopicQuery::TagListByTopicIds($this->db, $tids);
-		$tags = $this->ToArrayId($rows);
+		$dbtags = $this->ToArrayId($rows);
 		
 		for ($i=0; $i<count($topics); $i++){
 			$topic = $topics[$i];
@@ -129,14 +129,14 @@ class BlogManager extends Ab_ModuleManager {
 			for ($ii=0; $ii<count($toptags); $ii++){
 				$tt = $toptags[$ii];
 				if ($tt['tid'] == $topic->id){
-					array_push($tags, new TopicTag($tags[$tt['tgid']]));
+					array_push($tags, new TopicTag($dbtags[$tt['tgid']]));
 				}
 			}
 			$topic->tags = $tags;
 		}
 		
 		$rows = BlogTopicQuery::UserList($this->db, $uids);
-		$users = $this->ToArrayId($rows);
+		$users = $this->ToArray($rows);
 		
 		return new TopicList($topics, $users);
 	}

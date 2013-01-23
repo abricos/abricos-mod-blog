@@ -1,4 +1,4 @@
-<!--{list}-->
+<!--{widget}-->
 <div id="{i#id}" class="topiclist">
 
 	<div id="{i#loading}" class="loading">
@@ -10,8 +10,43 @@
 		<img src="/images/loading.gif" />
 	</div>
 </div>
-<!--{row}--><div id="{i#id}-{v#id}"></div>
-<!--{topic}--><div id="{i#id}" class="topic">
+
+<!--{info}-->
+<div id="{i#id}" class="topicinfo">
+	<div class="tpinbox">
+		<div class="user">
+			<a href="{v#uriview}" class="avtr tmb tmb24">
+				<span class="tmbpre">
+					{v#avatar}
+				</span>
+			</a>
+			<a title="автор текста" class="unm" href="{v#urlview}">{v#unm}</a>
+		</div>
+		<div class="date">{v#date}</div>
+		<div class="comments" >
+			<a href="#app=blog/topiclist/showTopicViewPanel/{v#id}/comments/">{#mod.blog.topiclist.topic.1} ({v#cmt})</a>
+		</div>
+	</div>
+	<div class="clear"></div>
+</div>
+
+<!--{row}-->
+<div id="{v#id}" class="topic">
+	<div class="title">
+		<a id="{i#cattl}" href="{v#urlcat}" class="cattl"></a> → <a id="{i#tl}" href="{v#urlview}" class="toptl"></a>
+	</div>
+
+	<div id="{i#intro}" class="intro aw-page-content"></div>
+	
+	<div class="bfull">
+		<a id="{i#bfull}" href="{v#urlview}">Читать далее</a>
+	</div>
+	
+	<div id="{i#info}"></div>
+</div>
+
+<!--{topic}-->
+<div id="{i#id}" class="topic">
 	<div class="title">
 		<a href="#app=blog/board/showBoardPanel/{v#catname}/" class="cattl">{v#cattl}</a> → <a href="#app=blog/topiclist/showTopicViewPanel/{v#id}/" class="toptl">{v#tl}</a>
 	</div>
@@ -36,18 +71,4 @@
 		<a class="comments" href="#app=blog/topiclist/showTopicViewPanel/{v#id}/comments/">{#mod.blog.topiclist.topic.1} ({v#cmt})</a>
 	</div>
 	<div id="{i#comments}" class="comments"></div>
-</div>
-
-<!--{view}--><div class='hd'>{#mod.blog.topiclist.view.1}</div>
-<div class='bd aw-blog'>
-
-	<div id="{i#gmenu}"></div>
-
-
-	<div id="{i#widget}" class="viewtopic">
-		<div style="text-align: center">
-			<img src="/images/loading.gif" /> {#mod.blog.topiclist.view.2}
-		</div>
-	</div>
-
 </div>
