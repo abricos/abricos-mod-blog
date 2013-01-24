@@ -99,7 +99,7 @@ Component.entryPoint = function(NS){
 			this.catid = d['catid']*1;				// идентификатор раздела
 			this.title = d['tl'];				// заголовок
 			this.userid = d['uid'];				// идентификатор автора
-			Brick.console(d);
+
 			UP.viewer.users.update([d['user']]);
 			
 			// дата публикации

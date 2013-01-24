@@ -1,50 +1,48 @@
 <!--{panel}-->
 <div class='hd'>Блог</div>
 <div class='bd aw-blog'>
-
-	<div id="{i#gmenu}">
-	
-		<div class="gheadermenu">
-			<h2>Блог</h2>
-			
-			<a href="{v#urlhome}" class="logo">
-				<img src="/modules/blog/images/logo-96x96.png" />
-			</a>
-			
-			<ul class="topmenu">
-				<li id="{i#mhome}"><a href="{v#urlhome}" class="sel" title="">Главная</a></li>
-				<li id="{i#mabout}"><a href="{v#urlabout}" title="" style="display: none">О приложении</a></li>
-			</ul>
-			<div class="clear"></div>
-		</div>
-		
-		<div class="gbmenu">
-		
-			<div id="{i#mtbarter}" class="gbitems" style="display: none;">
-				<a id="{i#ibarterlist}" class="gbitem" href="{v#urlbarter}">{#mod.blog.wspace.panel.8}</a>
-				<a id="{i#ibartermy}" class="gbitem" href="{v#urlbartermy}" style="display: none">{#mod.blog.wspace.panel.9}</a>
-			</div>
-			
-			<div id="{i#mtproject}" class="gbitems" style="display: none;">
-				<a id="{i#iprojectlist}" class="gbitem" href="{v#urlproject}">{#mod.blog.wspace.panel.10}</a>
-				<a id="{i#iprojectmy}" class="gbitem" href="{v#urlprojectmy}" style="display: none">{#mod.blog.wspace.panel.11}</a>
-			</div>
-			
-			<br class="clear" />
-			<div class="line"></div>
-		</div>
-	
-	
-	</div>
-	
-	<div id="{i#loading}" class="ws-loading">
-		<img src="/images/loading.gif" /> Идет загрузка данных <br />Пожалуйста, подождите...
-	</div>
-	
-	<div id="{i#board}" class="board" style="display: none">
-	
-	</div>
+	<div id="{i#widget}"></div>
 </div>
+
+<!--{widget}-->
+<div id="{i#gmenu}">
+
+	<div class="gheadermenu">
+		<h2>Блог</h2>
+		
+		<a href="{v#urlhome}" class="logo">
+			<img src="/modules/blog/images/logo-96x96.png" />
+		</a>
+		
+		<ul class="topmenu">
+			<li id="{i#mtopics}"><a href="{v#urltopics}" class="sel" title="">Топики</a></li>
+			<li id="{i#mblogs}"><a href="{v#urlhome}" title="">Блоги</a></li>
+			<li id="{i#musers}"><a href="{v#urlusers}" title="">Люди</a></li>
+		</ul>
+		<div class="clear"></div>
+	</div>
+	
+	<div class="gbmenu">
+	
+		<div id="{i#mttopics}" class="gbitems" style="display: none;">
+			<a id="{i#itopicsall}" class="gbitem" href="{v#urltopics}">Все</a>
+			<a id="{i#itopicspub}" class="gbitem" href="{v#urltopicspub}">Коллективные</a>
+			<a id="{i#itopicsperson}" class="gbitem" href="{v#urltopicsloc}">Персональные</a>
+		</div>
+		
+		<br class="clear" />
+		<div class="line"></div>
+	</div>
+
+
+</div>
+
+<div id="{i#loading}" class="ws-loading">
+	<img src="/images/loading.gif" /> Идет загрузка данных <br />Пожалуйста, подождите...
+</div>
+
+<div id="{i#board}" class="board" style="display: none"></div>
+
 
 <!--{page}--><div id="{i#id}" class='wspage'></div>
 

@@ -34,15 +34,11 @@ Component.entryPoint = function(NS){
 	NS.AccessDeniedWidget = AccessDeniedWidget;
 
 	var GMID = {
-		'HomeWidget': 'home',
+		'TopicListWidget': 'topics',
 		'AboutWidget': 'about'
 	};
 	GMIDI = {
-	/*		
-		'project': ['list', 'my'],
-		'barter': ['list', 'my'],
-		'categoryman': ['man']
-	/**/
+		'topics': ['all', 'pub', 'person']
 	};
 	var DEFPAGE = {
 		'component': 'topic',
@@ -50,49 +46,38 @@ Component.entryPoint = function(NS){
 		'p1': '', 'p2': '', 'p3': '', 'p4': ''
 	};
 	
-	var WSPanel = function(pgInfo){
-		this.pgInfo = pgInfo || [];
-		
-		WSPanel.superclass.constructor.call(this, {
-			fixedcenter: true, width: '790px', height: '400px'
-		});
+	var WSWidget = function(container, pgInfo){
+		WSWidget.superclass.constructor.call(this, container, {
+			'buildTemplate': buildTemplate, 'tnames': 'widget' 
+		}, pgInfo || []);
 	};
-	YAHOO.extend(WSPanel, Brick.widget.Panel, {
-		initTemplate: function(){
-			buildTemplate(this, 'panel');
-			
-			var NG = NS.navigator;
-			return this._TM.replace('panel', {
-				'urlhome': NG.home()
-			});
-		},
-		onLoad: function(){
+	YAHOO.extend(WSWidget, Brick.mod.widget.Widget, {
+		init: function(pgInfo){
+			this.pgInfo = pgInfo;
 			this.widget = null;
+		},
+		buildTData: function(pgInfo){
+			var NG = NS.navigator;
+			return {
+				'urltopics': NG.topic.list(),
+				'urlhome': NG.home()
+			};
+		},
+		onLoad: function(pgInfo){
 			var __self = this;
-			
-			var TM = this._TM;
-			
 			R.load(function(){
-				/*
-				if (R['isAdmin']){
-					Dom.setStyle(TM.getEl('panel.mcategoryman'), 'display', '');
-				}
-				/**/
-				__self.showPage(__self.pgInfo);
+				__self.showPage(pgInfo);
 			});
 		},
-		destroy: function(){},
 		showPage: function(p){
 			p = L.merge(DEFPAGE, p || {});
 
-			var __self = this, TM = this._TM, gel = function(n){ return TM.getEl('panel.'+n); };
-			Dom.setStyle(gel('board'), 'display', 'none');
-			Dom.setStyle(gel('loading'), 'display', '');
+			this.elHide('board');
+			this.elShow('loading');
 
+			var __self = this;
 			Brick.ff('{C#MODNAME}', p['component'], function(){
 				__self._showPageMethod(p);
-				Dom.setStyle(gel('board'), 'display', '');
-				Dom.setStyle(gel('loading'), 'display', 'none');
 			});
 		},
 		_showPageMethod: function(p){
@@ -104,26 +89,24 @@ Component.entryPoint = function(NS){
 				this.widget.destroy();
 				this.widget = null;
 			}
-			var TM = this._TM, gel = function(n){ return TM.getEl('panel.'+n); };
-			gel('board').innerHTMl = "";
+			this.elSetHTML('board', "");
 			
-			this.widget = new NS[wName](gel('board'), p['p1'], p['p2'], p['p3'], p['p4']);
+			this.widget = new NS[wName](this.gel('board'), p['p1'], p['p2'], p['p3'], p['p4']);
 			
 			for (var n in GMID){
 				
 				var pfx = GMID[n], 
-					miEl = gel('m'+pfx),
-					mtEl = gel('mt'+pfx);
+					miEl = this.gel('m'+pfx),
+					mtEl = this.gel('mt'+pfx);
 
 				if (wName == n){
 					Dom.addClass(miEl, 'sel');
 					Dom.setStyle(mtEl, 'display', '');
-					
+
 					var mia = GMIDI[pfx];
 					if (L.isArray(mia)){
-						
-						for (var i=0;i<mia.length;i++){
-							var mtiEl = gel('i'+pfx+mia[i]);
+						for (var i=0; i<mia.length; i++){
+							var mtiEl = this.gel('i'+pfx+mia[i]);
 							if (mia[i] == this.widget.wsMenuItem){
 								Dom.addClass(mtiEl, 'current');
 							}else{
@@ -137,6 +120,29 @@ Component.entryPoint = function(NS){
 					Dom.setStyle(mtEl, 'display', 'none');
 				}
 			}
+			this.elShow('board');
+			this.elHide('loading');
+		}		
+	});
+	NS.WSWidget = WSWidget;
+
+	
+	var WSPanel = function(pgInfo){
+		this.pgInfo = pgInfo || [];
+		
+		WSPanel.superclass.constructor.call(this, {
+			fixedcenter: true, width: '790px', height: '400px'
+		});
+	};
+	YAHOO.extend(WSPanel, Brick.widget.Panel, {
+		initTemplate: function(){
+			return buildTemplate(this, 'panel').replace('panel');
+		},
+		onLoad: function(){
+			this.widget = new WSWidget(this._TM.getEl('panel.widget'), this.pgInfo);
+		},
+		showPage: function(p){
+			this.widget.showPage(p);
 		}
 	});
 	NS.WSPanel = WSPanel;

@@ -37,7 +37,7 @@ Component.entryPoint = function(NS){
 				'unm': user.getUserName(),
 				'cmt': topic.commentCount
 			};
-		}		
+		}
 	});
 	NS.TopicInfoLineWidget = TopicInfoLineWidget;
 
@@ -165,6 +165,7 @@ Component.entryPoint = function(NS){
 		init: function(catid){
 			this.catid = 0;
 			this.wsList = [];
+			this.wsMenuItem = 'all'; // использует wspace.js
 		},
 		onLoad: function(catid){
 			var __self = this;
