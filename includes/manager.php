@@ -55,6 +55,8 @@ class BlogManager extends Ab_ModuleManager {
 	public function AJAX($d){
 
 		switch($d->do){
+			case "topic": 
+				return $this->TopicToAJAX($d->topicid);
 			case "topiclist": 
 				return $this->TopicListToAJAX();
 			case "categorylist": 
@@ -109,14 +111,12 @@ class BlogManager extends Ab_ModuleManager {
 		
 		$topics = array();
 		$tids = array();
-		$uids = array(); 
 		
 		$rows = BlogTopicQuery::TopicList($this->db, $cfg->page, $cfg->limit);
 		while (($row = $this->db->fetch_array($rows))){
-			$topic = new Topic($row);
+			$topic = new BlogTopicInfo($row);
 			array_push($topics, $topic);
 			array_push($tids, $topic->id);
-			array_push($uids, $topic->authorid);
 		}
 		
 		$rows = BlogTopicQuery::TopicTagList($this->db, $tids);
@@ -131,16 +131,13 @@ class BlogManager extends Ab_ModuleManager {
 			for ($ii=0; $ii<count($toptags); $ii++){
 				$tt = $toptags[$ii];
 				if ($tt['tid'] == $topic->id){
-					array_push($tags, new TopicTag($dbtags[$tt['tgid']]));
+					array_push($tags, new BlogTopicTag($dbtags[$tt['tgid']]));
 				}
 			}
 			$topic->tags = $tags;
 		}
 		
-		$rows = BlogTopicQuery::UserList($this->db, $uids);
-		$users = $this->ToArray($rows);
-		
-		return new TopicList($topics, $users);
+		return new BlogTopicList($topics);
 	}
 	
 	public function TopicListToAJAX($cfg){
@@ -174,6 +171,30 @@ class BlogManager extends Ab_ModuleManager {
 			return null;
 		}
 		return $catList->ToAJAX();
+	}
+	
+	/**
+	 * @return BlogTopic
+	 */
+	public function Topic($topicid){
+		if (!$this->IsViewRole()){
+			return null;
+		}
+		
+		$row = BlogTopicQuery::Topic($this->db, $topicid);
+		if (empty($row)){
+			return null;
+		}
+		return new BlogTopic($row);
+	}
+	
+	public function TopicToAJAX($topicid){
+		$topic = $this->Topic($topicid);
+		if (is_null($topic)){ return null; }
+		
+		$ret = new stdClass();
+		$ret->topic = $topic->ToAJAX();
+		return $ret;
 	}
 	
 	
@@ -334,6 +355,7 @@ class BlogManager extends Ab_ModuleManager {
 	 * Получить запись в блоге
 	 * @param integer $topicId идентификатор записи
 	 */
+	/*
 	public function Topic($topicid){
 		if (!$this->TopicAccess($topicid, 0)){
 			return null;
@@ -350,6 +372,7 @@ class BlogManager extends Ab_ModuleManager {
 		
 		return $topic;	
 	}
+	/**/
 	
 	public function TopicSave($d){
 		$d->id = intval($d->id);

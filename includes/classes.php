@@ -8,7 +8,10 @@
 
 require_once 'dbquery.php';
 
-class Topic {
+/**
+ * Информация о записе в блоге
+ */
+class BlogTopicInfo {
 	
 	/**
 	 * @var BlogManager
@@ -18,7 +21,6 @@ class Topic {
 	public $id;
 	public $catid;
 	public $title;
-	public $authorid;
 	public $pubDate;
 	public $intro;
 	public $bodyLength;
@@ -26,6 +28,11 @@ class Topic {
 	public $contentId;
 	
 	public $tags = array();
+	public $userid;
+	/**
+	 * @var BlogUser
+	 */
+	public $user;
 	
 	public function __construct($d){
 		$this->manager = BlogManager::$instance;
@@ -33,23 +40,14 @@ class Topic {
 		$this->id			= $d['id'];
 		$this->catid		= $d['catid'];
 		$this->title		= $d['tl'];
-		$this->authorid		= $d['uid'];
+		$this->userid		= $d['uid'];
 		$this->intro		= $d['intro'];
 		$this->bodyLength	= $d['bdlen'];
 		$this->commentCount	= $d['cmt'];
 		$this->contentId	= $d['ctid'];
 		$this->pubDate		= $d['dl'];
-	}
-	
-	public function Extend(){
-		return new TopicExtended($this);
-	}
-	
-	public function CloneToExtend(TeamExtended $teamex){
-		$objs = get_class_vars(get_class($this));
-		foreach($objs as $key => $val){
-			$teamex->$key = $this->$key;
-		}
+		
+		$this->user = new BlogUser($d);
 	}
 	
 	public function ToAJAX(){
@@ -57,7 +55,8 @@ class Topic {
 		$ret->id		= $this->id;
 		$ret->catid		= $this->catid;
 		$ret->tl		= $this->title;
-		$ret->uid		= $this->authorid;
+		$ret->uid		= $this->userid;
+		$ret->user		= $this->user->ToAJAX();
 		$ret->intro		= $this->intro;
 		$ret->bdlen		= $this->bodyLength;
 		$ret->cmt		= $this->commentCount;
@@ -70,73 +69,76 @@ class Topic {
 		}
 		return $ret;
 	}
-	
 }
 
-class TopicExtended extends Topic {
+/**
+ * Запись в блоге
+ */
+class BlogTopic extends BlogTopicInfo {
 
-	/**
-	 * @var Ab_Database
-	 */
-	public $db;
+	public $body;
 	
-	/**
-	 * @var User
-	 */
-	public $user;
-	
-	/**
-	 * @var integer
-	 */
-	public $userid;
-	
-	public function __construct(Topic $topic){
-		$topic->CloneToExtend($this);
-		
-		$man = $topic->manager;
-		$this->db = $man->db;
-		$this->user = $man->user;
-		$this->userid = $man->userid;
-	}
-	
-	public function Extend(){
-		return $this;
+	public function __construct($d){
+		parent::__construct($d);
+		$this->body = $d['bd'];
 	}
 	
 	public function ToAJAX(){
 		$ret = parent::ToAJAX();
-		$ret->extended = true;
-	
+		$ret->bd = $this->body;
 		return $ret;
 	}
-	
 }
 
-class TopicList {
+class BlogTopicList {
 	
-	public $topics;
-	public $users;
+	public $list;
 	
-	public function __construct($topics, $users){
-		$this->topics = $topics;
-		$this->users = $users;
+	public function __construct($list){
+		$this->list = $list;
 	}
 	
 	public function ToAJAX(){
 		$ret = new stdClass();
 		$ret->topics = array();
-		for ($i=0;$i<count($this->topics); $i++){
-			array_push($ret->topics, $this->topics[$i]->ToAJAX());
+		for ($i=0;$i<count($this->list); $i++){
+			array_push($ret->topics, $this->list[$i]->ToAJAX());
 		}
-		$ret->users = $this->users;
 		return $ret;
 	}
+}
+
+class BlogUser {
+	public $id;
+	public $userName;
+	public $avatar;
+	public $firstName;
+	public $lastName;
 	
+	public function __construct($d){
+		if (intval($d['id']) == 0){
+			$d['id'] = $d['uid'];
+		}
+		$this->id			= $d['id'];
+		$this->userName		= $d['unm'];
+		$this->avatar		= $d['avt'];
+		$this->firstName	= $d['fnm'];
+		$this->lastName		= $d['lnm'];
+	}
+	
+	public function ToAJAX(){
+		$ret = new stdClass();
+		$ret->id = $this->id;
+		$ret->unm = $this->userName;
+		$ret->avt = $this->avatar;
+		$ret->fnm = $this->firstName;
+		$ret->lnm = $this->lastName;
+		return $ret;
+	}
 }
 
 
-
-class TopicTag {
+class BlogTopicTag {
 	public $id;
 	public $title;
 	public $name;

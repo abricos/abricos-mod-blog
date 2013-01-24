@@ -1,4 +1,4 @@
-<!--{widget}-->
+<!--{topiclist}-->
 <div id="{i#id}" class="topiclist">
 
 	<div id="{i#loading}" class="loading">
@@ -9,6 +9,41 @@
 	<div class="loadmore" id="{i#loadmore}" style="display: none">
 		<img src="/images/loading.gif" />
 	</div>
+</div>
+
+<!--{topicview}-->
+<div id="{i#id}" class="topicview">
+
+	<div id="{i#loading}" class="loading">
+		<img src="/images/loading.gif" /> Идет загрузка данных <br /> Пожалуйста, подождите...
+	</div>
+
+	<div id="{i#nullitem}" class="nullitem" style="display: none">
+		Запись в блоге не найдена или недостаточно прав для ее просмотра
+	</div>
+
+	<div id="{i#view}"></div>
+</div>
+
+
+<!--{row}-->
+<div id="{v#id}" class="topic">
+	<div class="title">
+		<a id="{i#cattl}" href="{v#urlcat}" class="cattl"></a> → <a id="{i#tl}" href="{v#urlview}" class="toptl"></a>
+	</div>
+
+	<div class="aw-page-content">
+		<div id="{i#intro}" class="intro"></div>
+		<div id="{i#body}" class="body"></div>
+	</div>
+	
+	<div class="bfull">
+		<a id="{i#bfull}" href="{v#urlview}">Читать дальше → </a>
+	</div>
+
+	<div id="{i#taglist}"></div>
+	
+	<div id="{i#info}"></div>
 </div>
 
 <!--{taglist}-->
@@ -25,41 +60,23 @@
 <!--{tagrowcm}-->
 <li>, </li>
 
-
 <!--{info}-->
 <div id="{i#id}" class="topicinfo">
 	<div class="tpinbox">
 		<div class="user">
-			<a href="{v#uriview}" class="avtr tmb tmb24">
+			<a href="{v#urluser}" class="avtr tmb tmb24">
 				<span class="tmbpre">
 					{v#avatar}
 				</span>
 			</a>
-			<a title="автор текста" class="unm" href="{v#urlview}">{v#unm}</a>
+			<a title="автор текста" class="unm" href="{v#urluser}">{v#unm}</a>
 		</div>
 		<div class="date">{v#date}</div>
 		<div class="comments" >
-			<a href="#app=blog/topiclist/showTopicViewPanel/{v#id}/comments/">{#mod.blog.topiclist.topic.1} ({v#cmt})</a>
+			<a href="{v#urlcmt}" title="Читать комментарии">{#mod.blog.topiclist.topic.1} ({v#cmt})</a>
 		</div>
 	</div>
 	<div class="clear"></div>
-</div>
-
-<!--{row}-->
-<div id="{v#id}" class="topic">
-	<div class="title">
-		<a id="{i#cattl}" href="{v#urlcat}" class="cattl"></a> → <a id="{i#tl}" href="{v#urlview}" class="toptl"></a>
-	</div>
-
-	<div id="{i#intro}" class="intro aw-page-content"></div>
-	
-	<div class="bfull">
-		<a id="{i#bfull}" href="{v#urlview}">Читать далее</a>
-	</div>
-
-	<div id="{i#taglist}"></div>
-	
-	<div id="{i#info}"></div>
 </div>
 
 <!--{topic}-->

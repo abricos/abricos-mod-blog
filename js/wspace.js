@@ -45,7 +45,7 @@ Component.entryPoint = function(NS){
 	/**/
 	};
 	var DEFPAGE = {
-		'component': 'topiclist',
+		'component': 'topic',
 		'wname': 'TopicListWidget',
 		'p1': '', 'p2': '', 'p3': '', 'p4': ''
 	};
@@ -145,7 +145,7 @@ Component.entryPoint = function(NS){
 	NS.API.ws = function(){
 		var args = arguments;
 		var pgInfo = {
-			'component': args[0] || 'topiclist',
+			'component': args[0] || 'topic',
 			'wname': args[1] || 'TopicListWidget',
 			'p1': args[2], 'p2': args[3], 'p3': args[4], 'p4': args[5]
 		};

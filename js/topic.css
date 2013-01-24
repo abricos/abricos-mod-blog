@@ -1,5 +1,6 @@
-.aw-blog .toplist .loadmore {
-	text-align: center;
+/* * * * Список * * * */
+.aw-blog .topiclist .topic {
+	margin-bottom: 30px;
 }
 
 /* * * * Топик * * * */
@@ -19,16 +20,13 @@
     font-weight: normal;
     line-height: 118%;
 }
-
 .aw-blog .topic .title a.toptl {
 	color: #999999;
 }
-
-.aw-blog .topic .bfull { /* кнопка - читать далее */
-	margin: 10px 0;
-}
-.aw-blog .topic .bfull a {
-	text-decoration: underline;
+.aw-blog .topic .bfull,
+.aw-blog .topic .taglist,
+.aw-blog .topic .topicinfo {
+	margin: 12px 0;
 }
 
 /* * * Информационный блок топика * * */
@@ -69,10 +67,6 @@
 }
 
 /* * * Список тегов * * */
-.aw-blog .taglist {
-    clear: both;
-    margin: 10px 0 0;
-}
 .aw-blog .taglist ul {
 	background: url("/modules/blog/images/tag.gif") no-repeat scroll 0 50% #FFFFFF;
 	list-style: none outside none;

@@ -1,13 +1,46 @@
 <?php
 /**
  * @package Abricos
- * @subpackage 
+ * @subpackage Blog
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * @author Alexander Kuzmin <roosit@abricos.org>
  */
 
 class BlogTopicQuery {
 
+	public static function Topic(Ab_Database $db, $topicid){
+		$sql = "
+			SELECT
+				t.topicid as id,
+				t.catid as catid,
+				cc.contentid as ctid,
+				t.title as tl,
+				t.intro as intro,
+				length(cc.body) as bdlen,
+				t.userid as uid,
+				u.username as unm,
+				u.avatar as avt,
+				u.firstname as fnm,
+				u.lastname as lnm,
+				(
+					SELECT count(cm.contentid) as cnt
+					FROM ".$db->prefix."cmt_comment cm
+					WHERE t.contentid = cm.contentid
+					GROUP by cm.contentid
+				) as cmt,
+				t.datepub as dl,
+				
+				cc.body as bd
+		
+			FROM ".$db->prefix."bg_topic t
+			INNER JOIN ".$db->prefix."content cc ON t.contentid = cc.contentid
+			INNER JOIN ".$db->prefix."user u ON t.userid = u.userid
+			WHERE t.topicid = ".bkint($topicid)." AND t.deldate=0 AND t.status=1
+			LIMIT 1
+		";
+		return $db->query_first($sql);
+	}
+	
 	public static function TopicList(Ab_Database $db, $page, $limit){
 		$from = $limit * (max($page, 1) - 1);
 	
@@ -20,6 +53,10 @@ class BlogTopicQuery {
 				t.intro as intro,
 				length(cc.body) as bdlen,
 				t.userid as uid,
+				u.username as unm,
+				u.avatar as avt,
+				u.firstname as fnm,
+				u.lastname as lnm,
 				(
 					SELECT count(cm.contentid) as cnt
 					FROM ".$db->prefix."cmt_comment cm
@@ -29,7 +66,8 @@ class BlogTopicQuery {
 				t.datepub as dl
 		
 			FROM ".$db->prefix."bg_topic t
-			LEFT JOIN ".$db->prefix."content cc ON t.contentid = cc.contentid
+			INNER JOIN ".$db->prefix."content cc ON t.contentid = cc.contentid
+			INNER JOIN ".$db->prefix."user u ON t.userid = u.userid
 			WHERE t.deldate=0 AND t.status=1 AND t.language='".bkstr(Abricos::$LNG)."'
 			ORDER BY t.datepub DESC
 			LIMIT ".$from.",".bkint($limit)."

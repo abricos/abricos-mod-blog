@@ -18,6 +18,7 @@ Component.entryPoint = function(NS){
 		L = YAHOO.lang,
 		R = NS.roles;
 	var SysNS = Brick.mod.sys;
+	var UP = Brick.mod.uprofile;
 
 	var buildTemplate = this.buildTemplate;
 	buildTemplate({},'');
@@ -33,12 +34,12 @@ Component.entryPoint = function(NS){
 	
 	NS.navigator = {
 		'home': function(){ return WS; }, 
-		'toplic': {
+		'topic': {
 			'list': function(){
-				return WS;
+				return WS+'topic/TopicListWidget/';
 			},
 			'view': function(topicid){
-				return WS+'/topiclist/TopicViewWidget/'+topicid+'/';
+				return WS+'topic/TopicViewWidget/'+topicid+'/';
 			}
 		},
 		'about': function(){
@@ -71,10 +72,11 @@ Component.entryPoint = function(NS){
 	YAHOO.extend(TagList, SysNS.ItemList, {});
 	NS.TagList = TagList;
 	
-	var Topic = function(d){
+	// Информация о топике
+	var TopicInfo = function(d){
 		d = L.merge({
 			'catid': 0,
-			'tl': '', 
+			'tl': '',
 			'dl': 0, 
 			'uid': Brick.env.user.id,
 			'cmt': 0,
@@ -83,20 +85,21 @@ Component.entryPoint = function(NS){
 			'tags': []
 		}, d || {});
 		
-		Topic.superclass.constructor.call(this, d);
+		TopicInfo.superclass.constructor.call(this, d);
 	};
-	YAHOO.extend(Topic, SysNS.Item, {
+	YAHOO.extend(TopicInfo, SysNS.Item, {
 		init: function(d){
 			
-			this.body = null;
 			this.tagList = new TagList();
 			
-			Topic.superclass.init.call(this, d);
+			TopicInfo.superclass.init.call(this, d);
 		},
 		update: function(d){
 			this.catid = d['catid']*1;				// идентификатор раздела
 			this.title = d['tl'];				// заголовок
 			this.userid = d['uid'];				// идентификатор автора
+			
+			UP.viewer.users.update([d['user']]);
 			
 			// дата публикации
 			this.date = d['dl']==0 ? null : new Date(d['dl']*1000);
@@ -107,14 +110,26 @@ Component.entryPoint = function(NS){
 			this.tagList.update(d['tags']);
 
 			this.isBody = d['bdlen']>0;
-			if (d['isfull']*1 == 1){
-				this.body = d['bd'];
-			}
 		}
-	});	
+	});
+	
+	var Topic = function(d){
+		d = L.merge({
+			'bd': ''
+		}, d || {});
+		
+		Topic.superclass.constructor.call(this, d);
+	};
+	YAHOO.extend(Topic, TopicInfo, {
+		update: function(d){
+			Topic.superclass.update.call(this, d);
+			this.body = d['bd'];
+		}
+	});
+	NS.Topic = Topic;
 	
 	var TopicList = function(d){
-		TopicList.superclass.constructor.call(this, d, Topic);
+		TopicList.superclass.constructor.call(this, d, TopicInfo);
 	};
 	YAHOO.extend(TopicList, SysNS.ItemList, {});
 	NS.TopicList = TopicList;	
@@ -156,6 +171,7 @@ Component.entryPoint = function(NS){
 	});
 	NS.CategoryList = CategoryList;
 	
+	/*
 	var BlogManager = function(data){
 		data = L.merge({
 			'categories': [],
@@ -288,8 +304,7 @@ Component.entryPoint = function(NS){
 			});
 		});
 	};
-
-	
+	/**/
 
 	var Manager = function (callback){
 		this.init(callback);
@@ -352,6 +367,22 @@ Component.entryPoint = function(NS){
 				}
 				
 				NS.life(callback, list);
+			});
+		},
+		topicLoad: function(topicid, callback){
+			
+			var __self = this;
+			this.ajax({
+				'do': 'topic',
+				'topicid': topicid
+			}, function(d){
+				var topic = null;
+				
+				if (!L.isNull(d) && !L.isNull(d['topic'])){
+					topic = new NS.Topic(d['topic']);
+				}
+				
+				NS.life(callback, topic);
 			});
 		}
 	};

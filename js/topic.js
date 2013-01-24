@@ -19,7 +19,7 @@ Component.entryPoint = function(NS){
 	
 	var buildTemplate = this.buildTemplate;
 	
-	
+	/*
 	var TopicWidget = function(container, topic, cfg){
 		cfg = L.merge({
 			'fullview': false
@@ -88,9 +88,9 @@ Component.entryPoint = function(NS){
 		}
 	});
 	NS.TopicWidget = TopicWidget;
-
+	/**/
+	
 	var TopicInfoLineWidget = function(container, topic, cfg){
-		
 		TopicInfoLineWidget.superclass.constructor.call(this, container, {
 			'buildTemplate': buildTemplate, 'tnames': 'info' 
 		}, topic);
@@ -145,6 +145,11 @@ Component.entryPoint = function(NS){
 		init: function(topic){
 			this.topic = topic;
 		},
+		buildTData: function(topic){
+			return {
+				'urlview': NS.navigator.topic.view(topic.id)
+			};
+		},
 		destroy: function(){
 			this.infoWidget.destroy();
 		},
@@ -163,10 +168,39 @@ Component.entryPoint = function(NS){
 	});
 	NS.TopicRowWidget = TopicRowWidget;
 	
+	var TopicViewWidget = function(container, topicid){
+		TopicViewWidget.superclass.constructor.call(this, container, {
+			'buildTemplate': buildTemplate, 'tnames': 'topicview' 
+		}, topicid);
+	};
+	YAHOO.extend(TopicViewWidget, Brick.mod.widget.Widget, {
+		init: function(topicid){
+			this.topicid = topicid;
+			this.topic = null;
+		},
+		onLoad: function(topicid){
+			var __self = this;
+			NS.initManager(function(){
+				NS.manager.topicLoad(topicid, function(topic){
+					__self.renderTopic(topic);
+				});
+			});
+		},
+		renderTopic: function(topic){
+			Brick.console(topic);
+			this.elHide('loading');
+			
+			if (L.isNull(topic)){
+				this.elShow('nullitem');
+				return;
+			}
+		}
+	});
+	NS.TopicViewWidget = TopicViewWidget;	
 	
 	var TopicListWidget = function(container, catid){
 		TopicListWidget.superclass.constructor.call(this, container, {
-			'buildTemplate': buildTemplate, 'tnames': 'widget' 
+			'buildTemplate': buildTemplate, 'tnames': 'topiclist' 
 		}, catid || 0);
 	};
 	YAHOO.extend(TopicListWidget, Brick.mod.widget.Widget, {
@@ -206,38 +240,6 @@ Component.entryPoint = function(NS){
 				ws[ws.length] = new NS.TopicRowWidget(div, topic);
 			});
 		}
-		/*
-		loadPage: function(catid, inc){
-			this.catid = catid = catid || 0; 
-			inc = inc || 0;
-			
-			var __self = this;
-			
-			this.elShow('loading');
-			NS.blogManager.loadPage(catid, inc, function(){
-				__self.renderList();
-			});
-		},
-		renderList: function(){
-			this.clear();
-			this.elHide('loading');
-			
-			var TM = this._TM, TId = this._TId,
-				lst = "";
-			
-			NS.blogManager.foreach(function(top){
-				lst += TM.replace('row', {'id': top.id});
-			}, this.catid);
-			this.elSetHTML('list', lst);
-
-			var topics = [];
-			NS.blogManager.foreach(function(top){
-				var el = Dom.get(TId['row']['id']+'-'+top.id);
-				topics[topics.length] = new NS.TopicWidget(el, top);
-			});
-			this.topics = topics;
-		}
-		/**/
 	});
 	NS.TopicListWidget = TopicListWidget;
 
