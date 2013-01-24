@@ -23,7 +23,7 @@
 .aw-blog .topic .title a.toptl {
 	color: #999999;
 }
-.aw-blog .topic .bfull,
+.aw-blog .topic .readmore,
 .aw-blog .topic .taglist,
 .aw-blog .topic .topicinfo {
 	margin: 12px 0;
@@ -35,7 +35,8 @@
     font-size: 0.9em;
 	color: #7B848D;
 }
-.aw-blog .topicinfo .tpinbox{
+.aw-blog .topicinfo .tpinbox {
+	border-radius: 5px;
 	border: 1px solid #E5E5E5;
 	float: left;
 	padding-right: 17px;
@@ -47,11 +48,9 @@
 	line-height: 30px;
 	float: left;
 }
-
 .aw-blog .topicinfo .user .avtr {
 	margin-top: 4px;
 	margin-right: 10px; 
-	
 }
 .aw-blog .topicinfo .user a {
 	float: left;

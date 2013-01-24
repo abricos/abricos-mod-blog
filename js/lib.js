@@ -91,6 +91,7 @@ Component.entryPoint = function(NS){
 		init: function(d){
 			
 			this.tagList = new TagList();
+			this.type = 'info';
 			
 			TopicInfo.superclass.init.call(this, d);
 		},
@@ -98,7 +99,7 @@ Component.entryPoint = function(NS){
 			this.catid = d['catid']*1;				// идентификатор раздела
 			this.title = d['tl'];				// заголовок
 			this.userid = d['uid'];				// идентификатор автора
-			
+			Brick.console(d);
 			UP.viewer.users.update([d['user']]);
 			
 			// дата публикации
@@ -121,6 +122,10 @@ Component.entryPoint = function(NS){
 		Topic.superclass.constructor.call(this, d);
 	};
 	YAHOO.extend(Topic, TopicInfo, {
+		init: function(d){
+			this.type = 'full';
+			Topic.superclass.init.call(this, d);
+		},
 		update: function(d){
 			Topic.superclass.update.call(this, d);
 			this.body = d['bd'];

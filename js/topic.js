@@ -19,77 +19,6 @@ Component.entryPoint = function(NS){
 	
 	var buildTemplate = this.buildTemplate;
 	
-	/*
-	var TopicWidget = function(container, topic, cfg){
-		cfg = L.merge({
-			'fullview': false
-		}, cfg || {});
-		TopicWidget.superclass.constructor.call(this, container, {
-			'buildTemplate': buildTemplate, 'tnames': 'topic' 
-		}, topic, cfg);
-	};
-	YAHOO.extend(TopicWidget, Brick.mod.widget.Widget, {
-		init: function(topic, cfg){
-			this.topic = topic;
-		},
-		buildTData: function(topic, cfg){
-			var cat = NS.blogManager.categoryList.get(topic.catid),
-				user = topic.user;
-			
-			var r = {
-				'id': topic.id,
-				'tl': topic.title,
-				'catname': cat.name,
-				'cattl': cat.title,
-				'dispfull': topic.isBody ? '' : 'none', 
-				'date': Brick.dateExt.convert(topic.date),
-				'uid': user.id,
-				'unm': user.getUserName(),
-				'cmt': topic.commentCount,
-				'intro': topic.intro,
-				'body': ''
-			};
-			
-			if (cfg.fullview){
-				r['dispfull'] = 'none';
-				r['body'] = topic.body;
-			}
-			
-			return r;
-		},
-		destroy: function(){
-			this.tagsWidget.destroy();
-		},
-		onLoad: function(topic, cfg){
-			
-			var __self = this;
-			
-			this.tagsWidget = new NS.TopicTagListWidget(this.gel('tags'), topic);
-			
-			if (cfg.fullview){
-				// Инициализировать менеджер комментариев
-				Brick.ff('comment', 'comment', function(){
-					Brick.mod.comment.API.buildCommentTree({
-						'container': __self.gel('comments'),
-						'dbContentId': topic.contentid,
-						'config': {
-							'onLoadComments': function(){
-								// aTargetBlank(TM.getEl('panel.drawbody'));
-								// aTargetBlank(TM.getEl('panel.comments'));
-							}
-							// ,
-							// 'readOnly': project.w*1 == 0,
-							// 'manBlock': L.isFunction(config['buildManBlock']) ? config.buildManBlock() : null
-						},
-						'instanceCallback': function(b){ }
-					});
-				});
-			}
-		}
-	});
-	NS.TopicWidget = TopicWidget;
-	/**/
-	
 	var TopicInfoLineWidget = function(container, topic, cfg){
 		TopicInfoLineWidget.superclass.constructor.call(this, container, {
 			'buildTemplate': buildTemplate, 'tnames': 'info' 
@@ -177,6 +106,12 @@ Component.entryPoint = function(NS){
 		init: function(topicid){
 			this.topicid = topicid;
 			this.topic = null;
+			this.viewWidget = null;
+		},
+		destroy: function(){
+			if (!L.isNull(this.viewWidget)){
+				this.viewWidget.destroy();
+			}
 		},
 		onLoad: function(topicid){
 			var __self = this;
@@ -187,13 +122,36 @@ Component.entryPoint = function(NS){
 			});
 		},
 		renderTopic: function(topic){
-			Brick.console(topic);
 			this.elHide('loading');
 			
 			if (L.isNull(topic)){
 				this.elShow('nullitem');
 				return;
 			}
+
+			var widget = this.viewWidget = new NS.TopicRowWidget(this.gel('view'), topic);
+			widget.elSetHTML({
+				'body': topic.body
+			});
+			widget.elHide('readmore');
+			
+			// Инициализировать менеджер комментариев
+			Brick.ff('comment', 'comment', function(){
+				Brick.mod.comment.API.buildCommentTree({
+					'container': widget.gel('comments'),
+					'dbContentId': topic.contentid,
+					'config': {
+						'onLoadComments': function(){
+							// aTargetBlank(TM.getEl('panel.drawbody'));
+							// aTargetBlank(TM.getEl('panel.comments'));
+						}
+						// ,
+						// 'readOnly': project.w*1 == 0,
+						// 'manBlock': L.isFunction(config['buildManBlock']) ? config.buildManBlock() : null
+					},
+					'instanceCallback': function(b){ }
+				});
+			});
 		}
 	});
 	NS.TopicViewWidget = TopicViewWidget;	

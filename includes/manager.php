@@ -92,30 +92,10 @@ class BlogManager extends Ab_ModuleManager {
 		return $ret;
 	}
 	
-	
-	/**
-	 * Список записей блога
-	 * 
-	 * @param object $cfg параметры списка
-	 * @return array
-	 */
-	public function TopicList($cfg){
-		if (!$this->IsViewRole()){
-			return null;
-		}
-		if (!is_object($cfg)){
-			$cfg = new stdClass();
-		}
-		$cfg->page = max(intval($cfg->page), 1);
-		$cfg->limit = 15;
-		
-		$topics = array();
+	private function TopicSetTags($topics){
 		$tids = array();
-		
-		$rows = BlogTopicQuery::TopicList($this->db, $cfg->page, $cfg->limit);
-		while (($row = $this->db->fetch_array($rows))){
-			$topic = new BlogTopicInfo($row);
-			array_push($topics, $topic);
+
+		foreach ($topics as $topic){
 			array_push($tids, $topic->id);
 		}
 		
@@ -135,7 +115,33 @@ class BlogManager extends Ab_ModuleManager {
 				}
 			}
 			$topic->tags = $tags;
+		}		
+	}
+	
+	/**
+	 * Список записей блога
+	 * 
+	 * @param object $cfg параметры списка
+	 * @return array
+	 */
+	public function TopicList($cfg){
+		if (!$this->IsViewRole()){
+			return null;
 		}
+		if (!is_object($cfg)){
+			$cfg = new stdClass();
+		}
+		$cfg->page = max(intval($cfg->page), 1);
+		$cfg->limit = 15;
+		
+		$topics = array();
+		
+		$rows = BlogTopicQuery::TopicList($this->db, $cfg->page, $cfg->limit);
+		while (($row = $this->db->fetch_array($rows))){
+			array_push($topics, new BlogTopicInfo($row));
+		}
+		
+		$this->TopicSetTags($topics);
 		
 		return new BlogTopicList($topics);
 	}
@@ -147,6 +153,35 @@ class BlogManager extends Ab_ModuleManager {
 		}
 		return $topicList->ToAJAX();
 	}
+	
+	/**
+	 * @return BlogTopic
+	 */
+	public function Topic($topicid){
+		if (!$this->IsViewRole()){
+			return null;
+		}
+	
+		$row = BlogTopicQuery::Topic($this->db, $topicid);
+		if (empty($row)){
+			return null;
+		}
+		$topic = new BlogTopic($row);
+		$this->TopicSetTags(array($topic));
+		
+		return $topic;
+	}
+	
+	public function TopicToAJAX($topicid){
+		$topic = $this->Topic($topicid);
+		if (is_null($topic)){
+			return null;
+		}
+	
+		$ret = new stdClass();
+		$ret->topic = $topic->ToAJAX();
+		return $ret;
+	}	
 	
 	/**
 	 * @return BlogCategoryList
@@ -172,30 +207,9 @@ class BlogManager extends Ab_ModuleManager {
 		}
 		return $catList->ToAJAX();
 	}
+
 	
-	/**
-	 * @return BlogTopic
-	 */
-	public function Topic($topicid){
-		if (!$this->IsViewRole()){
-			return null;
-		}
-		
-		$row = BlogTopicQuery::Topic($this->db, $topicid);
-		if (empty($row)){
-			return null;
-		}
-		return new BlogTopic($row);
-	}
 	
-	public function TopicToAJAX($topicid){
-		$topic = $this->Topic($topicid);
-		if (is_null($topic)){ return null; }
-		
-		$ret = new stdClass();
-		$ret->topic = $topic->ToAJAX();
-		return $ret;
-	}
 	
 	
 	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
