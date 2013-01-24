@@ -129,11 +129,13 @@ Component.entryPoint = function(NS){
 		onLoad: function(topic){
 			this.infoWidget = new NS.TopicInfoLineWidget(this.gel('info'), topic);
 			
-			// var cat = NS.blogManager.categoryList.get(topic.catid);
+			var cat = NS.manager.categoryList.get(topic.catid);
+			Brick.console(cat);
 
 			this.elSetHTML({
 				'intro': topic.intro,
-				'tl': topic.title
+				'tl': topic.title,
+				'cattl': !L.isNull(cat) ? cat.title : ''
 			});
 		}
 	});

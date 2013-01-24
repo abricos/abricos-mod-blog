@@ -128,7 +128,6 @@ Component.entryPoint = function(NS){
 	};
 	YAHOO.extend(Category, SysNS.Item, {
 		init: function(d){
-			this.topicList = new TopicList();
 			Category.superclass.init.call(this, d);
 		},
 		update: function(d){
@@ -300,10 +299,13 @@ Component.entryPoint = function(NS){
 			NS.manager = this;
 			
 			this.users = Brick.mod.uprofile.viewer.users;
+			this.categoryList = new NS.CategoryList();
 			
 			var __self = this;
 			R.load(function(){
-				NS.life(callback, __self);
+				__self.categoryListLoad(function(){
+					NS.life(callback, __self);
+				});
 			});
 		},
 		ajax: function(data, callback){
@@ -315,6 +317,19 @@ Component.entryPoint = function(NS){
 					NS.life(callback, request.data);
 				}
 			});
+		},
+		categoryListLoad: function(callback){
+			var __self = this;
+			this.ajax({'do': 'categorylist'}, function(d){
+				var list = __self.categoryList;
+				
+				if (!L.isNull(d) && !L.isNull(d['categories'])){
+					list.clear();
+					list.update(d['categories']);
+				}
+				
+				NS.life(callback, list);
+			});			
 		},
 		topicListLoad: function(callback, cfg){
 			cfg = L.merge({

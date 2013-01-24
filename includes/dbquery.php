@@ -101,6 +101,19 @@ class BlogTopicQuery {
 		return $db->query_read($sql);
 	}
 	
+	public static function CategoryList(Ab_Database $db){
+		$sql = "
+			SELECT
+				catid as id,
+				name as nm,
+				phrase as tl
+			FROM ".$db->prefix."bg_cat
+			WHERE language='".bkstr(Abricos::$LNG)."'
+			ORDER BY tl
+		";
+		return $db->query_read($sql);
+	}
+	
 }
 
 

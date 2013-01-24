@@ -57,6 +57,8 @@ class BlogManager extends Ab_ModuleManager {
 		switch($d->do){
 			case "topiclist": 
 				return $this->TopicListToAJAX();
+			case "categorylist": 
+				return $this->CategoryListToAJAX();
 		}
 
 		// TODO: Удалить
@@ -149,8 +151,30 @@ class BlogManager extends Ab_ModuleManager {
 		return $topicList->ToAJAX();
 	}
 	
+	/**
+	 * @return BlogCategoryList
+	 */
+	public function CategoryList(){
+		if (!$this->IsViewRole()){
+			return null;
+		}
+		
+		$cats = array();
+		$rows = BlogTopicQuery::CategoryList($this->db);
+		while (($row = $this->db->fetch_array($rows))){
+			array_push($cats, new BlogCategory($row));
+		}
+		
+		return new BlogCategoryList($cats);
+	}
 	
-	
+	public function CategoryListToAJAX(){
+		$catList = $this->CategoryList();
+		if (is_null($catList)){
+			return null;
+		}
+		return $catList->ToAJAX();
+	}
 	
 	
 	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -526,12 +550,6 @@ class BlogManager extends Ab_ModuleManager {
 	public function CategoryBlock (){
 		if (!$this->IsViewRole()){ return null; }
 		return BlogQuery::CategoryBlock($this->db);
-	}
-	
-	public function CategoryList(){
-		if (!$this->IsViewRole()){ return null; }
-		
-		return BlogQuery::CategoryList($this->db, $this->IsAdminRole());
 	}
 	
 	public function Category($categoryid){

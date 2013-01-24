@@ -156,8 +156,42 @@ class TopicTag {
 	}
 }
 
-class Category {
+class BlogCategory {
+	public $id;
+	public $title;
+	public $name;
 	
+	public function __construct($d){
+		$this->id = $d['id'];
+		$this->title = $d['tl'];
+		$this->name = $d['nm'];
+	}
+	
+	public function ToAJAX(){
+		$ret = new stdClass();
+		$ret->id = $this->id;
+		$ret->tl = $this->title;
+		$ret->nm = $this->name;
+		return $ret;
+	}
+}
+
+class BlogCategoryList {
+
+	public $list;
+
+	public function __construct($list){
+		$this->list = $list;
+	}
+
+	public function ToAJAX(){
+		$ret = new stdClass();
+		$ret->categories = array();
+		for ($i=0;$i<count($this->list); $i++){
+			array_push($ret->categories, $this->list[$i]->ToAJAX());
+		}
+		return $ret;
+	}
 }
 
 
