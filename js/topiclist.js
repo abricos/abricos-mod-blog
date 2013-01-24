@@ -111,14 +111,36 @@ Component.entryPoint = function(NS){
 		}		
 	});
 	NS.TopicInfoLineWidget = TopicInfoLineWidget;
+
 	
+	var TagListWidget = function(container, list){
+		TagListWidget.superclass.constructor.call(this, container, {
+			'buildTemplate': buildTemplate, 'tnames': 'taglist,tagrow,tagrowcm' 
+		}, list);
+	};
+	YAHOO.extend(TagListWidget, Brick.mod.widget.Widget, {
+		init: function(list){
+			this.list = list;
+		},
+		onLoad: function(list){
+			var TM = this._TM, alst = [];
+			list.foreach(function(tag){
+				alst[alst.length] = TM.replace('tagrow', {
+					'tl': tag.title
+				});
+			});
+			
+			this.elSetHTML('list', alst.join(TM.replace('tagrowcm')));
+		}
+	});
+	NS.TagListWidget = TagListWidget;
+
 	
 	var TopicRowWidget = function(container, topic){
 		TopicRowWidget.superclass.constructor.call(this, container, {
 			'buildTemplate': buildTemplate, 'tnames': 'row' 
 		}, topic);
 	};
-	
 	YAHOO.extend(TopicRowWidget, Brick.mod.widget.Widget, {
 		init: function(topic){
 			this.topic = topic;
@@ -127,10 +149,10 @@ Component.entryPoint = function(NS){
 			this.infoWidget.destroy();
 		},
 		onLoad: function(topic){
+			this.tagsWidget = new NS.TagListWidget(this.gel('taglist'), topic.tagList);
 			this.infoWidget = new NS.TopicInfoLineWidget(this.gel('info'), topic);
 			
 			var cat = NS.manager.categoryList.get(topic.catid);
-			Brick.console(cat);
 
 			this.elSetHTML({
 				'intro': topic.intro,

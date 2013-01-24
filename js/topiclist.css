@@ -31,7 +31,7 @@
 	text-decoration: underline;
 }
 
-/* * * * * * Информационный блок топика * * * * */
+/* * * Информационный блок топика * * */
 .aw-blog .topicinfo {
     font-family: Verdana,"Helvetica Neue",Helvetica,Arial,sans-serif;
     font-size: 0.9em;
@@ -68,37 +68,21 @@
 	padding-left: 20px;
 }
 
-
-
-
-/*
-.aw-blog .topic .topicinfo {
+/* * * Список тегов * * */
+.aw-blog .taglist {
     clear: both;
-    font-size-adjust: none;
-    font-stretch: normal;
-    font-style: normal;
-    font-variant: normal;
-    font-weight: normal;
-    line-height: 2em;
-    margin-top: 2.22em;
-    padding: 0;
-    width: 100%;
-    margin-bottom: 25px;
+    margin: 10px 0 0;
 }
-.aw-blog .topic .topicinfo .date {
-	margin: 0 20px 0 10px;
+.aw-blog .taglist ul {
+	background: url("/modules/blog/images/tag.gif") no-repeat scroll 0 50% #FFFFFF;
+	list-style: none outside none;
+    padding: 0.2em 0 0.1em 20px;
+    display: block;
 }
-
-.aw-blog .topic .topicinfo .user a {
-	background: url("/modules/blog/images/icon-user.gif") no-repeat scroll 0 50% #FFFFFF;
-    color: #CC0000;
-    padding: 2px 2em 3px 21px;
+.aw-blog .taglist li {
+	display: inline;
+	font-size: 0.83em;
 }
-.aw-blog .topic .topicinfo a.comments { 
-	background: url("/modules/blog/images/balloon-left.gif") no-repeat scroll 0 50% #FFFFFF;
-    color: #CC0000;
-    cursor: pointer;
-    padding: 2px 0 3px 21px;
+.aw-blog .taglist a {
+	color: #666666;
 }
-/**/
-
