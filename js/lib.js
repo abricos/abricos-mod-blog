@@ -376,7 +376,6 @@ Component.entryPoint = function(NS){
 		},
 		topicLoad: function(topicid, callback){
 			
-			var __self = this;
 			this.ajax({
 				'do': 'topic',
 				'topicid': topicid
@@ -388,6 +387,20 @@ Component.entryPoint = function(NS){
 				}
 				
 				NS.life(callback, topic);
+			});
+		},
+		commentLiveListLoad: function(callback){
+			this.ajax({
+				'do': 'commentlivelist'
+			}, function(d){
+				Brick.console(d);
+				var list = null;
+				
+				if (!L.isNull(d) && !L.isNull(d['comments'])){
+					// list = new NS.CommentLiveList(d['comments']);
+				}
+				
+				NS.life(callback, list);
 			});
 		}
 	};

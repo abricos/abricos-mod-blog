@@ -1,7 +1,6 @@
 .aw-blog .wspage {
 	min-height: 160px;
 }
-
 .aw-blog .ws-loading {
 	margin: 70px 0;
 	text-align: center;
@@ -78,3 +77,12 @@
 	height: 16px;
 }
 
+.aw-blog .wspacetable {
+	width: 100%;
+}
+.aw-blog .wspacetable .wscol-content {
+	padding-right: 20px;
+}
+.aw-blog .wspacetable .wscol-right {
+	width: 200px;
+}

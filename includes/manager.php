@@ -58,9 +58,11 @@ class BlogManager extends Ab_ModuleManager {
 			case "topic": 
 				return $this->TopicToAJAX($d->topicid);
 			case "topiclist": 
-				return $this->TopicListToAJAX();
+				return $this->TopicListToAJAX($d);
 			case "categorylist": 
 				return $this->CategoryListToAJAX();
+			case "commentlivelist": 
+				return $this->CommentLiveListToAJAX($d);
 		}
 
 		// TODO: Удалить
@@ -208,7 +210,55 @@ class BlogManager extends Ab_ModuleManager {
 		return $catList->ToAJAX();
 	}
 
+	/**
+	 * Прямой эфир
+	 * @param object $cfg
+	 * @return BlogCommentLiveList
+	 */
+	public function CommentLiveList($cfg){
+		if (!$this->IsViewRole()){ return null; }
+		
+		if (!is_object($cfg)){
+			$cfg = new stdClass();
+		}
+		$cfg->page = max(intval($cfg->page), 1);
+		$cfg->limit = 5;
+		
+		$list = array();
+		$tids = array();
+		
+		$rows = BlogTopicQuery::CommentLiveList($this->db, $cfg->page, $cfg->limit);
+		while (($row = $this->db->fetch_array($rows))){
+			$cmtLive = new BlogCommentLive($row);
+			
+			array_push($list, $cmtLive);
+			array_push($tids, $cmtLive->topicid);
+		}
+		$topics = array();
+		$rows = BlogTopicQuery::TopicListByIds($this->db, $tids);
+		while (($row = $this->db->fetch_array($rows))){
+			$topic = new BlogTopicInfo($row);
+			array_push($topics, new BlogTopicInfo($row));
+
+			for ($i=0;$i<count($list);$i++){
+				if ($list[$i]->topicid == $topic->id){
+					$list[$i]->topic = $topic;
+				}
+			}
+		}
+		
+		$this->TopicSetTags($topics);
+		
+		return new BlogCommentLiveList($list);
+	}
 	
+	public function CommentLiveListToAJAX($cfg){
+		$list = $this->CommentLiveList($cfg);
+		if (is_null($list)){
+			return null;
+		}
+		return $list->ToAJAX();
+	}
 	
 	
 	
@@ -657,10 +707,12 @@ class BlogManager extends Ab_ModuleManager {
 	 * Список последних комментариев
 	 * @param integer $count вернуть кол-во $count
 	 */
+	/*
 	public function CommentLive($count){
 		if (!$this->IsViewRole()){ return null; }
 		return BlogQuery::CommentLive($this->db, $count);
 	}
+	/**/
 	
 	// комментарии
 	public function IsCommentList($contentid){

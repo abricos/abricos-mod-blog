@@ -193,5 +193,63 @@ class BlogCategoryList {
 	}
 }
 
+class BlogCommentLive {
+	/**
+	 * Идентификатор комментария
+	 * @var integer
+	 */
+	public $id;
+	public $topicid;
+	public $body;
+	public $date;
+	
+	/**
+	 * @var BlogUser
+	 */
+	public $user;
+	
+	/**
+	 * @var BlogTopicInfo
+	 */
+	public $topic;
+	
+	public function __construct($d){
+		$this->id			= $d['id'];
+		$this->topicid		= $d['tid'];
+		$this->body			= $d['body'];
+		$this->date			= $d['dl'];
+		$this->user = new BlogUser($d);
+	}
+	
+	public function ToAJAX(){
+		$ret = new stdClass();
+		$ret->id = $this->id;
+		$ret->body = $this->body;
+		$ret->dl = $this->date;
+		$ret->topic = $this->topic->ToAJAX();
+		$ret->user = $this->user->ToAJAX();
+		return $ret;
+	}
+}
+
+class BlogCommentLiveList {
+
+	public $list;
+
+	public function __construct($list){
+		$this->list = $list;
+	}
+
+	public function ToAJAX(){
+		$ret = new stdClass();
+		$ret->comments = array();
+		for ($i=0;$i<count($this->list); $i++){
+			array_push($ret->comments, $this->list[$i]->ToAJAX());
+		}
+		return $ret;
+	}
+}
+
+
 
 ?>

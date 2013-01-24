@@ -1,0 +1,16 @@
+/* * * * Блок: прямой эфир * * * */
+.aw-blog .blockbox {
+	margin-bottom: 10px;
+	position: relative;
+}
+.aw-blog .blockbox h4 {
+	font-size: 1.5em;
+}
+.aw-blog .blockbox h4 a {
+	text-decoration: none;
+	color: #6A7398;
+}
+.aw-blog .blockbox .bloading {
+	position: absolute; top: 4px; right: 2px;
+	
+}

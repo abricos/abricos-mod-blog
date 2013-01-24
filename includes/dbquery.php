@@ -7,29 +7,35 @@
  */
 
 class BlogTopicQuery {
+	
+	private static function TopicFields(Ab_Database $db){
+		return "
+			t.topicid as id,
+			t.catid as catid,
+			cc.contentid as ctid,
+			t.title as tl,
+			t.intro as intro,
+			length(cc.body) as bdlen,
+			t.userid as uid,
+			u.username as unm,
+			u.avatar as avt,
+			u.firstname as fnm,
+			u.lastname as lnm,
+			(
+				SELECT count(cm.contentid) as cnt
+				FROM ".$db->prefix."cmt_comment cm
+				WHERE t.contentid = cm.contentid
+				GROUP by cm.contentid
+			) as cmt,
+			t.datepub as dl
+		";
+	}
 
 	public static function Topic(Ab_Database $db, $topicid){
+		
 		$sql = "
 			SELECT
-				t.topicid as id,
-				t.catid as catid,
-				cc.contentid as ctid,
-				t.title as tl,
-				t.intro as intro,
-				length(cc.body) as bdlen,
-				t.userid as uid,
-				u.username as unm,
-				u.avatar as avt,
-				u.firstname as fnm,
-				u.lastname as lnm,
-				(
-					SELECT count(cm.contentid) as cnt
-					FROM ".$db->prefix."cmt_comment cm
-					WHERE t.contentid = cm.contentid
-					GROUP by cm.contentid
-				) as cmt,
-				t.datepub as dl,
-				
+				".BlogTopicQuery::TopicFields($db).",
 				cc.body as bd
 		
 			FROM ".$db->prefix."bg_topic t
@@ -46,25 +52,7 @@ class BlogTopicQuery {
 	
 		$sql = "
 			SELECT
-				t.topicid as id,
-				t.catid as catid,
-				cc.contentid as ctid,
-				t.title as tl,
-				t.intro as intro,
-				length(cc.body) as bdlen,
-				t.userid as uid,
-				u.username as unm,
-				u.avatar as avt,
-				u.firstname as fnm,
-				u.lastname as lnm,
-				(
-					SELECT count(cm.contentid) as cnt
-					FROM ".$db->prefix."cmt_comment cm
-					WHERE t.contentid = cm.contentid
-					GROUP by cm.contentid
-				) as cmt,
-				t.datepub as dl
-		
+				".BlogTopicQuery::TopicFields($db)."
 			FROM ".$db->prefix."bg_topic t
 			INNER JOIN ".$db->prefix."content cc ON t.contentid = cc.contentid
 			INNER JOIN ".$db->prefix."user u ON t.userid = u.userid
@@ -74,6 +62,24 @@ class BlogTopicQuery {
 		";
 		return $db->query_read($sql);
 	}
+
+	public static function TopicListByIds(Ab_Database $db, $ids){
+		$awh = array();
+		for ($i=0;$i<count($ids);$i++){
+			array_push($awh, "t.topicid=".bkint($ids[$i]));
+		}
+	
+		$sql = "
+			SELECT
+				".BlogTopicQuery::TopicFields($db)."
+			FROM ".$db->prefix."bg_topic t
+			INNER JOIN ".$db->prefix."content cc ON t.contentid = cc.contentid
+			INNER JOIN ".$db->prefix."user u ON t.userid = u.userid
+			WHERE ".implode(" OR ", $ids)."
+		";
+		return $db->query_read($sql);
+	}
+	
 	
 	public static function TagListByTopicIds(Ab_Database $db, $tids){
 		if (!is_array($tids)){
@@ -151,6 +157,42 @@ class BlogTopicQuery {
 		";
 		return $db->query_read($sql);
 	}
+	
+	public static function CommentLiveList(Ab_Database $db, $page, $limit){
+		$sql = "
+			SELECT
+				c.commentid as id,
+				c.contentid as ctid,
+				c.body,
+				c.dateline as dl,
+
+				t.topicid as tid,
+				a.cnt,
+				
+				u.userid as uid,
+				u.username as unm,
+				u.avatar as avt,
+				u.firstname as fnm,
+				u.lastname as lnm
+				
+			FROM (
+				SELECT ap.contentid, max( ap.dateline ) AS dl, count(ap.contentid) as cnt
+				FROM ".$db->prefix."cmt_comment ap
+				INNER JOIN ".$db->prefix."bg_topic tp ON ap.contentid = tp.contentid
+				WHERE tp.deldate = 0 and tp.status = 1 AND tp.language='".bkstr(Abricos::$LNG)."'
+				GROUP BY contentid
+				ORDER BY dl DESC
+				LIMIT ".$limit."
+			) a
+			LEFT JOIN ".$db->prefix."cmt_comment c ON a.contentid = c.contentid AND c.dateline = a.dl
+			LEFT JOIN ".$db->prefix."user u ON c.userid = u.userid
+			LEFT JOIN ".$db->prefix."bg_topic t ON c.contentid = t.contentid
+			WHERE t.deldate = 0 and t.status = 1 AND t.language='".bkstr(Abricos::$LNG)."'
+			ORDER BY dl DESC
+		";
+		return $db->query_read($sql);
+	}
+	
 	
 }
 

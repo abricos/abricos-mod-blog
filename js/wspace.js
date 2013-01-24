@@ -6,7 +6,7 @@
 var Component = new Brick.Component();
 Component.requires = { 
 	mod:[
-        {name: '{C#MODNAME}', files: ['lib.js']}
+        {name: '{C#MODNAME}', files: ['blocks.js']}
 	]		
 };
 Component.entryPoint = function(NS){
@@ -65,9 +65,14 @@ Component.entryPoint = function(NS){
 		},
 		onLoad: function(pgInfo){
 			var __self = this;
-			R.load(function(){
-				__self.showPage(pgInfo);
+			NS.initManager(function(){
+				__self.onLoadManager(pgInfo);
 			});
+		},
+		onLoadManager: function(pgInfo){
+			this.cmtLiveWidget = new NS.CommentLiveBlockWidget(this.gel('cmtlive'));
+			
+			this.showPage(pgInfo);
 		},
 		showPage: function(p){
 			p = L.merge(DEFPAGE, p || {});
@@ -139,7 +144,7 @@ Component.entryPoint = function(NS){
 			return buildTemplate(this, 'panel').replace('panel');
 		},
 		onLoad: function(){
-			this.widget = new WSWidget(this._TM.getEl('panel.widget'), this.pgInfo);
+			this.widget = new NS.WSWidget(this._TM.getEl('panel.widget'), this.pgInfo);
 		},
 		showPage: function(p){
 			this.widget.showPage(p);

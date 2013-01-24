@@ -5,44 +5,49 @@
 </div>
 
 <!--{widget}-->
-<div id="{i#gmenu}">
-
-	<div class="gheadermenu">
-		<h2>Блог</h2>
-		
-		<a href="{v#urlhome}" class="logo">
-			<img src="/modules/blog/images/logo-96x96.png" />
-		</a>
-		
-		<ul class="topmenu">
-			<li id="{i#mtopics}"><a href="{v#urltopics}" class="sel" title="">Топики</a></li>
-			<li id="{i#mblogs}"><a href="{v#urlhome}" title="">Блоги</a></li>
-			<li id="{i#musers}"><a href="{v#urlusers}" title="">Люди</a></li>
-		</ul>
-		<div class="clear"></div>
-	</div>
+<div id="{i#id}" class="wspace">
+	<div id="{i#gmenu}">
 	
-	<div class="gbmenu">
-	
-		<div id="{i#mttopics}" class="gbitems" style="display: none;">
-			<a id="{i#itopicsall}" class="gbitem" href="{v#urltopics}">Все</a>
-			<a id="{i#itopicspub}" class="gbitem" href="{v#urltopicspub}">Коллективные</a>
-			<a id="{i#itopicsperson}" class="gbitem" href="{v#urltopicsloc}">Персональные</a>
+		<div class="gheadermenu">
+			<h2>Блог</h2>
+			
+			<a href="{v#urlhome}" class="logo">
+				<img src="/modules/blog/images/logo-96x96.png" />
+			</a>
+			
+			<ul class="topmenu">
+				<li id="{i#mtopics}"><a href="{v#urltopics}" class="sel" title="">Топики</a></li>
+				<li id="{i#mblogs}"><a href="{v#urlhome}" title="">Блоги</a></li>
+				<li id="{i#musers}"><a href="{v#urlusers}" title="">Люди</a></li>
+			</ul>
+			<div class="clear"></div>
 		</div>
-		
-		<br class="clear" />
-		<div class="line"></div>
 	</div>
+	
+	<table class="wspacetable"><tbody><tr>
+		<td class="wscol-content">
 
-
+			<div class="gbmenu">
+				<div id="{i#mttopics}" class="gbitems" style="display: none;">
+					<a id="{i#itopicsall}" class="gbitem" href="{v#urltopics}">Все</a>
+					<a id="{i#itopicspub}" class="gbitem" href="{v#urltopicspub}">Коллективные</a>
+					<a id="{i#itopicsperson}" class="gbitem" href="{v#urltopicsloc}">Персональные</a>
+				</div>
+				<br class="clear" />
+				<div class="line"></div>
+			</div>
+		
+			<div id="{i#loading}" class="ws-loading">
+				<img src="/images/loading.gif" /> Идет загрузка данных <br />Пожалуйста, подождите...
+			</div>
+			<div id="{i#board}" class="board" style="display: none"></div>
+			
+		</td>
+		<td class="wscol-right">
+			<div id="{i#cmtlive}"></div>
+		</td>	
+	</tr></tbody></table>
 </div>
-
-<div id="{i#loading}" class="ws-loading">
-	<img src="/images/loading.gif" /> Идет загрузка данных <br />Пожалуйста, подождите...
-</div>
-
-<div id="{i#board}" class="board" style="display: none"></div>
-
 
 <!--{page}--><div id="{i#id}" class='wspage'></div>
 
