@@ -54,4 +54,38 @@ Component.entryPoint = function(NS){
 	});
 	NS.CommentLiveBlockWidget = CommentLiveBlockWidget;
 
+	var TopicListBlockWidget = function(container){
+		TopicListBlockWidget.superclass.constructor.call(this, container, {
+			'buildTemplate': buildTemplate, 'tnames': 'topics,toplist,toprow' 
+		});
+	};
+	YAHOO.extend(TopicListBlockWidget, Brick.mod.widget.Widget, {
+		onLoad: function(){
+			var __self = this;
+			NS.initManager(function(){
+				NS.manager.topicListLoad(function(list){
+					__self.renderList(list);
+				}, {
+					'limit': 5
+				});
+			});
+		},
+		renderList: function(list){
+			this.elHide('loading');
+			if (L.isNull(list)){ return; }
+			var lst = "", TM = this._TM;
+			list.foreach(function(topic){
+				lst += TM.replace('toprow', {
+					'cattl': topic.category.title,
+					'urlcat': topic.category.url(),
+					'toptl': topic.title,
+					'urlcmt': topic.url()
+				});
+			});
+			this.elSetHTML('list', TM.replace('toplist', {
+				'rows': lst
+			}));
+		}
+	});
+	NS.TopicListBlockWidget = TopicListBlockWidget;	
 };

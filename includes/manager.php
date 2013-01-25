@@ -134,7 +134,7 @@ class BlogManager extends Ab_ModuleManager {
 			$cfg = new stdClass();
 		}
 		$cfg->page = max(intval($cfg->page), 1);
-		$cfg->limit = 15;
+		$cfg->limit = max(1, min(50, intval($cfg->limit)));
 		
 		$topics = array();
 		

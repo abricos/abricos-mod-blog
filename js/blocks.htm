@@ -20,3 +20,24 @@
 	<a href="{v#urlcmt}" class="topic">{v#toptl}</a>
 	<a href="{v#urlcmt}" class="comments">({v#cmtcnt})</a>
 </li>
+
+<!--{topics}-->
+<div id="{i#id}" class="topiclistbox blockbox">
+	<h4>
+		<a href="#" title="Записи в блоге">Записи в блоге</a>
+	</h4>
+	
+	<img id="{i#loading}" class="bloading" src="/images/loading.gif" />
+
+	<div id="{i#list}" class="list"></div>
+</div>
+
+<!--{toplist}-->
+<ul id="{i#list}">{v#rows}</ul>
+
+<!--{toprow}-->
+<li>
+	<a href="{v#urlcat}" class="category">{v#cattl}</a>
+	&nbsp;→&nbsp; 
+	<a href="{v#urlcmt}" class="topic">{v#toptl}</a>
+</li>

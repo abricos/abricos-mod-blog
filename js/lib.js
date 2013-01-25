@@ -272,7 +272,8 @@ Component.entryPoint = function(NS){
 		topicListLoad: function(callback, cfg){
 			cfg = L.merge({
 				'catid': 0,
-				'page': 1
+				'page': 1,
+				'limit': 15
 			}, cfg || {});
 			
 			cfg['do'] = 'topiclist';
@@ -293,7 +294,6 @@ Component.entryPoint = function(NS){
 			});
 		},
 		topicLoad: function(topicid, callback){
-			
 			this.ajax({
 				'do': 'topic',
 				'topicid': topicid

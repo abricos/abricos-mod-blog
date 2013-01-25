@@ -71,7 +71,7 @@ Component.entryPoint = function(NS){
 		},
 		onLoadManager: function(pgInfo){
 			this.cmtLiveWidget = new NS.CommentLiveBlockWidget(this.gel('cmtlive'));
-			
+			this.topicListWidget = new NS.TopicListBlockWidget(this.gel('toplist'));
 			this.showPage(pgInfo);
 		},
 		showPage: function(p){
