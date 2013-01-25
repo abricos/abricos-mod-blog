@@ -1,0 +1,19 @@
+/* * * * Topic * * * */
+.aw-blog .topiceditor .edstedit .edstnew,
+.aw-blog .topiceditor .edstnew .edstedit {
+	display: none;
+}
+
+.aw-blog .topiceditor input.fldtitle,
+.aw-blog .topiceditor textarea.fldintro,
+.aw-blog .topiceditor textarea.fldbody {
+	width: 520px;
+}
+
+.aw-blog .topiceditor textarea.fldintro {
+	height: 200px;
+}
+.aw-blog .topiceditor textarea.fldbody {
+	height: 450px;
+}
+

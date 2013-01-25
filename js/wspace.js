@@ -35,10 +35,12 @@ Component.entryPoint = function(NS){
 
 	var GMID = {
 		'TopicListWidget': 'topics',
+		'WriteWidget': 'write',
 		'AboutWidget': 'about'
 	};
 	GMIDI = {
-		'topics': ['all', 'pub', 'person']
+		'topics': ['all', 'pub', 'person'],
+		'write': ['topic', 'blog']
 	};
 	var DEFPAGE = {
 		'component': 'topic',
@@ -60,7 +62,8 @@ Component.entryPoint = function(NS){
 			var NG = NS.navigator;
 			return {
 				'urltopics': NG.topic.list(),
-				'urlhome': NG.home()
+				'urlhome': NG.home(),
+				'urlwrite': NG.write.view()
 			};
 		},
 		onLoad: function(pgInfo){

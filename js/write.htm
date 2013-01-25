@@ -1,0 +1,57 @@
+<!--{widget}-->
+<div id="{i#id}" class="write">
+	
+	<div id="{i#widget}"></div>
+</div>
+
+
+<!--{topic}-->
+<div id="{i#id}" class="topiceditor">
+	
+	<div id="{i#loading}" class="loading">
+		<img src="/images/loading.gif" /> Идет загрузка данных <br /> Пожалуйста, подождите...
+	</div>
+	
+	<div id="{i#view}" class="editform {v#cledst}">
+	
+		<div class="group">
+	
+			<h3 class="edstnew">Создание топика</h3>
+			<h3 class="edstedit">Редактирование топика</h3>
+		
+			<dl>
+				<dt>Заголовок</dt>
+				<dd>
+					<input id="{i#title}" type="text" class="fldtitle" />
+				</dd>
+			</dl>
+
+			<dl>
+				<dt>Анонс</dt>
+				<dd>
+					<textarea id="{i#intro}" class="fldintro"></textarea>
+				</dd>
+			</dl>
+
+			<dl>
+				<dt>Продолжение записи</dt>
+				<dd>
+					<textarea id="{i#body}" class="fldbody"></textarea>
+				</dd>
+			</dl>
+		</div>
+
+		<dl>
+			<dt>&nbsp;</dt>
+			<dd class="baction">
+				<input id="{i#bcreate}" value="Создать топик" type="button" class="btn edstnew" />
+				<input id="{i#bsave}" value="Сохранить топик" type="button" class="btn edstedit" />
+				<input id="{i#bcancel}" value="Отмена" type="button" class="btn" />
+				<span id="{i#loading}" style="display: none">
+					<img src="/images/loading.gif" class="ldg" /> Сохранение...
+				</span>
+			</dd>
+		</dl>	
+	
+	</div>
+</div>

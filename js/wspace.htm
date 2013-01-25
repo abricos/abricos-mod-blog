@@ -15,12 +15,20 @@
 				<img src="/modules/blog/images/logo-96x96.png" />
 			</a>
 			
-			<ul class="topmenu">
-				<li id="{i#mtopics}"><a href="{v#urltopics}" class="sel" title="">Топики</a></li>
-				<li id="{i#mblogs}"><a href="{v#urlhome}" title="">Блоги</a></li>
-				<li id="{i#musers}"><a href="{v#urlusers}" title="">Люди</a></li>
-			</ul>
-			<div class="clear"></div>
+			<div class="topmenublock">
+				<ul class="topmenu topmenul">
+					<li id="{i#mtopics}"><a href="{v#urltopics}" class="sel" title="">Топики</a></li>
+					<li id="{i#mblogs}"><a href="{v#urlhome}" title="">Блоги</a></li>
+					<li id="{i#musers}"><a href="{v#urlusers}" title="">Люди</a></li>
+				</ul>
+				<div class="clear"></div>
+	
+				<ul class="topmenu topmenur">
+					<li id="{i#mwrite}"><a href="{v#urlwrite}" title="Написать в блог">Написать</a></li>
+				</ul>
+				<div class="clear"></div>
+			</div>
+			
 		</div>
 	</div>
 	
@@ -33,6 +41,12 @@
 					<a id="{i#itopicspub}" class="gbitem" href="{v#urltopicspub}">Коллективные</a>
 					<a id="{i#itopicsperson}" class="gbitem" href="{v#urltopicsloc}">Персональные</a>
 				</div>
+
+				<div id="{i#mtwrite}" class="gbitems" style="display: none;">
+					<a id="{i#iwritetopic}" class="gbitem" href="{v#urlwritetopic}">Топик</a>
+					<a id="{i#iwriteblog}" class="gbitem" href="{v#urlwriteblog}">Создать блог</a>
+				</div>
+				
 				<br class="clear" />
 				<div class="line"></div>
 			</div>

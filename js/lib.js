@@ -50,6 +50,11 @@ Component.entryPoint = function(NS){
 				return WS;
 			}
 		},
+		'write': {
+			'view': function(){
+				return WS+'write/WriteWidget/';
+			}
+		},
 		'about': function(){
 			return WS+'about/AboutWidget/';
 		},
@@ -87,6 +92,7 @@ Component.entryPoint = function(NS){
 			'tl': '',
 			'dl': 0, 
 			'uid': Brick.env.user.id,
+			'user': null,
 			'cmt': 0,
 			'bdlen': 0,
 			'intro': '',
@@ -110,7 +116,9 @@ Component.entryPoint = function(NS){
 			this.title = d['tl'];				// заголовок
 			this.userid = d['uid'];				// идентификатор автора
 
-			UP.viewer.users.update([d['user']]);
+			if (!L.isNull(d['user'])){
+				UP.viewer.users.update([d['user']]);
+			}
 			
 			// дата публикации
 			this.date = d['dl']==0 ? null : new Date(d['dl']*1000);

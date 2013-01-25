@@ -25,9 +25,16 @@
 	width: 96px;
 	height: 96px;
 }
-.aw-blog .gheadermenu ul.topmenu {
+
+.aw-blog .gheadermenu .topmenublock {
+	position: relative;
+}
+.aw-blog .gheadermenu ul.topmenul {
 	margin: 10px;
 	margin-top: 6px;
+}
+.aw-blog .gheadermenu ul.topmenur {
+	position: absolute;	top: 1px; right: 1px;
 }
 .aw-blog .gheadermenu ul.topmenu li{
 	float: left;
