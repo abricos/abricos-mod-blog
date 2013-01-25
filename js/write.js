@@ -74,11 +74,10 @@ Component.entryPoint = function(NS){
 			this.elHide('wrap');
 			
 			var Editor = Brick.widget.Editor;
-			this.editorIntro = new Editor(this.gel('intro'), {
-				'mode': Editor.MODE_VISUAL
-			});
-			this.editorBody = new Editor(this.gel('body'), {
-				'mode': Editor.MODE_VISUAL
+			this.editorBody = new Editor(this.gel('text'), {
+				'toolbar': Editor.TOOLBAR_STANDART,
+				'mode': Editor.MODE_VISUAL,
+				'toolbarExpert': false
 			});
 			
 		}
