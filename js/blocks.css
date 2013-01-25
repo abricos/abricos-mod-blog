@@ -1,10 +1,11 @@
-/* * * * Блок: прямой эфир * * * */
+/* * * * Блок * * * */
 .aw-blog .blockbox {
 	margin-bottom: 10px;
 	position: relative;
 }
 .aw-blog .blockbox h4 {
 	font-size: 1.5em;
+	padding-bottom: 9px;
 }
 .aw-blog .blockbox h4 a {
 	text-decoration: none;
@@ -12,5 +13,26 @@
 }
 .aw-blog .blockbox .bloading {
 	position: absolute; top: 4px; right: 2px;
-	
+}
+
+/* * * * Прямой эфир * * * */
+.aw-blog .commentlivebox .list {
+	color: #6A7398;
+}
+.aw-blog .commentlivebox .list li {
+	list-style-type: none;
+	padding-bottom: 0.6em;
+}
+.aw-blog .commentlivebox .list a {
+	margin-right: 0.5em;
+	text-decoration: none;	
+}
+.aw-blog .commentlivebox a.category {
+	color: #6A7398;
+	/* font-size: 0.92em; /**/
+	font-weight: bold;
+	margin-right: 0.4em;
+}
+.aw-blog .commentlivebox a.topic {
+	color: #999999;	
 }

@@ -224,7 +224,7 @@ class BlogCommentLive {
 	public function ToAJAX(){
 		$ret = new stdClass();
 		$ret->id = $this->id;
-		$ret->body = $this->body;
+		$ret->bd = $this->body;
 		$ret->dl = $this->date;
 		$ret->topic = $this->topic->ToAJAX();
 		$ret->user = $this->user->ToAJAX();

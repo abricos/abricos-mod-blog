@@ -42,6 +42,14 @@ Component.entryPoint = function(NS){
 				return WS+'topic/TopicViewWidget/'+topicid+'/';
 			}
 		},
+		'category': {
+			'list': function(){
+				return WS;
+			},
+			'view': function(catid){
+				return WS;
+			}
+		},
 		'about': function(){
 			return WS+'about/AboutWidget/';
 		},
@@ -89,9 +97,11 @@ Component.entryPoint = function(NS){
 	};
 	YAHOO.extend(TopicInfo, SysNS.Item, {
 		init: function(d){
+			this.type = 'info';
 			
 			this.tagList = new TagList();
-			this.type = 'info';
+			this.user = null;
+			this.category = null;
 			
 			TopicInfo.superclass.init.call(this, d);
 		},
@@ -111,8 +121,15 @@ Component.entryPoint = function(NS){
 			this.tagList.update(d['tags']);
 
 			this.isBody = d['bdlen']>0;
+			
+			this.user = UP.viewer.users.get(d['uid']);
+			this.category = NS.manager.categoryList.get(d['catid']*1);
+		},
+		url: function(){
+			return NS.navigator.topic.view(this.id);
 		}
 	});
+	NS.TopicInfo = TopicInfo;
 	
 	var Topic = function(d){
 		d = L.merge({
@@ -147,12 +164,12 @@ Component.entryPoint = function(NS){
 		Category.superclass.constructor.call(this, d);
 	};
 	YAHOO.extend(Category, SysNS.Item, {
-		init: function(d){
-			Category.superclass.init.call(this, d);
-		},
 		update: function(d){
 			this.title = d['tl'];
 			this.name = d['nm'];
+		},
+		url: function(){
+			return NS.navigator.category.view(this.id);
 		}
 	});		
 	NS.Category = Category;
@@ -176,141 +193,42 @@ Component.entryPoint = function(NS){
 	});
 	NS.CategoryList = CategoryList;
 	
-	/*
-	var BlogManager = function(data){
-		data = L.merge({
-			'categories': [],
-			'topics': [],
-			'users': []
-		}, data || {});
-		this.init(data);
+	var CommentLive = function(d){
+		d = L.merge({
+			'dl': '',
+			'bd': ''
+		}, d || {});
+		CommentLive.superclass.constructor.call(this, d);
 	};
-	BlogManager.prototype = {
-		init: function(data){
-			NS.blogManager = this;
+	YAHOO.extend(CommentLive, SysNS.Item, {
+		init: function(d){
+			this.topic = null;
+			this.user = null;
 			
-			this._loadPages = {};
+			CommentLive.superclass.init.call(this, d);
+		},		
+		update: function(d){
+			this.date = d['dl']==0 ? null : new Date(d['dl']*1000);
+			this.body = d['bd'];
 			
-			// список категорий
-			this.categoryList = new CategoryList(data['categories']);
-			this.tagList = new TagList();
-			this.topicList = new TopicList();
-			this.users = Brick.mod.uprofile.viewer.users;
-
-			this.updateData(data);
-		},
-		updateData: function(data){ // обновить данные
-			this.users.update(data['users']);
-			
-			this.updateTagList(data['tags']);
-
-			// общий список записей в блоге
-			this.updateTopicList(data['topics']);
-			
-			this.updateTopicTag(data['toptags'])
-		},
-		updateTagList: function(d){
-			d = d || [];
-			
-			for (var i=0;i<d.length;i++){
-				this.tagList.add(new Tag(d[i]));
+			if (L.isNull(this.topic)){
+				this.topic = new TopicInfo(d['topic']);
+			}else{
+				this.topic.update(d['topic']);
 			}
-		},
-		updateTopicList: function(d){
-			d = d || [];
-			
-			var cats = this.categoryList;
-			
-			for (var i=0;i<d.length;i++){
-				
-				var di = d[i], 
-					id = di['id']*1,
-					topic = this.topicList.get(id);
-				
-				if (!L.isNull(topic)){
-					topic.update(di);
-				} else {
-					topic = new Topic(di);
-					var category = cats.get(topic.catid);
-					
-					if (!L.isNull(category)){
-						category.topicList.add(topic);
-					}
-					this.topicList.add(topic);
-					
-					topic.user = this.users.get(topic.userid);
-				}
-			}
-		},
-		updateTopicTag: function(d){
-			d = d || [];
-			
-			for (var i=0;i<d.length;i++){
-				
-				var di = d[i],
-					topic = this.topicList.get(di['tid']),
-					tag = this.tagList.get(di['gid']);
-
-				if (!L.isNull(topic) && !L.isNull(tag)){
-					topic.tagList.add(tag);
-				}
-			}
-			
-		},
-		foreach: function (f, catid){
-			var tpList = this.topicList;
-			if (catid > 0){
-				var cat = this.categoryList.get(catid);
-				if (!L.isNull(cat)){
-					tpList = cat.topicList;
-				}
-			}
-			tpList.foreach(f);
-		},
-		loadPage: function(catid, inc, callback){ // inc>0 подгрузить на одну страницу больше
-			catid = catid || 0;	
-			inc = inc || 0;
-			
-			callback = L.isFunction(callback) ? callback : function(){};
-			callback();
-		},
-		topicLoad: function(topicid, callback){
-			var __self = this;
-			Brick.ajax('blog', {
-				'data': {
-					'do': 'boardtopic',
-					'topicid': topicid
-				},
-				'event': function(request){
-					__self.updateData(request.data);
-					if (L.isFunction(callback)){
-						var topic = __self.topicList.get(topicid);
-						callback(topic);
-					}
-				}
-			});
+			UP.viewer.users.update([d['user']]);
+			this.user = UP.viewer.users.get(d['user'].id);
 		}
-	};
-	NS.BlogManager = BlogManager;
-	NS.blogManager = null;
+	});		
+	NS.CommentLive = CommentLive;
 	
-	NS.buildBlogManager = function(callback){
-		if (!L.isNull(NS.blogManager)){
-			callback(NS.blogManager);
-			return;
-		}
-		R.load(function(){
-			Brick.ajax('blog', {
-				'data': {'do': 'boardinit'},
-				'event': function(request){
-					NS.blogManager = new BlogManager(request.data);
-					callback(NS.blogManager);
-				}
-			});
-		});
+	var CommentLiveList = function(d){
+		CommentLiveList.superclass.constructor.call(this, d, CommentLive);
 	};
-	/**/
-
+	YAHOO.extend(CommentLiveList, SysNS.ItemList, { });
+	NS.CommentLiveList = CommentLiveList;	
+	
+	
 	var Manager = function (callback){
 		this.init(callback);
 	};
@@ -393,11 +311,10 @@ Component.entryPoint = function(NS){
 			this.ajax({
 				'do': 'commentlivelist'
 			}, function(d){
-				Brick.console(d);
 				var list = null;
 				
 				if (!L.isNull(d) && !L.isNull(d['comments'])){
-					// list = new NS.CommentLiveList(d['comments']);
+					list = new NS.CommentLiveList(d['comments']);
 				}
 				
 				NS.life(callback, list);

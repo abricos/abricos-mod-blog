@@ -19,7 +19,7 @@ Component.entryPoint = function(NS){
 	
 	var CommentLiveBlockWidget = function(container){
 		CommentLiveBlockWidget.superclass.constructor.call(this, container, {
-			'buildTemplate': buildTemplate, 'tnames': 'comments' 
+			'buildTemplate': buildTemplate, 'tnames': 'comments,cmtlist,cmtrow' 
 		});
 	};
 	YAHOO.extend(CommentLiveBlockWidget, Brick.mod.widget.Widget, {
@@ -32,7 +32,24 @@ Component.entryPoint = function(NS){
 			});
 		},
 		renderList: function(list){
-			this.elHide('bloading');
+			this.elHide('loading');
+			if (L.isNull(list)){ return; }
+			var lst = "", TM = this._TM;
+			list.foreach(function(cmt){
+				lst += TM.replace('cmtrow', {
+					'uid': cmt.user.id,
+					'login': cmt.user.userName,
+					'unm': cmt.user.getUserName(),
+					'cattl': cmt.topic.category.title,
+					'urlcat': cmt.topic.category.url(),
+					'toptl': cmt.topic.title,
+					'urlcmt': cmt.topic.url(),
+					'cmtcnt': cmt.topic.commentCount
+				});
+			});
+			this.elSetHTML('list', TM.replace('cmtlist', {
+				'rows': lst
+			}));
 		}
 	});
 	NS.CommentLiveBlockWidget = CommentLiveBlockWidget;

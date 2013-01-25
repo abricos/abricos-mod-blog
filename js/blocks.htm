@@ -1,18 +1,22 @@
 <!--{comments}-->
-<div id="{i#id}" class="commentlive blockbox">
+<div id="{i#id}" class="commentlivebox blockbox">
 	<h4>
 		<a href="#" title="Весь эфир">Прямой эфир</a>
 	</h4>
 	
 	<img id="{i#loading}" class="bloading" src="/images/loading.gif" />
-	
-	<ul id="{i#list}" class="list"></ul>
+
+	<div id="{i#list}" class="list"></div>
 </div>
 
-<!--{comment}-->
+<!--{cmtlist}-->
+<ul id="{i#list}">{v#rows}</ul>
+
+<!--{cmtrow}-->
 <li>
-	<a href="{v#urlusr}" class="show-user-profile user-{v#uid}" title="{v#unm}">{v#login}</a>
-	&nbsp;→&nbsp; 
+	<a href="#" class="user show-user-profile user-{v#uid}" title="{v#unm}">{v#login}</a>
 	<a href="{v#urlcat}" class="category">{v#cattl}</a>
-	<a href="{v#urlcmt}" class="topic">{v#cattl}</a>
+	&nbsp;→&nbsp; 
+	<a href="{v#urlcmt}" class="topic">{v#toptl}</a>
+	<a href="{v#urlcmt}" class="comments">({v#cmtcnt})</a>
 </li>
