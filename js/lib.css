@@ -29,7 +29,7 @@
 .aw-blog .viewform .dsc {
 	color: #555555;
 	font-size: .9em;
-	width: 400px;
+	/* width: 400px; /**/
 }
 
 .aw-blog .editform h3,

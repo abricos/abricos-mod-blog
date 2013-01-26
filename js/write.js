@@ -120,14 +120,44 @@ Component.entryPoint = function(NS){
 			return false;
 		},
 		getSaveData: function(){
+			var stags = this.gel('tags').value;
+			var text = this.editorWidget.getContent();
+			Brick.console(text);
+			var sIntro = "", sBody = '';
+
+			var brToP = function(s){
+				var aa = s.split('<br />');
+				var ss= "";
+				for (var i=0;i<aa.length;i++){
+					ss += "<p>"+aa[i]+"</p>";
+				}
+				ss = ss.replace(/<p><\/p>/g, '');
+				return ss;
+			};
+
+			text = text.replace(/<p[^>]*>/g, '');
+			text = text.replace(/<\/p>/g, '<br />');
+			text = text.replace(/\n/g, '').replace(/\r/g, '');
+			var a = text.split('<cut>');
+			for (var i=0;i<a.length;i++){
+				if (i == 0){
+					sIntro = brToP(a[i]);
+				}else{
+					sBody +=  brToP(a[i]);
+				}
+			}
+			
 			return {
 				'catid': this.catSelWidget.getValue(),
-				'tl': this.gel('title').value
+				'tl': this.gel('title').value,
+				'tags': NS.TagList.stringToAJAX(stags),
+				'intro': sIntro,
+				'bd': sBody
 			};
 		},
 		showPreview: function(){
 			var sd = this.getSaveData();
-			
+			Brick.console(sd);
 			new TopicPreviewPanel(new NS.Topic(sd));
 		}
 	});

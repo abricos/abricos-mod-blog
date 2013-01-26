@@ -75,6 +75,11 @@ Component.entryPoint = function(NS){
 		update: function(d){
 			this.title = d['tl'];
 			this.name =  d['nm'];
+		}, 
+		toAJAX: function(){
+			return {
+				'tl': this.title
+			};
 		}
 	});	
 	NS.Tag = Tag;
@@ -83,6 +88,19 @@ Component.entryPoint = function(NS){
 		TagList.superclass.constructor.call(this, d, Tag);
 	};
 	YAHOO.extend(TagList, SysNS.ItemList, {});
+	TagList.stringToAJAX = function(s){
+		var ret = [];
+		if (!L.isString(s)){
+			return ret;
+		}
+		var a = s.replace(/\  /g, ' ').split(',');
+		for (var i=0;i<a.length;i++){
+			ret[ret.length] = {
+				'tl': a[i]
+			};
+		}
+		return ret;
+	};
 	NS.TagList = TagList;
 	
 	// Информация о топике
@@ -130,11 +148,9 @@ Component.entryPoint = function(NS){
 			this.isBody = d['bdlen']>0;
 			
 			this.user = UP.viewer.users.get(userid);
-			Brick.console(UP.viewer.users);
 			
 			var cat = null, catid = d['catid']*1;
 			if (catid == 0){ // персональный блог
-				Brick.console(userid);
 				cat = new CategoryPerson(this.user.id);
 				
 			}else{
