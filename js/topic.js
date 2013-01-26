@@ -27,7 +27,7 @@ Component.entryPoint = function(NS){
 			this.topic = topic;
 		},
 		buildTData: function(topic){
-			var user = NS.manager.users.get(topic.userid);
+			var user = topic.user;
 			return {
 				'date': Brick.dateExt.convert(topic.date),
 				'uid': topic.userid,
@@ -84,7 +84,7 @@ Component.entryPoint = function(NS){
 			this.tagsWidget = new NS.TagListWidget(this.gel('taglist'), topic.tagList);
 			this.infoWidget = new NS.TopicInfoLineWidget(this.gel('info'), topic);
 			
-			var cat = NS.manager.categoryList.get(topic.catid);
+			var cat = topic.category;
 
 			this.elSetHTML({
 				'intro': topic.intro,

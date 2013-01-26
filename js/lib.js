@@ -8,17 +8,17 @@ Component.requires = {
 	mod:[
         {name: 'uprofile', files: ['users.js']},
         {name: 'widget', files: ['lib.js']},
-        {name: 'blog', files: ['roles.js']}
+        {name: '{C#MODNAME}', files: ['roles.js']}
 	]		
 };
 Component.entryPoint = function(NS){
 
 	var Dom = YAHOO.util.Dom,
-		E = YAHOO.util.Event,
 		L = YAHOO.lang,
 		R = NS.roles;
 	var SysNS = Brick.mod.sys;
 	var UP = Brick.mod.uprofile;
+	var LNG = this.language;
 
 	var buildTemplate = this.buildTemplate;
 	buildTemplate({},'');
@@ -112,9 +112,8 @@ Component.entryPoint = function(NS){
 			TopicInfo.superclass.init.call(this, d);
 		},
 		update: function(d){
-			this.catid = d['catid']*1;				// идентификатор раздела
 			this.title = d['tl'];				// заголовок
-			this.userid = d['uid'];				// идентификатор автора
+			var userid = d['uid'];				// идентификатор автора
 
 			if (!L.isNull(d['user'])){
 				UP.viewer.users.update([d['user']]);
@@ -130,8 +129,18 @@ Component.entryPoint = function(NS){
 
 			this.isBody = d['bdlen']>0;
 			
-			this.user = UP.viewer.users.get(d['uid']);
-			this.category = NS.manager.categoryList.get(d['catid']*1);
+			this.user = UP.viewer.users.get(userid);
+			Brick.console(UP.viewer.users);
+			
+			var cat = null, catid = d['catid']*1;
+			if (catid == 0){ // персональный блог
+				Brick.console(userid);
+				cat = new CategoryPerson(this.user.id);
+				
+			}else{
+				cat = NS.manager.categoryList.get(catid);
+			}
+			this.category = cat;
 		},
 		url: function(){
 			return NS.navigator.topic.view(this.id);
@@ -181,6 +190,27 @@ Component.entryPoint = function(NS){
 		}
 	});		
 	NS.Category = Category;
+	
+	var CategoryPerson = function(userid){ // персональный блог
+		var user = UP.viewer.users.get(userid);
+		var d = L.merge({
+			'id': 0,
+			'tl': LNG['category']['my'].replace('{v#unm}', user.userName),
+			'nm': user.userName
+		}, d || {});
+		CategoryPerson.superclass.constructor.call(this, d);
+	};
+	YAHOO.extend(CategoryPerson, Category, {
+		update: function(d){
+			this.title = d['tl'];
+			this.name = d['nm'];
+		},
+		url: function(){
+			return NS.navigator.category.view(this.id);
+		}
+	});		
+	NS.CategoryPerson = CategoryPerson;
+	
 	
 	var CategoryList = function(d){
 		CategoryList.superclass.constructor.call(this, d, Category);

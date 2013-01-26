@@ -2,9 +2,9 @@
 @package Abricos
 @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 */
-
 var Component = new Brick.Component();
 Component.requires = {
+    yahoo: ['autocomplete','dragdrop'],
 	mod:[
 		{name: 'sys', files: ['editor.js']},
         {name: '{C#MODNAME}', files: ['topic.js']}
@@ -32,6 +32,9 @@ Component.entryPoint = function(NS){
 				});
 			});
 			return { 'rows': lst };
+		},
+		getValue: function(){
+			return this.gel('id').value;
 		}
 	});
 	NS.WriteCategorySelectWidget = WriteCategorySelectWidget;
@@ -99,13 +102,16 @@ Component.entryPoint = function(NS){
 			this.elHide('wrap');
 			
 			this.catSelWidget = new NS.WriteCategorySelectWidget(this.gel('catsel'));
-			
+
+			this.tagManager = new TagsAutocomplete(this.gel('tags'), this.gel('tagscont'));
+
 			var Editor = Brick.widget.Editor;
 			this.editorWidget = new Editor(this.gel('text'), {
 				'toolbar': Editor.TOOLBAR_STANDART,
 				'mode': Editor.MODE_VISUAL,
 				'toolbarExpert': false
 			});
+			
 		},
 		onClick: function(el, tp){
 			switch(el.id){
@@ -113,9 +119,16 @@ Component.entryPoint = function(NS){
 			}
 			return false;
 		},
+		getSaveData: function(){
+			return {
+				'catid': this.catSelWidget.getValue(),
+				'tl': this.gel('title').value
+			};
+		},
 		showPreview: function(){
-			Brick.console(this.topic);
-			new TopicPreviewPanel(this.topic);
+			var sd = this.getSaveData();
+			
+			new TopicPreviewPanel(new NS.Topic(sd));
 		}
 	});
 	NS.TopicEditorWidget = TopicEditorWidget;
@@ -130,13 +143,26 @@ Component.entryPoint = function(NS){
 		},
 		onLoad: function() {
 			var topic = this.topic;
-			var widget = this.viewWidget = new NS.TopicRowWidget(this._TM.getEl('topicpreview.widget'), topic);
+			var widget = this.viewWidget = 
+				new NS.TopicRowWidget(this._TM.getEl('topicpreview.widget'), topic);
 			widget.elSetHTML({
 				'body': topic.body
 			});
+			
 			widget.elHide('readmore');
 		}
 	});
 	NS.TopicPreviewPanel = TopicPreviewPanel;	
 	
+	var TagsAutocomplete = function(input, container){
+	    var ds = new YAHOO.util.XHRDataSource('/ajax/blog/js_tags/');
+	    ds.connMethodPost = true;  
+	    ds.responseSchema = {recordDelim:"\n", fieldDelim: "\t"};
+	    ds.responseType = YAHOO.util.XHRDataSource.TYPE_TEXT;
+	    ds.maxCacheEntries = 60;
+
+		var oAC = new YAHOO.widget.AutoComplete(input, container, ds);
+		oAC.delimChar = [",",";"]; // Enable comma and semi-colon delimiters
+	};
+
 };

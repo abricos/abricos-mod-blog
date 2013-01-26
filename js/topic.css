@@ -71,6 +71,7 @@
 	list-style: none outside none;
     padding: 0.2em 0 0.1em 20px;
     display: block;
+    min-height: 14px;
 }
 .aw-blog .taglist li {
 	display: inline;

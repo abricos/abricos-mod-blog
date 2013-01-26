@@ -12,6 +12,9 @@
 .aw-blog .write .baction .brgt {
 	float: right;
 }
+.aw-blog .write .tagsdiv {
+	height: 28px;
+}
 
 /* * * * Topic * * * */
 .aw-blog .topiceditor .edstedit .edstnew,
@@ -19,7 +22,8 @@
 	display: none;
 }
 
-.aw-blog .topiceditor input.fldtitle {
+.aw-blog .topiceditor input.fldtitle,
+.aw-blog .topiceditor input.fldtags {
 	width: 670px;
 }
 .aw-blog .topiceditor textarea.fldtext {

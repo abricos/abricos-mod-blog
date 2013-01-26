@@ -4,5 +4,8 @@ Brick.util.Language.add('en',{'mod': {'{C#MODNAME}':{
 			'1': 'Blog',
 			'2': 'Live'
 		}
+	},
+	'category': {
+		'my': 'Блог им. {v#unm}'
 	}
 }}});
