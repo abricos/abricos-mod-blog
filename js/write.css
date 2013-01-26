@@ -1,3 +1,13 @@
+/* * * * Общие * * * */
+.aw-blog .write select.catlist {
+	width: 250px;
+	padding: 3px;
+}
+.aw-blog .write input {
+	padding: 3px;
+}
+
+
 /* * * * Topic * * * */
 .aw-blog .topiceditor .edstedit .edstnew,
 .aw-blog .topiceditor .edstnew .edstedit {

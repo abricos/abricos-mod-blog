@@ -18,6 +18,12 @@
 	
 			<h3 class="edstnew">Создание топика</h3>
 			<h3 class="edstedit">Редактирование топика</h3>
+
+			<p>
+				Опубликовать топик в блоге: 
+			</p>
+
+			<div id="{i#catsel}"></div>
 		
 			<dl>
 				<dt>Заголовок:</dt>
@@ -37,18 +43,30 @@
 			<textarea id="{i#text}" class="fldtext"></textarea>
 		
 		</div>
-
-		<dl>
-			<dt>&nbsp;</dt>
-			<dd class="baction">
+		
+		<div class="group">
+			<div class="baction">
 				<input id="{i#bcreate}" value="Создать топик" type="button" class="btn edstnew" />
 				<input id="{i#bsave}" value="Сохранить топик" type="button" class="btn edstedit" />
 				<input id="{i#bcancel}" value="Отмена" type="button" class="btn" />
 				<span id="{i#loading}" style="display: none">
 					<img src="/images/loading.gif" class="ldg" /> Сохранение...
 				</span>
-			</dd>
-		</dl>	
+			</div>
+		</div>
 	
 	</div>
 </div>
+
+
+<!--{catsel}-->
+<select id="{i#id}" class="catlist">
+	{v#rows}
+</select>
+
+<!--{catselrow}-->
+<option value="{v#id}">{v#tl}</option>
+
+<!--{catselmyrow}-->
+<option value="0">Мой персональный блог</option>
+

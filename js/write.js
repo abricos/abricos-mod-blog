@@ -13,10 +13,29 @@ Component.requires = {
 Component.entryPoint = function(NS){
 	
 	var Dom = YAHOO.util.Dom,
-		E = YAHOO.util.Event,
 		L = YAHOO.lang;
 	
 	var buildTemplate = this.buildTemplate;
+	
+	var WriteCategorySelectWidget = function(container){
+		WriteCategorySelectWidget.superclass.constructor.call(this, container, {
+			'buildTemplate': buildTemplate, 'tnames': 'catsel,catselrow,catselmyrow' 
+		});
+	};
+	YAHOO.extend(WriteCategorySelectWidget, Brick.mod.widget.Widget, {
+		buildTData: function(){
+			var TM = this._TM, lst = TM.replace('catselmyrow');
+			NS.manager.categoryList.foreach(function(cat){
+				lst += TM.replace('catselrow', {
+					'id': cat.id,
+					'tl': cat.title
+				});
+			});
+			return { 'rows': lst };
+		}
+	});
+	NS.WriteCategorySelectWidget = WriteCategorySelectWidget;
+	
 	
 	var WriteWidget = function(container, wType){
 		WriteWidget.superclass.constructor.call(this, container, {
@@ -47,14 +66,21 @@ Component.entryPoint = function(NS){
 		}, topicid || 0);
 	};
 	YAHOO.extend(TopicEditorWidget, Brick.mod.widget.Widget, {
+		init: function(topicid){
+			this.topicid = topicid;
+			this.catSelWidget = null;
+			this.editorWidget = null;
+		},
 		buildTData: function(topicid){
 			return {
 				'cledst': topicid>0 ? 'edstedit' : 'edstnew'
 			};
 		},
 		destroy: function(){
-			this.editorIntro.destroy();
-			this.editorBody.destroy();
+			if (!L.isNull(this.editorWidget)){
+				this.editorWidget.destroy();
+				this.catSelWidget.destroy();
+			}
 		},
 		onLoad: function(topicid){
 
@@ -73,8 +99,10 @@ Component.entryPoint = function(NS){
 			this.elHide('loading');
 			this.elHide('wrap');
 			
+			this.catSelWidget = new NS.WriteCategorySelectWidget(this.gel('catsel'));
+			
 			var Editor = Brick.widget.Editor;
-			this.editorBody = new Editor(this.gel('text'), {
+			this.editorWidget = new Editor(this.gel('text'), {
 				'toolbar': Editor.TOOLBAR_STANDART,
 				'mode': Editor.MODE_VISUAL,
 				'toolbarExpert': false
