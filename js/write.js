@@ -7,7 +7,7 @@ var Component = new Brick.Component();
 Component.requires = {
 	mod:[
 		{name: 'sys', files: ['editor.js']},
-        {name: '{C#MODNAME}', files: ['lib.js']}
+        {name: '{C#MODNAME}', files: ['topic.js']}
 	]
 };
 Component.entryPoint = function(NS){
@@ -44,7 +44,6 @@ Component.entryPoint = function(NS){
 	};
 	YAHOO.extend(WriteWidget, Brick.mod.widget.Widget, {
 		onLoad: function(wType){
-
 			switch(wType){
 			case 'blog':
 				break;
@@ -83,7 +82,6 @@ Component.entryPoint = function(NS){
 			}
 		},
 		onLoad: function(topicid){
-
 			var __self = this;
 			NS.initManager(function(){
 				if (topicid == 0){
@@ -96,6 +94,7 @@ Component.entryPoint = function(NS){
 			});
 		},
 		onLoadManager: function(topic){
+			this.topic = topic;
 			this.elHide('loading');
 			this.elHide('wrap');
 			
@@ -107,10 +106,37 @@ Component.entryPoint = function(NS){
 				'mode': Editor.MODE_VISUAL,
 				'toolbarExpert': false
 			});
-			
+		},
+		onClick: function(el, tp){
+			switch(el.id){
+			case tp['bpreview']: this.showPreview(); return true;
+			}
+			return false;
+		},
+		showPreview: function(){
+			Brick.console(this.topic);
+			new TopicPreviewPanel(this.topic);
 		}
 	});
 	NS.TopicEditorWidget = TopicEditorWidget;
 
+	var TopicPreviewPanel = function(topic){
+		this.topic = topic;
+		TopicPreviewPanel.superclass.constructor.call(this);
+	};
+	YAHOO.extend(TopicPreviewPanel, Brick.widget.Dialog, {
+		initTemplate: function(){
+			return buildTemplate(this, 'topicpreview').replace('topicpreview');
+		},
+		onLoad: function() {
+			var topic = this.topic;
+			var widget = this.viewWidget = new NS.TopicRowWidget(this._TM.getEl('topicpreview.widget'), topic);
+			widget.elSetHTML({
+				'body': topic.body
+			});
+			widget.elHide('readmore');
+		}
+	});
+	NS.TopicPreviewPanel = TopicPreviewPanel;	
 	
 };

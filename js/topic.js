@@ -74,7 +74,7 @@ Component.entryPoint = function(NS){
 		},
 		buildTData: function(topic){
 			return {
-				'urlview': NS.navigator.topic.view(topic.id)
+				'urlview': topic.url()
 			};
 		},
 		destroy: function(){

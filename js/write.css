@@ -6,7 +6,12 @@
 .aw-blog .write input {
 	padding: 3px;
 }
-
+.aw-blog .write .baction .blft {
+	float: left;
+}
+.aw-blog .write .baction .brgt {
+	float: right;
+}
 
 /* * * * Topic * * * */
 .aw-blog .topiceditor .edstedit .edstnew,
@@ -17,9 +22,13 @@
 .aw-blog .topiceditor input.fldtitle {
 	width: 670px;
 }
-
 .aw-blog .topiceditor textarea.fldtext {
 	width: 670px;
 	height: 350px;
 }
 
+/* * * * Preview * * * */
+.aw-blog .preview {
+	min-width: 764px;
+	min-height: 500px;
+}

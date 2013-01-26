@@ -46,7 +46,6 @@
 	margin-bottom: 10px;
 	font-weight: bold;
 }
-
 .aw-blog .editform .group,
 .aw-blog .viewform .group {
 	margin: 0 20px;
@@ -92,13 +91,13 @@
 .aw-blog .editform textarea.inp {
 	height: 100px;
 }
-.aw-blog .editform .baction input {
- 	margin-right: 10px;
-    padding: 2px 5px;	
-}
 .aw-blog .editform .baction {
 	margin-top: 10px;
 	margin-right: 2em;
+}
+.aw-blog .editform .baction input {
+ 	margin-right: 10px;
+    padding: 2px 5px;	
 }
 .aw-blog .editform .baction .error {
 	color: red;
