@@ -138,4 +138,20 @@ if ($updateManager->isUpdate('0.4.4.1')){
 	
 }
 
+if ($updateManager->isUpdate('0.5')){
+	
+	// таблица голосов рейтинга категорий
+	$db->query_write("
+		CREATE TABLE IF NOT EXISTS ".$pfx."bg_catvote (
+		`userid` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Пользователь',
+			
+		`voteup` int(2) unsigned NOT NULL DEFAULT 0 COMMENT 'Голос ЗА',
+		`votedown` int(2) unsigned NOT NULL DEFAULT 0 COMMENT 'Голос ПРОТИВ',
+
+		`dateline` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата голосования',
+		UNIQUE KEY `user` (`userid`)
+	)".$charset);
+}
+
+
 ?>

@@ -12,7 +12,6 @@ Component.requires = {
 Component.entryPoint = function(NS){
 
 	var Dom = YAHOO.util.Dom,
-		E = YAHOO.util.Event,
 		L = YAHOO.lang,
 		R = NS.roles;
 
@@ -36,6 +35,7 @@ Component.entryPoint = function(NS){
 	var GMID = {
 		'TopicListWidget': 'topics',
 		'CategoryListWidget': 'cats',
+		'CategoryViewWidget': 'cats',
 		'WriteWidget': 'write',
 		'AboutWidget': 'about'
 	};
@@ -103,6 +103,7 @@ Component.entryPoint = function(NS){
 			
 			this.widget = new NS[wName](this.gel('board'), p['p1'], p['p2'], p['p3'], p['p4']);
 			
+			var isUpdate = {};
 			for (var n in GMID){
 				
 				var pfx = GMID[n], 
@@ -110,6 +111,8 @@ Component.entryPoint = function(NS){
 					mtEl = this.gel('mt'+pfx);
 
 				if (wName == n){
+					isUpdate[pfx] = true;
+					
 					Dom.addClass(miEl, 'sel');
 					Dom.setStyle(mtEl, 'display', '');
 
@@ -126,6 +129,8 @@ Component.entryPoint = function(NS){
 					}
 					
 				}else{
+					if (isUpdate[pfx]){ continue; }
+					
 					Dom.removeClass(miEl, 'sel');
 					Dom.setStyle(mtEl, 'display', 'none');
 				}
