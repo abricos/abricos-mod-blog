@@ -35,6 +35,7 @@ Component.entryPoint = function(NS){
 
 	var GMID = {
 		'TopicListWidget': 'topics',
+		'CategoryListWidget': 'cats',
 		'WriteWidget': 'write',
 		'AboutWidget': 'about'
 	};
@@ -62,6 +63,7 @@ Component.entryPoint = function(NS){
 			var NG = NS.navigator;
 			return {
 				'urltopics': NG.topic.list(),
+				'urlcats': NG.category.list(),
 				'urlhome': NG.home(),
 				'urlwrite': NG.write.view()
 			};

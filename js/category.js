@@ -6,241 +6,115 @@
 var Component = new Brick.Component();
 Component.requires = {
 	mod:[
-        {name: 'blog', files: ['group.js', 'roles.js', ]}
+        {name: '{C#MODNAME}', files: ['lib.js']}
 	]
 };
 Component.entryPoint = function(NS){
-	var Dom = YAHOO.util.Dom,
-		E = YAHOO.util.Event,
-		L = YAHOO.lang;
-
-	var R = NS.roles;
-
+	
+	var L = YAHOO.lang;
+	
 	var buildTemplate = this.buildTemplate;
 	
-	if (!NS.data){
-		NS.data = new Brick.util.data.byid.DataSet('blog');
-	}
-	var DATA = NS.data;
-	
-	/**
-	 * Панель "Список категорий блога"
-	 */
-	var CategoryListPanel = function(callback){
-		this.callback = callback;
-		this.selectedRow = null;
-		CategoryListPanel.superclass.constructor.call(this);
+	var CategoryRowWidget = function(container, category){
+		CategoryRowWidget.superclass.constructor.call(this, container, {
+			'buildTemplate': buildTemplate, 'tnames': 'row' 
+		}, category);
 	};
-	
-	YAHOO.extend(CategoryListPanel, Brick.widget.Dialog, {
-		el: function(name){ return Dom.get(this._TId['catlistpanel'][name]); },
-		initTemplate: function(){
-			var TM = buildTemplate(this, 'catlistpanel,catlisttable,catlistrowwait,catlistrow');
-			return TM.replace('catlistpanel');
+	YAHOO.extend(CategoryRowWidget, Brick.mod.widget.Widget, {
+		init: function(category){
+			this.category = category;
 		},
-		onLoad: function(){
-			var TM = this._TM;
-			this.el('table').innerHTML = TM.replace('catlisttable', {
-				'rows': TM.replace('catlistrowwait')
-			});
-
-			this.tables = {
-				'categorylist': DATA.get('categorylist', true), 
-				'grouplist': DATA.get('grouplist', true) 
+		buildTData: function(category){
+			return {
+				'urlview': category.url()
 			};
-			if (DATA.isFill(this.tables)){ this.renderElements(); }
-			
-			DATA.onComplete.subscribe(this.dsComplete, this, true);
-			if (!R.isAdmin){
-				TM.getEl('catlistpanel.bnew').style.display = 'none';
-			}
-			DATA.request();
-		},
-		dsComplete: function(type, args){
-			if (args[0].checkWithParam('categorylist')){ 
-				this.renderElements(); 
-			}
 		},
 		destroy: function(){
-			CategoryListPanel.superclass.destroy.call(this);
-			DATA.onComplete.unsubscribe(this.dsComplete, this); 
+			// this.infoWidget.destroy();
 		},
-		renderElements: function(){
-			var TM = this._TM;
-			var rows = this.tables['categorylist'].getRows();
-			var lst = "";
-			rows.foreach(function(row){
-				var di = row.cell;
-				lst += TM.replace('catlistrow', {
-					'ph': di['ph'],
-					'cnt': di['cnt'],
-					'id': di['id'],
-					'viewedit': R.isAdmin ? '' : 'none',
-					'viewremove': R.isAdmin ? '' : 'none'
-				});
+		onLoad: function(category){
+			this.elSetHTML({
+				'tl': category.title
 			});
-			this.el('table').innerHTML = TM.replace('catlisttable', {'rows': lst}); 
-		},
-		onClick: function(el){
-			var TId = this._TId;
-			var tp = TId['catlistpanel']; 
-			switch(el.id){
-			case tp['bselect']: this.select();	return true;
-			case tp['bcancel']: this.close(); return true;
-			case tp['bnew']: this.edit(); return true;
-			}
-			var prefix = el.id.replace(/([0-9]+$)/, '');
-			var numid = el.id.replace(prefix, "");
-			
-			var tp = TId['catlistrow']; 
-			switch(prefix){
-			case tp['td1']+'-':
-			case tp['td2']+'-':
-			case tp['td3']+'-':
-				this.selectRow(numid);
-				return true;
-			case tp['edit']+'-': this.edit(numid); return true;
-			case tp['del']+'-':
-				// this.remove(row); 
-				return true;
-			}
-			return false;
-		},
-		edit: function(categoryid){
-			categoryid = categoryid || 0;
-			var table = DATA.get('categorylist'), 
-				rows = table.getRows();
-			
-			var row = categoryid == 0 ? table.newRow() : rows.getById(categoryid);
-			
-			new NS.CategoryEditorPanel(row, function(){
-				if (row.isNew()){ rows.add(row); }
-				table.applyChanges();
-				DATA.request();
-			});
-		},
-		selectRow: function(catid){
-			var row = DATA.get('categorylist').getRows().getById(catid);
-			if (L.isNull(row)){ return; }
-			
-			var di = row.cell;
-			this.el('category').value = di['ph'];
-			this.el('bselect').disabled = "";
-
-			this.close();
-			if (L.isFunction(this.callback)){
-				this.callback(di);
-			}
 		}
 	});
+	NS.CategoryRowWidget = CategoryRowWidget;
 	
-	NS.CategoryListPanel = CategoryListPanel;
+	var CategoryViewWidget = function(container, catid){
+		CategoryViewWidget.superclass.constructor.call(this, container, {
+			'buildTemplate': buildTemplate, 'tnames': 'categoryview' 
+		}, catid);
+	};
+	YAHOO.extend(CategoryViewWidget, Brick.mod.widget.Widget, {
+		init: function(catid){
+			this.catid = catid;
+			this.viewWidget = null;
+		},
+		destroy: function(){
+			if (!L.isNull(this.viewWidget)){
+				this.viewWidget.destroy();
+			}
+		},
+		onLoad: function(catid){
+			var __self = this;
+			NS.initManager(function(){
+				var category = NS.manager.categoryList.get(catid);
+				__self.renderCategory(category);
+			});
+		},
+		renderCategory: function(category){
+			this.elHide('loading');
+			
+			if (L.isNull(category)){
+				this.elShow('nullitem');
+				return;
+			}
+
+			this.viewWidget = new NS.CategoryRowWidget(this.gel('view'), category);
+		}
+	});
+	NS.CategoryViewWidget = CategoryViewWidget;		
 	
-	/**
-	 * Показать панель "Список категорий блога"
-	 *
-	 * @method showCategoryListPanel
-	 * @static
-	 * @param {Function} callback
-	 */
-	NS.API.showCategoryListPanel = function(callback){
-		R.load(function(){
-			new NS.CategoryListPanel(callback);
+	var CategoryListWidget = function(container){
+		CategoryListWidget.superclass.constructor.call(this, container, {
+			'buildTemplate': buildTemplate, 'tnames': 'categorylist' 
 		});
 	};
-
-	var CategoryEditorPanel = function(row, callback){
-		this.row = row;
-		this.callback = callback;
-		CategoryEditorPanel.superclass.constructor.call(this);
-	};
-	YAHOO.extend(CategoryEditorPanel, Brick.widget.Dialog, {
-		el: function(name){ return Dom.get(this._TId['cateditorpanel'][name]); },
-		elv: function(name){ return Brick.util.Form.getValue(this.el(name)); },
-		setelv: function(name, value){ Brick.util.Form.setValue(this.el(name), value); },
-		initTemplate: function(){
-			return buildTemplate(this, 'cateditorpanel').replace('cateditorpanel');
+	YAHOO.extend(CategoryListWidget, Brick.mod.widget.Widget, {
+		init: function(){
+			this.wsList = [];
+			this.wsMenuItem = 'all'; // использует wspace.js
 		},
-		onLoad: function(){
-			var TM = this._TM;
-			var phrase = this.el('phrase');
-			this.validator = new Brick.util.Form.Validator({
-				elements: {'phrase':{ obj: phrase, rules: ["empty"], args:{"field":"Название"}}}
-			});
-			var di = this.row.cell;
-
-			this.setelv('phrase', di['ph']);
-			this.setelv('name', di['nm']);
-			this.el('bsave').disabled = "";
-			
-			this.groupWidget = null;
-			
-			if (R.isAdmin){
-				this.groupWidget = new NS.UserGroupWidget(TM.getEl('cateditorpanel.group'));
-		 		this.groupWidget.setValue(di['gps']);
-		 		this.groupWidget.render();
-			}
-			this._updateCatName();
-			
+		onLoad: function(catid){
 			var __self = this;
-			E.on(this.el('phrase'), 'blur', function(e){
-                __self._updateCatName();
-			});
-			E.on(this.el('name'), 'keyup', function(e){
-                __self._updateCatName();
+			NS.initManager(function(){
+				__self.renderList();
 			});
 		},
-		onClick: function(el){
-			var tp = this._TId['cateditorpanel'];
-			switch(el.id){
-			case tp['bsave']: this.save(); return true;
-			case tp['bcancel']: this.close(); return true;
-			case tp['name']: this._updateCatName(); return false;
+		destroy: function(){
+			this.clearList();
+		},
+		clearList: function(){
+			var ws = this.wsList;
+			for (var i=0;i<ws.length;i++){
+				ws[i].destroy();
 			}
-			return false;
+			this.elSetHTML('list', '');
 		},
-		_updateCatName: function(){
-			var txtname = this.el('name');
-			if (txtname.value.length == 0){
-				var txtphrase = this.el('phrase');
-				txtname.value = Brick.util.Translite.ruen(txtphrase.value);
-			}
-			txtname.value = Brick.util.Translite.ruen(txtname.value);
-			
-			var loc = window.location,
-				url = loc.protocol+'//'+loc.hostname+'/blog/'+txtname.value+'/';
-			this.el('url').innerHTML = url;
-		},
-		save: function(){
-			this._updateCatName();
-			if (this.validator.check() > 0){ return; }
-			
-			this.row.update({
-				'ph': this.elv('phrase'),
-				'nm': this.elv('name'),
-				'gps': this.groupWidget.getValue()
+		renderList: function(){
+			this.clearList();
+			this.elHide('loading');
+
+			var elList = this.gel('list');
+			var ws = this.wsList;
+
+			NS.manager.categoryList.foreach(function(category){
+				var div = document.createElement('div');
+				elList.appendChild(div);
+				ws[ws.length] = new NS.CategoryRowWidget(div, category);
 			});
-			this.callback();
-			this.close();
 		}
 	});
-	
-	NS.CategoryEditorPanel = CategoryEditorPanel;
-	
-	
-	/**
-	 * Показать панель "Редактор категории блога"
-	 *
-	 * @method showCategoryEditorPanel
-	 * @static
-	 * @param {Integer} categoryId Идентификатор категории, если 0, 
-	 * то создание новой категории
-	 */
-	NS.API.showCategoryEditorPanel = function(row, callback){
-		var widget = new NS.CategoryEditorPanel(row, callback);
-		DATA.request();
-		return widget;
-	};
+	NS.CategoryListWidget = CategoryListWidget;
 
-	
 };

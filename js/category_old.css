@@ -1,0 +1,43 @@
+.aw-blog .catlist input.cat {
+	width: 500px;
+	display: none;
+}
+.aw-blog .catlist table.buttons {
+	width: 100%;
+}
+.aw-blog .catlist table.buttons td {
+	width: 50%;
+}
+.aw-blog .catlist table.buttons td.col2 {
+	text-align: right;
+}
+.aw-blog .catlist .list {
+	width: 500px; 
+	height: 150px; 
+	overflow: auto;	
+}
+.aw-blog .catlist .list td {
+	cursor: pointer;
+}
+.aw-blog .catlist .list td.del,
+.aw-blog .catlist .list td.ed {
+	width: 70px;
+	text-align: right;
+}
+.aw-blog .catlist .list td.del {
+	display: none;
+}
+
+.aw-blog .catedit .f { }
+.aw-blog .catedit .f input {
+	display: block;
+}
+.aw-blog .catedit .f input {
+	width: 300px;
+	margin-bottom: 15px;
+}
+
+.aw-blog .catedit .g {
+	margin-bottom: 10px;
+	width: 470px;
+}

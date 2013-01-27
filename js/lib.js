@@ -44,10 +44,10 @@ Component.entryPoint = function(NS){
 		},
 		'category': {
 			'list': function(){
-				return WS;
+				return WS+'category/CategoryListWidget/';
 			},
 			'view': function(catid){
-				return WS;
+				return WS+'category/CategoryViewWidget/'+catid+'/';
 			}
 		},
 		'write': {
