@@ -29,7 +29,7 @@ Component.entryPoint = function(NS){
 			var user = topic.user;
 			return {
 				'date': Brick.dateExt.convert(topic.date),
-				'uid': topic.userid,
+				'uid': user.id,
 				'avatar': user.avatar24(),
 				'unm': user.getUserName(),
 				'cmt': topic.commentCount

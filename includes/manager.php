@@ -261,14 +261,11 @@ class BlogManager extends Ab_ModuleManager {
 	}
 	
 	/**
-	 * Голосование за топик
-	 * 
-	 * Метод вызывает модуль uraging
+	 * Голосование за топик (метод вызывает модуль uraging)
 	 */
 	public function URating_ElementVoting($vote, $topicid, $type){
 		
 	}
-	
 	
 	
 	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
