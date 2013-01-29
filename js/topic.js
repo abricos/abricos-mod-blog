@@ -6,27 +6,26 @@
 var Component = new Brick.Component();
 Component.requires = {
 	mod:[
+        {name: 'urating', files: ['vote.js']},
         {name: '{C#MODNAME}', files: ['lib.js']}
 	]
 };
 Component.entryPoint = function(NS){
-	
-	var Dom = YAHOO.util.Dom,
-		E = YAHOO.util.Event,
-		L = YAHOO.lang;
-	
+
+	var L = YAHOO.lang;
 	var buildTemplate = this.buildTemplate;
+	var NSUR = Brick.mod.urating || {};
 	
 	var TopicInfoLineWidget = function(container, topic, cfg){
 		TopicInfoLineWidget.superclass.constructor.call(this, container, {
 			'buildTemplate': buildTemplate, 'tnames': 'info' 
-		}, topic);
+		}, topic, cfg);
 	};
 	YAHOO.extend(TopicInfoLineWidget, Brick.mod.widget.Widget, {
-		init: function(topic){
+		init: function(topic, cfg){
 			this.topic = topic;
 		},
-		buildTData: function(topic){
+		buildTData: function(topic, cfg){
 			var user = topic.user;
 			return {
 				'date': Brick.dateExt.convert(topic.date),
@@ -35,6 +34,16 @@ Component.entryPoint = function(NS){
 				'unm': user.getUserName(),
 				'cmt': topic.commentCount
 			};
+		},
+		onLoad: function(topic, cfg){
+			if (NSUR.VotingWidget){
+				this.voteWidget = new NSUR.VotingWidget(this.gel('topicvote'), {
+					'modname': '{C#MODNAME}',
+					'elementType': 'topic',
+					'elementId': topic.id
+				});
+				this.elShow('topicvote');
+			}
 		}
 	});
 	NS.TopicInfoLineWidget = TopicInfoLineWidget;

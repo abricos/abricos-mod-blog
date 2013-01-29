@@ -41,12 +41,20 @@
 	float: left;
 	padding-right: 17px;
 }
+.aw-blog .topicinfo .topicvote,
 .aw-blog .topicinfo .user,
 .aw-blog .topicinfo .date,
 .aw-blog .topicinfo .comments {
 	padding-left: 17px;
-	line-height: 30px;
 	float: left;
+}
+.aw-blog .topicinfo .user,
+.aw-blog .topicinfo .date,
+.aw-blog .topicinfo .comments {
+	line-height: 34px;
+}
+.aw-blog .topicinfo .topicvote {
+	margin-top: 10px;
 }
 .aw-blog .topicinfo .user .avtr {
 	margin-top: 4px;
