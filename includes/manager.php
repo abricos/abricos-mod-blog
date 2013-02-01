@@ -69,7 +69,7 @@ class BlogManager extends Ab_ModuleManager {
 	 * @return URatingManager
 	 */
 	public function GetURatingManager(){
-		Abricos::GetModule('urating')->GetManager();
+		return Abricos::GetModule('urating')->GetManager();
 	}
 	
 	public function ToArray($rows, &$ids1 = "", $fnids1 = 'uid', &$ids2 = "", $fnids2 = '', &$ids3 = "", $fnids3 = ''){
@@ -212,13 +212,39 @@ class BlogManager extends Ab_ModuleManager {
 		}
 		return $catList->ToAJAX();
 	}
+
+	
+	private $_cacheCatUser = array();
+	
+	/**
+	 * Отношение пользователя к категории
+	 * @param integer $catid
+	 * @param integer $userid
+	 * @return BlogCategoryUserRole
+	 */
+	public function CategoryUserRole($catid, $userid){
+		if (!is_array($this->_cacheCatUser[$userid])){
+			$this->_cacheCatUser[$userid] = array(); 
+		}
+		if (!empty($this->_cacheCatUser[$userid][$catid])){
+			return $this->_cacheCatUser[$userid][$catid];
+		}
+		
+		$row = BlogTopicQuery::CategoryUser($this->db, $d->id, $this->userid);
+		$this->_cacheCatUser[$userid][$catid] = 
+			new BlogCategoryUserRole($catid, $userid, $row);
+		return $this->_cacheCatUser[$userid][$catid];
+	}
 	
 	/**
 	 * Сохранение категории (блога)
 	 * 
 	 * Коды ошибок:
 	 * 	null - нет прав,
-	 * 	10 - недостаточно репутации
+	 *	1 - заголовок не может быть пустым,
+	 *	2 - пользователю можно создавать категорию не более одной в сутки,
+	 * 	10 - недостаточно репутации,
+	 *  99 - неизвестная ошибка
 	 * 
 	 */
 	public function CategorySave($d){
@@ -228,20 +254,24 @@ class BlogManager extends Ab_ModuleManager {
 		$ret->error = 0;
 		$ret->category = null;
 		
-		if (BlogManager::$isURating){ // работает система репутации пользователя
-			$rep = $this->GetURatingManager()->UserReputation();
-			if ($rep->reputation < 5){ // для создании категории необходима репутация >= 5
-				$ret->error = 10;
-				return $ret;
+		if (!$this->IsAdminRole()){
+
+			if (BlogManager::$isURating){ // работает система репутации пользователя
+				$rep = $this->GetURatingManager()->UserReputation();
+				if ($rep->reputation < 5){ // для создании категории необходима репутация >= 5
+					$ret->error = 10;
+					return $ret;
+				}
 			}
-		}
-		
-		if (!$this->IsAdminRole()){ 
+			
 			// категорию создает не админ
 			// значит нужно наложить ограничения
 			// не более одной категории в день - пока так
-			
-			
+			$dbCat = BlogTopicQuery::CategoryLastCreated($this->db, $this->userid);
+			if (!empty($dbCat) && $dbCat['dl']+60*60*24 > TIMENOW){
+				$ret->error = 2;
+				return $ret;
+			}
 		}
 		
 		$utm = Abricos::TextParser();
@@ -252,8 +282,34 @@ class BlogManager extends Ab_ModuleManager {
 			$ret->error = 1;
 			return $ret;
 		}
+		$d->nm = $utmf->Parser($d->nm);
+		if (empty($d->nm)){
+			$d->nm = translateruen($d->tl);
+		}
+		
 		$d->dsc = $utm->Parser($d->dsc);
 		$d->rep = intval($d->rep);
+		$d->prv = intval($d->prv);
+		
+		if ($d->id == 0){
+			$ret->catid = BlogTopicQuery::CategoryAppend($this->db, $this->userid, $d);
+			if ($ret->catid == 0){
+				$ret->error = 99;
+				return $ret;
+			}
+			
+			// создатель категории становиться ее админом
+			BlogTopicQuery::CategoryUserSetAdmin($this->db, $d->id, $this->userid);
+		}else{
+			// А есть ли права админа на правку категории
+			if (!$this->IsAdminRole()){
+				if (!$this->CategoryUserRole($d->id, $this->userid)->isAdmin){
+					return null;
+				}
+			}
+		}
+		$cats = $this->CategoryListToAJAX();
+		$ret->categories = $cats->categories;
 		
 		return $ret;
 	}

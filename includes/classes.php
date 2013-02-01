@@ -193,6 +193,29 @@ class BlogCategoryList {
 	}
 }
 
+/**
+ * Роль пользователя в категории
+ */
+class BlogCategoryUserRole {
+
+	public $catid = 0;
+	public $userid = 0;
+	
+	public $isMemeber = false;
+	public $isAdmin = false;
+	public $isModer = false;
+	
+	
+	public function __construct($catid, $userid, $d){
+		$this->catid = $catid;
+		$this->userid = $userid;
+		
+		$this->isMemeber = $d['mbr']==1;
+		$this->isAdmin = $d['adm'];
+		$this->isModer = $d['mdr'];
+	}
+}
+
 class BlogCommentLive {
 	/**
 	 * Идентификатор комментария

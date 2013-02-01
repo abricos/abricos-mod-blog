@@ -33,6 +33,7 @@ if ($updateManager->isInstall()){
 			
 			PRIMARY KEY (`catid`),
 			KEY `parentcatid` (`parentcatid`),
+			KEY `name` (`name`),
 			KEY `language` (`language`),
 			KEY `deldate` (`deldate`)
 		)". $charset
@@ -150,6 +151,27 @@ if ($updateManager->isUpdate('0.4.4.1')){
 	
 }
 
+if ($updateManager->isUpdate('0.5')){
+	// отношение пользователя к категории
+	$db->query_write("
+		CREATE TABLE IF NOT EXISTS ".$pfx."bg_catuserrole (
+			`catid` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Категория',
+			`userid` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Пользователь',
+	
+			`isadmin` tinyint(1) unsigned NOT NULL DEFAULT 0 COMMENT 'Админ категории',
+			`ismoder` tinyint(1) unsigned NOT NULL DEFAULT 0 COMMENT 'Модератор категории',
+			`ismember` tinyint(1) unsigned NOT NULL DEFAULT 0 COMMENT 'Подписан на категорию (блог): 0 - нет, 1 - да',
+			
+			`dateline` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата создания',
+			`upddate` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата обновления',
+
+			UNIQUE KEY `userrole` (`catid`,`userid`),
+			KEY `user` (`userid`)
+		)".$charset
+	);
+}
+
+
 if ($updateManager->isUpdate('0.5') && !$updateManager->isInstall()){
 	
 	$db->query_write("
@@ -161,9 +183,30 @@ if ($updateManager->isUpdate('0.5') && !$updateManager->isInstall()){
 			ADD `upddate` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата обновления',
 			ADD `deldate` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата удаления',
 			ADD KEY `language` (`language`),
+			ADD KEY `name` (`name`),
 			ADD KEY `deldate` (`deldate`)
 	");
 	
+	// Так как в предыдущих версиях создатель категории не заносился, проставить админа
+	$db->query_write("
+		UPDATE TABLE ".$pfx."bg_cat SET userid=1
+	");
+	
+	// проставить дату создание топика
+	$rows = $db->query_write("
+		SELECT 
+			DISTINCT catid, dateline
+		FROM ".$pfx."bg_topic
+		ORDER BY dateline
+	");
+	
+	while (($row = $db->fetch_array($rows))){
+		$db->query_write("
+			UPDATE TABLE ".$pfx."bg_cat 
+			SET dateline=".$row['dateline']."
+			WHERE catid=".$row['catid']."
+		");
+	}
 }
 
 

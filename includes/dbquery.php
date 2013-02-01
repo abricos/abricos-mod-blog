@@ -154,6 +154,16 @@ class BlogTopicQuery {
 		return $db->query_read($sql);
 	}
 	
+	
+	const CATEGORY_FIELDS = "
+		cat.catid as id,
+		cat.name as nm,
+		cat.phrase as tl,
+		cat.userid as uid,
+		cat.isprivate prv,
+		cat.reputation as rep
+	";
+	
 	public static function CategoryList(Ab_Database $db){
 		$sql = "
 			SELECT
@@ -161,10 +171,75 @@ class BlogTopicQuery {
 				name as nm,
 				phrase as tl
 			FROM ".$db->prefix."bg_cat
-			WHERE language='".bkstr(Abricos::$LNG)."'
+			WHERE language='".bkstr(Abricos::$LNG)."' AND deldate=0
 			ORDER BY tl
 		";
 		return $db->query_read($sql);
+	}
+
+	/**
+	 * Информация о последнем созданной категории пользователем
+	 * 
+	 * @param Ab_Database $db
+	 * @param integer $userid
+	 */
+	public static function CategoryLastCreated(Ab_Database $db, $userid){
+		$sql = "
+			SELECT
+				".BlogTopicQuery::CATEGORY_FIELDS."
+			FROM ".$db->prefix."bg_cat cat
+			WHERE language='".bkstr(Abricos::$LNG)."' AND userid=".bkint($userid)." 
+			ORDER BY dateline DESC
+			LIMIT 1
+		";
+		return $db->query_first($sql);		
+	}
+	
+	public static function CategoryAppend(Ab_Database $db, $userid, $d){
+		$sql = "
+			INSERT INTO ".$db->prefix."bg_cat
+			(userid, language, phrase, name, isprivate, reputation, dateline, upddate) VALUES (
+				".bkint($userid).",
+				'".bkstr(Abricos::$LNG)."',
+				'".bkstr($d->tl)."',
+				'".bkstr($d->nm)."',
+				".($d->prv>0?1:0).",
+				".bkint($d->rep).",
+				".TIMENOW.",
+				".TIMENOW."
+			)
+		";
+		$db->query_write($sql);
+		return $db->insert_id();
+	}
+	
+	public static function CategoryUser(Ab_Database $db, $catid, $userid){
+		$sql = "
+			SELECT
+				isadmin as adm,
+				ismoder as mdr,
+				ismember as mbr
+			FROM ".$db->prefix."bg_catuserrole
+			WHERE catid=".bkint($catid)." AND userid=".bkint($userid)."
+			LIMIT 1
+		";
+		return $db->query_first($sql);		
+	}
+	
+	public static function CategoryUserSetAdmin(Ab_Database $db, $catid, $userid, $isAdmin = false){
+		$sql = "
+			INSERT INTO ".$db->prefix."bg_catuserrole
+			(catid, userid, isadmin, dateline, upddate) VALUES(
+				".bkint($catid).",
+				".bkint($userid).",
+				".($isAdmin?1:0).",
+				".TIMENOW.",
+				".TIMENOW."
+			) ON DUPLICATE KEY UPDATE
+				isadmin=".($isAdmin?1:0).",
+				upddate=".TIMENOW."
+		";
+		$db->query_write($sql);
 	}
 	
 	public static function CommentLiveList(Ab_Database $db, $page, $limit){
