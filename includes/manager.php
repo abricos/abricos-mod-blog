@@ -21,10 +21,15 @@ class BlogManager extends Ab_ModuleManager {
 	 */
 	public static $instance = null;
 	
+	public static $isURating = false;
+	
 	public function __construct($module){
 		parent::__construct($module);
-		
+
 		BlogManager::$instance = $this;
+		
+		$modURating = Abricos::GetModule("urating");
+		BlogManager::$isURating = !empty($modURating); 
 	}
 	
 	public function IsAdminRole(){
@@ -40,7 +45,7 @@ class BlogManager extends Ab_ModuleManager {
 		if ($this->IsWriteRole()){ return true; }
 		return $this->IsRoleEnable(BlogAction::VIEW);
 	}
-		
+
 	public function AJAX($d){
 
 		switch($d->do){
@@ -50,12 +55,21 @@ class BlogManager extends Ab_ModuleManager {
 				return $this->TopicListToAJAX($d);
 			case "categorylist": 
 				return $this->CategoryListToAJAX();
+			case "categorysave": 
+				return $this->CategorySave($d);
 			case "commentlivelist": 
 				return $this->CommentLiveListToAJAX($d);
 		}
 
 		// TODO: Удалить
 		return $this->AJAX_MethodToRemove($d);
+	}
+	
+	/**
+	 * @return URatingManager
+	 */
+	public function GetURatingManager(){
+		Abricos::GetModule('urating')->GetManager();
 	}
 	
 	public function ToArray($rows, &$ids1 = "", $fnids1 = 'uid', &$ids2 = "", $fnids2 = '', &$ids3 = "", $fnids3 = ''){
@@ -197,6 +211,51 @@ class BlogManager extends Ab_ModuleManager {
 			return null;
 		}
 		return $catList->ToAJAX();
+	}
+	
+	/**
+	 * Сохранение категории (блога)
+	 * 
+	 * Коды ошибок:
+	 * 	null - нет прав,
+	 * 	10 - недостаточно репутации
+	 * 
+	 */
+	public function CategorySave($d){
+		if (!$this->IsWriteRole()){ return null; }
+		
+		$ret = new stdClass();
+		$ret->error = 0;
+		$ret->category = null;
+		
+		if (BlogManager::$isURating){ // работает система репутации пользователя
+			$rep = $this->GetURatingManager()->UserReputation();
+			if ($rep->reputation < 5){ // для создании категории необходима репутация >= 5
+				$ret->error = 10;
+				return $ret;
+			}
+		}
+		
+		if (!$this->IsAdminRole()){ 
+			// категорию создает не админ
+			// значит нужно наложить ограничения
+			// не более одной категории в день - пока так
+			
+			
+		}
+		
+		$utm = Abricos::TextParser();
+		$utmf = Abricos::TextParser(true);
+		
+		$d->tl = $utmf->Parser($d->tl);
+		if (empty($d->tl)){
+			$ret->error = 1;
+			return $ret;
+		}
+		$d->dsc = $utm->Parser($d->dsc);
+		$d->rep = intval($d->rep);
+		
+		return $ret;
 	}
 
 	/**

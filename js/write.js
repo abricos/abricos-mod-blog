@@ -48,6 +48,12 @@ Component.entryPoint = function(NS){
 		init: function(wType){
 			this.widget = null;
 		},
+		destroy: function(){
+			if (!L.isNull(this.widget)){
+				this.widget.destroy();
+			}
+			WriteWidget.superclass.destroy.call(this);			
+		},
 		onLoad: function(wType) {
 			switch(wType){
 			case 'category':
@@ -87,6 +93,7 @@ Component.entryPoint = function(NS){
 				this.editorWidget.destroy();
 				this.catSelWidget.destroy();
 			}
+			TopicEditorWidget.superclass.destroy.call(this);
 		},
 		onLoad: function(topicid){
 			var __self = this;
@@ -195,6 +202,7 @@ Component.entryPoint = function(NS){
 			if (!L.isNull(this.editorWidget)){
 				this.editorWidget.destroy();
 			}
+			CategoryEditorWidget.superclass.destroy.call(this);
 		},
 		onLoad: function(categoryid){
 			var __self = this;
@@ -218,27 +226,47 @@ Component.entryPoint = function(NS){
 				'toolbarExpert': false,
 				'separateIntro': false
 			});
+			
+			if (NS.isURating){
+				this.elShow('repblock');
+			}
 		},
 		onClick: function(el, tp){
 			switch(el.id){
-			// case tp['bpreview']: this.showPreview(); return true;
+			case tp['bcancel']: this.cancel(); return true;
+			case tp['bcreate']: 
+			case tp['bsave']: this.save(); return true;
 			}
 			return false;
 		},
 		getSaveData: function(){
-			/*
-			var stags = this.gel('tags').value;
-			var splitText = this.editorWidget.getSplitContent();
-			
 			return {
-				'catid': this.catSelWidget.getValue(),
+				'id': this.category.id,
 				'tl': this.gel('title').value,
-				'tags': NS.TagList.stringToAJAX(stags),
-				'intro': splitText['intro'],
-				'bd': splitText['body']
+				'dsc': this.editorWidget.getContent(),
+				'rep': this.gel('rep').value
 			};
-			/**/
+		},
+		cancel: function(){
+			Brick.Page.reload(NS.navigator.home());
+		},
+		save: function(){
+			var __self = this;
+			this.elHide('btnsblock');
+			this.elShow('bloading');
+			var sd = this.getSaveData();
+			NS.manager.categorySave(sd, function(category, error){
+				__self.elShow('btnsblock');
+				__self.elHide('bloading');
+
+				if (L.isNull(category)){
+					Brick.mod.widget.notice.show('Error: Category can`t save');
+				}else{
+					Brick.Page.reload(NS.navigator.category.view(category.id));
+				}
+			});
 		}
+		
 	});
 	NS.CategoryEditorWidget = CategoryEditorWidget;	
 };

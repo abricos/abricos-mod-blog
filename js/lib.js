@@ -7,7 +7,8 @@ var Component = new Brick.Component();
 Component.requires = { 
 	mod:[
         {name: 'uprofile', files: ['users.js']},
-        {name: 'widget', files: ['lib.js']},
+        {name: 'urating', files: ['vote.js']},
+        {name: 'widget', files: ['notice.js']},
         {name: '{C#MODNAME}', files: ['roles.js']}
 	]		
 };
@@ -29,6 +30,8 @@ Component.entryPoint = function(NS){
 	};
 	NS.Item = SysNS.Item;
 	NS.ItemList = SysNS.ItemList;
+	
+	NS.isURating = !!Brick.mod.urating.VotingWidget;
 	
 	var WS = "#app={C#MODNAMEURI}/wspace/ws/";
 	
@@ -379,6 +382,19 @@ Component.entryPoint = function(NS){
 				
 				NS.life(callback, list);
 			});
+		},
+		categorySave: function(sd, callback){
+			sd['do'] = 'categorysave';
+			this.ajax(sd, function(d){
+				var category = null;
+				
+				if (!L.isNull(d) && !L.isNull(d['comments'])){
+					// list = new NS.CommentLiveList(d['comments']);
+				}
+				
+				NS.life(callback, category);
+			});
+
 		}
 	};
 	NS.manager = null;

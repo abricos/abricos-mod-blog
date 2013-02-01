@@ -128,7 +128,7 @@
 				<textarea id="{i#text}" class="fldtext"></textarea>
 			</div>
 		
-			<div class="fieldline">
+			<div id="{i#repblock}" class="fieldline" style="display: none">
 				<p>
 					Ограничение по репутации:
 				</p>
@@ -139,10 +139,12 @@
 		
 		<div class="group">
 			<div class="baction">
-				<input id="{i#bcreate}" value="Создать" type="button" class="btn edstnew" />
-				<input id="{i#bsave}" value="Сохранить изменения" type="button" class="btn edstedit" />
-				<input id="{i#bcancel}" value="Отмена" type="button" class="btn" />
-				<span id="{i#loading}" style="display: none">
+				<span id="{i#btnsblock}">
+					<input id="{i#bcreate}" value="Создать" type="button" class="btn edstnew" />
+					<input id="{i#bsave}" value="Сохранить изменения" type="button" class="btn edstedit" />
+					<input id="{i#bcancel}" value="Отмена" type="button" class="btn" />
+				</span>
+				<span id="{i#bloading}" style="display: none">
 					<img src="/images/loading.gif" class="ldg" /> Сохранение...
 				</span>
 			</div>
