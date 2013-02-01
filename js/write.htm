@@ -4,7 +4,6 @@
 	<div id="{i#widget}"></div>
 </div>
 
-
 <!--{topic}-->
 <div id="{i#id}" class="topiceditor">
 	
@@ -96,5 +95,58 @@
 <div class='bd aw-blog'>
 	<div class="preview">
 		<div id="{i#widget}"></div>
+	</div>
+</div>
+
+<!--{blog}-->
+<div id="{i#id}" class="cateditor">
+	
+	<div id="{i#loading}" class="loading">
+		<img src="/images/loading.gif" /> Идет загрузка данных <br /> Пожалуйста, подождите...
+	</div>
+	
+	<div id="{i#view}" class="editform {v#cledst}">
+	
+		<div class="group">
+	
+			<h3 class="edstnew">Создание нового блога</h3>
+			<h3 class="edstedit">Редактирование блога</h3>
+
+			<div class="fieldline">
+				<p>
+					Название блога:
+				</p>
+				
+				<input id="{i#title}" type="text" class="fldtitle" />
+				<div class="dsc">Название должно быть кратким и отражать содержание</div>
+			</div>
+			
+			<div class="fieldline">
+				<p>
+					Описание блога:
+				</p>
+				<textarea id="{i#text}" class="fldtext"></textarea>
+			</div>
+		
+			<div class="fieldline">
+				<p>
+					Ограничение по репутации:
+				</p>
+				<input id="{i#rep}" type="text" class="fldrep" value="0"/>
+				<div class="dsc">Необходимое количество репутации, чтобы написать в этот блог</div>
+			</div>
+		</div>
+		
+		<div class="group">
+			<div class="baction">
+				<input id="{i#bcreate}" value="Создать" type="button" class="btn edstnew" />
+				<input id="{i#bsave}" value="Сохранить изменения" type="button" class="btn edstedit" />
+				<input id="{i#bcancel}" value="Отмена" type="button" class="btn" />
+				<span id="{i#loading}" style="display: none">
+					<img src="/images/loading.gif" class="ldg" /> Сохранение...
+				</span>
+			</div>
+		</div>
+	
 	</div>
 </div>

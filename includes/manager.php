@@ -21,37 +21,26 @@ class BlogManager extends Ab_ModuleManager {
 	 */
 	public static $instance = null;
 	
-	private $_disableRoles = false;
-	
 	public function __construct($module){
 		parent::__construct($module);
 		
 		BlogManager::$instance = $this;
 	}
 	
-	public function DisableRoles(){
-		$this->_disableRoles = true;
-	}
-	
-	public function EnableRoles(){
-		$this->_disableRoles = false;
-	}
-	
 	public function IsAdminRole(){
-		if ($this->_disableRoles){ return true; }
-		return $this->IsRoleEnable(BlogAction::BLOG_ADMIN);
+		return $this->IsRoleEnable(BlogAction::ADMIN);
 	}
 	
 	public function IsWriteRole(){
-		if ($this->_disableRoles){ return true; }
-		return $this->IsRoleEnable(BlogAction::TOPIC_WRITE);
+		if ($this->IsAdminRole()){ return true; }
+		return $this->IsRoleEnable(BlogAction::WRITE);
 	}
 	
 	public function IsViewRole(){
-		if ($this->_disableRoles){ return true; }
-		return $this->IsRoleEnable(BlogAction::BLOG_VIEW);
+		if ($this->IsWriteRole()){ return true; }
+		return $this->IsRoleEnable(BlogAction::VIEW);
 	}
-	
+		
 	public function AJAX($d){
 
 		switch($d->do){
@@ -418,7 +407,7 @@ class BlogManager extends Ab_ModuleManager {
 		if ($info['userid'] == $this->userid){
 			return ($type == 0 && $this->IsViewRole()) || ($type == 1 && $this->IsWriteRole());
 		}
-		return $type == 0 && $this->IsViewRole() && $info['status'] == BlogTopicStatus::PUBLISH;
+		return $type == 0 && $this->IsViewRole() && $info['status'] == 1;
 	}
 	
 	/**

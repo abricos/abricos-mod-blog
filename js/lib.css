@@ -53,6 +53,9 @@
 	margin-bottom: 1em;
 	padding-bottom: .8em;
 }
+.aw-blog .editform .fieldline {
+	margin-bottom: 10px;
+}
 .aw-blog .editform dl,
 .aw-blog .viewform dl {
 	margin: 0 0 0.3em;
@@ -75,6 +78,9 @@
     float: none;
     margin-left: 13em;
     padding: 0.5em 0;
+}
+.aw-blog .editform p {
+	margin: 5px 0 7px;
 }
 .aw-blog .editform input.inp,
 .aw-blog .editform select.inp,

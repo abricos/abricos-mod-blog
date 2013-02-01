@@ -12,8 +12,7 @@ Component.requires = {
 };
 Component.entryPoint = function(NS){
 	
-	var Dom = YAHOO.util.Dom,
-		L = YAHOO.lang;
+	var L = YAHOO.lang;
 	
 	var buildTemplate = this.buildTemplate;
 	
@@ -46,9 +45,14 @@ Component.entryPoint = function(NS){
 		}, wType || 'topic');
 	};
 	YAHOO.extend(WriteWidget, Brick.mod.widget.Widget, {
-		onLoad: function(wType){
+		init: function(wType){
+			this.widget = null;
+		},
+		onLoad: function(wType) {
 			switch(wType){
-			case 'blog':
+			case 'category':
+				wType = 'category';
+				this.widget = new NS.CategoryEditorWidget(this.gel('widget'));
 				break;
 			default:
 				wType = 'topic';
@@ -172,4 +176,69 @@ Component.entryPoint = function(NS){
 		oAC.delimChar = [",",";"]; // Enable comma and semi-colon delimiters
 	};
 
+	var CategoryEditorWidget = function(container, categoryid){
+		CategoryEditorWidget.superclass.constructor.call(this, container, {
+			'buildTemplate': buildTemplate, 'tnames': 'blog' 
+		}, categoryid || 0);
+	};
+	YAHOO.extend(CategoryEditorWidget, Brick.mod.widget.Widget, {
+		init: function(categoryid){
+			this.categoryid = categoryid;
+			this.editorWidget = null;
+		},
+		buildTData: function(categoryid){
+			return {
+				'cledst': categoryid>0 ? 'edstedit' : 'edstnew'
+			};
+		},
+		destroy: function(){
+			if (!L.isNull(this.editorWidget)){
+				this.editorWidget.destroy();
+			}
+		},
+		onLoad: function(categoryid){
+			var __self = this;
+			NS.initManager(function(){
+				if (categoryid == 0){
+					__self.onLoadManager(new NS.Category());
+				}else{
+					var cat = NS.manager.categoryList.get(categoryid);
+					__self.onLoadManager(cat);
+				}
+			});
+		},
+		onLoadManager: function(category){
+			this.category = category;
+			this.elHide('loading');
+			this.elHide('wrap');
+			
+			var Editor = Brick.widget.Editor;
+			this.editorWidget = new Editor(this.gel('text'), {
+				'toolbar': Editor.TOOLBAR_MINIMAL,
+				'toolbarExpert': false,
+				'separateIntro': false
+			});
+		},
+		onClick: function(el, tp){
+			switch(el.id){
+			// case tp['bpreview']: this.showPreview(); return true;
+			}
+			return false;
+		},
+		getSaveData: function(){
+			/*
+			var stags = this.gel('tags').value;
+			var splitText = this.editorWidget.getSplitContent();
+			
+			return {
+				'catid': this.catSelWidget.getValue(),
+				'tl': this.gel('title').value,
+				'tags': NS.TagList.stringToAJAX(stags),
+				'intro': splitText['intro'],
+				'bd': splitText['body']
+			};
+			/**/
+		}
+	});
+	NS.CategoryEditorWidget = CategoryEditorWidget;	
 };

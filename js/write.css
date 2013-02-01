@@ -36,3 +36,18 @@
 	min-width: 764px;
 	min-height: 500px;
 }
+
+
+/* * * * Category * * * */
+.aw-blog .cateditor .edstedit .edstnew,
+.aw-blog .cateditor .edstnew .edstedit {
+	display: none;
+}
+
+.aw-blog .cateditor input.fldtitle {
+	width: 670px;
+}
+.aw-blog .cateditor textarea.fldtext {
+	width: 670px;
+	height: 250px;
+}

@@ -8,6 +8,8 @@
  * @author Alexander Kuzmin <roosit@abricos.org>
  */
 
+Abricos::GetModule('comment');
+
 /**
  * Модуль "Блог" 
  * @package Abricos
@@ -175,55 +177,44 @@ class BlogModule extends Ab_Module {
 	
 }
 
-/**
- * Статус записи в блоге 
- */
-class BlogTopicStatus {
-	/**
-	 * Черновик
-	 * @var integer
-	 */
-	const DRAFT = 0;
-	
-	/**
-	 * Опубликова
-	 * @var integer
-	 */
-	const PUBLISH = 1; 
-}
-
 class BlogAction {
-	const BLOG_VIEW = 10;
-	const TOPIC_WRITE = 20;
-	const BLOG_ADMIN = 50;
+	const VIEW	= 10;
+	const WRITE	= 30;
+	const ADMIN	= 50;
 }
 
-class BlogPermission extends CMSPermission {
-	
+/**
+ * Роли пользователей в блоге
+ * 
+ * Если пользователь не админ и есть доступ на запись, то:
+ * 		Если устнавлена система репутации, то запись определяется уровнем репутации,
+ * 		Иначе вся запись попадает под модерацию админа
+ * 
+ */
+class BlogPermission extends Ab_UserPermission {
+
 	public function BlogPermission(BlogModule $module){
-		
+
 		$defRoles = array(
-			new CMSRole(BlogAction::BLOG_VIEW, 1, User::UG_GUEST),
-			new CMSRole(BlogAction::BLOG_VIEW, 1, User::UG_REGISTERED),
-			new CMSRole(BlogAction::BLOG_VIEW, 1, User::UG_ADMIN),
-			
-			new CMSRole(BlogAction::TOPIC_WRITE, 1, User::UG_ADMIN),
-			
-			new CMSRole(BlogAction::BLOG_ADMIN, 1, User::UG_ADMIN)
+			new Ab_UserRole(BlogAction::VIEW, Ab_UserGroup::GUEST),
+			new Ab_UserRole(BlogAction::VIEW, Ab_UserGroup::REGISTERED),
+			new Ab_UserRole(BlogAction::VIEW, Ab_UserGroup::ADMIN),
+				
+			new Ab_UserRole(BlogAction::WRITE, Ab_UserGroup::ADMIN),
+
+			new Ab_UserRole(BlogAction::ADMIN, Ab_UserGroup::ADMIN),
 		);
-		
-		parent::CMSPermission($module, $defRoles);
+		parent::__construct($module, $defRoles);
 	}
-	
+
 	public function GetRoles(){
-		$roles = array();
-		$roles[BlogAction::BLOG_VIEW] = $this->CheckAction(BlogAction::BLOG_VIEW);
-		$roles[BlogAction::TOPIC_WRITE] = $this->CheckAction(BlogAction::TOPIC_WRITE);
-		$roles[BlogAction::BLOG_ADMIN] = $this->CheckAction(BlogAction::BLOG_ADMIN);
-		return $roles;
+		return array(
+			BlogAction::VIEW => $this->CheckAction(BlogAction::VIEW),
+			BlogAction::WRITE => $this->CheckAction(BlogAction::WRITE),
+			BlogAction::ADMIN => $this->CheckAction(BlogAction::ADMIN)
+		);
 	}
 }
-Abricos::GetModule('comment');
 Abricos::ModuleRegister(new BlogModule());
 
 

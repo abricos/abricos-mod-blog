@@ -41,7 +41,7 @@ Component.entryPoint = function(NS){
 	};
 	GMIDI = {
 		'topics': ['all', 'pub', 'person'],
-		'write': ['topic', 'blog']
+		'write': ['topic', 'category']
 	};
 	var DEFPAGE = {
 		'component': 'topic',
@@ -62,10 +62,12 @@ Component.entryPoint = function(NS){
 		buildTData: function(pgInfo){
 			var NG = NS.navigator;
 			return {
+				'urlhome': NG.home(),
 				'urltopics': NG.topic.list(),
 				'urlcats': NG.category.list(),
-				'urlhome': NG.home(),
-				'urlwrite': NG.write.view()
+				'urlwrite': NG.write.topic(),
+				'urlwritetopic': NG.write.topic(),
+				'urlwritecategory': NG.write.category()
 			};
 		},
 		onLoad: function(pgInfo){

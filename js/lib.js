@@ -13,9 +13,9 @@ Component.requires = {
 };
 Component.entryPoint = function(NS){
 
-	var Dom = YAHOO.util.Dom,
-		L = YAHOO.lang,
+	var L = YAHOO.lang,
 		R = NS.roles;
+	
 	var SysNS = Brick.mod.sys;
 	var UP = Brick.mod.uprofile;
 	var LNG = this.language;
@@ -53,6 +53,12 @@ Component.entryPoint = function(NS){
 		'write': {
 			'view': function(){
 				return WS+'write/WriteWidget/';
+			},
+			'topic': function(){
+				return WS+'write/WriteWidget/topic/';
+			},
+			'category': function(){
+				return WS+'write/WriteWidget/category/';
 			}
 		},
 		'about': function(){

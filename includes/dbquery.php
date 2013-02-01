@@ -68,7 +68,9 @@ class BlogTopicQuery {
 		for ($i=0;$i<count($ids);$i++){
 			array_push($awh, "t.topicid=".bkint($ids[$i]));
 		}
-	
+		if (count($ids) == 0){
+			return null;
+		}
 		$sql = "
 			SELECT
 				".BlogTopicQuery::TopicFields($db)."
@@ -85,6 +87,10 @@ class BlogTopicQuery {
 		if (!is_array($tids)){
 			$tids = array(intval($tids));
 		}
+		if (count($tids) == 0){
+			return null;
+		}
+		
 		$awh = array();
 		for ($i=0; $i<count($tids); $i++){
 			array_push($awh, "tg.topicid=".bkint($tids[$i]));
@@ -106,6 +112,9 @@ class BlogTopicQuery {
 	public static function TopicTagList(Ab_Database $db, $tids){
 		if (!is_array($tids)){
 			$tids = array(intval($tids));
+		}
+		if (count($tids) == 0){
+			return null;
 		}
 		$awh = array();
 		for ($i=0; $i<count($tids); $i++){
