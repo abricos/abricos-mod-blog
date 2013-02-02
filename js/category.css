@@ -25,6 +25,9 @@
 .aw-blog .catlist .catrow .info {
 	margin-right: 110px;
 }
+.aw-blog .catlist .catrow .stat a{
+	color: #999999;
+}
 .aw-blog .catlist .title {
 	font-family: Verdana, sans-serif;
 	font-size: 22px;

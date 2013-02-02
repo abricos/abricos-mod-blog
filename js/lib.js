@@ -204,6 +204,7 @@ Component.entryPoint = function(NS){
 			'nm': '', // имя (URL)
 			'rep': 0, // кол-во репутации для нового топика
 			'prv': 0, // приватный
+			'tcnt': 0,// кол-во топиков
 			'adm': 0, // текущий пользователь админ?
 			'mdr': 0, // текущий пользователь модератор?
 			'mbr': 0  // текущий пользователь участник?
@@ -215,6 +216,7 @@ Component.entryPoint = function(NS){
 			this.title		= d['tl'];
 			this.name		= d['nm'];
 			this.reputation	= d['rep']*1;
+			this.topicCount = d['tcnt']*1;
 			this.isPrivate	= d['prv']>0;
 			this.isAdmin	= d['adm']>0;
 			this.isModer	= d['mdr']>0;

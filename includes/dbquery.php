@@ -27,7 +27,7 @@ class BlogTopicQuery {
 				WHERE t.contentid = cm.contentid
 				GROUP by cm.contentid
 			) as cmt,
-			t.datepub as dl
+			t.pubdate as dl
 		";
 	}
 
@@ -41,7 +41,7 @@ class BlogTopicQuery {
 			FROM ".$db->prefix."bg_topic t
 			INNER JOIN ".$db->prefix."content cc ON t.contentid = cc.contentid
 			INNER JOIN ".$db->prefix."user u ON t.userid = u.userid
-			WHERE t.topicid = ".bkint($topicid)." AND t.deldate=0 AND t.status=1
+			WHERE t.topicid = ".bkint($topicid)." AND t.deldate=0 AND t.isdraft=0
 			LIMIT 1
 		";
 		return $db->query_first($sql);
@@ -56,8 +56,8 @@ class BlogTopicQuery {
 			FROM ".$db->prefix."bg_topic t
 			INNER JOIN ".$db->prefix."content cc ON t.contentid = cc.contentid
 			INNER JOIN ".$db->prefix."user u ON t.userid = u.userid
-			WHERE t.deldate=0 AND t.status=1 AND t.language='".bkstr(Abricos::$LNG)."'
-			ORDER BY t.datepub DESC
+			WHERE t.deldate=0 AND t.isdraft=0 AND t.language='".bkstr(Abricos::$LNG)."'
+			ORDER BY t.pubdate DESC
 			LIMIT ".$from.",".bkint($limit)."
 		";
 		return $db->query_read($sql);
@@ -162,6 +162,7 @@ class BlogTopicQuery {
 				cat.phrase as tl,
 				cat.isprivate prv,
 				cat.reputation as rep,
+				cat.topiccount as tcnt,
 				
 				IF(ISNULL(cur.userid), 0, cur.isadmin) as adm,
 				IF(ISNULL(cur.userid), 0, cur.ismoder) as mdr,
@@ -171,7 +172,7 @@ class BlogTopicQuery {
 			LEFT JOIN ".$db->prefix."bg_catuserrole cur ON cat.catid=cur.catid 
 				AND cur.userid=".bkint(Abricos::$user->id)."
 			WHERE language='".bkstr(Abricos::$LNG)."' AND deldate=0
-			ORDER BY tl
+			ORDER BY rep DESC, tcnt DESC, tl
 		";
 		return $db->query_read($sql);
 	}
@@ -227,7 +228,7 @@ class BlogTopicQuery {
 		$db->query_write($sql);
 	}
 	
-	public static function CategroyRatingUpdate(Ab_Database $db, $catid, $voteup, $votedown, $votecount){
+	public static function CategoryRatingUpdate(Ab_Database $db, $catid, $voteup, $votedown, $votecount){
 		$sql = "
 			UPDATE ".$db->prefix."bg_cat
 			SET
@@ -239,6 +240,24 @@ class BlogTopicQuery {
 			WHERE catid=".bkint($catid)."
 			LIMIT 1
 		";
+		$db->query_write($sql);
+	}
+	
+	public static function CategoryTopicCountUpdate(Ab_Database $db, $catid = 0){
+		$sql = "
+			UPDATE ".$db->prefix."bg_cat cat
+			SET cat.topiccount = (
+				SELECT count(*) as cnt
+				FROM ".$db->prefix."bg_topic t
+				WHERE cat.catid=t.catid AND t.deldate=0 AND t.isdraft=0 
+				GROUP BY t.catid
+			)
+		";
+		if ($catid > 0){
+			$sql .= "
+				WHERE catid=".bkint($catid)."
+			";
+		}
 		$db->query_write($sql);
 	}
 	
@@ -292,7 +311,7 @@ class BlogTopicQuery {
 				SELECT ap.contentid, max( ap.dateline ) AS dl, count(ap.contentid) as cnt
 				FROM ".$db->prefix."cmt_comment ap
 				INNER JOIN ".$db->prefix."bg_topic tp ON ap.contentid = tp.contentid
-				WHERE tp.deldate = 0 and tp.status = 1 AND tp.language='".bkstr(Abricos::$LNG)."'
+				WHERE tp.deldate = 0 and tp.isdraft = 0 AND tp.language='".bkstr(Abricos::$LNG)."'
 				GROUP BY contentid
 				ORDER BY dl DESC
 				LIMIT ".$limit."
@@ -300,7 +319,7 @@ class BlogTopicQuery {
 			LEFT JOIN ".$db->prefix."cmt_comment c ON a.contentid = c.contentid AND c.dateline = a.dl
 			LEFT JOIN ".$db->prefix."user u ON c.userid = u.userid
 			LEFT JOIN ".$db->prefix."bg_topic t ON c.contentid = t.contentid
-			WHERE t.deldate = 0 and t.status = 1 AND t.language='".bkstr(Abricos::$LNG)."'
+			WHERE t.deldate = 0 and t.isdraft = 0 AND t.language='".bkstr(Abricos::$LNG)."'
 			ORDER BY dl DESC
 		";
 		return $db->query_read($sql);
@@ -345,7 +364,7 @@ class BlogQueryApp {
 				AND t.status=1 
 				".($topicid > 0 ? " AND topicid=".bkint($topicid) : "")." 
 				AND t.language='".bkstr(Abricos::$LNG)."'
-			ORDER BY t.datepub DESC
+			ORDER BY t.pubdate DESC
 			LIMIT ".$from.",".bkint($limit)."
 		";
 	}
@@ -377,7 +396,7 @@ class BlogQueryApp {
 					WHERE t.contentid = cm.contentid
 					GROUP by cm.contentid
 				) as cmt,
-				t.datepub as dl
+				t.pubdate as dl
 				".$full."
 			FROM ".$db->prefix."bg_topic t
 			LEFT JOIN ".$db->prefix."content cc ON t.contentid = cc.contentid
@@ -493,7 +512,7 @@ class BlogQuery {
 			FROM ".$db->prefix."bg_topic a
 			".$w[0]."
 			".$w[1]."
-			ORDER BY a.datepub DESC
+			ORDER BY a.pubdate DESC
 			".$w[2]."
 		";
 		return $db->query_read($sql);
@@ -522,8 +541,8 @@ class BlogQuery {
 				length(cc.body) as lenbd,
 				a.userid as uid,
 				a.dateline as dl,
-				a.dateedit as de,
-				a.datepub as dp,
+				a.upddate as de,
+				a.pubdate as dp,
 				a.status as st,
 				a.deldate as dd, 
 				b.catid as catid,
@@ -544,7 +563,7 @@ class BlogQuery {
 			LEFT JOIN ".$db->prefix."user c ON a.userid = c.userid
 			".$w[0]."
 			".$w[1]."
-			ORDER BY a.datepub DESC
+			ORDER BY a.pubdate DESC
 			".$w[2]."
 		";
 		return $db->query_read($sql);
@@ -886,7 +905,7 @@ class BlogQuery {
 	public static function TopicPublish(Ab_Database $db, $topicid){
 		$sql = "
 			UPDATE ".$db->prefix."bg_topic
-			SET datepub=".TIMENOW.", status=1
+			SET pubdate=".TIMENOW.", status=1
 			WHERE topicid=".bkint($topicid)." AND status=0
 		";
 		$db->query_write($sql);
@@ -929,7 +948,7 @@ class BlogQuery {
 				a.contentid, 
 				a.userid, 
 				a.status, 
-				a.datepub, a.catid, a.title, d.phrase as catph, d.name as catnm
+				a.pubdate, a.catid, a.title, d.phrase as catph, d.name as catnm
 			FROM ".$db->prefix."bg_topic a
 			LEFT JOIN ".$db->prefix."bg_cat d ON a.catid = d.catid
 			".$where."
@@ -968,8 +987,8 @@ class BlogQuery {
 				c.username as unm,
 				".$uProfile."
 				a.dateline as dl,
-				a.dateedit as de,
-				a.datepub as dp,
+				a.upddate as de,
+				a.pubdate as dp,
 				a.status as st,
 				a.deldate as dd
 			FROM ".$db->prefix."bg_topic a
@@ -1020,8 +1039,8 @@ class BlogQuery {
 				b.name as catnm,
 				a.userid as uid,
 				a.dateline as dl,
-				a.dateedit as de,
-				a.datepub as dp,
+				a.upddate as de,
+				a.pubdate as dp,
 				a.status as st,
 				a.deldate as dd,
 				u.userid as uid,
@@ -1041,7 +1060,7 @@ class BlogQuery {
 		
 		$sql = "
 			INSERT INTO ".$db->prefix."bg_topic
-			(metadesc, metakeys, name, title, catid, intro, contentid, userid, dateline, dateedit, datepub, status, language) VALUES
+			(metadesc, metakeys, name, title, catid, intro, contentid, userid, dateline, upddate, pubdate, status, language) VALUES
 			(
 				'".bkstr($obj->mtd)."',
 				'".bkstr($obj->mtk)."',
@@ -1071,7 +1090,7 @@ class BlogQuery {
 				title='".bkstr($obj->tl)."',
 				catid='".bkint($obj->catid)."',
 				intro='".bkstr($obj->intro)."',
-				dateedit=".bkint($obj->de).",
+				upddate=".bkint($obj->de).",
 				metadesc='".bkstr($obj->mtd)."',
 				metakeys='".bkstr($obj->mtk)."'
 			WHERE topicid=".bkint($obj->id)."

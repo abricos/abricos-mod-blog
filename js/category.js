@@ -17,29 +17,29 @@ Component.entryPoint = function(NS){
 		UID = Brick.env.user.id,
 		buildTemplate = this.buildTemplate;
 	
-	var CategoryRowWidget = function(container, category){
+	var CategoryRowWidget = function(container, cat){
 		CategoryRowWidget.superclass.constructor.call(this, container, {
 			'buildTemplate': buildTemplate, 'tnames': 'row' 
-		}, category);
+		}, cat);
 	};
 	YAHOO.extend(CategoryRowWidget, Brick.mod.widget.Widget, {
-		init: function(category){
-			this.category = category;
+		init: function(cat){
+			this.cat = cat;
 		},
-		buildTData: function(category){
+		buildTData: function(cat){
 			return {
-				'urlview': category.url(),
+				'urlview': cat.url(),
 				'rtg': 0,
 				'mbrs': 0,
-				'topics': 0
+				'topics': cat.topicCount
 			};
 		},
 		destroy: function(){
 			// this.infoWidget.destroy();
 		},
-		onLoad: function(category){
+		onLoad: function(cat){
 			this.elSetHTML({
-				'tl': category.title
+				'tl': cat.title
 			});
 		}
 	});
@@ -79,10 +79,10 @@ Component.entryPoint = function(NS){
 			var elList = this.gel('list');
 			var ws = this.wsList;
 
-			NS.manager.categoryList.foreach(function(category){
+			NS.manager.categoryList.foreach(function(cat){
 				var div = document.createElement('div');
 				elList.appendChild(div);
-				ws[ws.length] = new NS.CategoryRowWidget(div, category);
+				ws[ws.length] = new NS.CategoryRowWidget(div, cat);
 			});
 		}
 	});

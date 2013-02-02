@@ -186,8 +186,8 @@ class BlogManager extends Ab_ModuleManager {
 		$ret = new stdClass();
 		$ret->topic = $topic->ToAJAX();
 		return $ret;
-	}	
-	
+	}
+
 	/**
 	 * @return BlogCategoryList
 	 */
@@ -417,7 +417,7 @@ class BlogManager extends Ab_ModuleManager {
 	public function URating_OnElementVoting($eltype, $elid, $info){
 		
 		if ($eltype == 'cat'){
-			BlogTopicQuery::CategroyRatingUpdate($this->db, $elid, $info['cnt'], $info['up'], $info['down']);
+			BlogTopicQuery::CategoryRatingUpdate($this->db, $elid, $info['cnt'], $info['up'], $info['down']);
 		}
 	}
 	

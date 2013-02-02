@@ -54,43 +54,69 @@ if ($updateManager->isInstall()){
 			`name` varchar(50) NOT NULL,
 			`phrase` varchar(100) NOT NULL,
 			PRIMARY KEY (`tagid`))
-		". $charset);
+		". $charset
+	);
 	
 	$db->query_write("
 		CREATE TABLE `".$pfx."bg_topcat` (
 			`topcat` integer(10) unsigned NOT NULL auto_increment,
 			`catid` integer(10) unsigned NOT NULL,
 			`topicid` integer(10) unsigned NOT NULL,
-			PRIMARY KEY (`topcat`)) 
-		". $charset);
+			PRIMARY KEY (`topcat`)
+		)". $charset
+	);
 	
 	$db->query_write("
 		CREATE TABLE `".$pfx."bg_topic` (
 			`topicid` integer(10) unsigned NOT NULL auto_increment,
 			`language` CHAR(2) NOT NULL DEFAULT '' COMMENT 'Язык',
-			`name` varchar(250) NOT NULL,
-			`title` varchar(250) NOT NULL,
+			`catid` integer(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Язык',
+			`userid` integer(10) unsigned NOT NULL COMMENT 'Автор',
+			
+			`name` varchar(250) NOT NULL DEFAULT '' COMMENT 'Имя для URL',
+			`title` varchar(250) NOT NULL DEFAULT '' COMMENT 'Заголовок',
+			
 			`metadesc` varchar( 250 ) NOT NULL DEFAULT '',
 			`metakeys` varchar( 150 ) NOT NULL DEFAULT '',
-			`catid` integer(10) unsigned NOT NULL DEFAULT '0',
+			
 			`intro` TEXT NOT NULL,
 			`contentid` integer(10) unsigned NOT NULL,
-			`userid` integer(10) unsigned NOT NULL,
-			`dateline` integer(10) unsigned NOT NULL,
-			`dateedit` integer(10) unsigned NOT NULL,
-			`datepub` integer(10) unsigned NOT NULL DEFAULT '0',
-			`status` integer(2) NOT NULL DEFAULT '0',
-			`deldate` integer(10) unsigned NOT NULL DEFAULT '0',
-			PRIMARY KEY (`topicid`), KEY `name` (`name`)) 
-	". $charset);
+			`notcomment` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1-запретить комментарии',
+			
+			`rating` int(10) NOT NULL DEFAULT 0 COMMENT 'Рейтинг',
+			`voteup` int(5) unsigned NOT NULL DEFAULT 0 COMMENT 'ЗА',
+			`votedown` int(5) unsigned NOT NULL DEFAULT 0 COMMENT 'ПРОТИВ',
+			`votecount` int(5) unsigned NOT NULL DEFAULT 0 COMMENT 'Кол-во всего',
+			`votedate` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата пересчета',
+
+			`isdraft` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1-черновик',
+			`isban` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'Наложить запрет на публикацию (админ, модер)',
+			
+			`dateline` integer(10) unsigned NOT NULL COMMENT 'Дата создания',
+			`upddate` integer(10) unsigned NOT NULL COMMENT 'Дата редактирования',
+			`pubdate` integer(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Дата публикации',
+			`deldate` integer(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Дата удаления',
+
+			`commentcount` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Кол-во комментариев',
+			`viewcount` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Кол-во просмотров (учет зарег.польз.)',
+			
+			PRIMARY KEY (`topicid`), 
+			KEY `name` (`name`),
+			ADD KEY `catid` (`catid`),
+			ADD KEY `bycat` (`catid`, `isdraft`, `deldate`),
+			ADD KEY `byuser` (`userid`, `isdraft`, `deldate`),
+			ADD KEY `bypub` (`language`, `isdraft`, `deldate`)
+		)". $charset
+	);
 	
 	$db->query_write("
 		CREATE TABLE `".$pfx."bg_toptag` (
 			`toptagid` integer(10) unsigned NOT NULL auto_increment,
 			`topicid` integer(10) unsigned NOT NULL,
 			`tagid` integer(10) unsigned NOT NULL,
-			PRIMARY KEY (`toptagid`)) 
-	". $charset);
+			PRIMARY KEY (`toptagid`)
+		)". $charset
+	);
 
 }
 
@@ -173,57 +199,104 @@ if ($updateManager->isUpdate('0.5')){
 			`dateline` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата создания',
 			`upddate` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата обновления',
 
-			UNIQUE KEY `userrole` (`catid`,`userid`),
-			KEY `user` (`userid`)
+			UNIQUE KEY `userrole` (`catid`,`userid`)
 		)".$charset
 	);
-}
+	
+	// отношение пользователя к топику
+	$db->query_write("
+		CREATE TABLE IF NOT EXISTS ".$pfx."bg_topicuserrole (
+			`topicid` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Топик',
+			`userid` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Пользователь',
+	
+			`iscommentnotify` tinyint(1) unsigned NOT NULL DEFAULT 0 COMMENT 'Уведомлять о новом комментарии',
 
+			`dateline` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата создания',
+			`viewdate` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата просмотра',
+			
+			UNIQUE KEY `userrole` (`topicid`,`userid`),
+			KEY `topicid` (`topicid`)			
+		)".$charset
+	);
+	
+}
 
 if ($updateManager->isUpdate('0.5') && !$updateManager->isInstall()){
 	
 	$db->query_write("
 		ALTER TABLE ".$pfx."bg_cat
-			ADD `userid` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Создатель',
-			ADD `isprivate` tinyint(1) unsigned NOT NULL DEFAULT 0 COMMENT '0 - публичнй, 1 -приватный',
-			ADD `reputation` int(7) unsigned NOT NULL DEFAULT 0 COMMENT 'Репутация пользователя для создания топика',
-			
-			ADD `rating` int(10) NOT NULL DEFAULT 0 COMMENT 'Рейтинг',
-			ADD `voteup` int(5) unsigned NOT NULL DEFAULT 0 COMMENT 'ЗА',
-			ADD `votedown` int(5) unsigned NOT NULL DEFAULT 0 COMMENT 'ПРОТИВ',
-			ADD `votecount` int(5) unsigned NOT NULL DEFAULT 0 COMMENT 'Кол-во всего',
-			ADD `votedate` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата пересчета',
 
-			ADD `topiccount` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Кол-во топиков',
-			
-			ADD `dateline` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата создания',
-			ADD `upddate` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата обновления',
-			ADD `deldate` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата удаления',
-			ADD KEY `language` (`language`),
-			ADD KEY `name` (`name`),
-			ADD KEY `deldate` (`deldate`)
+		ADD `userid` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Создатель',
+		ADD `isprivate` tinyint(1) unsigned NOT NULL DEFAULT 0 COMMENT '0 - публичнй, 1 -приватный',
+		ADD `reputation` int(7) unsigned NOT NULL DEFAULT 0 COMMENT 'Репутация пользователя для создания топика',
+		
+		ADD `rating` int(10) NOT NULL DEFAULT 0 COMMENT 'Рейтинг',
+		ADD `voteup` int(5) unsigned NOT NULL DEFAULT 0 COMMENT 'ЗА',
+		ADD `votedown` int(5) unsigned NOT NULL DEFAULT 0 COMMENT 'ПРОТИВ',
+		ADD `votecount` int(5) unsigned NOT NULL DEFAULT 0 COMMENT 'Кол-во всего',
+		ADD `votedate` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата пересчета',
+
+		ADD `topiccount` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Кол-во топиков',
+		
+		ADD `dateline` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата создания',
+		ADD `upddate` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата обновления',
+		ADD `deldate` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата удаления',
+		
+		ADD KEY `language` (`language`),
+		ADD KEY `name` (`name`),
+		ADD KEY `deldate` (`deldate`)
+	");
+	
+	$db->query_write("
+		ALTER TABLE ".$pfx."bg_topic
+
+		ADD `rating` int(10) NOT NULL DEFAULT 0 COMMENT 'Рейтинг',
+		ADD `voteup` int(5) unsigned NOT NULL DEFAULT 0 COMMENT 'ЗА',
+		ADD `votedown` int(5) unsigned NOT NULL DEFAULT 0 COMMENT 'ПРОТИВ',
+		ADD `votecount` int(5) unsigned NOT NULL DEFAULT 0 COMMENT 'Кол-во всего',
+		ADD `votedate` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата пересчета',
+
+		ADD `notcomment` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1-запретить комментарии',
+		ADD `isdraft` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1-черновик',
+		ADD `isban` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'Наложить запрет на публикацию (админ, модер)',
+		
+		ADD `commentcount` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Кол-во комментариев',
+		ADD `viewcount` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Кол-во просмотров (учет зарег.польз.)',
+		
+		CHANGE `dateedit` `upddate` integer(10) unsigned NOT NULL COMMENT 'Дата редактирования',
+		CHANGE `datepub` `pubdate` integer(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Дата публикации',
+		
+		ADD KEY `catid` (`catid`),
+		ADD KEY `bycat` (`catid`, `isdraft`, `deldate`),
+		ADD KEY `byuser` (`userid`, `isdraft`, `deldate`),
+		ADD KEY `bypub` (`language`, `isdraft`, `deldate`)
 	");
 	
 	// Так как в предыдущих версиях создатель категории не заносился, проставить админа
+	// А так же проставить дату создание топика
 	$db->query_write("
-		UPDATE TABLE ".$pfx."bg_cat SET userid=1
+		UPDATE ".$db->prefix."bg_cat cat
+			SET userid=1,
+			cat.dateline = (
+			SELECT min(t.dateline)
+			FROM ".$pfx."bg_topic t
+			WHERE cat.catid=t.catid
+		)
 	");
 	
-	// проставить дату создание топика
-	$rows = $db->query_write("
-		SELECT 
-			DISTINCT catid, dateline
-		FROM ".$pfx."bg_topic
-		ORDER BY dateline
+	// перенести старое значения статуса в значение черновика и удалить поле
+	$db->query_write("
+		UPDATE ".$pfx."bg_topic
+		SET isdraft=IF(status<1, 1, 0)
+	");
+	$db->query_write("
+		ALTER TABLE ".$pfx."bg_topic
+		DROP  `status`
 	");
 	
-	while (($row = $db->fetch_array($rows))){
-		$db->query_write("
-			UPDATE TABLE ".$pfx."bg_cat 
-			SET dateline=".$row['dateline']."
-			WHERE catid=".$row['catid']."
-		");
-	}
+	require_once 'dbquery.php';
+	
+	BlogTopicQuery::CategoryTopicCountUpdate($db);
 }
 
 
