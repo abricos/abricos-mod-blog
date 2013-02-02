@@ -12,9 +12,9 @@ Component.requires = {
 };
 Component.entryPoint = function(NS){
 	
-	var L = YAHOO.lang;
-	
-	var buildTemplate = this.buildTemplate;
+	var L = YAHOO.lang,
+		R = NS.roles,
+		buildTemplate = this.buildTemplate;
 	
 	var WriteCategorySelectWidget = function(container){
 		WriteCategorySelectWidget.superclass.constructor.call(this, container, {
@@ -25,6 +25,7 @@ Component.entryPoint = function(NS){
 		buildTData: function(){
 			var TM = this._TM, lst = TM.replace('catselmyrow');
 			NS.manager.categoryList.foreach(function(cat){
+				if (!R.category.isMember(cat)){ return; }
 				lst += TM.replace('catselrow', {
 					'id': cat.id,
 					'tl': cat.title
@@ -183,19 +184,19 @@ Component.entryPoint = function(NS){
 		oAC.delimChar = [",",";"]; // Enable comma and semi-colon delimiters
 	};
 
-	var CategoryEditorWidget = function(container, categoryid){
+	var CategoryEditorWidget = function(container, catid){
 		CategoryEditorWidget.superclass.constructor.call(this, container, {
 			'buildTemplate': buildTemplate, 'tnames': 'blog' 
-		}, categoryid || 0);
+		}, catid || 0);
 	};
 	YAHOO.extend(CategoryEditorWidget, Brick.mod.widget.Widget, {
-		init: function(categoryid){
-			this.categoryid = categoryid;
+		init: function(catid){
+			this.catid = catid;
 			this.editorWidget = null;
 		},
-		buildTData: function(categoryid){
+		buildTData: function(catid){
 			return {
-				'cledst': categoryid>0 ? 'edstedit' : 'edstnew'
+				'cledst': catid>0 ? 'edstedit' : 'edstnew'
 			};
 		},
 		destroy: function(){
@@ -204,13 +205,13 @@ Component.entryPoint = function(NS){
 			}
 			CategoryEditorWidget.superclass.destroy.call(this);
 		},
-		onLoad: function(categoryid){
+		onLoad: function(catid){
 			var __self = this;
 			NS.initManager(function(){
-				if (categoryid == 0){
+				if (catid == 0){
 					__self.onLoadManager(new NS.Category());
 				}else{
-					var cat = NS.manager.categoryList.get(categoryid);
+					var cat = NS.manager.categoryList.get(catid);
 					__self.onLoadManager(cat);
 				}
 			});
@@ -255,14 +256,14 @@ Component.entryPoint = function(NS){
 			this.elHide('btnsblock');
 			this.elShow('bloading');
 			var sd = this.getSaveData();
-			NS.manager.categorySave(sd, function(category, error){
+			NS.manager.categorySave(sd, function(catid, error){
 				__self.elShow('btnsblock');
 				__self.elHide('bloading');
 
-				if (L.isNull(category)){
+				if (L.isNull(error) || catid == 0){
 					Brick.mod.widget.notice.show('Error: Category can`t save');
 				}else{
-					Brick.Page.reload(NS.navigator.category.view(category.id));
+					Brick.Page.reload(NS.navigator.category.view(catid));
 				}
 			});
 		}

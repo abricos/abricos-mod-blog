@@ -200,15 +200,25 @@ Component.entryPoint = function(NS){
 	
 	var Category = function(d){
 		d = L.merge({
-			'tl': '',
-			'nm': ''
+			'tl': '', // заголовок
+			'nm': '', // имя (URL)
+			'rep': 0, // кол-во репутации для нового топика
+			'prv': 0, // приватный
+			'adm': 0, // текущий пользователь админ?
+			'mdr': 0, // текущий пользователь модератор?
+			'mbr': 0  // текущий пользователь участник?
 		}, d || {});
 		Category.superclass.constructor.call(this, d);
 	};
 	YAHOO.extend(Category, SysNS.Item, {
 		update: function(d){
-			this.title = d['tl'];
-			this.name = d['nm'];
+			this.title		= d['tl'];
+			this.name		= d['nm'];
+			this.reputation	= d['rep']*1;
+			this.isPrivate	= d['prv']>0;
+			this.isAdmin	= d['adm']>0;
+			this.isModer	= d['mdr']>0;
+			this.isMember	= d['mbr']>0;
 		},
 		url: function(){
 			return NS.navigator.category.view(this.id);
@@ -292,6 +302,37 @@ Component.entryPoint = function(NS){
 	NS.CommentLiveList = CommentLiveList;	
 	
 	
+	var CategoryUserRoleManager = function(){
+		this.init();
+	};
+	CategoryUserRoleManager.prototype = {
+		init: function(){
+			
+		},
+		get: function(cat){
+			if (L.isObject(cat)){
+				return cat;
+			}
+			return NS.manager.categoryList.get(cat*1);
+		},
+		isAdmin: function(cat){ // Админ категории
+			if (L.isNull(cat = this.get(cat))){ return false; }
+			if (R['isAdmin']){ return true; }
+			
+			return cat.isAdmin;
+		},
+		isMember: function(cat){ // Участник категории
+			if (L.isNull(cat = this.get(cat))){ return false; }
+			
+			return this.isAdmin(cat) || cat.isModer || cat.isMember;
+		},
+		isTopicCreate: function(cat){ // Доступ создание нового топика? 
+			if (L.isNull(cat = this.get(cat))){ return false; }
+			return R['isWrite'] && this.isMember();
+		}
+	};
+	NS.CategoryUserRoleManager = CategoryUserRoleManager;
+	
 	var Manager = function (callback){
 		this.init(callback);
 	};
@@ -304,6 +345,9 @@ Component.entryPoint = function(NS){
 			
 			var __self = this;
 			R.load(function(){
+				
+				R.category = new CategoryUserRoleManager();
+				
 				__self.categoryListLoad(function(){
 					NS.life(callback, __self);
 				});
@@ -319,17 +363,18 @@ Component.entryPoint = function(NS){
 				}
 			});
 		},
+		_updateCategoryList: function(d){
+			if (L.isNull(d) || L.isNull(d['categories'])){
+				return;
+			}
+			this.categoryList.clear();
+			this.categoryList.update(d['categories']);
+		},
 		categoryListLoad: function(callback){
 			var __self = this;
 			this.ajax({'do': 'categorylist'}, function(d){
-				var list = __self.categoryList;
-				
-				if (!L.isNull(d) && !L.isNull(d['categories'])){
-					list.clear();
-					list.update(d['categories']);
-				}
-				
-				NS.life(callback, list);
+				__self._updateCategoryList(d);
+				NS.life(callback, __self.categoryList);
 			});			
 		},
 		topicListLoad: function(callback, cfg){
@@ -384,17 +429,19 @@ Component.entryPoint = function(NS){
 			});
 		},
 		categorySave: function(sd, callback){
+			var __self = this;
 			sd['do'] = 'categorysave';
 			this.ajax(sd, function(d){
-				var category = null;
+				var catid = null, error = null;
 				
-				if (!L.isNull(d) && !L.isNull(d['comments'])){
-					// list = new NS.CommentLiveList(d['comments']);
+				if (!L.isNull(d) && !L.isNull(d['error'])){
+					catid = d['catid'];
+					error = d['error'];
+					__self._updateCategoryList(d);
 				}
 				
-				NS.life(callback, category);
+				NS.life(callback, catid, error);
 			});
-
 		}
 	};
 	NS.manager = null;

@@ -156,14 +156,64 @@ class BlogTopicTag {
 }
 
 class BlogCategory {
+	
+	/**
+	 * Идентификатор категории
+	 * @var integet
+	 */
 	public $id;
+	
+	/**
+	 * Заголовок
+	 * @var string
+	 */
 	public $title;
+	
+	/**
+	 * Имя для формирования URL
+	 * @var string
+	 */
 	public $name;
+
+	/**
+	 * Необходимая репутация для записи в блог
+	 * @var integer
+	 */
+	public $reputation;
+	
+	/**
+	 * Закрытая категория
+	 * @var boolean
+	 */
+	public $isPrivate;
+
+	/**
+	 * Текущий пользователь имеет права Админа на эту категорию
+	 * @var boolean
+	 */
+	public $isAdmin;
+	
+	/**
+	 * Текущий пользователь имеет права Модератора на эту категорию
+	 * @var boolean
+	 */
+	public $isModer;
+	
+	/**
+	 * Текущий пользователь является членом категории
+	 * @var boolean
+	 */
+	public $isMember;
 	
 	public function __construct($d){
-		$this->id = $d['id'];
+		$this->id = $d['id']*1;
 		$this->title = $d['tl'];
 		$this->name = $d['nm'];
+		$this->reputation = $d['rep']*1;
+		$this->isPrivate = $d['prv']>0;
+		$this->isAdmin = $d['prm']>0;
+		$this->isModer = $d['mdr']>0;
+		$this->isMember= $d['mbr']>0;
 	}
 	
 	public function ToAJAX(){
@@ -171,6 +221,11 @@ class BlogCategory {
 		$ret->id = $this->id;
 		$ret->tl = $this->title;
 		$ret->nm = $this->name;
+		$ret->rep = $this->reputation;
+		$ret->prv = $this->isPrivate?1:0;
+		$ret->adm = $this->isAdmin?1:0;
+		$ret->mdr = $this->isModer?1:0;
+		$ret->mbr = $this->isMember?1:0;
 		return $ret;
 	}
 }
@@ -198,14 +253,42 @@ class BlogCategoryList {
  */
 class BlogCategoryUserRole {
 
+	/**
+	 * Идентификатор категории
+	 * @var integer
+	 */
 	public $catid = 0;
+	
+	/**
+	 * Идентификатор пользователя
+	 * @var integer
+	 */
 	public $userid = 0;
 	
+	/**
+	 * Пользователь подписан на блог (является его членом)
+	 * @var boolean
+	 */
 	public $isMemeber = false;
+	
+	/**
+	 * Пользователь имеет права админа на категорию
+	 * @var boolean
+	 */
 	public $isAdmin = false;
+	
+	/**
+	 * Пользователь имеет права модератора на категорию
+	 * @var boolean
+	 */
 	public $isModer = false;
 	
-	
+	/**
+	 * 
+	 * @param integer $catid
+	 * @param integer $userid
+	 * @param array $d информация роли полученной из базы
+	 */
 	public function __construct($catid, $userid, $d){
 		$this->catid = $catid;
 		$this->userid = $userid;

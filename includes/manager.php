@@ -252,7 +252,7 @@ class BlogManager extends Ab_ModuleManager {
 		
 		$ret = new stdClass();
 		$ret->error = 0;
-		$ret->category = null;
+		$ret->catid = 0;
 		
 		if (!$this->IsAdminRole()){
 
@@ -292,8 +292,8 @@ class BlogManager extends Ab_ModuleManager {
 		$d->prv = intval($d->prv);
 		
 		if ($d->id == 0){
-			$ret->catid = BlogTopicQuery::CategoryAppend($this->db, $this->userid, $d);
-			if ($ret->catid == 0){
+			$d->id = BlogTopicQuery::CategoryAppend($this->db, $this->userid, $d);
+			if ($d->id == 0){
 				$ret->error = 99;
 				return $ret;
 			}
@@ -307,8 +307,10 @@ class BlogManager extends Ab_ModuleManager {
 					return null;
 				}
 			}
+			BlogTopicQuery::CategoryUpdate($this->db, $d->id, $d);
 		}
 		$cats = $this->CategoryListToAJAX();
+		$ret->catid = $d->id;
 		$ret->categories = $cats->categories;
 		
 		return $ret;

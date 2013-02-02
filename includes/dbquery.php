@@ -154,23 +154,22 @@ class BlogTopicQuery {
 		return $db->query_read($sql);
 	}
 	
-	
-	const CATEGORY_FIELDS = "
-		cat.catid as id,
-		cat.name as nm,
-		cat.phrase as tl,
-		cat.userid as uid,
-		cat.isprivate prv,
-		cat.reputation as rep
-	";
-	
 	public static function CategoryList(Ab_Database $db){
 		$sql = "
 			SELECT
-				catid as id,
-				name as nm,
-				phrase as tl
-			FROM ".$db->prefix."bg_cat
+				cat.catid as id,
+				cat.name as nm,
+				cat.phrase as tl,
+				cat.isprivate prv,
+				cat.reputation as rep,
+				
+				IF(ISNULL(cur.userid), 0, cur.isadmin) as adm,
+				IF(ISNULL(cur.userid), 0, cur.ismoder) as mdr,
+				IF(ISNULL(cur.userid), 0, cur.ismember) as mbr
+				
+			FROM ".$db->prefix."bg_cat cat
+			LEFT JOIN ".$db->prefix."bg_catuserrole cur ON cat.catid=cur.catid 
+				AND cur.userid=".bkint(Abricos::$user->id)."
 			WHERE language='".bkstr(Abricos::$LNG)."' AND deldate=0
 			ORDER BY tl
 		";
@@ -186,7 +185,8 @@ class BlogTopicQuery {
 	public static function CategoryLastCreated(Ab_Database $db, $userid){
 		$sql = "
 			SELECT
-				".BlogTopicQuery::CATEGORY_FIELDS."
+				cat.catid as id,
+				cat.dateline as dl
 			FROM ".$db->prefix."bg_cat cat
 			WHERE language='".bkstr(Abricos::$LNG)."' AND userid=".bkint($userid)." 
 			ORDER BY dateline DESC
@@ -211,6 +211,20 @@ class BlogTopicQuery {
 		";
 		$db->query_write($sql);
 		return $db->insert_id();
+	}
+	
+	public static function CategoryUpdate(Ab_Database $db, $catid, $d){
+		$sql = "
+			UPDATE ".$db->prefix."bg_cat
+			SET phrase=".bkstr($d->tl)."',
+				name='".bkstr($d->nm)."',
+				isprivate=".($d->prv>0?1:0).",
+				reputation=".bkint($d->rep).",
+				upddate=".TIMENOW.",
+			WHERE catid=".bkint($catid)."
+			LIMIT 1
+		";
+		$db->query_write($sql);
 	}
 	
 	public static function CategoryUser(Ab_Database $db, $catid, $userid){

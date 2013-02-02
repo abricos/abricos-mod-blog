@@ -7,18 +7,16 @@ var Component = new Brick.Component();
 Component.requires = {
 	mod:[{name: 'user', files: ['permission.js']}]
 };
-Component.entryPoint = function(){
+Component.entryPoint = function(NS){
 	
-	var NS = this.namespace,
-		BP = Brick.Permission,
-		moduleName = this.moduleName;;
+	var BP = Brick.Permission;
 
 	NS.roles = {
 		load: function(callback){
 			BP.load(function(){
-				NS.roles['isAdmin'] = BP.check(moduleName, '50') == 1;
-				NS.roles['isWrite'] = BP.check(moduleName, '20') == 1;
-				NS.roles['isView'] = BP.check(moduleName, '10') == 1;
+				NS.roles['isAdmin'] = BP.check('{C#MODNAME}', '50') == 1;
+				NS.roles['isWrite'] = BP.check('{C#MODNAME}', '20') == 1;
+				NS.roles['isView'] = BP.check('{C#MODNAME}', '10') == 1;
 				callback();
 			});
 		}
