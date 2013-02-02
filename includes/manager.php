@@ -245,7 +245,6 @@ class BlogManager extends Ab_ModuleManager {
 	 *	2 - пользователю можно создавать категорию не более одной в сутки,
 	 * 	10 - недостаточно репутации,
 	 *  99 - неизвестная ошибка
-	 * 
 	 */
 	public function CategorySave($d){
 		if (!$this->IsWriteRole()){ return null; }
@@ -365,13 +364,82 @@ class BlogManager extends Ab_ModuleManager {
 		}
 		return $list->ToAJAX();
 	}
+
+
+	/**
+	 * Можно ли проголосовать текущему пользователю за категорию/топик
+	 *
+	 * Метод вызывается из модуля URating
+	 *
+	 * Возвращает код ошибки:
+	 *  0 - все нормально, голосовать можно;
+	 *  2 - голосовать можно только с положительным рейтингом;
+	 *  3 - недостаточно голосов (закончились голоса)
+	 *
+	 *
+	 * @param URatingUserReputation $uRep
+	 * @param string $act
+	 * @param integer $userid
+	 * @param string $eltype
+	 */
+	public function URating_IsElementVoting(URatingUserReputation $uRep, $act, $elid, $eltype){
+		$man = URatingManager::$instance;
+		if (!($eltype=='cat' || $eltype=='topic')){ return null; }
+		
+		if ($this->IsAdminRole()){ // админу можно голосовать всегда
+			return 0;
+		}
+	
+		if ($uRep->reputation < 1){ // голосовать можно только с положительным рейтингом
+			return 2;
+		}
+		
+		$votes = $man->UserVoteCountByDay();
+	
+		// кол-во голосов равно кол-ву репутации умноженной на 2
+		$voteRepCount = intval($votes['blog']);
+		if ($uRep->reputation*2 <= $voteRepCount){
+			return 3;
+		}
+	
+		return 0;
+	}
 	
 	/**
-	 * Голосование за топик (метод вызывает модуль uraging)
+	 * Занести результат расчета репутации пользователя
+	 *
+	 * Метод вызывается из модуля urating
+	 *
+	 * @param string $eltype
+	 * @param integer $elid
+	 * @param array $vote
 	 */
-	public function URating_ElementVoting($vote, $topicid, $type){
+	public function URating_OnElementVoting($eltype, $elid, $info){
 		
+		if ($eltype == 'cat'){
+			BlogTopicQuery::CategroyRatingUpdate($this->db, $elid, $info['cnt'], $info['up'], $info['down']);
+		}
 	}
+	
+	/**
+	 * Расчет рейтинга пользователя
+	 *
+	 * Метод запрашивает модуль URating
+	 *
+	 * +10 - за каждый положительный голос в репутацию
+	 * -10 - за каждый отрицательный голос в репутацию
+	 *
+	 * @param integer $userid
+	 */
+	public function URating_UserCalculate($userid){
+		
+		// $rep = $this->UserReputation($userid);
+	
+		$ret = new stdClass();
+		// $ret->skill = $rep->reputation * 10;
+		return $ret;
+	}	
+	
 	
 	
 	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */

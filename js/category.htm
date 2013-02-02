@@ -1,24 +1,35 @@
-<!--{categorylist}-->
-<div id="{i#id}" class="categorylist">
+<!--{catlist}-->
+<div id="{i#id}" class="catlist">
+	<div class="cathead">
+		<div class="hrtg">Рейтинг</div>
+		<div class="htl">Название</div>
+	</div>
 
 	<div id="{i#loading}" class="loading">
 		<img src="/images/loading.gif" /> Идет загрузка данных <br /> Пожалуйста, подождите...
 	</div>
 
-	<div id="{i#list}"></div>
+	<div id="{i#list}" class="list"></div>
 </div>
 
 <!--{row}-->
-<div id="{v#id}" class="category">
-	<div id="{i#tlcont}" class="title">
-		<a id="{i#tl}" href="{v#urlview}" class="cattl"></a>
+<div id="{v#id}" class="catrow">
+	<div class="rtg">{v#rtg}</div>
+	<div id="{i#info}" class="info">
+		<div id="{i#tlcont}" class="title">
+			<a id="{i#tl}" href="{v#urlview}" class="cattl"></a>
+		</div>
+		<div class="clear"></div>
+		<div class="stat">
+			<a href="#">{v#mbrs} читателей</a>
+			,&nbsp;
+			<a href="#">{v#topics} записей</a>
+		</div>
 	</div>
-	
-	<div id="{i#info}" class="info"></div>
 </div>
 
-<!--{categoryview}-->
-<div id="{i#id}" class="topicview">
+<!--{catview}-->
+<div id="{i#id}" class="catview">
 
 	<div id="{i#loading}" class="loading">
 		<img src="/images/loading.gif" /> Идет загрузка данных <br /> Пожалуйста, подождите...
@@ -28,5 +39,8 @@
 		Блог не найден или недостаточно прав для его просмотра
 	</div>
 
-	<div id="{i#view}"></div>
+	<div id="{i#view}">
+		<div id="{i#rating}"></div>
+		<h2 id="{i#tl}" class="cattl"></h2>
+	</div>
 </div>

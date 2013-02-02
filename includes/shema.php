@@ -27,6 +27,14 @@ if ($updateManager->isInstall()){
 			`isprivate` tinyint(1) unsigned NOT NULL DEFAULT 0 COMMENT '0 - публичнй, 1 -приватный',
 			`reputation` int(7) unsigned NOT NULL DEFAULT 0 COMMENT 'Репутация пользователя для создания топика',
 			
+			`rating` int(10) NOT NULL DEFAULT 0 COMMENT 'Рейтинг',
+			`voteup` int(5) unsigned NOT NULL DEFAULT 0 COMMENT 'ЗА',
+			`votedown` int(5) unsigned NOT NULL DEFAULT 0 COMMENT 'ПРОТИВ',
+			`votecount` int(5) unsigned NOT NULL DEFAULT 0 COMMENT 'Кол-во всего',
+			`votedate` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата пересчета',
+			
+			`topiccount` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Кол-во топиков',
+			
 			`dateline` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата создания',
 			`upddate` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата обновления',
 			`deldate` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата удаления',
@@ -179,6 +187,15 @@ if ($updateManager->isUpdate('0.5') && !$updateManager->isInstall()){
 			ADD `userid` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Создатель',
 			ADD `isprivate` tinyint(1) unsigned NOT NULL DEFAULT 0 COMMENT '0 - публичнй, 1 -приватный',
 			ADD `reputation` int(7) unsigned NOT NULL DEFAULT 0 COMMENT 'Репутация пользователя для создания топика',
+			
+			ADD `rating` int(10) NOT NULL DEFAULT 0 COMMENT 'Рейтинг',
+			ADD `voteup` int(5) unsigned NOT NULL DEFAULT 0 COMMENT 'ЗА',
+			ADD `votedown` int(5) unsigned NOT NULL DEFAULT 0 COMMENT 'ПРОТИВ',
+			ADD `votecount` int(5) unsigned NOT NULL DEFAULT 0 COMMENT 'Кол-во всего',
+			ADD `votedate` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата пересчета',
+
+			ADD `topiccount` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Кол-во топиков',
+			
 			ADD `dateline` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата создания',
 			ADD `upddate` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата обновления',
 			ADD `deldate` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата удаления',

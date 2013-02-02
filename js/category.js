@@ -6,14 +6,16 @@
 var Component = new Brick.Component();
 Component.requires = {
 	mod:[
+        {name: 'urating', files: ['vote.js']},
         {name: '{C#MODNAME}', files: ['lib.js']}
 	]
 };
 Component.entryPoint = function(NS){
 	
-	var L = YAHOO.lang;
-	
-	var buildTemplate = this.buildTemplate;
+	var L = YAHOO.lang,
+		NSUR = Brick.mod.urating || {},
+		UID = Brick.env.user.id,
+		buildTemplate = this.buildTemplate;
 	
 	var CategoryRowWidget = function(container, category){
 		CategoryRowWidget.superclass.constructor.call(this, container, {
@@ -26,7 +28,10 @@ Component.entryPoint = function(NS){
 		},
 		buildTData: function(category){
 			return {
-				'urlview': category.url()
+				'urlview': category.url(),
+				'rtg': 0,
+				'mbrs': 0,
+				'topics': 0
 			};
 		},
 		destroy: function(){
@@ -40,44 +45,9 @@ Component.entryPoint = function(NS){
 	});
 	NS.CategoryRowWidget = CategoryRowWidget;
 	
-	var CategoryViewWidget = function(container, catid){
-		CategoryViewWidget.superclass.constructor.call(this, container, {
-			'buildTemplate': buildTemplate, 'tnames': 'categoryview' 
-		}, catid);
-	};
-	YAHOO.extend(CategoryViewWidget, Brick.mod.widget.Widget, {
-		init: function(catid){
-			this.catid = catid;
-			this.viewWidget = null;
-		},
-		destroy: function(){
-			if (!L.isNull(this.viewWidget)){
-				this.viewWidget.destroy();
-			}
-		},
-		onLoad: function(catid){
-			var __self = this;
-			NS.initManager(function(){
-				var category = NS.manager.categoryList.get(catid);
-				__self.renderCategory(category);
-			});
-		},
-		renderCategory: function(category){
-			this.elHide('loading');
-			
-			if (L.isNull(category)){
-				this.elShow('nullitem');
-				return;
-			}
-
-			this.viewWidget = new NS.CategoryRowWidget(this.gel('view'), category);
-		}
-	});
-	NS.CategoryViewWidget = CategoryViewWidget;		
-	
 	var CategoryListWidget = function(container){
 		CategoryListWidget.superclass.constructor.call(this, container, {
-			'buildTemplate': buildTemplate, 'tnames': 'categorylist' 
+			'buildTemplate': buildTemplate, 'tnames': 'catlist' 
 		});
 	};
 	YAHOO.extend(CategoryListWidget, Brick.mod.widget.Widget, {
@@ -104,6 +74,7 @@ Component.entryPoint = function(NS){
 		renderList: function(){
 			this.clearList();
 			this.elHide('loading');
+			this.elShow('view');
 
 			var elList = this.gel('list');
 			var ws = this.wsList;
@@ -116,5 +87,67 @@ Component.entryPoint = function(NS){
 		}
 	});
 	NS.CategoryListWidget = CategoryListWidget;
+
+	var CategoryViewWidget = function(container, catid){
+		CategoryViewWidget.superclass.constructor.call(this, container, {
+			'buildTemplate': buildTemplate, 'tnames': 'catview' 
+		}, catid);
+	};
+	YAHOO.extend(CategoryViewWidget, Brick.mod.widget.Widget, {
+		init: function(catid){
+			this.catid = catid;
+			this.viewWidget = null;
+		},
+		destroy: function(){
+			if (!L.isNull(this.viewWidget)){
+				this.viewWidget.destroy();
+			}
+		},
+		onLoad: function(catid){
+			var __self = this;
+			NS.initManager(function(){
+				var cat = NS.manager.categoryList.get(catid);
+				__self.renderCategory(cat);
+			});
+		},
+		renderCategory: function(cat){
+			this.elHide('loading');
+			
+			if (L.isNull(cat)){
+				this.elShow('nullitem');
+				return;
+			}
+			
+			this.elSetHTML({
+				'tl': cat.title
+			});
+			
+			if (NSUR.VotingWidget){
+				this.voteWidget = new NSUR.VotingWidget(this.gel('rating'), {
+					'modname': 'blog',
+					'elementType': 'cat',
+					'elementId': cat.id,
+					'value': 0,
+					// 'vote': user.repMyVote,
+					'hideButtons': UID == 0,
+					'onVotingError': function(error, merror){
+						/*
+						var s = '', lng = LNG['urating']['error'];
+						if (merror > 0){
+							s = lng['m'+merror];
+						}else if (error == 1){
+							s = LNG[error];
+						}else{
+							return;
+						}
+						/**/
+						Brick.mod.widget.notice.show('ERROR');						
+					}
+				});
+			}
+
+		}
+	});
+	NS.CategoryViewWidget = CategoryViewWidget;		
 
 };

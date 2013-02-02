@@ -220,7 +220,22 @@ class BlogTopicQuery {
 				name='".bkstr($d->nm)."',
 				isprivate=".($d->prv>0?1:0).",
 				reputation=".bkint($d->rep).",
-				upddate=".TIMENOW.",
+				upddate=".TIMENOW."
+			WHERE catid=".bkint($catid)."
+			LIMIT 1
+		";
+		$db->query_write($sql);
+	}
+	
+	public static function CategroyRatingUpdate(Ab_Database $db, $catid, $voteup, $votedown, $votecount){
+		$sql = "
+			UPDATE ".$db->prefix."bg_cat
+			SET
+				rating=".bkint($voteup-$votedown).",
+				voteup=".bkint($voteup).",
+				votedown=".bkint($votedown).",
+				votecount=".bkint($votecount).",
+				votedate=".TIMENOW."
 			WHERE catid=".bkint($catid)."
 			LIMIT 1
 		";
