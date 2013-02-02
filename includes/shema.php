@@ -23,6 +23,7 @@ if ($updateManager->isInstall()){
 			`language` CHAR(2) NOT NULL DEFAULT '' COMMENT 'Язык',
 			`name` varchar(150) NOT NULL DEFAULT '' COMMENT 'Имя для URL',
 			`phrase` varchar(250) NOT NULL DEFAULT '' COMMENT 'Заголовок',
+			`descript` TEXT NOT NULL COMMENT 'Описание категории',
 			
 			`isprivate` tinyint(1) unsigned NOT NULL DEFAULT 0 COMMENT '0 - публичнй, 1 -приватный',
 			`reputation` int(7) unsigned NOT NULL DEFAULT 0 COMMENT 'Репутация пользователя для создания топика',
@@ -34,6 +35,7 @@ if ($updateManager->isInstall()){
 			`votedate` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата пересчета',
 			
 			`topiccount` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Кол-во топиков',
+			`membercount` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Кол-во подписчиков',
 			
 			`dateline` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата создания',
 			`upddate` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата обновления',
@@ -199,7 +201,8 @@ if ($updateManager->isUpdate('0.5')){
 			`dateline` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата создания',
 			`upddate` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата обновления',
 
-			UNIQUE KEY `userrole` (`catid`,`userid`)
+			UNIQUE KEY `userrole` (`catid`,`userid`),
+			KEY `userid` (`userid`)
 		)".$charset
 	);
 	
@@ -237,6 +240,7 @@ if ($updateManager->isUpdate('0.5') && !$updateManager->isInstall()){
 		ADD `votedate` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата пересчета',
 
 		ADD `topiccount` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Кол-во топиков',
+		ADD `membercount` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Кол-во подписчиков',
 		
 		ADD `dateline` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата создания',
 		ADD `upddate` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата обновления',

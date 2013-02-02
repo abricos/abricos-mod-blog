@@ -57,6 +57,8 @@ class BlogManager extends Ab_ModuleManager {
 				return $this->CategoryListToAJAX();
 			case "categorysave": 
 				return $this->CategorySave($d);
+			case "categoryjoin":
+				return $this->CategoryJoin($d->catid);
 			case "commentlivelist": 
 				return $this->CommentLiveListToAJAX($d);
 		}
@@ -192,9 +194,7 @@ class BlogManager extends Ab_ModuleManager {
 	 * @return BlogCategoryList
 	 */
 	public function CategoryList(){
-		if (!$this->IsViewRole()){
-			return null;
-		}
+		if (!$this->IsViewRole()){ return null; }
 		
 		$cats = array();
 		$rows = BlogTopicQuery::CategoryList($this->db);
@@ -203,6 +203,15 @@ class BlogManager extends Ab_ModuleManager {
 		}
 		
 		return new BlogCategoryList($cats);
+	}
+	
+	public function Category($catid){
+		if (!$this->IsViewRole()){ return null; }
+		
+		$row = BlogTopicQuery::Category($this->db, $catid);
+		if (empty($row)){ return null; }
+		
+		return new BlogCategory($row);
 	}
 	
 	public function CategoryListToAJAX(){
@@ -312,6 +321,28 @@ class BlogManager extends Ab_ModuleManager {
 		$ret->catid = $d->id;
 		$ret->categories = $cats->categories;
 		
+		return $ret;
+	}
+	
+	/**
+	 * Вступить/выйти из блога текущему пользователю
+	 */
+	public function CategoryJoin($catid){
+		if (!$this->IsViewRole() || $this->userid == 0){ return null; }
+		
+		$cat = $this->Category($catid);
+		$cat = $this->Category($catid);
+		if (is_null($cat)){ return null; }
+		
+		BlogTopicQuery::CategoryUserSetMember($this->db, $catid, $this->userid, !$cat->isMember);
+		
+		BlogTopicQuery::CategoryMemberCountUpdate($this->db, $catid);
+		
+		// повторно запросить категорию
+		$cat = $this->Category($catid);
+		
+		$ret = new stdClass();
+		$ret->category = $cat->ToAJAX();
 		return $ret;
 	}
 
@@ -469,7 +500,7 @@ class BlogManager extends Ab_ModuleManager {
 				case "boardtopic": return $this->BoardTopic($d->topicid);
 			}
 		}
-		return -1;
+		return null;
 	}
 	
 	
@@ -818,11 +849,12 @@ class BlogManager extends Ab_ModuleManager {
 		if (!$this->IsViewRole()){ return null; }
 		return BlogQuery::CategoryBlock($this->db);
 	}
-	
+	/*
 	public function Category($categoryid){
 		if (!$this->IsViewRole()){ return null; }
 		return BlogQuery::CategoryById($this->db, $categoryid, true);
 	}
+	/**/
 	
 	private function CategoryDataParse($d){
 		$utm = Abricos::TextParser(true);

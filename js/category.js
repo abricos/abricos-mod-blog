@@ -30,7 +30,7 @@ Component.entryPoint = function(NS){
 			return {
 				'urlview': cat.url(),
 				'rtg': 0,
-				'mbrs': 0,
+				'mbrs': cat.memberCount,
 				'topics': cat.topicCount
 			};
 		},
@@ -96,7 +96,7 @@ Component.entryPoint = function(NS){
 	YAHOO.extend(CategoryViewWidget, Brick.mod.widget.Widget, {
 		init: function(catid){
 			this.catid = catid;
-			this.viewWidget = null;
+			this.voteWidget = null;			
 		},
 		destroy: function(){
 			if (!L.isNull(this.viewWidget)){
@@ -111,18 +111,20 @@ Component.entryPoint = function(NS){
 			});
 		},
 		renderCategory: function(cat){
+			this.cat = cat;
 			this.elHide('loading');
 			
 			if (L.isNull(cat)){
 				this.elShow('nullitem');
 				return;
 			}
-			
 			this.elSetHTML({
-				'tl': cat.title
+				'tl': cat.title,
+				'mbrs': cat.memberCount,
+				'topics': cat.topicCount
 			});
 			
-			if (NSUR.VotingWidget){
+			if (NSUR.VotingWidget && L.isNull(this.voteWidget)){
 				this.voteWidget = new NSUR.VotingWidget(this.gel('rating'), {
 					'modname': 'blog',
 					'elementType': 'cat',
@@ -145,7 +147,34 @@ Component.entryPoint = function(NS){
 					}
 				});
 			}
-
+			if (UID > 0){
+				this.elShow('jbtns');
+				if (cat.isMember){
+					this.elHide('bjoin');
+					this.elShow('bleave');
+				}else{
+					this.elShow('bjoin');
+					this.elHide('bleave');
+				}
+			}
+		},
+		onClick: function(el, tp){
+			switch(el.id){
+			case tp['bjoin']: 
+			case tp['bleave']:
+				this.memberStatusChange();
+				break;
+			}
+		},
+		memberStatusChange: function(){
+			var __self = this;
+			this.elHide('jbtnsa');
+			this.elShow('jbloading');
+			NS.manager.categoryJoin(this.cat.id, function(){
+				__self.elShow('jbtnsa');
+				__self.elHide('jbloading');
+				__self.renderCategory(__self.cat);
+			});
 		}
 	});
 	NS.CategoryViewWidget = CategoryViewWidget;		

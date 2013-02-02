@@ -23,7 +23,7 @@
 		<div class="stat">
 			<a href="#">{v#mbrs} читателей</a>
 			,&nbsp;
-			<a href="#">{v#topics} записей</a>
+			<a href="#">{v#topics} топика</a>
 		</div>
 	</div>
 </div>
@@ -42,5 +42,21 @@
 	<div id="{i#view}">
 		<div id="{i#rating}"></div>
 		<h2 id="{i#tl}" class="cattl"></h2>
+		
+		<div id="{i#info}" class="info">
+			<div class="stat">
+				<a href="#"><span id="{i#mbrs}"></span> читателей</a>
+				,&nbsp;
+				<a href="#"><span id="{i#topics}"></span> топика</a>
+			</div>
+			<div id="{i#jbtns}" class="jbtns" style="display: none">
+				<span id="{i#jbtnsa}">
+					<a id="{i#bjoin}" href="#" class="habtn" title="Стать читателем блога">Вступить в блог</a>
+					<a id="{i#bleave}" href="#" class="habtn" title="Перестать читать блог">Покинуть блог</a>
+				</span>
+				<img id="{i#jbloading}" src="/images/loading.gif" style="display: none" />
+			</div>
+		</div>
+		
 	</div>
 </div>

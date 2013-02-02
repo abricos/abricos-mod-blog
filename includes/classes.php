@@ -182,6 +182,12 @@ class BlogCategory {
 	public $topicCount;
 	
 	/**
+	 * Кол-во читателей
+	 * @var integer
+	 */
+	public $memberCount;
+	
+	/**
 	 * Необходимая репутация для записи в блог
 	 * @var integer
 	 */
@@ -216,6 +222,7 @@ class BlogCategory {
 		$this->title = $d['tl'];
 		$this->name = $d['nm'];
 		$this->topicCount = $d['tcnt']*1;
+		$this->memberCount = $d['mcnt']*1;
 		$this->reputation = $d['rep']*1;
 		$this->isPrivate = $d['prv']>0;
 		$this->isAdmin = $d['prm']>0;
@@ -229,6 +236,7 @@ class BlogCategory {
 		$ret->tl = $this->title;
 		$ret->nm = $this->name;
 		$ret->tcnt = $this->topicCount;
+		$ret->mcnt = $this->memberCount;
 		$ret->rep = $this->reputation;
 		$ret->prv = $this->isPrivate?1:0;
 		$ret->adm = $this->isAdmin?1:0;

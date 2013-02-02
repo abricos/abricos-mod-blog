@@ -205,6 +205,7 @@ Component.entryPoint = function(NS){
 			'rep': 0, // кол-во репутации для нового топика
 			'prv': 0, // приватный
 			'tcnt': 0,// кол-во топиков
+			'mcnt': 0,// кол-во подписчиков
 			'adm': 0, // текущий пользователь админ?
 			'mdr': 0, // текущий пользователь модератор?
 			'mbr': 0  // текущий пользователь участник?
@@ -217,6 +218,7 @@ Component.entryPoint = function(NS){
 			this.name		= d['nm'];
 			this.reputation	= d['rep']*1;
 			this.topicCount = d['tcnt']*1;
+			this.memberCount= d['mcnt']*1;
 			this.isPrivate	= d['prv']>0;
 			this.isAdmin	= d['adm']>0;
 			this.isModer	= d['mdr']>0;
@@ -444,7 +446,20 @@ Component.entryPoint = function(NS){
 				
 				NS.life(callback, catid, error);
 			});
-		}
+		},
+		categoryJoin: function(catid, callback){
+			var cat = this.categoryList.get(catid);
+			this.ajax({
+				'do': 'categoryjoin',
+				'catid': cat.id
+			}, function(d){
+				if (!L.isNull(d) && !L.isNull(d['category'])){
+					cat.update(d['category']);
+				}
+				NS.life(callback);
+			});
+			
+		}		
 	};
 	NS.manager = null;
 	
@@ -455,7 +470,5 @@ Component.entryPoint = function(NS){
 			NS.life(callback, NS.manager);
 		}
 	};
-	
-	
 	
 };

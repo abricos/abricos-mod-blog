@@ -5,6 +5,13 @@
 	padding: 70px 0; 
 }
 
+/* * * * * * AHref Button * * * * */
+.aw-blog a.habtn {
+	border-bottom: 1px dotted;
+	text-decoration: none;
+	margin: 0 5px;
+}
+
 /* * * * Превьюшки * * * * */
 .aw-blog .tmb24 { width: 24px; height: 24px; }
 .aw-blog .tmb24 img { max-width: 24px; max-height: 24px; }

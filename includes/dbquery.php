@@ -163,6 +163,7 @@ class BlogTopicQuery {
 				cat.isprivate prv,
 				cat.reputation as rep,
 				cat.topiccount as tcnt,
+				cat.membercount as mcnt,
 				
 				IF(ISNULL(cur.userid), 0, cur.isadmin) as adm,
 				IF(ISNULL(cur.userid), 0, cur.ismoder) as mdr,
@@ -171,11 +172,36 @@ class BlogTopicQuery {
 			FROM ".$db->prefix."bg_cat cat
 			LEFT JOIN ".$db->prefix."bg_catuserrole cur ON cat.catid=cur.catid 
 				AND cur.userid=".bkint(Abricos::$user->id)."
-			WHERE language='".bkstr(Abricos::$LNG)."' AND deldate=0
+			WHERE cat.language='".bkstr(Abricos::$LNG)."' AND cat.deldate=0
 			ORDER BY rep DESC, tcnt DESC, tl
 		";
 		return $db->query_read($sql);
 	}
+	
+	public static function Category(Ab_Database $db, $catid){
+		$sql = "
+			SELECT
+				cat.catid as id,
+				cat.name as nm,
+				cat.phrase as tl,
+				cat.isprivate prv,
+				cat.reputation as rep,
+				cat.topiccount as tcnt,
+				cat.membercount as mcnt,
+				
+				IF(ISNULL(cur.userid), 0, cur.isadmin) as adm,
+				IF(ISNULL(cur.userid), 0, cur.ismoder) as mdr,
+				IF(ISNULL(cur.userid), 0, cur.ismember) as mbr
+			
+			FROM ".$db->prefix."bg_cat cat
+			LEFT JOIN ".$db->prefix."bg_catuserrole cur ON cat.catid=cur.catid
+				AND cur.userid=".bkint(Abricos::$user->id)."
+			WHERE cat.catid=".bkint($catid)." AND cat.deldate=0
+			LIMIT 1
+		";
+		return $db->query_first($sql);
+	}
+	
 
 	/**
 	 * Информация о последнем созданной категории пользователем
@@ -260,6 +286,24 @@ class BlogTopicQuery {
 		}
 		$db->query_write($sql);
 	}
+
+	public static function CategoryMemberCountUpdate(Ab_Database $db, $catid = 0){
+		$sql = "
+			UPDATE ".$db->prefix."bg_cat cat
+			SET cat.membercount = (
+				SELECT count(*) as cnt
+				FROM ".$db->prefix."bg_catuserrole ur
+				WHERE cat.catid=ur.catid AND ur.ismember=1
+				GROUP BY ur.catid
+			)
+		";
+		if ($catid > 0){
+			$sql .= "
+				WHERE cat.catid=".bkint($catid)."
+			";
+		}
+		$db->query_write($sql);
+	}
 	
 	public static function CategoryUser(Ab_Database $db, $catid, $userid){
 		$sql = "
@@ -285,6 +329,22 @@ class BlogTopicQuery {
 				".TIMENOW."
 			) ON DUPLICATE KEY UPDATE
 				isadmin=".($isAdmin?1:0).",
+				upddate=".TIMENOW."
+		";
+		$db->query_write($sql);
+	}
+	
+	public static function CategoryUserSetMember(Ab_Database $db, $catid, $userid, $isMember){
+		$sql = "
+			INSERT INTO ".$db->prefix."bg_catuserrole
+				(catid, userid, ismember, dateline, upddate) VALUES(
+				".bkint($catid).",
+				".bkint($userid).",
+				".($isMember?1:0).",
+				".TIMENOW.",
+				".TIMENOW."
+			) ON DUPLICATE KEY UPDATE
+				ismember=".($isMember?1:0).",
 				upddate=".TIMENOW."
 		";
 		$db->query_write($sql);

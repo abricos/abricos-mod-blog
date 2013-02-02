@@ -25,7 +25,7 @@
 .aw-blog .catlist .catrow .info {
 	margin-right: 110px;
 }
-.aw-blog .catlist .catrow .stat a{
+.aw-blog .catlist .catrow .stat a {
 	color: #999999;
 }
 .aw-blog .catlist .title {
@@ -39,7 +39,6 @@
 .aw-blog .catview {
 	position: relative;
 }
-
 .aw-blog .catview .cattl {
 	color: #6A7398;
 	font-size: 1.5em;
@@ -52,4 +51,13 @@
 	position: absolute;
 	top: 0;
 	right: 0;
+}
+.aw-blog .catview .info {
+	position: relative;
+}
+.aw-blog .catview .stat a {
+	color: #999999;
+}
+.aw-blog .catview .info .jbtns {
+	position: absolute; top: 0; right: 0; 
 }
