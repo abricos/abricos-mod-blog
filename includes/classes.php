@@ -9,45 +9,74 @@
 require_once 'dbquery.php';
 
 /**
- * Информация о записе в блоге
+ * Информация о топике (записе в блоге)
  */
 class BlogTopicInfo {
-	
+
 	/**
-	 * @var BlogManager
+	 * Идентификатор топика
+	 * @var integer
 	 */
-	public $manager;
-	
 	public $id;
-	public $catid;
-	public $title;
-	public $pubDate;
-	public $intro;
-	public $bodyLength;
-	public $commentCount;
-	public $contentId;
-	
-	public $tags = array();
-	public $userid;
+
 	/**
+	 * Автор
 	 * @var BlogUser
 	 */
 	public $user;
 	
+	/**
+	 * Идентификатор категории
+	 * @var integer
+	 */
+	public $catid;
+	
+	/**
+	 * Черновик
+	 * @var boolean
+	 */
+	public $isDraft;
+	
+
+	/**
+	 * Дата публикации
+	 * @var integer
+	 */
+	public $publicDate;
+
+	/**
+	 * Количество комментариев
+	 * @var integer
+	 */
+	public $commentCount;
+	
+	/**
+	 * Заголовок
+	 * @var string
+	 */
+	public $title;
+	
+	
+	public $intro;
+	public $bodyLength;
+	public $contentId;
+	
+	public $tags = array();
+	
 	public function __construct($d){
-		$this->manager = BlogManager::$instance;
-		
 		$this->id			= $d['id'];
 		$this->catid		= $d['catid'];
+		
+		$this->user			= new BlogUser($d);
+		$this->isDraft		= $d['dft']>0;
+		$this->publicDate	= intval($d['dl']);
+		$this->commentCount	= intval($d['cmt']);
+		
 		$this->title		= $d['tl'];
-		$this->userid		= $d['uid'];
 		$this->intro		= $d['intro'];
 		$this->bodyLength	= $d['bdlen'];
-		$this->commentCount	= $d['cmt'];
 		$this->contentId	= $d['ctid'];
-		$this->pubDate		= $d['dl'];
 		
-		$this->user = new BlogUser($d);
 	}
 	
 	public function ToAJAX(){
@@ -61,7 +90,7 @@ class BlogTopicInfo {
 		$ret->bdlen		= $this->bodyLength;
 		$ret->cmt		= $this->commentCount;
 		$ret->ctid		= $this->contentId;
-		$ret->dl		= $this->pubDate;
+		$ret->dl		= $this->publicDate;
 		
 		$ret->tags = array();
 		for ($i=0;$i<count($this->tags);$i++){

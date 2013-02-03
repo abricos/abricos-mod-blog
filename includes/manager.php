@@ -51,6 +51,8 @@ class BlogManager extends Ab_ModuleManager {
 		switch($d->do){
 			case "topic": 
 				return $this->TopicToAJAX($d->topicid);
+			case "topicsave": 
+				return $this->TopicSave($d);
 			case "topiclist": 
 				return $this->TopicListToAJAX($d);
 			case "categorylist": 
@@ -189,6 +191,140 @@ class BlogManager extends Ab_ModuleManager {
 		$ret->topic = $topic->ToAJAX();
 		return $ret;
 	}
+	
+	/**
+	 * Сохранение топика
+	 * 
+	 * Коды ошибок:
+	 * 	null - нет прав,
+	 *	1 - заголовок не может быть пустым,
+	 *	2 - должны быть указаны метки,
+	 *	10 - пользователю можно создавать не более 5 топиков в сутки,
+	 *  11 - черновиков не более 25 на профиль,
+	 *  12 - публиковать не более 3-х в сутки,
+	 * 	20 - недостаточно репутации для публикации в любой категории,
+	 *  21 - недостаточно репутации для публикации именно в этй категории,
+	 *  99 - неизвестная ошибка
+	 *  
+	 * @param unknown_type $d
+	 */
+	public function TopicSave($d){
+		if (!$this->IsWriteRole()){ return null; }
+		
+		$ret = new stdClass();
+		$ret->error = 0;
+		$ret->topicid = 0;
+		
+		$d->id = intval($d->id);
+		$d->dft = intval($d->dft);
+		$d->catid = intval($d->catid);
+		
+		// проверка категории на возможность публиковать в ней
+		$cat = null; // null - персональный блог
+		if ($d->catid > 0){
+			$cat = $this->Category($d->catid);
+				
+			if (empty($cat)){ return null; } // hacker?
+				
+			if ($cat->isPrivate && !$cat->isMember){
+				return null; // только участник может публиковать в закрытый блог
+			}
+		}
+		
+		// проверка топика
+		$topic = null; // текущий топик в базе, если null - создается новый
+		if ($d->id > 0){
+			$topic = $this->Topic($d->id);
+			if (empty($topic)){ return null; } // hacker?
+			
+			if (!$this->IsAdminRole()){
+				// автор ли топика правит его?
+				if ($topic->user->id != $this->userid){ return null; } // hacker?
+			}
+		}
+		
+		$isNewPublic = false;
+		$isNewDraft = false;
+		
+		// проверка на добавление в базу нового топика
+		if ($d->id == 0){
+			if ($d->dft==0){ // будет добавлен черновик
+				
+				$isNewDraft = true;
+				
+			}else{ // будет опубликован новый топик
+				$isNewPublic = true;
+			}
+		}else{
+			if ($topic->isDraft && $d->dft!=0){ // черновик станет публикацией
+				$isNewPublic = true;
+			}else if (!$topic->isDraft && $d->dft==0){ // публикация станет черновиком
+				
+			}else{ // просто сохранен без смены статуса черновика
+				
+			}
+		}
+		
+		if (!$this->IsAdminRole()){
+			
+			// ограничения по количеству
+			if ($isNewDraft){ // не более 25 черновиков на профиль
+				$row = BlogTopicQuery::TopicDraftCountByUser($this->db, $this->userid);
+				if (!empty($row) && $row['cnt'] >= 25){
+					$ret->error = 11;
+					return $ret;
+				}
+			}else if ($isNewPublic){ // проверки по публикации
+				$row = BlogTopicQuery::TopicPublicCountByUser($this->db, $this->userid);
+				if (!empty($row) && $row['cnt'] > 3){
+					$ret->error = 12;
+					return $ret;
+				}
+				
+				// ограничения по репутации
+				if (BlogManager::$isURating){ // работает система репутации пользователя
+				
+					$urep = $this->GetURatingManager()->UserReputation();
+					if ($urep->reputation < 1){ // для создании топика необходима репутация >= 0
+						$ret->error = 20;
+						return $ret;
+					}
+				
+					// ограничения по репутации категории
+					if (!empty($cat) && $cat->reputation > 0 
+							&& $urep->reputation < $cat->reputation){
+						$ret->error = 21;
+						return $ret;
+					}
+				}
+			}
+		}
+		
+		
+		
+		$utm = Abricos::TextParser();
+		$utmf = Abricos::TextParser(true);
+		
+		$d->tl = $utmf->Parser($d->tl);
+		if (empty($d->tl)){
+			$ret->error = 1;
+			return $ret;
+		}
+		$d->nm = $utmf->Parser($d->nm);
+		if (empty($d->nm)){
+			$d->nm = translateruen($d->tl);
+		}
+		
+		$d->intro = $utm->Parser($d->intro);
+		$d->body = $utm->Parser($d->body);
+		
+		// все проверки выполнены, добавление/сохранение топика
+		if ($d->id == 0){
+			
+		}else{
+			
+		}
+	}
 
 	/**
 	 * @return BlogCategoryList
@@ -262,26 +398,6 @@ class BlogManager extends Ab_ModuleManager {
 		$ret->error = 0;
 		$ret->catid = 0;
 		
-		if (!$this->IsAdminRole()){
-
-			if (BlogManager::$isURating){ // работает система репутации пользователя
-				$rep = $this->GetURatingManager()->UserReputation();
-				if ($rep->reputation < 5){ // для создании категории необходима репутация >= 5
-					$ret->error = 10;
-					return $ret;
-				}
-			}
-			
-			// категорию создает не админ
-			// значит нужно наложить ограничения
-			// не более одной категории в день - пока так
-			$dbCat = BlogTopicQuery::CategoryLastCreated($this->db, $this->userid);
-			if (!empty($dbCat) && $dbCat['dl']+60*60*24 > TIMENOW){
-				$ret->error = 2;
-				return $ret;
-			}
-		}
-		
 		$utm = Abricos::TextParser();
 		$utmf = Abricos::TextParser(true);
 		
@@ -299,7 +415,28 @@ class BlogManager extends Ab_ModuleManager {
 		$d->rep = intval($d->rep);
 		$d->prv = intval($d->prv);
 		
-		if ($d->id == 0){
+		if ($d->id == 0){ // создание новой категории
+			
+			if (!$this->IsAdminRole()){
+			
+				if (BlogManager::$isURating){ // работает система репутации пользователя
+					$rep = $this->GetURatingManager()->UserReputation();
+					if ($rep->reputation < 5){ // для создании категории необходима репутация >= 5
+						$ret->error = 10;
+						return $ret;
+					}
+				}
+					
+				// категорию создает не админ
+				// значит нужно наложить ограничения
+				// не более 1 категории в день (пока так)
+				$dbCat = BlogTopicQuery::CategoryLastCreated($this->db, $this->userid);
+				if (!empty($dbCat) && $dbCat['dl']+60*60*24 > TIMENOW){
+					$ret->error = 2;
+					return $ret;
+				}
+			}
+			
 			$d->id = BlogTopicQuery::CategoryAppend($this->db, $this->userid, $d);
 			if ($d->id == 0){
 				$ret->error = 99;

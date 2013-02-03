@@ -99,8 +99,8 @@ Component.entryPoint = function(NS){
 			this.voteWidget = null;			
 		},
 		destroy: function(){
-			if (!L.isNull(this.viewWidget)){
-				this.viewWidget.destroy();
+			if (!L.isNull(this.voteWidget)){
+				this.voteWidget.destroy();
 			}
 		},
 		onLoad: function(catid){

@@ -129,6 +129,9 @@ Component.entryPoint = function(NS){
 		onClick: function(el, tp){
 			switch(el.id){
 			case tp['bpreview']: this.showPreview(); return true;
+			case tp['bsavedraft']: this.saveDraft(); return true;
+			case tp['bcreate']: 
+			case tp['bsave']: this.save(); return true;
 			}
 			return false;
 		},
@@ -146,8 +149,18 @@ Component.entryPoint = function(NS){
 		},
 		showPreview: function(){
 			var sd = this.getSaveData();
-			Brick.console(sd);
 			new TopicPreviewPanel(new NS.Topic(sd));
+		},
+		saveDraft: function(){
+			this.save(true);
+		},
+		save: function(isdraft){
+			isdraft = isdraft || false; 
+			var sd = this.getSaveData();
+			sd['dft'] = isdraft?1:0;
+			NS.manager.topicSave(sd, function(topicid, error){
+				Brick.mod.widget.notice.show('TOPIC SAVE');
+			});
 		}
 	});
 	NS.TopicEditorWidget = TopicEditorWidget;

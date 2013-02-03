@@ -30,6 +30,37 @@ class BlogTopicQuery {
 			t.pubdate as dl
 		";
 	}
+	
+	/**
+	 * Количество черновиков в профиле пользователя
+	 *
+	 * @param Ab_Database $db
+	 * @param integer $userid
+	 */
+	public static function TopicDraftCountByUser(Ab_Database $db, $userid){
+		$sql = "
+			SELECT count(*) as cnt
+			FROM ".$db->prefix."bg_topic
+			WHERE userid=".bkint($userid)." AND isdraft=1
+		";
+		return $db->query_first($sql);
+	}
+	
+	/**
+	 * Количество опубликованных записей за текущие сутки
+	 * @param Ab_Database $db
+	 * @param integer $userid
+	 */
+	public static function TopicPublicCountByUser(Ab_Database $db, $userid){
+		$day = 60*60*24;
+		$t1 = intval(round(TIMENOW/$day)*$day);
+		$sql = "
+			SELECT count(*) as cnt
+			FROM ".$db->prefix."bg_topic
+			WHERE userid=".bkint($userid)." AND pubdate>".$t1."
+		";
+		return $db->query_first($sql);
+	}	
 
 	public static function Topic(Ab_Database $db, $topicid){
 		
@@ -45,6 +76,10 @@ class BlogTopicQuery {
 			LIMIT 1
 		";
 		return $db->query_first($sql);
+	}
+	
+	public static function TopicAppend(Ab_Database $db){
+		
 	}
 	
 	public static function TopicList(Ab_Database $db, $page, $limit){

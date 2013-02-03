@@ -50,25 +50,6 @@ if ($updateManager->isInstall()){
 	);
 	
 	$db->query_write("
-		CREATE TABLE `".$pfx."bg_tag` (
-			`tagid` integer(10) unsigned NOT NULL auto_increment,
-			`language` CHAR(2) NOT NULL DEFAULT '' COMMENT 'Язык',
-			`name` varchar(50) NOT NULL,
-			`phrase` varchar(100) NOT NULL,
-			PRIMARY KEY (`tagid`))
-		". $charset
-	);
-	
-	$db->query_write("
-		CREATE TABLE `".$pfx."bg_topcat` (
-			`topcat` integer(10) unsigned NOT NULL auto_increment,
-			`catid` integer(10) unsigned NOT NULL,
-			`topicid` integer(10) unsigned NOT NULL,
-			PRIMARY KEY (`topcat`)
-		)". $charset
-	);
-	
-	$db->query_write("
 		CREATE TABLE `".$pfx."bg_topic` (
 			`topicid` integer(10) unsigned NOT NULL auto_increment,
 			`language` CHAR(2) NOT NULL DEFAULT '' COMMENT 'Язык',
@@ -77,9 +58,6 @@ if ($updateManager->isInstall()){
 			
 			`name` varchar(250) NOT NULL DEFAULT '' COMMENT 'Имя для URL',
 			`title` varchar(250) NOT NULL DEFAULT '' COMMENT 'Заголовок',
-			
-			`metadesc` varchar( 250 ) NOT NULL DEFAULT '',
-			`metakeys` varchar( 150 ) NOT NULL DEFAULT '',
 			
 			`intro` TEXT NOT NULL,
 			`contentid` integer(10) unsigned NOT NULL,
@@ -102,12 +80,34 @@ if ($updateManager->isInstall()){
 			`commentcount` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Кол-во комментариев',
 			`viewcount` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Кол-во просмотров (учет зарег.польз.)',
 			
+			`metadesc` varchar( 250 ) NOT NULL DEFAULT '',
+			`metakeys` varchar( 150 ) NOT NULL DEFAULT '',
+			
 			PRIMARY KEY (`topicid`), 
 			KEY `name` (`name`),
 			ADD KEY `catid` (`catid`),
 			ADD KEY `bycat` (`catid`, `isdraft`, `deldate`),
 			ADD KEY `byuser` (`userid`, `isdraft`, `deldate`),
 			ADD KEY `bypub` (`language`, `isdraft`, `deldate`)
+		)". $charset
+	);
+	
+	$db->query_write("
+		CREATE TABLE `".$pfx."bg_tag` (
+			`tagid` integer(10) unsigned NOT NULL auto_increment,
+			`language` CHAR(2) NOT NULL DEFAULT '' COMMENT 'Язык',
+			`name` varchar(50) NOT NULL,
+			`phrase` varchar(100) NOT NULL,
+			PRIMARY KEY (`tagid`)
+		)". $charset
+	);
+	
+	$db->query_write("
+			CREATE TABLE `".$pfx."bg_topcat` (
+			`topcat` integer(10) unsigned NOT NULL auto_increment,
+			`catid` integer(10) unsigned NOT NULL,
+			`topicid` integer(10) unsigned NOT NULL,
+			PRIMARY KEY (`topcat`)
 		)". $charset
 	);
 	

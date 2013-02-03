@@ -419,6 +419,19 @@ Component.entryPoint = function(NS){
 				NS.life(callback, topic);
 			});
 		},
+		topicSave: function(sd, callback){
+			sd['do'] = 'topicsave';
+			this.ajax(sd, function(d){
+				var topicid = null, error = null;
+				
+				if (!L.isNull(d) && !L.isNull(d['error'])){
+					topicid = d['topicid'];
+					error = d['error'];
+				}
+				
+				NS.life(callback, topicid, error);
+			});			
+		},
 		commentLiveListLoad: function(callback){
 			this.ajax({
 				'do': 'commentlivelist'
