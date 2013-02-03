@@ -63,12 +63,10 @@ class BlogTopicQuery {
 	}	
 
 	public static function Topic(Ab_Database $db, $topicid){
-		
 		$sql = "
 			SELECT
 				".BlogTopicQuery::TopicFields($db).",
 				cc.body as bd
-		
 			FROM ".$db->prefix."bg_topic t
 			INNER JOIN ".$db->prefix."content cc ON t.contentid = cc.contentid
 			INNER JOIN ".$db->prefix."user u ON t.userid = u.userid
@@ -78,8 +76,27 @@ class BlogTopicQuery {
 		return $db->query_first($sql);
 	}
 	
-	public static function TopicAppend(Ab_Database $db){
+	public static function TopicAppend(Ab_Database $db, $userid, $d){
+		$contentid = Ab_CoreQuery::CreateContent($db, $d->body, 'blog');
 		
+		$sql = "
+			INSERT INTO ".$db->prefix."bg_topic
+			(catid, userid, language, title, name, intro, contentid, isdraft, pubdate, dateline, upddate) VALUES (
+				".bkint($d->catid).",
+				".bkint($userid).",
+				'".bkstr(Abricos::$LNG)."',
+				'".bkstr($d->tl)."',
+				'".bkstr($d->nm)."',
+				'".bkstr($d->intro)."',
+				'".bkstr($contentid)."',
+				".($d->dft>0?1:0).",
+				".bkint($d->pdt).",
+				".TIMENOW.",
+				".TIMENOW."
+			)
+		";
+		$db->query_write($sql);
+		return $db->insert_id();
 	}
 	
 	public static function TopicList(Ab_Database $db, $page, $limit){

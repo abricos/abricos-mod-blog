@@ -241,6 +241,7 @@ class BlogManager extends Ab_ModuleManager {
 				// автор ли топика правит его?
 				if ($topic->user->id != $this->userid){ return null; } // hacker?
 			}
+			$d->pdt = $topic->publicDate;
 		}
 		
 		$isNewPublic = false;
@@ -249,15 +250,18 @@ class BlogManager extends Ab_ModuleManager {
 		// проверка на добавление в базу нового топика
 		if ($d->id == 0){
 			if ($d->dft==0){ // будет добавлен черновик
-				
 				$isNewDraft = true;
-				
+				$d->pdt = 0;
 			}else{ // будет опубликован новый топик
 				$isNewPublic = true;
+				$d->pdt = TIMENOW;
 			}
 		}else{
 			if ($topic->isDraft && $d->dft!=0){ // черновик станет публикацией
 				$isNewPublic = true;
+				if ($topic->publicDate == 0){ // публикация в первый раз
+					$d->pdt = TIMENOW;
+				}
 			}else if (!$topic->isDraft && $d->dft==0){ // публикация станет черновиком
 				
 			}else{ // просто сохранен без смены статуса черновика
@@ -300,8 +304,6 @@ class BlogManager extends Ab_ModuleManager {
 			}
 		}
 		
-		
-		
 		$utm = Abricos::TextParser();
 		$utmf = Abricos::TextParser(true);
 		
@@ -320,7 +322,7 @@ class BlogManager extends Ab_ModuleManager {
 		
 		// все проверки выполнены, добавление/сохранение топика
 		if ($d->id == 0){
-			
+			BlogTopicQuery::TopicAppend($this->db, $this->userid, $d);
 		}else{
 			
 		}
@@ -387,7 +389,7 @@ class BlogManager extends Ab_ModuleManager {
 	 * Коды ошибок:
 	 * 	null - нет прав,
 	 *	1 - заголовок не может быть пустым,
-	 *	2 - пользователю можно создавать категорию не более одной в сутки,
+	 *	5 - пользователю можно создавать категорию не более одной в сутки,
 	 * 	10 - недостаточно репутации,
 	 *  99 - неизвестная ошибка
 	 */
@@ -432,7 +434,7 @@ class BlogManager extends Ab_ModuleManager {
 				// не более 1 категории в день (пока так)
 				$dbCat = BlogTopicQuery::CategoryLastCreated($this->db, $this->userid);
 				if (!empty($dbCat) && $dbCat['dl']+60*60*24 > TIMENOW){
-					$ret->error = 2;
+					$ret->error = 5;
 					return $ret;
 				}
 			}
@@ -615,80 +617,15 @@ class BlogManager extends Ab_ModuleManager {
 	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 	// TODO: Удалить
 	
-	public function AJAX_MethodToRemove($d){
-		// старая версия, на переработку
-		if ($d->type == 'topic'){
-			switch($d->do){
-				case "save": return $this->TopicSave($d->data);
-				case "remove": return $this->TopicRemove($d->id);
-				case "restore": return $this->TopicRestore($d->id);
-				case "publish": return $this->TopicPublish($d->id);
-				case "rclear": return $this->TopicRecycleClear();
-				default: return $this->Topic($d->id);
-			}
-		}else if ($d->type == 'category'){
-			switch($d->do){
-				case "save": return $this->CategorySave($d->data);
-				default: return $this->Category($d->id);
-			}
-		}else {
-			switch($d->do){
-				case "boardinit": return $this->BoardInit();
-				case "boardtopic": return $this->BoardTopic($d->topicid);
-			}
-		}
-		return null;
-	}
-	
-	
-	public function DSProcess($name, $rows){
-		$p = $rows->p;
-		$db = $this->db;
-		
-		switch ($name){
-			case 'categorylist':
-				foreach ($rows as $r){
-					if ($r->f == 'a'){ $this->CategoryAppend($r->d); }
-					if ($r->f == 'u'){ $this->CategoryUpdate($r->d); }
-					if ($r->f == 'd'){ $this->CategoryRemove($r->d->id); }
-				}
-				break;
-		}
-	}
-	
-	public function DSGetData($name, $rows){
-		
-		$p = $rows->p;
-		$db = $this->db;
-		
-		switch ($name){
-			case 'categorylist':
-				return $this->CategoryList();
-			
-			case 'topiclist':
-				return $this->TopicList_methodToRemove($p->page, $p->limit);
-				
-			case 'topiclistcount':
-				$ret = array();
-				array_push($ret, array("cnt" => $this->TopicListCount()));
-				return $ret;
-				
-			case 'grouplist':
-				return $this->UserGroupList();
-		}
-		
-		return null;
-	}
-	
-	
-	
+	/*
 	public function Bos_OnlineData(){
 		return $this->BoardInit(5);
 	}
-	
+	/**/
 	/**
 	 * Данные инициализации приложения
 	 */
+	
 	public function BoardInit($limit = 15){
 		if (!$this->IsViewRole()){ return null; }
 		
@@ -785,7 +722,7 @@ class BlogManager extends Ab_ModuleManager {
 		return $topic;	
 	}
 	/**/
-	
+	/*
 	public function TopicSave($d){
 		$d->id = intval($d->id);
 		$d->nm = translateruen($d->tl);
@@ -823,6 +760,7 @@ class BlogManager extends Ab_ModuleManager {
 		
 		return $d->id;
 	}
+	/**/
 	
 	public function SubscribeTopicCheck($sendlimit = 25){
 

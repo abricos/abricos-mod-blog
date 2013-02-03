@@ -194,16 +194,24 @@ class BlogAction {
 class BlogPermission extends Ab_UserPermission {
 
 	public function BlogPermission(BlogModule $module){
-
+		
 		$defRoles = array(
 			new Ab_UserRole(BlogAction::VIEW, Ab_UserGroup::GUEST),
 			new Ab_UserRole(BlogAction::VIEW, Ab_UserGroup::REGISTERED),
 			new Ab_UserRole(BlogAction::VIEW, Ab_UserGroup::ADMIN),
-				
+
 			new Ab_UserRole(BlogAction::WRITE, Ab_UserGroup::ADMIN),
 
 			new Ab_UserRole(BlogAction::ADMIN, Ab_UserGroup::ADMIN),
 		);
+		
+		// Если есть модуль рейтинг пользователя, то разрешить роль 
+		// пользователю на публикацию топиков
+		$modURating = Abricos::GetModule('urating');
+		if (!empty($modURating)){
+			array_push($defRoles, new Ab_UserRole(BlogAction::WRITE, Ab_UserGroup::REGISTERED));
+		}
+		
 		parent::__construct($module, $defRoles);
 	}
 

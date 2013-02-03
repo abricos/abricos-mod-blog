@@ -14,6 +14,7 @@ Component.entryPoint = function(NS){
 	
 	var L = YAHOO.lang,
 		R = NS.roles,
+		LNG = this.language,
 		buildTemplate = this.buildTemplate;
 	
 	var WriteCategorySelectWidget = function(container){
@@ -274,7 +275,9 @@ Component.entryPoint = function(NS){
 				__self.elHide('bloading');
 
 				if (L.isNull(error) || catid == 0){
-					Brick.mod.widget.notice.show('Error: Category can`t save');
+					error = L.isNull(error) ? 'null' : error;
+					var sError = LNG.get('write.category.error.'+error);
+					Brick.mod.widget.notice.show(sError);
 				}else{
 					Brick.Page.reload(NS.navigator.category.view(catid));
 				}

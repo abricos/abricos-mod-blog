@@ -85,10 +85,10 @@ if ($updateManager->isInstall()){
 			
 			PRIMARY KEY (`topicid`), 
 			KEY `name` (`name`),
-			ADD KEY `catid` (`catid`),
-			ADD KEY `bycat` (`catid`, `isdraft`, `deldate`),
-			ADD KEY `byuser` (`userid`, `isdraft`, `deldate`),
-			ADD KEY `bypub` (`language`, `isdraft`, `deldate`)
+			KEY `catid` (`catid`),
+			KEY `bycat` (`catid`, `isdraft`, `deldate`),
+			KEY `byuser` (`userid`, `isdraft`, `deldate`),
+			KEY `bypub` (`language`, `isdraft`, `deldate`)
 		)". $charset
 	);
 	
