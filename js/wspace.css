@@ -70,6 +70,9 @@
 	margin: 0 1px;
 	padding: 5px 15px; 
 }
+.aw-blog .gbmenu .r {
+	float: right;
+}
 .aw-blog .gbmenu .gbitem:hover {
 	text-decoration: underline;	
 }

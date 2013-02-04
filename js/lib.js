@@ -62,6 +62,9 @@ Component.entryPoint = function(NS){
 			},
 			'category': function(){
 				return WS+'write/WriteWidget/category/';
+			},
+			'draftlist': function(){
+				return WS+'write/WriteWidget/draftlist/';
 			}
 		},
 		'about': function(){
@@ -118,13 +121,20 @@ Component.entryPoint = function(NS){
 			'catid': 0,
 			'tl': '',
 			'dl': 0, 
-			'uid': Brick.env.user.id,
-			'user': null,
 			'cmt': 0,
 			'bdlen': 0,
 			'intro': '',
 			'tags': []
 		}, d || {});
+		
+		var u = Brick.env.user;
+		d['user'] = L.merge({
+			'id': u.id,
+			'avt': '',
+			'fnm': u.firstname,
+			'lnm': u.lastname,
+			'unm': u.name
+		}, d['user'] || {});
 		
 		TopicInfo.superclass.constructor.call(this, d);
 	};
@@ -140,9 +150,8 @@ Component.entryPoint = function(NS){
 		},
 		update: function(d){
 			this.title = d['tl'];				// заголовок
-			var userid = d['uid'];				// идентификатор автора
 
-			if (!L.isNull(d['user'])){
+			if (!L.isNull(d['user']) && this.id>0){
 				UP.viewer.users.update([d['user']]);
 			}
 			
@@ -156,12 +165,11 @@ Component.entryPoint = function(NS){
 
 			this.isBody = d['bdlen']>0;
 			
-			this.user = UP.viewer.users.get(userid);
+			this.user = UP.viewer.users.get(d['user'].id);
 			
 			var cat = null, catid = d['catid']*1;
 			if (catid == 0){ // персональный блог
 				cat = new CategoryPerson(this.user.id);
-				
 			}else{
 				cat = NS.manager.categoryList.get(catid);
 			}
@@ -368,10 +376,10 @@ Component.entryPoint = function(NS){
 			});
 		},
 		_updateCategoryList: function(d){
-			if (L.isNull(d) || L.isNull(d['categories'])){
+			if (L.isNull(d) || !L.isArray(d['categories'])){
 				return;
 			}
-			this.categoryList.clear();
+			this.categoryList.clear(d['categories']);
 			this.categoryList.update(d['categories']);
 		},
 		categoryListLoad: function(callback){
@@ -385,21 +393,16 @@ Component.entryPoint = function(NS){
 			cfg = L.merge({
 				'catid': 0,
 				'page': 1,
-				'limit': 15
+				'limit': 15,
+				'filter': ''
 			}, cfg || {});
 			
 			cfg['do'] = 'topiclist';
-			var __self = this;
 			this.ajax(cfg, function(d){
 				var list = null;
 				
-				if (!L.isNull(d)){
-					if (!L.isNull(d['users'])){
-						__self.users.update(d['users']);
-					}
-					if (!L.isNull(d['topics'])){
-						list = new NS.TopicList(d['topics']);
-					}
+				if (!L.isNull(d) && L.isArray(d['topics'])){
+					list = new NS.TopicList(d['topics']);
 				}
 				
 				NS.life(callback, list);

@@ -17,6 +17,44 @@ Component.entryPoint = function(NS){
 		LNG = this.language,
 		buildTemplate = this.buildTemplate;
 	
+	var WriteWidget = function(container, wType){
+		WriteWidget.superclass.constructor.call(this, container, {
+			'buildTemplate': buildTemplate, 'tnames': 'widget' 
+		}, wType || 'topic');
+	};
+	YAHOO.extend(WriteWidget, Brick.mod.widget.Widget, {
+		init: function(wType){
+			this.widget = null;
+		},
+		destroy: function(){
+			if (!L.isNull(this.widget)){
+				this.widget.destroy();
+			}
+			WriteWidget.superclass.destroy.call(this);			
+		},
+		onLoad: function(wType) {
+			switch(wType){
+			case 'category':
+				wType = 'category';
+				this.widget = new NS.CategoryEditorWidget(this.gel('widget'));
+				break;
+			case 'draftlist':
+				wType = 'draftlist';
+				this.widget = new NS.TopicListWidget(this.gel('widget'), {
+					'filter': 'draft'
+				});
+				break;
+			default:
+				wType = 'topic';
+				this.widget = new NS.TopicEditorWidget(this.gel('widget'));
+				break;
+			}
+			this.wType = wType;
+			this.wsMenuItem = wType; // использует wspace.js
+		}
+	});
+	NS.WriteWidget = WriteWidget;
+	
 	var WriteCategorySelectWidget = function(container){
 		WriteCategorySelectWidget.superclass.constructor.call(this, container, {
 			'buildTemplate': buildTemplate, 'tnames': 'catsel,catselrow,catselmyrow' 
@@ -39,40 +77,6 @@ Component.entryPoint = function(NS){
 		}
 	});
 	NS.WriteCategorySelectWidget = WriteCategorySelectWidget;
-	
-	
-	var WriteWidget = function(container, wType){
-		WriteWidget.superclass.constructor.call(this, container, {
-			'buildTemplate': buildTemplate, 'tnames': 'widget' 
-		}, wType || 'topic');
-	};
-	YAHOO.extend(WriteWidget, Brick.mod.widget.Widget, {
-		init: function(wType){
-			this.widget = null;
-		},
-		destroy: function(){
-			if (!L.isNull(this.widget)){
-				this.widget.destroy();
-			}
-			WriteWidget.superclass.destroy.call(this);			
-		},
-		onLoad: function(wType) {
-			switch(wType){
-			case 'category':
-				wType = 'category';
-				this.widget = new NS.CategoryEditorWidget(this.gel('widget'));
-				break;
-			default:
-				wType = 'topic';
-				this.widget = new NS.TopicEditorWidget(this.gel('widget'));
-				break;
-			}
-			this.wType = wType;
-			this.wsMenuItem = wType; // использует wspace.js
-		}
-	});
-	NS.WriteWidget = WriteWidget;
-	
 	
 	var TopicEditorWidget = function(container, topicid){
 		TopicEditorWidget.superclass.constructor.call(this, container, {
@@ -157,10 +161,23 @@ Component.entryPoint = function(NS){
 		},
 		save: function(isdraft){
 			isdraft = isdraft || false; 
+			var __self = this;
 			var sd = this.getSaveData();
+
+			this.elHide('btnsblock');
+			this.elShow('bloading');
 			sd['dft'] = isdraft?1:0;
 			NS.manager.topicSave(sd, function(topicid, error){
-				Brick.mod.widget.notice.show('TOPIC SAVE');
+				__self.elShow('btnsblock');
+				__self.elHide('bloading');
+
+				if (L.isNull(error) || topicid == 0){
+					error = L.isNull(error) ? 'null' : error;
+					var sError = LNG.get('write.topic.error.'+error);
+					Brick.mod.widget.notice.show(sError);
+				}else{
+					Brick.Page.reload(NS.navigator.topic.view(topicid));
+				}
 			});
 		}
 	});

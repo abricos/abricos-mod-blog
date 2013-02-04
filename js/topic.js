@@ -161,25 +161,45 @@ Component.entryPoint = function(NS){
 			});
 		}
 	});
-	NS.TopicViewWidget = TopicViewWidget;	
+	NS.TopicViewWidget = TopicViewWidget;
 	
-	var TopicListWidget = function(container, catid){
+	var TopicListWidget = function(container){
+		var args = arguments, cfg = {};
+
+		if (L.isObject(args[1])){
+			cfg = args[1];
+		}else if (args.length > 1){
+			var af = [];
+			for (var i=1;i<args.length;i++){
+				if (L.isString(args[i])){
+					af[af.length] = args[i];
+				}
+			}
+			cfg = {
+				'filter': af.join("/")
+			};
+		}
+		
+		cfg = L.merge({
+			'filter': ''
+		}, cfg || {});
+		
 		TopicListWidget.superclass.constructor.call(this, container, {
 			'buildTemplate': buildTemplate, 'tnames': 'topiclist' 
-		}, catid || 0);
+		}, cfg);
 	};
 	YAHOO.extend(TopicListWidget, Brick.mod.widget.Widget, {
-		init: function(catid){
+		init: function(cfg){
 			this.catid = 0;
 			this.wsList = [];
 			this.wsMenuItem = 'all'; // использует wspace.js
 		},
-		onLoad: function(catid){
+		onLoad: function(cfg){
 			var __self = this;
 			NS.initManager(function(){
 				NS.manager.topicListLoad(function(list){
 					__self.renderList(list);
-				});
+				}, cfg);
 			});
 		},
 		destroy: function(){

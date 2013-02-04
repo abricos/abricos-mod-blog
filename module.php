@@ -179,7 +179,7 @@ class BlogModule extends Ab_Module {
 
 class BlogAction {
 	const VIEW	= 10;
-	const WRITE	= 30;
+	const WRITE	= 20;
 	const ADMIN	= 50;
 }
 

@@ -63,6 +63,7 @@ class BlogTopicQuery {
 	}	
 
 	public static function Topic(Ab_Database $db, $topicid){
+		$userid = Abricos::$user->id;
 		$sql = "
 			SELECT
 				".BlogTopicQuery::TopicFields($db).",
@@ -70,7 +71,8 @@ class BlogTopicQuery {
 			FROM ".$db->prefix."bg_topic t
 			INNER JOIN ".$db->prefix."content cc ON t.contentid = cc.contentid
 			INNER JOIN ".$db->prefix."user u ON t.userid = u.userid
-			WHERE t.topicid = ".bkint($topicid)." AND t.deldate=0 AND t.isdraft=0
+			WHERE t.topicid = ".bkint($topicid)." AND t.deldate=0 
+				AND (t.isdraft=0 OR (t.isdraft=1 AND t.userid=".bkint($userid)."))
 			LIMIT 1
 		";
 		return $db->query_first($sql);
@@ -99,7 +101,7 @@ class BlogTopicQuery {
 		return $db->insert_id();
 	}
 	
-	public static function TopicList(Ab_Database $db, $page, $limit){
+	public static function TopicList(Ab_Database $db, $page=1, $limit=50){
 		$from = $limit * (max($page, 1) - 1);
 	
 		$sql = "
@@ -115,6 +117,23 @@ class BlogTopicQuery {
 		return $db->query_read($sql);
 	}
 
+	public static function TopicDraftList(Ab_Database $db, $userid, $page=1, $limit=15){
+		$from = $limit * (max($page, 1) - 1);
+	
+		$sql = "
+			SELECT
+				".BlogTopicQuery::TopicFields($db)."
+			FROM ".$db->prefix."bg_topic t
+			INNER JOIN ".$db->prefix."content cc ON t.contentid = cc.contentid
+			INNER JOIN ".$db->prefix."user u ON t.userid = u.userid
+			WHERE t.userid=".bkint($userid)." AND t.isdraft=1 
+				AND t.deldate=0 AND t.language='".bkstr(Abricos::$LNG)."'
+			ORDER BY t.dateline DESC
+			LIMIT ".$from.",".bkint($limit)."
+		";
+		return $db->query_read($sql);
+	}
+	
 	public static function TopicListByIds(Ab_Database $db, $ids){
 		$awh = array();
 		for ($i=0;$i<count($ids);$i++){

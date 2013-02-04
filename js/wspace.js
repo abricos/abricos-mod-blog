@@ -34,6 +34,7 @@ Component.entryPoint = function(NS){
 
 	var GMID = {
 		'TopicListWidget': 'topics',
+		'TopicViewWidget': 'topics',
 		'CategoryListWidget': 'cats',
 		'CategoryViewWidget': 'cats',
 		'WriteWidget': 'write',
@@ -41,7 +42,7 @@ Component.entryPoint = function(NS){
 	};
 	GMIDI = {
 		'topics': ['all', 'pub', 'person'],
-		'write': ['topic', 'category']
+		'write': ['topic', 'category', 'draftlist']
 	};
 	var DEFPAGE = {
 		'component': 'topic',
@@ -67,7 +68,8 @@ Component.entryPoint = function(NS){
 				'urlcats': NG.category.list(),
 				'urlwrite': NG.write.topic(),
 				'urlwritetopic': NG.write.topic(),
-				'urlwritecategory': NG.write.category()
+				'urlwritecategory': NG.write.category(),
+				'urlwritedraftlist': NG.write.draftlist()
 			};
 		},
 		onLoad: function(pgInfo){

@@ -60,17 +60,19 @@
 		
 		<div class="group">
 			<div class="baction">
-				<div class="blft">
-					<input id="{i#bpreview}" value="Предпросмотр" type="button" class="btn" />
-					<input id="{i#bsavedraft}" value="Сохранить в черновиках" type="button" class="btn" />
-				</div>
-				<div class="brgt">
-					<input id="{i#bcreate}" value="Опубликовать" type="button" class="btn edstnew" />
-					<input id="{i#bsave}" value="Сохранить изменения" type="button" class="btn edstedit" />
-					<input id="{i#bcancel}" value="Отмена" type="button" class="btn" />
+				<div id="{i#btnsblock}">
+					<div class="blft">
+						<input id="{i#bpreview}" value="Предпросмотр" type="button" class="btn" />
+						<input id="{i#bsavedraft}" value="Сохранить в черновиках" type="button" class="btn" />
+					</div>
+					<div class="brgt">
+						<input id="{i#bcreate}" value="Опубликовать" type="button" class="btn edstnew" />
+						<input id="{i#bsave}" value="Сохранить изменения" type="button" class="btn edstedit" />
+						<input id="{i#bcancel}" value="Отмена" type="button" class="btn" />
+					</div>
 				</div>
 				<div class="clear"></div>
-				<span id="{i#loading}" style="display: none">
+				<span id="{i#bloading}" style="display: none">
 					<img src="/images/loading.gif" class="ldg" /> Сохранение...
 				</span>
 			</div>

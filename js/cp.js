@@ -10,7 +10,7 @@ Component.requires = {
 	]
 };
 Component.entryPoint = function(){
-	
+	/*
 	if (Brick.Permission.check('blog', '20') < 1){ return; }
 	
 	var cp = Brick.mod.user.cp;
@@ -21,4 +21,5 @@ Component.entryPoint = function(){
 	menuItem.entryPoint = 'Brick.mod.blog.API.showManagerWidget';
 	
 	cp.MenuManager.add(menuItem);
+	/**/
 };

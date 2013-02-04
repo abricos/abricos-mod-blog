@@ -143,9 +143,22 @@ class BlogManager extends Ab_ModuleManager {
 		$cfg->page = max(intval($cfg->page), 1);
 		$cfg->limit = max(1, min(50, intval($cfg->limit)));
 		
+		if (!is_string($cfg->filter)){
+			$cfg->filter = "";
+		}
+		
+		switch ($cfg->filter){
+		case "draft":
+			$rows = BlogTopicQuery::TopicDraftList($this->db, $this->userid, $cfg->page, $cfg->limit);
+			break;
+		default:
+			$rows = BlogTopicQuery::TopicList($this->db, $cfg->page, $cfg->limit);
+			break;
+		}
+		
+		
 		$topics = array();
 		
-		$rows = BlogTopicQuery::TopicList($this->db, $cfg->page, $cfg->limit);
 		while (($row = $this->db->fetch_array($rows))){
 			array_push($topics, new BlogTopicInfo($row));
 		}
@@ -199,14 +212,13 @@ class BlogManager extends Ab_ModuleManager {
 	 * 	null - нет прав,
 	 *	1 - заголовок не может быть пустым,
 	 *	2 - должны быть указаны метки,
-	 *	10 - пользователю можно создавать не более 5 топиков в сутки,
 	 *  11 - черновиков не более 25 на профиль,
 	 *  12 - публиковать не более 3-х в сутки,
 	 * 	20 - недостаточно репутации для публикации в любой категории,
 	 *  21 - недостаточно репутации для публикации именно в этй категории,
 	 *  99 - неизвестная ошибка
 	 *  
-	 * @param unknown_type $d
+	 * @param object $d
 	 */
 	public function TopicSave($d){
 		if (!$this->IsWriteRole()){ return null; }
@@ -226,7 +238,7 @@ class BlogManager extends Ab_ModuleManager {
 				
 			if (empty($cat)){ return null; } // hacker?
 				
-			if ($cat->isPrivate && !$cat->isMember){
+			if (!$cat->isMember){
 				return null; // только участник может публиковать в закрытый блог
 			}
 		}
@@ -249,7 +261,7 @@ class BlogManager extends Ab_ModuleManager {
 		
 		// проверка на добавление в базу нового топика
 		if ($d->id == 0){
-			if ($d->dft==0){ // будет добавлен черновик
+			if ($d->dft==1){ // будет добавлен черновик
 				$isNewDraft = true;
 				$d->pdt = 0;
 			}else{ // будет опубликован новый топик
@@ -322,10 +334,13 @@ class BlogManager extends Ab_ModuleManager {
 		
 		// все проверки выполнены, добавление/сохранение топика
 		if ($d->id == 0){
-			BlogTopicQuery::TopicAppend($this->db, $this->userid, $d);
+			$d->id = BlogTopicQuery::TopicAppend($this->db, $this->userid, $d);
 		}else{
 			
 		}
+		
+		$ret->topicid = $d->id;
+		return $ret;
 	}
 
 	/**
