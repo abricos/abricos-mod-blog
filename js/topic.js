@@ -15,7 +15,26 @@ Component.entryPoint = function(NS){
 	var L = YAHOO.lang;
 	var buildTemplate = this.buildTemplate;
 	var NSUR = Brick.mod.urating || {};
+	var LNG = this.language;
+	var R = NS.roles;
 	
+	var TopicManagerWidget = function(container, topic){
+		TopicManagerWidget.superclass.constructor.call(this, container, {
+			'buildTemplate': buildTemplate, 'tnames': 'manbtns' 
+		}, topic);
+	};
+	YAHOO.extend(TopicManagerWidget, Brick.mod.widget.Widget, {
+		init: function(topic){
+			this.topic = topic;
+		},
+		buildTData: function(topic){
+			return {
+				'urledit': NS.navigator.topic.edit(topic.id)
+			};
+		}
+	});
+	NS.TopicManagerWidget = TopicManagerWidget;
+
 	var TopicInfoLineWidget = function(container, topic, cfg){
 		TopicInfoLineWidget.superclass.constructor.call(this, container, {
 			'buildTemplate': buildTemplate, 'tnames': 'info' 
@@ -28,7 +47,7 @@ Component.entryPoint = function(NS){
 		buildTData: function(topic, cfg){
 			var user = topic.user;
 			return {
-				'date': Brick.dateExt.convert(topic.date),
+				'date': L.isNull(topic.date) ? LNG.get('topic.draft') : Brick.dateExt.convert(topic.date),
 				'uid': user.id,
 				'avatar': user.avatar24(),
 				'unm': user.getUserName(),
@@ -80,6 +99,7 @@ Component.entryPoint = function(NS){
 	YAHOO.extend(TopicRowWidget, Brick.mod.widget.Widget, {
 		init: function(topic){
 			this.topic = topic;
+			this.manWidget = null;
 		},
 		buildTData: function(topic){
 			return {
@@ -87,19 +107,25 @@ Component.entryPoint = function(NS){
 			};
 		},
 		destroy: function(){
+			this.tagsWidget.destroy();
 			this.infoWidget.destroy();
+			TopicRowWidget.superclass.destroy.call(this);
 		},
 		onLoad: function(topic){
 			this.tagsWidget = new NS.TagListWidget(this.gel('taglist'), topic.tagList);
 			this.infoWidget = new NS.TopicInfoLineWidget(this.gel('info'), topic);
 			
-			var cat = topic.category;
+			var cat = topic.category();
 
 			this.elSetHTML({
 				'intro': topic.intro,
 				'tl': topic.title,
 				'cattl': !L.isNull(cat) ? cat.title : ''
 			});
+			
+			if (R.topic.isManager(topic)){
+				this.manWidget = new NS.TopicManagerWidget(this.gel('man'), topic);
+			}
 		}
 	});
 	NS.TopicRowWidget = TopicRowWidget;

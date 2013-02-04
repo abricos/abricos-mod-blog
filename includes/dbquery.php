@@ -171,7 +171,7 @@ class BlogTopicQuery {
 			SELECT
 				DISTINCT
 				g.tagid as id,
-				g.phrase as tl,
+				g.title as tl,
 				g.name as nm
 			FROM ".$db->prefix."bg_toptag tg
 			INNER JOIN ".$db->prefix."bg_tag g ON tg.tagid = g.tagid
@@ -230,7 +230,7 @@ class BlogTopicQuery {
 			SELECT
 				cat.catid as id,
 				cat.name as nm,
-				cat.phrase as tl,
+				cat.title as tl,
 				cat.isprivate prv,
 				cat.reputation as rep,
 				cat.topiccount as tcnt,
@@ -254,7 +254,7 @@ class BlogTopicQuery {
 			SELECT
 				cat.catid as id,
 				cat.name as nm,
-				cat.phrase as tl,
+				cat.title as tl,
 				cat.isprivate prv,
 				cat.reputation as rep,
 				cat.topiccount as tcnt,
@@ -296,7 +296,7 @@ class BlogTopicQuery {
 	public static function CategoryAppend(Ab_Database $db, $userid, $d){
 		$sql = "
 			INSERT INTO ".$db->prefix."bg_cat
-			(userid, language, phrase, name, isprivate, reputation, dateline, upddate) VALUES (
+			(userid, language, title, name, isprivate, reputation, dateline, upddate) VALUES (
 				".bkint($userid).",
 				'".bkstr(Abricos::$LNG)."',
 				'".bkstr($d->tl)."',
@@ -314,7 +314,7 @@ class BlogTopicQuery {
 	public static function CategoryUpdate(Ab_Database $db, $catid, $d){
 		$sql = "
 			UPDATE ".$db->prefix."bg_cat
-			SET phrase=".bkstr($d->tl)."',
+			SET title=".bkstr($d->tl)."',
 				name='".bkstr($d->nm)."',
 				isprivate=".($d->prv>0?1:0).",
 				reputation=".bkint($d->rep).",

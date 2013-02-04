@@ -17,13 +17,13 @@ Component.entryPoint = function(NS){
 		LNG = this.language,
 		buildTemplate = this.buildTemplate;
 	
-	var WriteWidget = function(container, wType){
+	var WriteWidget = function(container, wType, p1){
 		WriteWidget.superclass.constructor.call(this, container, {
 			'buildTemplate': buildTemplate, 'tnames': 'widget' 
-		}, wType || 'topic');
+		}, wType || 'topic', p1);
 	};
 	YAHOO.extend(WriteWidget, Brick.mod.widget.Widget, {
-		init: function(wType){
+		init: function(wType, p1){
 			this.widget = null;
 		},
 		destroy: function(){
@@ -32,7 +32,7 @@ Component.entryPoint = function(NS){
 			}
 			WriteWidget.superclass.destroy.call(this);			
 		},
-		onLoad: function(wType) {
+		onLoad: function(wType, p1) {
 			switch(wType){
 			case 'category':
 				wType = 'category';
@@ -46,7 +46,7 @@ Component.entryPoint = function(NS){
 				break;
 			default:
 				wType = 'topic';
-				this.widget = new NS.TopicEditorWidget(this.gel('widget'));
+				this.widget = new NS.TopicEditorWidget(this.gel('widget'), p1);
 				break;
 			}
 			this.wType = wType;
@@ -55,13 +55,13 @@ Component.entryPoint = function(NS){
 	});
 	NS.WriteWidget = WriteWidget;
 	
-	var WriteCategorySelectWidget = function(container){
+	var WriteCategorySelectWidget = function(container, catid){
 		WriteCategorySelectWidget.superclass.constructor.call(this, container, {
 			'buildTemplate': buildTemplate, 'tnames': 'catsel,catselrow,catselmyrow' 
-		});
+		}, catid || 0);
 	};
 	YAHOO.extend(WriteCategorySelectWidget, Brick.mod.widget.Widget, {
-		buildTData: function(){
+		buildTData: function(catid){
 			var TM = this._TM, lst = TM.replace('catselmyrow');
 			NS.manager.categoryList.foreach(function(cat){
 				if (!R.category.isMember(cat)){ return; }
@@ -72,8 +72,14 @@ Component.entryPoint = function(NS){
 			});
 			return { 'rows': lst };
 		},
+		onLoad: function(catid){
+			this.setValue(catid);
+		},
 		getValue: function(){
 			return this.gel('id').value;
+		},
+		setValue: function(value){
+			this.gel('id').value = value;
 		}
 	});
 	NS.WriteCategorySelectWidget = WriteCategorySelectWidget;
@@ -118,7 +124,7 @@ Component.entryPoint = function(NS){
 			this.elHide('loading');
 			this.elHide('wrap');
 			
-			this.catSelWidget = new NS.WriteCategorySelectWidget(this.gel('catsel'));
+			this.catSelWidget = new NS.WriteCategorySelectWidget(this.gel('catsel'), topic.catid);
 
 			this.tagManager = new TagsAutocomplete(this.gel('tags'), this.gel('tagscont'));
 
@@ -129,7 +135,15 @@ Component.entryPoint = function(NS){
 				'toolbarExpert': false,
 				'separateIntro': true
 			});
+			this.elSetValue({
+				'title': topic.title
+			});
 			
+			var text = topic.intro;
+			if (topic.isBody){
+				text += "<cut>" + topic.body;
+			}
+			this.editorWidget.setContent(text);
 		},
 		onClick: function(el, tp){
 			switch(el.id){
@@ -137,6 +151,7 @@ Component.entryPoint = function(NS){
 			case tp['bsavedraft']: this.saveDraft(); return true;
 			case tp['bcreate']: 
 			case tp['bsave']: this.save(); return true;
+			case tp['bcancel']: this.cancel(); return true;
 			}
 			return false;
 		},
@@ -179,6 +194,13 @@ Component.entryPoint = function(NS){
 					Brick.Page.reload(NS.navigator.topic.view(topicid));
 				}
 			});
+		},
+		cancel: function(){
+			if (this.topicid == 0){
+				Brick.Page.reload(NS.navigator.home());
+			}else{
+				Brick.Page.reload(NS.navigator.topic.view(this.topicid));
+			}
 		}
 	});
 	NS.TopicEditorWidget = TopicEditorWidget;

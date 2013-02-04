@@ -20,6 +20,7 @@ Component.entryPoint = function(NS){
 	var SysNS = Brick.mod.sys;
 	var UP = Brick.mod.uprofile;
 	var LNG = this.language;
+	var UID = Brick.env.user.id;
 
 	var buildTemplate = this.buildTemplate;
 	buildTemplate({},'');
@@ -43,6 +44,9 @@ Component.entryPoint = function(NS){
 			},
 			'view': function(topicid){
 				return WS+'topic/TopicViewWidget/'+topicid+'/';
+			},
+			'edit': function(topicid){
+				return NS.navigator.write.topic(topicid);
 			}
 		},
 		'category': {
@@ -57,8 +61,9 @@ Component.entryPoint = function(NS){
 			'view': function(){
 				return WS+'write/WriteWidget/';
 			},
-			'topic': function(){
-				return WS+'write/WriteWidget/topic/';
+			'topic': function(id){
+				id = id || 0;
+				return WS+'write/WriteWidget/topic/'+(id>0?id+"/":"");
 			},
 			'category': function(){
 				return WS+'write/WriteWidget/category/';
@@ -144,7 +149,6 @@ Component.entryPoint = function(NS){
 			
 			this.tagList = new TagList();
 			this.user = null;
-			this.category = null;
 			
 			TopicInfo.superclass.init.call(this, d);
 		},
@@ -167,16 +171,18 @@ Component.entryPoint = function(NS){
 			
 			this.user = UP.viewer.users.get(d['user'].id);
 			
-			var cat = null, catid = d['catid']*1;
-			if (catid == 0){ // персональный блог
-				cat = new CategoryPerson(this.user.id);
-			}else{
-				cat = NS.manager.categoryList.get(catid);
-			}
-			this.category = cat;
+			this.catid = d['catid']*1;
 		},
 		url: function(){
 			return NS.navigator.topic.view(this.id);
+		},
+		category: function(){
+			var catid = this.catid;
+			if (catid == 0){ // персональный блог
+				return new CategoryPerson(this.user.id);
+			}else{
+				return NS.manager.categoryList.get(catid);
+			}
 		}
 	});
 	NS.TopicInfo = TopicInfo;
@@ -318,9 +324,7 @@ Component.entryPoint = function(NS){
 		this.init();
 	};
 	CategoryUserRoleManager.prototype = {
-		init: function(){
-			
-		},
+		init: function(){ },
 		get: function(cat){
 			if (L.isObject(cat)){
 				return cat;
@@ -345,6 +349,20 @@ Component.entryPoint = function(NS){
 	};
 	NS.CategoryUserRoleManager = CategoryUserRoleManager;
 	
+	var TopicUserRoleManager = function(){
+		this.init();
+	};
+	TopicUserRoleManager.prototype = {
+		init: function(){ },
+		isManager: function(topic){
+			return this.isEdit(topic);
+		},
+		isEdit: function(topic){
+			return topic.user.id == UID;
+		}
+	};
+	NS.TopicUserRoleManager = TopicUserRoleManager;
+	
 	var Manager = function (callback){
 		this.init(callback);
 	};
@@ -358,7 +376,8 @@ Component.entryPoint = function(NS){
 			var __self = this;
 			R.load(function(){
 				
-				R.category = new CategoryUserRoleManager();
+				R.category = new NS.CategoryUserRoleManager();
+				R.topic = new NS.TopicUserRoleManager();
 				
 				__self.categoryListLoad(function(){
 					NS.life(callback, __self);

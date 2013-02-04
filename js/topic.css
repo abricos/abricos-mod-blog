@@ -88,3 +88,8 @@
 .aw-blog .taglist a {
 	color: #666666;
 }
+
+/* * * Управление топиком * * */
+.aw-blog .topic .topicmanbtns {
+	text-align: right;
+}

@@ -36,12 +36,13 @@ Component.entryPoint = function(NS){
 			if (L.isNull(list)){ return; }
 			var lst = "", TM = this._TM;
 			list.foreach(function(cmt){
+				var cat = cmt.topic.category();
 				lst += TM.replace('cmtrow', {
 					'uid': cmt.user.id,
 					'login': cmt.user.userName,
 					'unm': cmt.user.getUserName(),
-					'cattl': cmt.topic.category.title,
-					'urlcat': cmt.topic.category.url(),
+					'cattl': cat.title,
+					'urlcat': cat.url(),
 					'toptl': cmt.topic.title,
 					'urlcmt': cmt.topic.url(),
 					'cmtcnt': cmt.topic.commentCount
@@ -75,9 +76,10 @@ Component.entryPoint = function(NS){
 			if (L.isNull(list)){ return; }
 			var lst = "", TM = this._TM;
 			list.foreach(function(topic){
+				var cat = topic.category();
 				lst += TM.replace('toprow', {
-					'cattl': topic.category.title,
-					'urlcat': topic.category.url(),
+					'cattl': cat.title,
+					'urlcat': cat.url(),
 					'toptl': topic.title,
 					'urlcmt': topic.url()
 				});

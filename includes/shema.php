@@ -22,7 +22,7 @@ if ($updateManager->isInstall()){
 			
 			`language` CHAR(2) NOT NULL DEFAULT '' COMMENT 'Язык',
 			`name` varchar(150) NOT NULL DEFAULT '' COMMENT 'Имя для URL',
-			`phrase` varchar(250) NOT NULL DEFAULT '' COMMENT 'Заголовок',
+			`title` varchar(250) NOT NULL DEFAULT '' COMMENT 'Заголовок',
 			`descript` TEXT NOT NULL COMMENT 'Описание категории',
 			
 			`isprivate` tinyint(1) unsigned NOT NULL DEFAULT 0 COMMENT '0 - публичнй, 1 -приватный',
@@ -92,31 +92,31 @@ if ($updateManager->isInstall()){
 		)". $charset
 	);
 	
+
 	$db->query_write("
 		CREATE TABLE `".$pfx."bg_tag` (
-			`tagid` integer(10) unsigned NOT NULL auto_increment,
+			`tagid` integer(10) unsigned NOT NULL auto_increment COMMENT 'Идентификатор',
+			
 			`language` CHAR(2) NOT NULL DEFAULT '' COMMENT 'Язык',
-			`name` varchar(50) NOT NULL,
-			`phrase` varchar(100) NOT NULL,
-			PRIMARY KEY (`tagid`)
-		)". $charset
-	);
-	
-	$db->query_write("
-			CREATE TABLE `".$pfx."bg_topcat` (
-			`topcat` integer(10) unsigned NOT NULL auto_increment,
-			`catid` integer(10) unsigned NOT NULL,
-			`topicid` integer(10) unsigned NOT NULL,
-			PRIMARY KEY (`topcat`)
+			
+			`name` varchar(50) NOT NULL DEFAULT '' COMMENT 'Имя в транслите (for URL)',
+			`title` varchar(100) NOT NULL DEFAULT '' COMMENT 'Фраза',
+			
+			`topiccount` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Кол-во топиков с этим тегом',
+			
+			PRIMARY KEY (`tagid`),
+			UNIQUE KEY `phrase` (`title`, `language`)
 		)". $charset
 	);
 	
 	$db->query_write("
 		CREATE TABLE `".$pfx."bg_toptag` (
-			`toptagid` integer(10) unsigned NOT NULL auto_increment,
 			`topicid` integer(10) unsigned NOT NULL,
 			`tagid` integer(10) unsigned NOT NULL,
-			PRIMARY KEY (`toptagid`)
+			
+			UNIQUE KEY `toptag` (`topicid`, `tagid`),
+			KEY `topicid` (`topicid`),
+			KEY `tagid` (`tagid`)
 		)". $charset
 	);
 
@@ -225,10 +225,17 @@ if ($updateManager->isUpdate('0.5')){
 }
 
 if ($updateManager->isUpdate('0.5') && !$updateManager->isInstall()){
+
+	require_once 'dbquery.php';
+	
+	// Таблица более не нужна
+	$db->query_write("DROP TABLE IF EXISTS`".$pfx."bg_topcat`");
 	
 	$db->query_write("
 		ALTER TABLE ".$pfx."bg_cat
-
+			
+		CHANGE `phrase` `title` varchar(250) NOT NULL DEFAULT '' COMMENT 'Заголовок',
+			
 		ADD `userid` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Создатель',
 		ADD `isprivate` tinyint(1) unsigned NOT NULL DEFAULT 0 COMMENT '0 - публичнй, 1 -приватный',
 		ADD `reputation` int(7) unsigned NOT NULL DEFAULT 0 COMMENT 'Репутация пользователя для создания топика',
@@ -276,6 +283,60 @@ if ($updateManager->isUpdate('0.5') && !$updateManager->isInstall()){
 		ADD KEY `bypub` (`language`, `isdraft`, `deldate`)
 	");
 	
+	
+	// В предыдущих версиях были дубликаты в регистре, их необходимо удалить
+	$db->query_write("RENAME TABLE ".$pfx."bg_tag TO ".$pfx."bg_tag_old");
+	
+	$db->query_write("
+		CREATE TABLE `".$pfx."bg_tag` (
+			`tagid` integer(10) unsigned NOT NULL auto_increment COMMENT 'Идентификатор',
+				
+			`language` CHAR(2) NOT NULL DEFAULT '' COMMENT 'Язык',
+				
+			`name` varchar(50) NOT NULL DEFAULT '' COMMENT 'Имя в транслите (for URL)',
+			`title` varchar(100) NOT NULL DEFAULT '' COMMENT 'Фраза',
+				
+			`topiccount` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Кол-во топиков с этим тегом',
+				
+			PRIMARY KEY (`tagid`),
+			UNIQUE KEY `phrase` (`title`, `language`)
+		)". $charset
+	);
+	
+	$db->query_write("
+		INSERT IGNORE INTO ".$pfx."bg_tag 
+			(tagid, language, name, title)  
+		SELECT tagid, language, name, phrase
+		FROM ".$pfx."bg_tag_old
+	");
+	
+	$db->query_write("DROP TABLE ".$pfx."bg_tag_old");
+
+	$db->query_write("
+		ALTER TABLE ".$pfx."bg_toptag
+	
+		DROP `toptagid`,
+			
+		ADD UNIQUE KEY `toptag` (`topicid`, `tagid`),
+		ADD KEY `topicid` (`topicid`),
+		ADD KEY `tagid` (`tagid`)
+	");
+
+	$rows = $db->query_write("
+		SELECT tt.tagid, tt.topicid
+		FROM `".$pfx."bg_toptag` tt
+		LEFT JOIN `".$pfx."bg_tag` t ON tt.tagid=t.tagid
+		WHERE isnull(t.tagid)
+	");
+	
+	while (($row = $this->db->fetch_array($rows))){
+		$db->query_write("
+			DELETE FROM `".$pfx."bg_toptag`
+			WHERE tagid=".intval($row['tagid'])." AND topicid=".intval($row['topicid'])."
+		");
+	}
+	
+	
 	// Так как в предыдущих версиях создатель категории не заносился, проставить админа
 	// А так же проставить дату создание топика
 	$db->query_write("
@@ -297,8 +358,6 @@ if ($updateManager->isUpdate('0.5') && !$updateManager->isInstall()){
 		ALTER TABLE ".$pfx."bg_topic
 		DROP  `status`
 	");
-	
-	require_once 'dbquery.php';
 	
 	BlogTopicQuery::CategoryTopicCountUpdate($db);
 }
