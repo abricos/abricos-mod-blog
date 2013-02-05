@@ -629,6 +629,14 @@ class BlogManager extends Ab_ModuleManager {
 		if ($uRep->reputation*2 <= $voteRepCount){
 			return 3;
 		}
+		
+		// можно ли еще ставить голосо за топик?
+		if ($eltype == 'topic'){
+			$topic = $this->Topic($elid);
+			if (empty($topic) || !$topic->IsVotingPeriod()){
+				return null;
+			}
+		}
 	
 		return 0;
 	}
@@ -646,6 +654,8 @@ class BlogManager extends Ab_ModuleManager {
 		
 		if ($eltype == 'cat'){
 			BlogTopicQuery::CategoryRatingUpdate($this->db, $elid, $info['cnt'], $info['up'], $info['down']);
+		}else if($eltype == 'topic'){
+			BlogTopicQuery::TopicRatingUpdate($this->db, $elid, $info['cnt'], $info['up'], $info['down']);
 		}
 	}
 	
@@ -758,68 +768,7 @@ class BlogManager extends Ab_ModuleManager {
 		return $type == 0 && $this->IsViewRole() && $info['status'] == 1;
 	}
 	
-	/**
-	 * Получить запись в блоге
-	 * @param integer $topicId идентификатор записи
-	 */
-	/*
-	public function Topic($topicid){
-		if (!$this->TopicAccess($topicid, 0)){
-			return null;
-		}
-		$db = $this->db;
-		$topic = BlogQuery::Topic($db, $topicid);
-		
-		$rows = BlogQuery::Tags($db, $topicid);
-		$tags = array();
-		while (($row = $db->fetch_array($rows))){
-			array_push($tags, $row['ph']);
-		}
-		$topic['tags'] = implode(', ', $tags);
-		
-		return $topic;	
-	}
-	/**/
-	/*
-	public function TopicSave($d){
-		$d->id = intval($d->id);
-		$d->nm = translateruen($d->tl);
-		$utm = Abricos::TextParser();
-		$utmf = Abricos::TextParser(true);
-		if (!$this->IsAdminRole()){
-			$d->tl = $utmf->Parser($d->tl);
-			$d->intro = $utm->Parser($d->intro);
-			$d->body = $utm->Parser($d->body);
-		}
-		
-		if ($d->st == 1 && empty($d->dp)){
-			$d->dp = TIMENOW;
-		}else if (empty($obj->st)){
-			$d->dp = 0;
-		}
-		$d->de = TIMENOW;
-		
-		if ($d->id > 0) {
-			if (!$this->TopicAccess($d->id, 1)){ return; }
-			$info = BlogQuery::TopicInfo($this->db, $d->id);
-			$d->cid = $info['contentid'];
-			BlogQuery::TopicUpdate($this->db, $d);
-		}else{
-			if (!$this->IsWriteRole()){ return; }
-			$d->uid = $this->userid;
-			$d->dl = TIMENOW;
-			$d->id = BlogQuery::TopicAppend($this->db, $d); 
-		}
-		$this->TopicTagsUpdate($d);
-		
-		if ($d->dp > 0){
-			$this->SubscribeTopicCheck(250);
-		}
-		
-		return $d->id;
-	}
-	/**/
-	
+
 	public function SubscribeTopicCheck($sendlimit = 25){
 
 		$cfgSPL = intval(Abricos::$config['module']['blog']['subscribeSendLimit']);
@@ -926,28 +875,7 @@ class BlogManager extends Ab_ModuleManager {
 		BlogQuery::TagSetId($this->db, $tagarr);
 		BlogQuery::TagUpdate($this->db, $obj->id, $tagarr);
 	}
-	
-	public function TopicRemove($topicid){
-		if (!$this->TopicAccess($topicid, 1)){ return; }
-		
-		BlogQuery::TopicRemove($this->db, $topicid);
-	}
-	
-	public function TopicRestore($topicid){
-		if (!$this->TopicAccess($topicid, 1)){ return; }
-		BlogQuery::TopicRestore($this->db, $topicid);
-	}
-	
-	public function TopicRecycleClear(){
-		if (!$this->IsWriteRole()){ return; }
-		BlogQuery::TopicRecycleClear($this->db, $this->userid);
-	}
-	
-	public function TopicPublish($topicid){
-		if (!$this->TopicAccess($topicid, 1)){ return; }
-		BlogQuery::TopicPublish($this->db, $topicid);
-	}
-	
+
 	/**
 	 * Список записей в блоге текущего пользователя
 	 * @param integer $page
@@ -977,17 +905,7 @@ class BlogManager extends Ab_ModuleManager {
 		
 		return UserQueryExt::GroupList($this->db);
 	}
-	
-	public function CategoryBlock (){
-		if (!$this->IsViewRole()){ return null; }
-		return BlogQuery::CategoryBlock($this->db);
-	}
-	/*
-	public function Category($categoryid){
-		if (!$this->IsViewRole()){ return null; }
-		return BlogQuery::CategoryById($this->db, $categoryid, true);
-	}
-	/**/
+
 	
 	private function CategoryDataParse($d){
 		$utm = Abricos::TextParser(true);
@@ -1013,40 +931,7 @@ class BlogManager extends Ab_ModuleManager {
 		
 		return $d;
 	}
-	
-	public function CategoryAppend($d){
-		if (!$this->IsAdminRole()){ return null; }
-		
-		$d = $this->CategoryDataParse($d);
-		if (is_null($d)){ return null; }
-		
-		return BlogQuery::CategoryAppend($this->db, $d);
-	}
-	
-	public function CategoryUpdate($d){
-		if (!$this->IsAdminRole()){ return null; }
-		
-		$d = $this->CategoryDataParse($d);
-		if (is_null($d)){ return null; }
-		
-		BlogQuery::CategoryUpdate($this->db, $d);
-	}
-	
-	public function CategoryRemove($id){
-		if (!$this->IsAdminRole()){ return null; }
-		BlogQuery::CategoryRemove($this->db, $id);
-	}
-	
-	public function Page($category, $tagid, $from, $count){
-		if (!$this->IsViewRole()){ return null; }
-		
-		return BlogQuery::Page(Abricos::$db, $category, $tagid, $from, $count);
-	}
-	
-	public function TopicLastList($count){
-		if (!$this->IsViewRole()){ return null; }
-		return BlogQuery::Page($this->db, "", "", 0, $count);
-	}
+
 	
 	/**
 	 * Список последних комментариев

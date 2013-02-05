@@ -56,12 +56,49 @@ class BlogTopicInfo {
 	 */
 	public $title;
 	
-	
+	/**
+	 * Сокращенный текст записи
+	 * @var string
+	 */
 	public $intro;
+	
+	/**
+	 * Объем символов основного текста
+	 * @var integer
+	 */
 	public $bodyLength;
+	
+	/**
+	 * Идентификатор основного текста
+	 * @var integer
+	 */
 	public $contentid;
 	
+	/**
+	 * Метки (теги)
+	 * @var array
+	 */
 	public $tags = array();
+	
+	/**
+	 * Рейтинг топика
+	 * @var integer
+	 */
+	public $rating;
+	
+	/**
+	 * Количество голосов за рейтинг
+	 * @var integer
+	 */
+	public $voteCount;
+	
+	/**
+	 * Голос текущего пользователя
+	 * null - нет голоса, -1 - ПРОТИВ, 1 - ЗА, 0 - Воздержался
+	 * @var integer
+	 */
+	public $voteMy;
+	
 	
 	public function __construct($d){
 		$this->id			= $d['id'];
@@ -76,6 +113,28 @@ class BlogTopicInfo {
 		$this->intro		= $d['intro'];
 		$this->bodyLength	= $d['bdlen'];
 		$this->contentid	= $d['ctid'];
+
+		$this->voteCount	= intval($d['vcnt']);
+		$this->voteMy		= $d['vmy'];
+		
+		if (!is_null($this->voteMy) || !$this->IsVotingPeriod()){
+			$this->rating	= intval($d['rtg']); 
+
+			// показать значение, значит запретить голосовать
+			if (is_null($this->voteMy)){
+				$this->voteMy = 0;
+			}
+		}else{
+			// голосовать еще можно
+			$this->rating	= null;
+		}
+	}
+	
+	/**
+	 * Можно ли еще голосовать за топик
+	 */
+	public function IsVotingPeriod(){
+		return $this->publicDate > TIMENOW-60*60*24*31;
 		
 	}
 	
@@ -84,13 +143,16 @@ class BlogTopicInfo {
 		$ret->id		= $this->id;
 		$ret->catid		= $this->catid;
 		$ret->tl		= $this->title;
-		$ret->uid		= $this->userid;
 		$ret->user		= $this->user->ToAJAX();
 		$ret->intro		= $this->intro;
 		$ret->bdlen		= $this->bodyLength;
 		$ret->cmt		= $this->commentCount;
 		$ret->ctid		= $this->contentid;
 		$ret->dl		= $this->publicDate;
+		
+		$ret->rtg	= $this->rating;
+		$ret->vcnt	= $this->voteCount;
+		$ret->vmy	= $this->voteMy;
 		
 		$ret->tags = array();
 		for ($i=0;$i<count($this->tags);$i++){

@@ -128,6 +128,11 @@ Component.entryPoint = function(NS){
 
 			this.tagManager = new TagsAutocomplete(this.gel('tags'), this.gel('tagscont'));
 
+			this.elSetValue({
+				'title': topic.title,
+				'tags': topic.tagList.toString()
+			});
+
 			var Editor = Brick.widget.Editor;
 			this.editorWidget = new Editor(this.gel('text'), {
 				'toolbar': Editor.TOOLBAR_STANDART,
@@ -135,16 +140,12 @@ Component.entryPoint = function(NS){
 				'toolbarExpert': false,
 				'separateIntro': true
 			});
-			this.editorWidget.setContent(text);
-			this.elSetValue({
-				'title': topic.title,
-				'tags': topic.tagList.toString()
-			});
 			
 			var text = topic.intro;
 			if (topic.isBody){
 				text += "<cut>" + topic.body;
 			}
+			this.editorWidget.setContent(text);
 		},
 		onClick: function(el, tp){
 			switch(el.id){

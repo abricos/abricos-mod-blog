@@ -16,6 +16,10 @@ class BlogTopicQuery {
 			t.title as tl,
 			t.intro as intro,
 			length(cc.body) as bdlen,
+			
+			t.rating as rtg,
+			t.votecount as vcnt,
+			
 			t.userid as uid,
 			u.username as unm,
 			u.avatar as avt,
@@ -29,6 +33,25 @@ class BlogTopicQuery {
 			) as cmt,
 			t.pubdate as dl
 		";
+	}
+	
+	private static function TopicRatingSQLExt(Ab_Database $db){
+		$ret = new stdClass();
+		$ret->fld = "";
+		$ret->tbl = "";
+		$userid = Abricos::$user->id;
+		if (BlogManager::$isURating && $userid>0){
+			$ret->fld .= "
+				,IF(ISNULL(vt.userid), null, IF(vt.voteup>0, 1, IF(vt.votedown>0, -1, 0))) as vmy
+			";
+			$ret->tbl .= "
+				LEFT JOIN ".$db->prefix."urating_vote vt
+					ON vt.module='blog' AND vt.elementtype='topic'
+					AND vt.elementid=t.topicid
+					AND vt.userid=".bkint($userid)."
+			";
+		}
+		return $ret;
 	}
 	
 	/**
@@ -63,14 +86,18 @@ class BlogTopicQuery {
 	}	
 
 	public static function Topic(Ab_Database $db, $topicid){
+		$urt = BlogTopicQuery::TopicRatingSQLExt($db);
+		
 		$userid = Abricos::$user->id;
 		$sql = "
 			SELECT
 				".BlogTopicQuery::TopicFields($db).",
 				cc.body as bd
+				".$urt->fld."
 			FROM ".$db->prefix."bg_topic t
 			INNER JOIN ".$db->prefix."content cc ON t.contentid = cc.contentid
 			INNER JOIN ".$db->prefix."user u ON t.userid = u.userid
+			".$urt->tbl."
 			WHERE t.topicid = ".bkint($topicid)." AND t.deldate=0 
 				AND (t.isdraft=0 OR (t.isdraft=1 AND t.userid=".bkint($userid)."))
 			LIMIT 1
@@ -78,9 +105,86 @@ class BlogTopicQuery {
 		return $db->query_first($sql);
 	}
 	
+
+	public static function TopicList(Ab_Database $db, $page=1, $limit=50, $fType='', $fPrm=''){
+		$from = $limit * (max($page, 1) - 1);
+		
+		$filter = '';
+		if ($fType == 'cat'){
+			$filter = " AND t.catid=".bkint($fPrm);
+		}
+		$urt = BlogTopicQuery::TopicRatingSQLExt($db);
+		
+		$sql = "
+			SELECT
+				".BlogTopicQuery::TopicFields($db)."
+				".$urt->fld."
+			FROM ".$db->prefix."bg_topic t
+			INNER JOIN ".$db->prefix."content cc ON t.contentid = cc.contentid
+			INNER JOIN ".$db->prefix."user u ON t.userid = u.userid
+			".$urt->tbl."
+			WHERE t.deldate=0 AND t.isdraft=0 AND t.language='".bkstr(Abricos::$LNG)."'
+				".$filter."
+			ORDER BY t.pubdate DESC
+			LIMIT ".$from.",".bkint($limit)."
+		";
+		return $db->query_read($sql);
+	}
+	
+	/**
+	 * Список черновиков пользователя
+	 * 
+	 * @param Ab_Database $db
+	 * @param integer $userid
+	 * @param integer $page
+	 * @param integer $limit
+	 */
+	public static function TopicDraftList(Ab_Database $db, $userid, $page=1, $limit=15){
+		$from = $limit * (max($page, 1) - 1);
+		$urt = BlogTopicQuery::TopicRatingSQLExt($db);
+
+		$sql = "
+			SELECT
+				".BlogTopicQuery::TopicFields($db)."
+				".$urt->fld."
+			FROM ".$db->prefix."bg_topic t
+			INNER JOIN ".$db->prefix."content cc ON t.contentid = cc.contentid
+			INNER JOIN ".$db->prefix."user u ON t.userid = u.userid
+			".$urt->tbl."
+			WHERE t.userid=".bkint($userid)." AND t.isdraft=1 
+				AND t.deldate=0 AND t.language='".bkstr(Abricos::$LNG)."'
+			ORDER BY t.dateline DESC
+			LIMIT ".$from.",".bkint($limit)."
+		";
+		return $db->query_read($sql);
+	}
+
+	public static function TopicListByIds(Ab_Database $db, $ids){
+		$awh = array();
+		for ($i=0;$i<count($ids);$i++){
+			array_push($awh, "t.topicid=".bkint($ids[$i]));
+		}
+		if (count($ids) == 0){
+			return null;
+		}
+		$urt = BlogTopicQuery::TopicRatingSQLExt($db);
+		
+		$sql = "
+			SELECT
+				".BlogTopicQuery::TopicFields($db)."
+				".$urt->fld."
+			FROM ".$db->prefix."bg_topic t
+			INNER JOIN ".$db->prefix."content cc ON t.contentid = cc.contentid
+			INNER JOIN ".$db->prefix."user u ON t.userid = u.userid
+			".$urt->tbl."
+			WHERE ".implode(" OR ", $ids)."
+		";
+		return $db->query_read($sql);
+	}
+	
 	public static function TopicAppend(Ab_Database $db, $userid, $d){
 		$contentid = Ab_CoreQuery::CreateContent($db, $d->body, 'blog');
-		
+	
 		$sql = "
 			INSERT INTO ".$db->prefix."bg_topic
 			(catid, userid, language, title, name, intro, contentid, isdraft, pubdate, dateline, upddate) VALUES (
@@ -103,7 +207,7 @@ class BlogTopicQuery {
 	
 	public static function TopicUpdate(Ab_Database $db, $topicid, $contentid, $d){
 		Ab_CoreQuery::ContentUpdate($db, $contentid, $d->body);
-		
+	
 		$sql = "
 			UPDATE ".$db->prefix."bg_topic
 			SET
@@ -119,73 +223,21 @@ class BlogTopicQuery {
 		";
 		$db->query_write($sql);
 	}
-	
-	public static function TopicList(Ab_Database $db, $page=1, $limit=50, $fType='', $fPrm=''){
-		$from = $limit * (max($page, 1) - 1);
 		
-		$filter = '';
-		if ($fType == 'cat'){
-			$filter = " AND t.catid=".bkint($fPrm);
-		}
-	
+	public static function TopicRatingUpdate(Ab_Database $db, $topicid, $votecount, $voteup, $votedown){
 		$sql = "
-			SELECT
-				".BlogTopicQuery::TopicFields($db)."
-			FROM ".$db->prefix."bg_topic t
-			INNER JOIN ".$db->prefix."content cc ON t.contentid = cc.contentid
-			INNER JOIN ".$db->prefix."user u ON t.userid = u.userid
-			WHERE t.deldate=0 AND t.isdraft=0 AND t.language='".bkstr(Abricos::$LNG)."'
-				".$filter."
-			ORDER BY t.pubdate DESC
-			LIMIT ".$from.",".bkint($limit)."
+		UPDATE ".$db->prefix."bg_topic
+			SET
+				rating=".bkint($voteup-$votedown).",
+				voteup=".bkint($voteup).",
+				votedown=".bkint($votedown).",
+				votecount=".bkint($votecount).",
+				votedate=".TIMENOW."
+			WHERE topicid=".bkint($topicid)."
+			LIMIT 1
 		";
-		return $db->query_read($sql);
+		$db->query_write($sql);
 	}
-	
-	/**
-	 * Список черновиков пользователя
-	 * 
-	 * @param Ab_Database $db
-	 * @param integer $userid
-	 * @param integer $page
-	 * @param integer $limit
-	 */
-	public static function TopicDraftList(Ab_Database $db, $userid, $page=1, $limit=15){
-		$from = $limit * (max($page, 1) - 1);
-	
-		$sql = "
-			SELECT
-				".BlogTopicQuery::TopicFields($db)."
-			FROM ".$db->prefix."bg_topic t
-			INNER JOIN ".$db->prefix."content cc ON t.contentid = cc.contentid
-			INNER JOIN ".$db->prefix."user u ON t.userid = u.userid
-			WHERE t.userid=".bkint($userid)." AND t.isdraft=1 
-				AND t.deldate=0 AND t.language='".bkstr(Abricos::$LNG)."'
-			ORDER BY t.dateline DESC
-			LIMIT ".$from.",".bkint($limit)."
-		";
-		return $db->query_read($sql);
-	}
-
-	public static function TopicListByIds(Ab_Database $db, $ids){
-		$awh = array();
-		for ($i=0;$i<count($ids);$i++){
-			array_push($awh, "t.topicid=".bkint($ids[$i]));
-		}
-		if (count($ids) == 0){
-			return null;
-		}
-		$sql = "
-			SELECT
-				".BlogTopicQuery::TopicFields($db)."
-			FROM ".$db->prefix."bg_topic t
-			INNER JOIN ".$db->prefix."content cc ON t.contentid = cc.contentid
-			INNER JOIN ".$db->prefix."user u ON t.userid = u.userid
-			WHERE ".implode(" OR ", $ids)."
-		";
-		return $db->query_read($sql);
-	}
-	
 	
 	public static function TagListByTopicIds(Ab_Database $db, $tids){
 		if (!is_array($tids)){
@@ -305,7 +357,7 @@ class BlogTopicQuery {
 				AND cur.userid=".bkint(Abricos::$user->id)."
 			".$urt->tbl."
 			WHERE cat.language='".bkstr(Abricos::$LNG)."' AND cat.deldate=0
-			ORDER BY rep DESC, tcnt DESC, tl
+			ORDER BY rtg DESC, tcnt DESC, tl
 		";
 		return $db->query_read($sql);
 	}

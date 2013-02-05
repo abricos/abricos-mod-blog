@@ -139,7 +139,12 @@ Component.entryPoint = function(NS){
 			'cmt': 0,
 			'bdlen': 0,
 			'intro': '',
-			'tags': []
+			'tags': [],
+
+			'rtg': null,	// рейтинг
+			'vcnt': 0,	// кол-во голосов
+			'vmy': null	// мой голос
+			
 		}, d || {});
 		
 		var u = Brick.env.user;
@@ -182,6 +187,10 @@ Component.entryPoint = function(NS){
 			this.user = UP.viewer.users.get(d['user'].id);
 			
 			this.catid = d['catid']*1;
+			
+			this.rating		= d['rtg'];
+			this.voteCount	= d['vcnt']*1;
+			this.voteMy		= d['vmy'];
 		},
 		url: function(){
 			return NS.navigator.topic.view(this.id);

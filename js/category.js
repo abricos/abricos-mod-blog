@@ -134,7 +134,7 @@ Component.entryPoint = function(NS){
 			
 			if (NSUR.VotingWidget && L.isNull(this.voteWidget)){
 				this.voteWidget = new NSUR.VotingWidget(this.gel('rating'), {
-					'modname': 'blog',
+					'modname': '{C#MODNAME}',
 					'elementType': 'cat',
 					'elementId': cat.id,
 					'value': cat.rating,

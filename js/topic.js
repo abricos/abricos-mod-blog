@@ -12,11 +12,11 @@ Component.requires = {
 };
 Component.entryPoint = function(NS){
 
-	var L = YAHOO.lang;
-	var buildTemplate = this.buildTemplate;
-	var NSUR = Brick.mod.urating || {};
-	var LNG = this.language;
-	var R = NS.roles;
+	var L = YAHOO.lang,
+		buildTemplate = this.buildTemplate,
+		NSUR = Brick.mod.urating || {},
+		LNG = this.language,
+		R = NS.roles;
 	
 	var TopicManagerWidget = function(container, topic){
 		TopicManagerWidget.superclass.constructor.call(this, container, {
@@ -59,7 +59,22 @@ Component.entryPoint = function(NS){
 				this.voteWidget = new NSUR.VotingWidget(this.gel('topicvote'), {
 					'modname': '{C#MODNAME}',
 					'elementType': 'topic',
-					'elementId': topic.id
+					'elementId': topic.id,
+					'value': topic.rating,
+					'vote': topic.voteMy,
+					'onVotingError': function(error, merror){
+						/*
+						var s = '', lng = LNG['urating']['error'];
+						if (merror > 0){
+							s = lng['m'+merror];
+						}else if (error == 1){
+							s = LNG[error];
+						}else{
+							return;
+						}
+						/**/
+						Brick.mod.widget.notice.show('ERROR');						
+					}
 				});
 				this.elShow('topicvote');
 			}

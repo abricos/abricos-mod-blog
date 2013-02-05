@@ -235,7 +235,8 @@ if ($updateManager->isUpdate('0.5') && !$updateManager->isInstall()){
 		ALTER TABLE ".$pfx."bg_cat
 			
 		CHANGE `phrase` `title` varchar(250) NOT NULL DEFAULT '' COMMENT 'Заголовок',
-			
+
+		ADD `descript` TEXT NOT NULL COMMENT 'Описание категории',
 		ADD `userid` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Создатель',
 		ADD `isprivate` tinyint(1) unsigned NOT NULL DEFAULT 0 COMMENT '0 - публичнй, 1 -приватный',
 		ADD `reputation` int(7) unsigned NOT NULL DEFAULT 0 COMMENT 'Репутация пользователя для создания топика',
