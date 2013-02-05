@@ -96,7 +96,8 @@ Component.entryPoint = function(NS){
 			var TM = this._TM, alst = [];
 			list.foreach(function(tag){
 				alst[alst.length] = TM.replace('tagrow', {
-					'tl': tag.title
+					'tl': tag.title,
+					'url': tag.url()
 				});
 			});
 			

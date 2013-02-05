@@ -49,6 +49,11 @@ Component.entryPoint = function(NS){
 				return NS.navigator.write.topic(topicid);
 			}
 		},
+		'tag': {
+			'view': function(tag){
+				return WS+'tag/TagViewWidget/'+tag+'/';
+			}
+		},
 		'category': {
 			'list': function(){
 				return WS+'category/CategoryListWidget/';
@@ -101,6 +106,9 @@ Component.entryPoint = function(NS){
 			return {
 				'tl': this.title
 			};
+		},
+		url: function(){
+			return NS.navigator.tag.view(this.title);
 		}
 	});	
 	NS.Tag = Tag;

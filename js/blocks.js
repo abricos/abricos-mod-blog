@@ -11,9 +11,7 @@ Component.requires = {
 };
 Component.entryPoint = function(NS){
 	
-	var Dom = YAHOO.util.Dom,
-		E = YAHOO.util.Event,
-		L = YAHOO.lang;
+	var L = YAHOO.lang;
 	
 	var buildTemplate = this.buildTemplate;
 	

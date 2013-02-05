@@ -157,6 +157,9 @@ class BlogManager extends Ab_ModuleManager {
 		case "cat":
 			$rows = BlogTopicQuery::TopicList($this->db, $cfg->page, $cfg->limit, $fType, $fPrm);
 			break;
+		case "tag":
+			$rows = BlogTopicQuery::TopicList($this->db, $cfg->page, $cfg->limit, $fType, $fPrm);
+			break;
 		default:
 			$rows = BlogTopicQuery::TopicList($this->db, $cfg->page, $cfg->limit);
 			break;

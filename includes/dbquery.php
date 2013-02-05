@@ -108,12 +108,18 @@ class BlogTopicQuery {
 
 	public static function TopicList(Ab_Database $db, $page=1, $limit=50, $fType='', $fPrm=''){
 		$from = $limit * (max($page, 1) - 1);
+		$urt = BlogTopicQuery::TopicRatingSQLExt($db);
 		
 		$filter = '';
 		if ($fType == 'cat'){
 			$filter = " AND t.catid=".bkint($fPrm);
+		}else if ($fType == 'tag'){
+			$urt->tbl .= "
+				INNER JOIN ".$db->prefix."bg_toptag tt ON t.topicid=tt.topicid 
+				INNER JOIN ".$db->prefix."bg_tag tg ON tg.tagid=tt.tagid
+			";
+			$filter = " AND tg.title='".bkstr($fPrm)."'";
 		}
-		$urt = BlogTopicQuery::TopicRatingSQLExt($db);
 		
 		$sql = "
 			SELECT
