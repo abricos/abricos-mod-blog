@@ -101,8 +101,32 @@ class BlogTopicQuery {
 		return $db->insert_id();
 	}
 	
-	public static function TopicList(Ab_Database $db, $page=1, $limit=50){
+	public static function TopicUpdate(Ab_Database $db, $topicid, $contentid, $d){
+		Ab_CoreQuery::ContentUpdate($db, $contentid, $d->body);
+		
+		$sql = "
+			UPDATE ".$db->prefix."bg_topic
+			SET
+				catid=".bkint($d->catid).",
+				title='".bkstr($d->tl)."',
+				name='".bkstr($d->nm)."',
+				intro='".bkstr($d->intro)."',
+				isdraft=".($d->dft>0?1:0).",
+				pubdate=".bkint($d->pdt).",
+				upddate=".TIMENOW."
+			WHERE topicid=".bkint($topicid)."
+			LIMIT 1
+		";
+		$db->query_write($sql);
+	}
+	
+	public static function TopicList(Ab_Database $db, $page=1, $limit=50, $fType='', $fPrm=''){
 		$from = $limit * (max($page, 1) - 1);
+		
+		$filter = '';
+		if ($fType == 'cat'){
+			$filter = " AND t.catid=".bkint($fPrm);
+		}
 	
 		$sql = "
 			SELECT
@@ -111,12 +135,21 @@ class BlogTopicQuery {
 			INNER JOIN ".$db->prefix."content cc ON t.contentid = cc.contentid
 			INNER JOIN ".$db->prefix."user u ON t.userid = u.userid
 			WHERE t.deldate=0 AND t.isdraft=0 AND t.language='".bkstr(Abricos::$LNG)."'
+				".$filter."
 			ORDER BY t.pubdate DESC
 			LIMIT ".$from.",".bkint($limit)."
 		";
 		return $db->query_read($sql);
 	}
-
+	
+	/**
+	 * Список черновиков пользователя
+	 * 
+	 * @param Ab_Database $db
+	 * @param integer $userid
+	 * @param integer $page
+	 * @param integer $limit
+	 */
 	public static function TopicDraftList(Ab_Database $db, $userid, $page=1, $limit=15){
 		$from = $limit * (max($page, 1) - 1);
 	
@@ -133,7 +166,7 @@ class BlogTopicQuery {
 		";
 		return $db->query_read($sql);
 	}
-	
+
 	public static function TopicListByIds(Ab_Database $db, $ids){
 		$awh = array();
 		for ($i=0;$i<count($ids);$i++){
@@ -225,13 +258,39 @@ class BlogTopicQuery {
 		return $db->query_read($sql);
 	}
 	
+	private static function CategoryRatingSQLExt(Ab_Database $db){
+		$ret = new stdClass();
+		$ret->fld = "";
+		$ret->tbl = "";
+		$userid = Abricos::$user->id;
+		if (BlogManager::$isURating && $userid>0){
+			$ret->fld .= "
+				,IF(ISNULL(vt.userid), null, IF(vt.voteup>0, 1, IF(vt.votedown>0, -1, 0))) as vmy
+			";
+			$ret->tbl .= "
+				LEFT JOIN ".$db->prefix."urating_vote vt 
+					ON vt.module='blog' AND vt.elementtype='cat' 
+					AND vt.elementid=cat.catid 
+					AND vt.userid=".bkint($userid)."
+			";
+		}
+		return $ret;
+	}
+	
 	public static function CategoryList(Ab_Database $db){
+		$urt = BlogTopicQuery::CategoryRatingSQLExt($db);
+		
 		$sql = "
 			SELECT
 				cat.catid as id,
 				cat.name as nm,
 				cat.title as tl,
+				cat.descript as dsc,
 				cat.isprivate prv,
+				
+				cat.rating as rtg,
+				cat.votecount as vcnt,
+				
 				cat.reputation as rep,
 				cat.topiccount as tcnt,
 				cat.membercount as mcnt,
@@ -239,10 +298,12 @@ class BlogTopicQuery {
 				IF(ISNULL(cur.userid), 0, cur.isadmin) as adm,
 				IF(ISNULL(cur.userid), 0, cur.ismoder) as mdr,
 				IF(ISNULL(cur.userid), 0, cur.ismember) as mbr
+				".$urt->fld."
 				
 			FROM ".$db->prefix."bg_cat cat
 			LEFT JOIN ".$db->prefix."bg_catuserrole cur ON cat.catid=cur.catid 
 				AND cur.userid=".bkint(Abricos::$user->id)."
+			".$urt->tbl."
 			WHERE cat.language='".bkstr(Abricos::$LNG)."' AND cat.deldate=0
 			ORDER BY rep DESC, tcnt DESC, tl
 		";
@@ -250,12 +311,17 @@ class BlogTopicQuery {
 	}
 	
 	public static function Category(Ab_Database $db, $catid){
+		$urt = BlogTopicQuery::CategoryRatingSQLExt($db);
+		
 		$sql = "
 			SELECT
 				cat.catid as id,
 				cat.name as nm,
 				cat.title as tl,
+				cat.descript as dsc,
 				cat.isprivate prv,
+				cat.rating as rtg,
+				cat.votecount as vcnt,
 				cat.reputation as rep,
 				cat.topiccount as tcnt,
 				cat.membercount as mcnt,
@@ -263,10 +329,13 @@ class BlogTopicQuery {
 				IF(ISNULL(cur.userid), 0, cur.isadmin) as adm,
 				IF(ISNULL(cur.userid), 0, cur.ismoder) as mdr,
 				IF(ISNULL(cur.userid), 0, cur.ismember) as mbr
+				
+				".$urt->fld."
 			
 			FROM ".$db->prefix."bg_cat cat
 			LEFT JOIN ".$db->prefix."bg_catuserrole cur ON cat.catid=cur.catid
 				AND cur.userid=".bkint(Abricos::$user->id)."
+			".$urt->tbl."
 			WHERE cat.catid=".bkint($catid)." AND cat.deldate=0
 			LIMIT 1
 		";
@@ -296,11 +365,12 @@ class BlogTopicQuery {
 	public static function CategoryAppend(Ab_Database $db, $userid, $d){
 		$sql = "
 			INSERT INTO ".$db->prefix."bg_cat
-			(userid, language, title, name, isprivate, reputation, dateline, upddate) VALUES (
+			(userid, language, title, name, descript, isprivate, reputation, dateline, upddate) VALUES (
 				".bkint($userid).",
 				'".bkstr(Abricos::$LNG)."',
 				'".bkstr($d->tl)."',
 				'".bkstr($d->nm)."',
+				'".bkstr($d->dsc)."',
 				".($d->prv>0?1:0).",
 				".bkint($d->rep).",
 				".TIMENOW.",
@@ -314,8 +384,10 @@ class BlogTopicQuery {
 	public static function CategoryUpdate(Ab_Database $db, $catid, $d){
 		$sql = "
 			UPDATE ".$db->prefix."bg_cat
-			SET title=".bkstr($d->tl)."',
+			SET 
+				title='".bkstr($d->tl)."',
 				name='".bkstr($d->nm)."',
+				descript='".bkstr($d->dsc)."',
 				isprivate=".($d->prv>0?1:0).",
 				reputation=".bkint($d->rep).",
 				upddate=".TIMENOW."
@@ -325,7 +397,7 @@ class BlogTopicQuery {
 		$db->query_write($sql);
 	}
 	
-	public static function CategoryRatingUpdate(Ab_Database $db, $catid, $voteup, $votedown, $votecount){
+	public static function CategoryRatingUpdate(Ab_Database $db, $catid, $votecount, $voteup, $votedown){
 		$sql = "
 			UPDATE ".$db->prefix."bg_cat
 			SET

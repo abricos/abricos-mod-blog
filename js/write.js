@@ -36,7 +36,7 @@ Component.entryPoint = function(NS){
 			switch(wType){
 			case 'category':
 				wType = 'category';
-				this.widget = new NS.CategoryEditorWidget(this.gel('widget'));
+				this.widget = new NS.CategoryEditorWidget(this.gel('widget'), p1);
 				break;
 			case 'draftlist':
 				wType = 'draftlist';
@@ -135,15 +135,16 @@ Component.entryPoint = function(NS){
 				'toolbarExpert': false,
 				'separateIntro': true
 			});
+			this.editorWidget.setContent(text);
 			this.elSetValue({
-				'title': topic.title
+				'title': topic.title,
+				'tags': topic.tagList.toString()
 			});
 			
 			var text = topic.intro;
 			if (topic.isBody){
 				text += "<cut>" + topic.body;
 			}
-			this.editorWidget.setContent(text);
 		},
 		onClick: function(el, tp){
 			switch(el.id){
@@ -160,11 +161,12 @@ Component.entryPoint = function(NS){
 			var splitText = this.editorWidget.getSplitContent();
 			
 			return {
+				'id': this.topic.id,
 				'catid': this.catSelWidget.getValue(),
 				'tl': this.gel('title').value,
 				'tags': NS.TagList.stringToAJAX(stags),
 				'intro': splitText['intro'],
-				'bd': splitText['body']
+				'body': splitText['body']
 			};
 		},
 		showPreview: function(){
@@ -269,8 +271,8 @@ Component.entryPoint = function(NS){
 				}
 			});
 		},
-		onLoadManager: function(category){
-			this.category = category;
+		onLoadManager: function(cat){
+			this.cat = cat;
 			this.elHide('loading');
 			this.elHide('wrap');
 			
@@ -279,6 +281,12 @@ Component.entryPoint = function(NS){
 				'toolbar': Editor.TOOLBAR_MINIMAL,
 				'toolbarExpert': false,
 				'separateIntro': false
+			});
+			this.editorWidget.setContent(cat.descript);
+
+			this.elSetValue({
+				'title': cat.title,
+				'rep': cat.reputation
 			});
 			
 			if (NS.isURating){
@@ -295,14 +303,18 @@ Component.entryPoint = function(NS){
 		},
 		getSaveData: function(){
 			return {
-				'id': this.category.id,
+				'id': this.cat.id,
 				'tl': this.gel('title').value,
 				'dsc': this.editorWidget.getContent(),
 				'rep': this.gel('rep').value
 			};
 		},
 		cancel: function(){
-			Brick.Page.reload(NS.navigator.home());
+			if (this.cat.id > 0){
+				Brick.Page.reload(NS.navigator.category.view(this.cat.id));
+			}else{
+				Brick.Page.reload(NS.navigator.home());
+			}
 		},
 		save: function(){
 			var __self = this;

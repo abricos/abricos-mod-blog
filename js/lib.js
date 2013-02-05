@@ -55,6 +55,9 @@ Component.entryPoint = function(NS){
 			},
 			'view': function(catid){
 				return WS+'category/CategoryViewWidget/'+catid+'/';
+			},
+			'edit': function(catid){
+				return NS.navigator.write.category(catid);
 			}
 		},
 		'write': {
@@ -65,8 +68,9 @@ Component.entryPoint = function(NS){
 				id = id || 0;
 				return WS+'write/WriteWidget/topic/'+(id>0?id+"/":"");
 			},
-			'category': function(){
-				return WS+'write/WriteWidget/category/';
+			'category': function(id){
+				id = id || 0;
+				return WS+'write/WriteWidget/category/'+(id>0?id+"/":"");
 			},
 			'draftlist': function(){
 				return WS+'write/WriteWidget/draftlist/';
@@ -104,7 +108,15 @@ Component.entryPoint = function(NS){
 	var TagList = function(d){
 		TagList.superclass.constructor.call(this, d, Tag);
 	};
-	YAHOO.extend(TagList, SysNS.ItemList, {});
+	YAHOO.extend(TagList, SysNS.ItemList, {
+		toString: function(){
+			var a = [];
+			this.foreach(function(tag){
+				a[a.length] = tag.title
+			});
+			return a.join(", ");
+		}
+	});
 	TagList.stringToAJAX = function(s){
 		var ret = [];
 		if (!L.isString(s)){
@@ -187,7 +199,7 @@ Component.entryPoint = function(NS){
 	
 	var Topic = function(d){
 		d = L.merge({
-			'bd': ''
+			'body': ''
 		}, d || {});
 		
 		Topic.superclass.constructor.call(this, d);
@@ -199,7 +211,7 @@ Component.entryPoint = function(NS){
 		},
 		update: function(d){
 			Topic.superclass.update.call(this, d);
-			this.body = d['bd'];
+			this.body = d['body'];
 		}
 	});
 	NS.Topic = Topic;
@@ -212,12 +224,18 @@ Component.entryPoint = function(NS){
 	
 	var Category = function(d){
 		d = L.merge({
-			'tl': '', // заголовок
+			'tl':'', // заголовок
 			'nm': '', // имя (URL)
+			'dsc': '',// описание
 			'rep': 0, // кол-во репутации для нового топика
 			'prv': 0, // приватный
 			'tcnt': 0,// кол-во топиков
 			'mcnt': 0,// кол-во подписчиков
+			
+			'rtg': 0, // рейтинг
+			'vcnt': 0,// кол-во голосов
+			'vmy': null,// мой голос
+			
 			'adm': 0, // текущий пользователь админ?
 			'mdr': 0, // текущий пользователь модератор?
 			'mbr': 0  // текущий пользователь участник?
@@ -228,10 +246,16 @@ Component.entryPoint = function(NS){
 		update: function(d){
 			this.title		= d['tl'];
 			this.name		= d['nm'];
+			this.descript	= d['dsc'];
 			this.reputation	= d['rep']*1;
 			this.topicCount = d['tcnt']*1;
 			this.memberCount= d['mcnt']*1;
 			this.isPrivate	= d['prv']>0;
+			
+			this.rating		= d['rtg']*1;
+			this.voteCount	= d['vcnt']*1;
+			this.voteMy		= d['vmy'];
+			
 			this.isAdmin	= d['adm']>0;
 			this.isModer	= d['mdr']>0;
 			this.isMember	= d['mbr']>0;

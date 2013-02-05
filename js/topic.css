@@ -1,6 +1,6 @@
 /* * * * Список * * * */
 .aw-blog .topiclist .topic {
-	margin-bottom: 30px;
+	margin-bottom: 35px;
 }
 
 /* * * * Топик * * * */
@@ -23,10 +23,10 @@
 .aw-blog .topic .title a.toptl {
 	color: #999999;
 }
-.aw-blog .topic .readmore,
-.aw-blog .topic .taglist,
-.aw-blog .topic .topicinfo {
-	margin: 12px 0;
+
+.aw-blog .topic .topicinfo,
+.aw-blog .topic .taglist {
+	margin-top: 15px;
 }
 
 /* * * Информационный блок топика * * */

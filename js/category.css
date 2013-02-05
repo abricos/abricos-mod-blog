@@ -22,11 +22,8 @@
 	font-size: 17px;
 	padding-top: 5px;
 }
-.aw-blog .catlist .catrow .info {
+.aw-blog .catlist .catrow .catinfo {
 	margin-right: 110px;
-}
-.aw-blog .catlist .catrow .stat a {
-	color: #999999;
 }
 .aw-blog .catlist .title {
 	font-family: Verdana, sans-serif;
@@ -47,17 +44,19 @@
 	font-weight: normal;
 	margin-bottom: 20px;	
 }
-.aw-blog .catview .aw-urating {
+.aw-blog .catview .catrtg .aw-urating {
 	position: absolute;
 	top: 0;
 	right: 0;
 }
-.aw-blog .catview .info {
+.aw-blog .catview .catinfo {
 	position: relative;
+	margin-bottom: 35px;
 }
-.aw-blog .catview .stat a {
-	color: #999999;
-}
-.aw-blog .catview .info .jbtns {
+.aw-blog .catview .catinfo .jbtns {
 	position: absolute; top: 0; right: 0; 
+}
+/* * * * Статистика * * * */
+.aw-blog .catinfo .stat a {
+	color: #999999;
 }

@@ -147,9 +147,15 @@ class BlogManager extends Ab_ModuleManager {
 			$cfg->filter = "";
 		}
 		
-		switch ($cfg->filter){
+		$fa = explode("/", $cfg->filter);
+		$fType = $fa[0]; $fPrm = $fa[1];
+		
+		switch ($fType){
 		case "draft":
 			$rows = BlogTopicQuery::TopicDraftList($this->db, $this->userid, $cfg->page, $cfg->limit);
+			break;
+		case "cat":
+			$rows = BlogTopicQuery::TopicList($this->db, $cfg->page, $cfg->limit, $fType, $fPrm);
 			break;
 		default:
 			$rows = BlogTopicQuery::TopicList($this->db, $cfg->page, $cfg->limit);
@@ -238,8 +244,8 @@ class BlogManager extends Ab_ModuleManager {
 
 			if (empty($cat)){ return null; } // hacker?
 				
-			if (!$cat->IsWrite()){
-				return null; // только участник может публиковать в закрытый блог
+			if (!$cat->IsTopicWrite()){
+				return null; // только участник может публиковать в блог
 			}
 		}
 		
@@ -324,7 +330,11 @@ class BlogManager extends Ab_ModuleManager {
 		$tags = array();
 		for($i=0;$i<count($d->tags);$i++){
 			$tag = $utmf->Parser($d->tags[$i]);
-			$tag = strtolower($tag);
+			
+			if (function_exists('mb_strtolower')){
+				$tag = mb_strtolower($tag, 'UTF-8');
+			}
+			
 			if (empty($tag)){ continue; }
 			array_push($tags, $tag);
 		}
@@ -355,7 +365,7 @@ class BlogManager extends Ab_ModuleManager {
 				return $ret;
 			}
 		}else{
-			
+			BlogTopicQuery::TopicUpdate($this->db, $d->id, $topic->contentid, $d);
 		}
 		
 		// обновление тегов
@@ -458,17 +468,20 @@ class BlogManager extends Ab_ModuleManager {
 		$d->rep = intval($d->rep);
 		$d->prv = intval($d->prv);
 		
+		if (!$this->IsAdminRole()){
+				
+			if (BlogManager::$isURating){ // работает система репутации пользователя
+				$rep = $this->GetURatingManager()->UserReputation();
+				if ($rep->reputation < 5){ // для создании/редактировании категории необходима репутация >= 5
+					$ret->error = 10;
+					return $ret;
+				}
+			}
+		}
+		
 		if ($d->id == 0){ // создание новой категории
 			
 			if (!$this->IsAdminRole()){
-			
-				if (BlogManager::$isURating){ // работает система репутации пользователя
-					$rep = $this->GetURatingManager()->UserReputation();
-					if ($rep->reputation < 5){ // для создании категории необходима репутация >= 5
-						$ret->error = 10;
-						return $ret;
-					}
-				}
 					
 				// категорию создает не админ
 				// значит нужно наложить ограничения
@@ -487,18 +500,23 @@ class BlogManager extends Ab_ModuleManager {
 			}
 			
 			// создатель категории становиться ее админом
-			BlogTopicQuery::CategoryUserSetAdmin($this->db, $d->id, $this->userid);
+			BlogTopicQuery::CategoryUserSetAdmin($this->db, $d->id, $this->userid, true);
+			BlogTopicQuery::CategoryUserSetMember($this->db, $d->id, $this->userid, true);
+			
+			BlogTopicQuery::CategoryMemberCountUpdate($this->db, $d->id);
 		}else{
 			// А есть ли права админа на правку категории
-			if (!$this->IsAdminRole()){
-				if (!$this->CategoryUserRole($d->id, $this->userid)->isAdmin){
-					return null;
-				}
-			}
+			$cat = $this->Category($d->id);
+			if(empty($cat)){ return null; }
+			
+			if (!$cat->IsAdmin()){ return null; }
+			
 			BlogTopicQuery::CategoryUpdate($this->db, $d->id, $d);
 		}
-		$cats = $this->CategoryListToAJAX();
+
 		$ret->catid = $d->id;
+		
+		$cats = $this->CategoryListToAJAX();
 		$ret->categories = $cats->categories;
 		
 		return $ret;
@@ -511,10 +529,9 @@ class BlogManager extends Ab_ModuleManager {
 		if (!$this->IsViewRole() || $this->userid == 0){ return null; }
 		
 		$cat = $this->Category($catid);
-		$cat = $this->Category($catid);
 		if (is_null($cat)){ return null; }
 		
-		BlogTopicQuery::CategoryUserSetMember($this->db, $catid, $this->userid, !$cat->isMember);
+		BlogTopicQuery::CategoryUserSetMember($this->db, $catid, $this->userid, !$cat->isMemberFlag);
 		
 		BlogTopicQuery::CategoryMemberCountUpdate($this->db, $catid);
 		

@@ -102,8 +102,10 @@ Component.entryPoint = function(NS){
 			this.manWidget = null;
 		},
 		buildTData: function(topic){
+			var cat = topic.category();
 			return {
-				'urlview': topic.url()
+				'urlview': topic.url(),
+				'urlcat': cat.url()
 			};
 		},
 		destroy: function(){

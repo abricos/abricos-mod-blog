@@ -59,7 +59,7 @@ class BlogTopicInfo {
 	
 	public $intro;
 	public $bodyLength;
-	public $contentId;
+	public $contentid;
 	
 	public $tags = array();
 	
@@ -75,7 +75,7 @@ class BlogTopicInfo {
 		$this->title		= $d['tl'];
 		$this->intro		= $d['intro'];
 		$this->bodyLength	= $d['bdlen'];
-		$this->contentId	= $d['ctid'];
+		$this->contentid	= $d['ctid'];
 		
 	}
 	
@@ -89,7 +89,7 @@ class BlogTopicInfo {
 		$ret->intro		= $this->intro;
 		$ret->bdlen		= $this->bodyLength;
 		$ret->cmt		= $this->commentCount;
-		$ret->ctid		= $this->contentId;
+		$ret->ctid		= $this->contentid;
 		$ret->dl		= $this->publicDate;
 		
 		$ret->tags = array();
@@ -203,6 +203,12 @@ class BlogCategory {
 	 * @var string
 	 */
 	public $name;
+	
+	/**
+	 * Описание категории
+	 * @var string
+	 */
+	public $descript;
 
 	/**
 	 * Кол-во опубликованных топиков
@@ -232,51 +238,86 @@ class BlogCategory {
 	 * Текущий пользователь имеет права Админа на эту категорию
 	 * @var boolean
 	 */
-	public $isAdmin;
+	public $isAdminFlag;
 	
 	/**
 	 * Текущий пользователь имеет права Модератора на эту категорию
 	 * @var boolean
 	 */
-	public $isModer;
+	public $isModerFlag;
 	
 	/**
 	 * Текущий пользователь является членом категории
 	 * @var boolean
 	 */
-	public $isMember;
+	public $isMemberFlag;
+	
+	/**
+	 * Рейтинг категории
+	 * @var integer
+	 */
+	public $rating;
+	
+	/**
+	 * Количество голосов за рейтинг
+	 * @var integer
+	 */
+	public $voteCount;
+	
+	/**
+	 * Голос текущего пользователя
+	 * null - нет голоса, -1 - ПРОТИВ, 1 - ЗА, 0 - Воздержался
+	 * @var integer
+	 */
+	public $voteMy;
 	
 	public function __construct($d){
-		$this->id = $d['id']*1;
-		$this->title = $d['tl'];
-		$this->name = $d['nm'];
-		$this->topicCount = $d['tcnt']*1;
-		$this->memberCount = $d['mcnt']*1;
-		$this->reputation = $d['rep']*1;
-		$this->isPrivate = $d['prv']>0;
-		$this->isAdmin = $d['prm']>0;
-		$this->isModer = $d['mdr']>0;
-		$this->isMember= $d['mbr']>0;
+		$this->id			= intval($d['id']);
+		$this->title		= $d['tl'];
+		$this->name			= $d['nm'];
+		$this->descript		= $d['dsc'];
+		$this->topicCount	= intval($d['tcnt']);
+		$this->memberCount	= intval($d['mcnt']);
+		$this->reputation	= intval($d['rep']);
+		$this->isPrivate	= $d['prv']>0;
+		$this->isAdminFlag		= $d['prm']>0;
+		$this->isModerFlag		= $d['mdr']>0;
+		$this->isMemberFlag		= $d['mbr']>0;
+		
+		$this->rating		= intval($d['rtg']);
+		$this->voteCount	= intval($d['vcnt']);
+		$this->voteMy		= $d['vmy'];
+		
 	}
 	
 	public function ToAJAX(){
 		$ret = new stdClass();
-		$ret->id = $this->id;
-		$ret->tl = $this->title;
-		$ret->nm = $this->name;
-		$ret->tcnt = $this->topicCount;
-		$ret->mcnt = $this->memberCount;
-		$ret->rep = $this->reputation;
-		$ret->prv = $this->isPrivate?1:0;
-		$ret->adm = $this->isAdmin?1:0;
-		$ret->mdr = $this->isModer?1:0;
-		$ret->mbr = $this->isMember?1:0;
+		$ret->id	= $this->id;
+		$ret->tl	= $this->title;
+		$ret->nm	= $this->name;
+		$ret->dsc	= $this->descript;
+		$ret->tcnt	= $this->topicCount;
+		$ret->mcnt	= $this->memberCount;
+		$ret->rep	= $this->reputation;
+		$ret->prv	= $this->isPrivate?1:0;
+		
+		$ret->adm	= $this->isAdminFlag?1:0;
+		$ret->mdr	= $this->isModerFlag?1:0;
+		$ret->mbr	= $this->isMemberFlag?1:0;
+		
+		$ret->rtg	= $this->rating;
+		$ret->vcnt	= $this->voteCount;
+		$ret->vmy	= $this->voteMy;
 		return $ret;
 	}
 	
-	public function IsWrite(){
+	public function IsTopicWrite(){
+		return $this->IsAdmin() || $this->isMemberFlag || $this->isModerFlag;
+	}
+	
+	public function IsAdmin(){
 		if (BlogManager::$instance->IsAdminRole()){ return true; }
-		return $this->isAdmin || $this->isMember || $this->isModer;
+		return $this->isAdminFlag;
 	}
 }
 
@@ -325,13 +366,13 @@ class BlogCategoryUserRole {
 	 * Пользователь имеет права админа на категорию
 	 * @var boolean
 	 */
-	public $isAdmin = false;
+	public $isAdminFlag = false;
 	
 	/**
 	 * Пользователь имеет права модератора на категорию
 	 * @var boolean
 	 */
-	public $isModer = false;
+	public $isModerFlag = false;
 	
 	/**
 	 * 
@@ -344,8 +385,8 @@ class BlogCategoryUserRole {
 		$this->userid = $userid;
 		
 		$this->isMemeber = $d['mbr']==1;
-		$this->isAdmin = $d['adm'];
-		$this->isModer = $d['mdr'];
+		$this->isAdminFlag = $d['adm'];
+		$this->isModerFlag = $d['mdr'];
 	}
 }
 

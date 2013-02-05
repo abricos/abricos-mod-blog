@@ -7,7 +7,7 @@ var Component = new Brick.Component();
 Component.requires = {
 	mod:[
         {name: 'urating', files: ['vote.js']},
-        {name: '{C#MODNAME}', files: ['lib.js']}
+        {name: '{C#MODNAME}', files: ['topic.js']}
 	]
 };
 Component.entryPoint = function(NS){
@@ -15,6 +15,7 @@ Component.entryPoint = function(NS){
 	var L = YAHOO.lang,
 		NSUR = Brick.mod.urating || {},
 		UID = Brick.env.user.id,
+		R = NS.roles,
 		buildTemplate = this.buildTemplate;
 	
 	var CategoryRowWidget = function(container, cat){
@@ -29,13 +30,10 @@ Component.entryPoint = function(NS){
 		buildTData: function(cat){
 			return {
 				'urlview': cat.url(),
-				'rtg': 0,
+				'rtg': cat.rating,
 				'mbrs': cat.memberCount,
 				'topics': cat.topicCount
 			};
-		},
-		destroy: function(){
-			// this.infoWidget.destroy();
 		},
 		onLoad: function(cat){
 			this.elSetHTML({
@@ -96,11 +94,20 @@ Component.entryPoint = function(NS){
 	YAHOO.extend(CategoryViewWidget, Brick.mod.widget.Widget, {
 		init: function(catid){
 			this.catid = catid;
-			this.voteWidget = null;			
+			this.voteWidget = null;
+			this.topicListWidget = null;
+		},
+		buildTData: function(catid){
+			return {
+				'urledit': NS.navigator.category.edit(catid)
+			};
 		},
 		destroy: function(){
 			if (!L.isNull(this.voteWidget)){
 				this.voteWidget.destroy();
+			}
+			if (!L.isNull(this.topicListWidget)){
+				this.topicListWidget.destroy();
 			}
 		},
 		onLoad: function(catid){
@@ -118,6 +125,7 @@ Component.entryPoint = function(NS){
 				this.elShow('nullitem');
 				return;
 			}
+			this.elShow('view');
 			this.elSetHTML({
 				'tl': cat.title,
 				'mbrs': cat.memberCount,
@@ -129,8 +137,8 @@ Component.entryPoint = function(NS){
 					'modname': 'blog',
 					'elementType': 'cat',
 					'elementId': cat.id,
-					'value': 0,
-					// 'vote': user.repMyVote,
+					'value': cat.rating,
+					'vote': cat.voteMy,
 					'hideButtons': UID == 0,
 					'onVotingError': function(error, merror){
 						/*
@@ -147,6 +155,11 @@ Component.entryPoint = function(NS){
 					}
 				});
 			}
+			if (L.isNull(this.topicListWidget)){
+				this.topicListWidget = new NS.TopicListWidget(this.gel('toplist'), {
+					'filter': 'cat/'+cat.id
+				});
+			}
 			if (UID > 0){
 				this.elShow('jbtns');
 				if (cat.isMember){
@@ -156,6 +169,9 @@ Component.entryPoint = function(NS){
 					this.elShow('bjoin');
 					this.elHide('bleave');
 				}
+				if (R.category.isAdmin(cat)){
+					this.elShow('bedit');
+				}
 			}
 		},
 		onClick: function(el, tp){
@@ -163,7 +179,7 @@ Component.entryPoint = function(NS){
 			case tp['bjoin']: 
 			case tp['bleave']:
 				this.memberStatusChange();
-				break;
+				return true;
 			}
 		},
 		memberStatusChange: function(){

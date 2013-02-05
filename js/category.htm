@@ -15,15 +15,15 @@
 <!--{row}-->
 <div id="{v#id}" class="catrow">
 	<div class="rtg">{v#rtg}</div>
-	<div id="{i#info}" class="info">
+	<div id="{i#info}" class="catinfo">
 		<div id="{i#tlcont}" class="title">
 			<a id="{i#tl}" href="{v#urlview}" class="cattl"></a>
 		</div>
 		<div class="clear"></div>
 		<div class="stat">
-			<a href="#">{v#mbrs} читателей</a>
+			<a href="#">читателей: {v#mbrs}</a>
 			,&nbsp;
-			<a href="#">{v#topics} топика</a>
+			<a href="#">топиков: {v#topics}</a>
 		</div>
 	</div>
 </div>
@@ -39,17 +39,19 @@
 		Блог не найден или недостаточно прав для его просмотра
 	</div>
 
-	<div id="{i#view}">
-		<div id="{i#rating}"></div>
+	<div id="{i#view}" style="display: none">
+	
+		<div id="{i#rating}" class="catrtg"></div>
 		<h2 id="{i#tl}" class="cattl"></h2>
 		
-		<div id="{i#info}" class="info">
+		<div id="{i#info}" class="catinfo">
 			<div class="stat">
-				<a href="#"><span id="{i#mbrs}"></span> читателей</a>
+				<a href="#">читателей: <span id="{i#mbrs}"></span></a>
 				,&nbsp;
-				<a href="#"><span id="{i#topics}"></span> топика</a>
+				<a href="#">топиков: <span id="{i#topics}"></span></a>
 			</div>
 			<div id="{i#jbtns}" class="jbtns" style="display: none">
+				<a id="{i#bedit}" href="{v#urledit}" class="habtn" title="Редактировать" style="display: none">Редактировать</a>
 				<span id="{i#jbtnsa}">
 					<a id="{i#bjoin}" href="#" class="habtn" title="Стать читателем блога">Вступить в блог</a>
 					<a id="{i#bleave}" href="#" class="habtn" title="Перестать читать блог">Покинуть блог</a>
@@ -58,5 +60,6 @@
 			</div>
 		</div>
 		
+		<div id="{i#toplist}"></div>
 	</div>
 </div>
