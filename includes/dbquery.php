@@ -456,7 +456,74 @@ class BlogTopicQuery {
 		return $db->query_read($sql);
 	}
 	
+	public static function TagUpdate(Ab_Database $db, $tags){
+		if (!is_array($tags) || count($tags) == 0){ return; }
+		$av = array();
+		for ($i=0;$i<count($tags);$i++){
+			$tag = $tags[$i];
+			array_push($av, "(
+				'".bkstr($tag)."',
+				'".bkstr(translateruen($tag))."',
+				'".bkstr(Abricos::$LNG)."'
+			)");
+		}
+		
+		$sql = "
+			INSERT IGNORE INTO ".$db->prefix."bg_tag 
+			(title, name, language) VALUES
+			".implode(", ", $av)."	
+		";
+		$db->query_write($sql);
+	}
 	
+	public static function TopicTagUpdate(Ab_Database $db, $topicid, $tags){
+
+		// зачистить все по топику
+		$sql = "
+			DELETE FROM ".$db->prefix."bg_toptag
+			WHERE topicid=".bkint($topicid)."
+		";
+		$db->query_write($sql);
+		
+		if (!is_array($tags) || count($tags) == 0){ return; }
+		
+		$av = array();
+		for ($i=0;$i<count($tags);$i++){
+			array_push($av, "title='".bkstr($tags[$i])."'");
+		}
+		
+		// вставить новый список тегов
+		$sql = "
+			INSERT INTO ".$db->prefix."bg_toptag
+				(topicid, tagid)
+			SELECT 
+				".bkint($topicid)." as topicid,
+				tagid
+			FROM ".$db->prefix."bg_tag
+			WHERE (".implode(" OR ", $av).") AND language='".bkstr(Abricos::$LNG)."'
+		";
+		$db->query_write($sql);
+	}
+	
+	public static function TopicTagCountUpdate(Ab_Database $db, $tags){
+		if (!is_array($tags) || count($tags) == 0){ return; }
+		$av = array();
+		for ($i=0;$i<count($tags);$i++){
+			$tag = $tags[$i];
+			array_push($av, "t.title='".bkstr($tag)."'");
+		}
+		$sql = "
+			UPDATE ".$db->prefix."bg_tag t
+			SET topiccount=(
+				SELECT count(*)
+				FROM ".$db->prefix."bg_toptag tt
+				INNER JOIN ".$db->prefix."bg_topic top ON top.topicid=tt.topicid
+				WHERE t.tagid=tt.tagid AND top.isdraft=0 AND top.deldate=0
+			)
+			WHERE (".implode(" OR ", $av).") AND language='".bkstr(Abricos::$LNG)."'
+		";
+		$db->query_write($sql);
+	}
 }
 
 

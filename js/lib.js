@@ -112,9 +112,7 @@ Component.entryPoint = function(NS){
 		}
 		var a = s.replace(/\  /g, ' ').split(',');
 		for (var i=0;i<a.length;i++){
-			ret[ret.length] = {
-				'tl': a[i]
-			};
+			ret[ret.length] = a[i];
 		}
 		return ret;
 	};

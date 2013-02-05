@@ -273,6 +273,11 @@ class BlogCategory {
 		$ret->mbr = $this->isMember?1:0;
 		return $ret;
 	}
+	
+	public function IsWrite(){
+		if (BlogManager::$instance->IsAdminRole()){ return true; }
+		return $this->isAdmin || $this->isMember || $this->isModer;
+	}
 }
 
 class BlogCategoryList {

@@ -235,10 +235,10 @@ class BlogManager extends Ab_ModuleManager {
 		$cat = null; // null - персональный блог
 		if ($d->catid > 0){
 			$cat = $this->Category($d->catid);
-				
+
 			if (empty($cat)){ return null; } // hacker?
 				
-			if (!$cat->isMember){
+			if (!$cat->IsWrite()){
 				return null; // только участник может публиковать в закрытый блог
 			}
 		}
@@ -319,6 +319,21 @@ class BlogManager extends Ab_ModuleManager {
 		$utm = Abricos::TextParser();
 		$utmf = Abricos::TextParser(true);
 		
+		
+		// список тегов
+		$tags = array();
+		for($i=0;$i<count($d->tags);$i++){
+			$tag = $utmf->Parser($d->tags[$i]);
+			$tag = strtolower($tag);
+			if (empty($tag)){ continue; }
+			array_push($tags, $tag);
+		}
+		
+		if (count($tags) == 0){ // хотябы одно ключевое слово должно быть заполнено
+			$ret->error = 2;
+			return $ret;
+		}
+		
 		$d->tl = $utmf->Parser($d->tl);
 		if (empty($d->tl)){
 			$ret->error = 1;
@@ -335,13 +350,24 @@ class BlogManager extends Ab_ModuleManager {
 		// все проверки выполнены, добавление/сохранение топика
 		if ($d->id == 0){
 			$d->id = BlogTopicQuery::TopicAppend($this->db, $this->userid, $d);
+			if ($d->id == 0){
+				$ret->error = 99;
+				return $ret;
+			}
 		}else{
 			
 		}
 		
+		// обновление тегов
+		BlogTopicQuery::TagUpdate($this->db, $tags);
+		BlogTopicQuery::TopicTagUpdate($this->db, $d->id, $tags);
+		BlogTopicQuery::TopicTagCountUpdate($this->db, $tags);
+		
+		
 		$ret->topicid = $d->id;
 		return $ret;
 	}
+	
 
 	/**
 	 * @return BlogCategoryList

@@ -335,18 +335,22 @@ if ($updateManager->isUpdate('0.5') && !$updateManager->isInstall()){
 			WHERE tagid=".intval($row['tagid'])." AND topicid=".intval($row['topicid'])."
 		");
 	}
-	
+
+	$db->query_write("
+		UPDATE ".$db->prefix."bg_tag
+		SET title=LOWER(title)
+	");
 	
 	// Так как в предыдущих версиях создатель категории не заносился, проставить админа
 	// А так же проставить дату создание топика
 	$db->query_write("
 		UPDATE ".$db->prefix."bg_cat cat
-			SET userid=1,
+		SET userid=1,
 			cat.dateline = (
-			SELECT min(t.dateline)
-			FROM ".$pfx."bg_topic t
-			WHERE cat.catid=t.catid
-		)
+				SELECT min(t.dateline)
+				FROM ".$pfx."bg_topic t
+				WHERE cat.catid=t.catid
+			)
 	");
 	
 	// перенести старое значения статуса в значение черновика и удалить поле
@@ -360,6 +364,17 @@ if ($updateManager->isUpdate('0.5') && !$updateManager->isInstall()){
 	");
 	
 	BlogTopicQuery::CategoryTopicCountUpdate($db);
+	
+	// обновить информацию по количеству топиков на каждый тег
+	$db->query_write("
+		UPDATE ".$db->prefix."bg_tag t
+		SET topiccount=(
+			SELECT count(*)
+			FROM ".$db->prefix."bg_toptag tt
+			INNER JOIN ".$db->prefix."bg_topic top ON top.topicid=tt.topicid
+			WHERE t.tagid=tt.tagid AND top.isdraft=0 AND top.deldate=0
+		)
+	");
 }
 
 
