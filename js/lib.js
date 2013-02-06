@@ -65,6 +65,11 @@ Component.entryPoint = function(NS){
 				return NS.navigator.write.category(catid);
 			}
 		},
+		'author': {
+			'list': function(){
+				return WS+'author/AuthorListWidget/';
+			}
+		},
 		'write': {
 			'view': function(){
 				return WS+'write/WriteWidget/';
@@ -323,6 +328,41 @@ Component.entryPoint = function(NS){
 	});
 	NS.CategoryList = CategoryList;
 	
+	var Author = function(d){
+		d = L.merge({
+			'avt': '',
+			'fnm': u.firstname,
+			'lnm': u.lastname,
+			'unm': u.name,
+
+			'tcnt': 0,// кол-во топиков
+			
+			'rtg': null	// рейтинг
+			
+		}, d || {});
+		
+		Author.superclass.constructor.call(this, d);
+	};
+	YAHOO.extend(Author, SysNS.Item, {
+		update: function(d){
+			
+			if (this.id>0){
+				UP.viewer.users.update([d]);
+			}
+
+			this.topicCount = d['tcnt']*1;
+			this.rating		= d['rtg'];
+		}
+	});
+	NS.Author = Author;
+	
+	var AuthorList = function(d){
+		AuthorList.superclass.constructor.call(this, d, Author);
+	};
+	YAHOO.extend(AuthorList, SysNS.ItemList, {});
+	NS.AuthorList = AuthorList;
+	
+	
 	var CommentLive = function(d){
 		d = L.merge({
 			'dl': '',
@@ -491,19 +531,6 @@ Component.entryPoint = function(NS){
 				}
 				
 				NS.life(callback, topicid, error);
-			});			
-		},
-		commentLiveListLoad: function(callback){
-			this.ajax({
-				'do': 'commentlivelist'
-			}, function(d){
-				var list = null;
-				
-				if (!L.isNull(d) && !L.isNull(d['comments'])){
-					list = new NS.CommentLiveList(d['comments']);
-				}
-				
-				NS.life(callback, list);
 			});
 		},
 		categorySave: function(sd, callback){
@@ -541,6 +568,37 @@ Component.entryPoint = function(NS){
 			}, function(d){
 				__self._updateCategoryList(d);
 				NS.life(callback);
+			});
+		},
+		authorListLoad: function(callback, cfg){
+			cfg = L.merge({
+				'page': 1,
+				'limit': 15,
+				'filter': ''
+			}, cfg || {});
+			
+			cfg['do'] = 'authorlist';
+			this.ajax(cfg, function(d){
+				var list = null;
+				
+				if (!L.isNull(d) && L.isArray(d['topics'])){
+					list = new NS.TopicList(d['topics']);
+				}
+				
+				NS.life(callback, list);
+			});
+		},
+		commentLiveListLoad: function(callback){
+			this.ajax({
+				'do': 'commentlivelist'
+			}, function(d){
+				var list = null;
+				
+				if (!L.isNull(d) && !L.isNull(d['comments'])){
+					list = new NS.CommentLiveList(d['comments']);
+				}
+				
+				NS.life(callback, list);
 			});
 		}
 	};

@@ -66,6 +66,7 @@ Component.entryPoint = function(NS){
 				'urlhome': NG.home(),
 				'urltopics': NG.topic.list(),
 				'urlcats': NG.category.list(),
+				'urlauthors': NG.author.list(),
 				'urlwrite': NG.write.topic(),
 				'urlwritetopic': NG.write.topic(),
 				'urlwritecategory': NG.write.category(),
