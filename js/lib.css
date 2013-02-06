@@ -11,6 +11,9 @@
 	text-decoration: none;
 	margin: 0 5px;
 }
+.aw-blog a.warn {
+	color: #DA4242;
+}
 
 /* * * * Превьюшки * * * * */
 .aw-blog .tmb24 { width: 24px; height: 24px; }

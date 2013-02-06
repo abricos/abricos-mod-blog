@@ -52,6 +52,7 @@
 			</div>
 			<div id="{i#jbtns}" class="jbtns" style="display: none">
 				<a id="{i#bedit}" href="{v#urledit}" class="habtn" title="Редактировать" style="display: none">Редактировать</a>
+				<a id="{i#bremove}" href="{v#urlremove}" class="habtn warn" title="Удалить" style="display: none">Удалить</a>
 				<span id="{i#jbtnsa}">
 					<a id="{i#bjoin}" href="#" class="habtn" title="Стать читателем блога">Вступить в блог</a>
 					<a id="{i#bleave}" href="#" class="habtn" title="Перестать читать блог">Покинуть блог</a>
@@ -61,5 +62,24 @@
 		</div>
 		
 		<div id="{i#toplist}"></div>
+	</div>
+</div>
+
+<!--{removepanel}-->
+<div class='hd'>Удаление блога</div>
+<div class='bd aw-blog'>
+	<div id="{i#dialogremove}" class="field">
+		<p>
+			Вы действительно хотите удалить блог со всем ее содержимым?
+		</p>
+		<div class="buttons right">
+			<span id="{i#btns}">
+				<input id="{i#bremove}" value="Удалить" type="button" />
+				<input id="{i#bcancel}" value="Отмена" type="button" />
+			</span>
+			<span id="{i#bloading}" style="display: none">
+				<img src="/images/loading.gif" /> Удаление...
+			</span>
+		</div>
 	</div>
 </div>

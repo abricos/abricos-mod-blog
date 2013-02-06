@@ -61,6 +61,8 @@ class BlogManager extends Ab_ModuleManager {
 				return $this->CategorySave($d);
 			case "categoryjoin":
 				return $this->CategoryJoin($d->catid);
+			case "categoryremove":
+				return $this->CategoryRemove($d->catid);
 			case "commentlivelist": 
 				return $this->CommentLiveListToAJAX($d);
 		}
@@ -543,6 +545,17 @@ class BlogManager extends Ab_ModuleManager {
 		
 		$ret = new stdClass();
 		$ret->category = $cat->ToAJAX();
+		return $ret;
+	}
+	
+	public function CategoryRemove($catid){
+		if (!$this->IsAdminRole()){ return null; }
+		
+		BlogTopicQuery::CategoryRemove($this->db, $catid);
+		
+		$ret = new stdClass();
+		$cats = $this->CategoryListToAJAX();
+		$ret->categories = $cats->categories;
 		return $ret;
 	}
 

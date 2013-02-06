@@ -12,7 +12,8 @@ Component.requires = {
 };
 Component.entryPoint = function(NS){
 	
-	var L = YAHOO.lang,
+	var Dom = YAHOO.util.Dom,
+		L = YAHOO.lang,
 		NSUR = Brick.mod.urating || {},
 		UID = Brick.env.user.id,
 		R = NS.roles,
@@ -169,6 +170,9 @@ Component.entryPoint = function(NS){
 					this.elShow('bjoin');
 					this.elHide('bleave');
 				}
+				if (R['isAdmin']){
+					this.elShow('bremove');
+				}
 				if (R.category.isAdmin(cat)){
 					this.elShow('bedit');
 				}
@@ -176,6 +180,9 @@ Component.entryPoint = function(NS){
 		},
 		onClick: function(el, tp){
 			switch(el.id){
+			case tp['bremove']:
+				this.showRemovePanel();
+				return true;
 			case tp['bjoin']: 
 			case tp['bleave']:
 				this.memberStatusChange();
@@ -191,8 +198,43 @@ Component.entryPoint = function(NS){
 				__self.elHide('jbloading');
 				__self.renderCategory(__self.cat);
 			});
+		},
+		showRemovePanel: function(){
+			new CategoryRemovePanel(this.cat, function(){
+				NS.navigator.go(NS.navigator.category.list());
+			});
 		}
 	});
 	NS.CategoryViewWidget = CategoryViewWidget;		
+
+	var CategoryRemovePanel = function(cat, callback){
+		this.cat = cat;
+		this.callback = callback;
+		CategoryRemovePanel.superclass.constructor.call(this, {fixedcenter: true});
+	};
+	YAHOO.extend(CategoryRemovePanel, Brick.widget.Dialog, {
+		initTemplate: function(){
+			return buildTemplate(this, 'removepanel').replace('removepanel');
+		},
+		onClick: function(el){
+			var tp = this._TId['removepanel'];
+			switch(el.id){
+			case tp['bcancel']: this.close(); return true;
+			case tp['bremove']: this.remove(); return true;
+			}
+			return false;
+		},
+		remove: function(){
+			var TM = this._TM, gel = function(n){ return  TM.getEl('removepanel.'+n); },
+				__self = this;
+			Dom.setStyle(gel('btns'), 'display', 'none');
+			Dom.setStyle(gel('bloading'), 'display', '');
+			NS.manager.categoryRemove(this.cat.id, function(){
+				__self.close();
+				NS.life(__self.callback);
+			});
+		}
+	});
+	NS.CategoryRemovePanel = CategoryRemovePanel;
 
 };

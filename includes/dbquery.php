@@ -95,10 +95,11 @@ class BlogTopicQuery {
 				cc.body as bd
 				".$urt->fld."
 			FROM ".$db->prefix."bg_topic t
+			INNER JOIN ".$db->prefix."bg_cat cat ON t.catid = cat.catid
 			INNER JOIN ".$db->prefix."content cc ON t.contentid = cc.contentid
 			INNER JOIN ".$db->prefix."user u ON t.userid = u.userid
 			".$urt->tbl."
-			WHERE t.topicid = ".bkint($topicid)." AND t.deldate=0 
+			WHERE t.topicid = ".bkint($topicid)." AND t.deldate=0 AND cat.deldate=0
 				AND (t.isdraft=0 OR (t.isdraft=1 AND t.userid=".bkint($userid)."))
 			LIMIT 1
 		";
@@ -126,10 +127,12 @@ class BlogTopicQuery {
 				".BlogTopicQuery::TopicFields($db)."
 				".$urt->fld."
 			FROM ".$db->prefix."bg_topic t
+			INNER JOIN ".$db->prefix."bg_cat cat ON t.catid = cat.catid
 			INNER JOIN ".$db->prefix."content cc ON t.contentid = cc.contentid
 			INNER JOIN ".$db->prefix."user u ON t.userid = u.userid
 			".$urt->tbl."
-			WHERE t.deldate=0 AND t.isdraft=0 AND t.language='".bkstr(Abricos::$LNG)."'
+			WHERE t.deldate=0 AND cat.deldate=0 
+				AND t.isdraft=0 AND t.language='".bkstr(Abricos::$LNG)."'
 				".$filter."
 			ORDER BY t.pubdate DESC
 			LIMIT ".$from.",".bkint($limit)."
@@ -154,11 +157,12 @@ class BlogTopicQuery {
 				".BlogTopicQuery::TopicFields($db)."
 				".$urt->fld."
 			FROM ".$db->prefix."bg_topic t
+			INNER JOIN ".$db->prefix."bg_cat cat ON t.catid = cat.catid
 			INNER JOIN ".$db->prefix."content cc ON t.contentid = cc.contentid
 			INNER JOIN ".$db->prefix."user u ON t.userid = u.userid
 			".$urt->tbl."
 			WHERE t.userid=".bkint($userid)." AND t.isdraft=1 
-				AND t.deldate=0 AND t.language='".bkstr(Abricos::$LNG)."'
+				AND t.deldate=0  AND cat.deldate=0 AND t.language='".bkstr(Abricos::$LNG)."'
 			ORDER BY t.dateline DESC
 			LIMIT ".$from.",".bkint($limit)."
 		";
@@ -551,6 +555,16 @@ class BlogTopicQuery {
 		$db->query_write($sql);
 	}
 	
+	public static function CategoryRemove(Ab_Database $db, $catid){
+		$sql = "
+			UPDATE ".$db->prefix."bg_cat
+			SET deldate=".TIMENOW."
+			WHERE catid=".bkint($catid)."
+			LIMIT 1
+		";
+		$db->query_write($sql);
+	}
+	
 	public static function CommentLiveList(Ab_Database $db, $page, $limit){
 		$sql = "
 			SELECT
@@ -572,7 +586,8 @@ class BlogTopicQuery {
 				SELECT ap.contentid, max( ap.dateline ) AS dl, count(ap.contentid) as cnt
 				FROM ".$db->prefix."cmt_comment ap
 				INNER JOIN ".$db->prefix."bg_topic tp ON ap.contentid = tp.contentid
-				WHERE tp.deldate = 0 and tp.isdraft = 0 AND tp.language='".bkstr(Abricos::$LNG)."'
+				INNER JOIN ".$db->prefix."bg_cat catt ON tp.catid = catt.catid
+				WHERE tp.deldate = 0 AND catt.deldate=0 AND tp.isdraft = 0 AND tp.language='".bkstr(Abricos::$LNG)."'
 				GROUP BY contentid
 				ORDER BY dl DESC
 				LIMIT ".$limit."
@@ -580,7 +595,8 @@ class BlogTopicQuery {
 			LEFT JOIN ".$db->prefix."cmt_comment c ON a.contentid = c.contentid AND c.dateline = a.dl
 			LEFT JOIN ".$db->prefix."user u ON c.userid = u.userid
 			LEFT JOIN ".$db->prefix."bg_topic t ON c.contentid = t.contentid
-			WHERE t.deldate = 0 and t.isdraft = 0 AND t.language='".bkstr(Abricos::$LNG)."'
+			LEFT JOIN ".$db->prefix."bg_cat cat ON t.catid = cat.catid
+			WHERE t.deldate = 0 AND cat.deldate=0 AND t.isdraft = 0 AND t.language='".bkstr(Abricos::$LNG)."'
 			ORDER BY dl DESC
 		";
 		return $db->query_read($sql);

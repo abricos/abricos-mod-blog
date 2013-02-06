@@ -532,8 +532,17 @@ Component.entryPoint = function(NS){
 				}
 				NS.life(callback);
 			});
-			
-		}		
+		},
+		categoryRemove: function(catid, callback){
+			var __self = this;
+			this.ajax({
+				'do': 'categoryremove',
+				'catid': catid
+			}, function(d){
+				__self._updateCategoryList(d);
+				NS.life(callback);
+			});
+		}
 	};
 	NS.manager = null;
 	
