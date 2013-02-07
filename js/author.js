@@ -32,7 +32,9 @@ Component.entryPoint = function(NS){
 		onLoad: function(catid){
 			var __self = this;
 			NS.initManager(function(){
-				__self.renderList();
+				NS.manager.authorListLoad(function(list){
+					__self.renderList(list);
+				});
 			});
 		},
 		destroy: function(){
@@ -45,167 +47,94 @@ Component.entryPoint = function(NS){
 			}
 			this.elSetHTML('list', '');
 		},
-		renderList: function(){
+		renderList: function(list){
 			this.clearList();
 			this.elHide('loading');
+
+			if (L.isNull(list)){
+				this.elShow('nullitem');
+				return;
+			}
+
 			this.elShow('view');
-
-			var elList = this.gel('list');
-			var ws = this.wsList;
-
-			NS.manager.categoryList.foreach(function(cat){
+			
+			var elList = this.gel('list'), ws = this.wsList;
+			
+			list.foreach(function(author){
 				var div = document.createElement('div');
 				elList.appendChild(div);
-				ws[ws.length] = new NS.AuthorRowWidget(div, cat);
+				ws[ws.length] = new NS.AuthorRowWidget(div, author);
 			});
 		}
 	});
 	NS.AuthorListWidget = AuthorListWidget;
 	
-	var AuthorRowWidget = function(container, cat){
+	var AuthorRowWidget = function(container, author){
 		AuthorRowWidget.superclass.constructor.call(this, container, {
 			'buildTemplate': buildTemplate, 'tnames': 'row' 
-		}, cat);
+		}, author);
 	};
 	YAHOO.extend(AuthorRowWidget, Brick.mod.widget.Widget, {
-		init: function(cat){
-			this.cat = cat;
-		},
-		buildTData: function(cat){
+		buildTData: function(author){
+			var user = author.user;
 			return {
-				'urlview': cat.url(),
-				'rtg': cat.rating,
-				'mbrs': cat.memberCount,
-				'topics': cat.topicCount
+				'uid': user.id,
+				'avatar': user.avatar90(),
+				'unm':  user.getUserName(),
+				'rep': author.reputation,
+				'topics': author.topicCount,
+				'urlview': NS.navigator.author.view(author.id)
 			};
-		},
-		onLoad: function(cat){
-			this.elSetHTML({
-				'tl': cat.title
-			});
 		}
 	});
 	NS.AuthorRowWidget = AuthorRowWidget;
 
-	var AuthorViewWidget = function(container, catid){
+	var AuthorViewWidget = function(container, authorid){
 		AuthorViewWidget.superclass.constructor.call(this, container, {
-			'buildTemplate': buildTemplate, 'tnames': 'catview' 
-		}, catid);
+			'buildTemplate': buildTemplate, 'tnames': 'view' 
+		}, authorid);
 	};
 	YAHOO.extend(AuthorViewWidget, Brick.mod.widget.Widget, {
-		init: function(catid){
-			this.catid = catid;
-			this.voteWidget = null;
+		init: function(authorid){
+			this.viewWidget = null;
 			this.topicListWidget = null;
 		},
-		buildTData: function(catid){
-			return {
-				'urledit': NS.navigator.category.edit(catid)
-			};
-		},
 		destroy: function(){
-			if (!L.isNull(this.voteWidget)){
-				this.voteWidget.destroy();
+			if (!L.isNull(this.viewWidget)){
+				this.viewWidget.destroy();
 			}
 			if (!L.isNull(this.topicListWidget)){
 				this.topicListWidget.destroy();
 			}
 		},
-		onLoad: function(catid){
+		onLoad: function(authorid){
 			var __self = this;
 			NS.initManager(function(){
-				var cat = NS.manager.categoryList.get(catid);
-				__self.renderCategory(cat);
+				NS.manager.authorLoad(authorid, function(author){
+					__self.renderAuthor(author);
+				});
 			});
 		},
-		renderCategory: function(cat){
-			this.cat = cat;
+		renderAuthor: function(author){
+			this.author = author;
 			this.elHide('loading');
 			
-			if (L.isNull(cat)){
+			if (L.isNull(author)){
 				this.elShow('nullitem');
 				return;
 			}
 			this.elShow('view');
-			this.elSetHTML({
-				'tl': cat.title,
-				'mbrs': cat.memberCount,
-				'topics': cat.topicCount
-			});
 			
-			if (NSUR.VotingWidget && L.isNull(this.voteWidget)){
-				this.voteWidget = new NSUR.VotingWidget(this.gel('rating'), {
-					'modname': '{C#MODNAME}',
-					'elementType': 'cat',
-					'elementId': cat.id,
-					'value': cat.rating,
-					'vote': cat.voteMy,
-					'hideButtons': UID == 0,
-					'onVotingError': function(error, merror){
-						/*
-						var s = '', lng = LNG['urating']['error'];
-						if (merror > 0){
-							s = lng['m'+merror];
-						}else if (error == 1){
-							s = LNG[error];
-						}else{
-							return;
-						}
-						/**/
-						Brick.mod.widget.notice.show('ERROR');						
-					}
-				});
+			if (L.isNull(this.viewWidget)){
+				this.viewWidget = new NS.AuthorRowWidget(this.gel('author'), author);
 			}
+
 			if (L.isNull(this.topicListWidget)){
 				this.topicListWidget = new NS.TopicListWidget(this.gel('toplist'), {
-					'filter': 'cat/'+cat.id
+					'filter': 'author/'+author.id
 				});
 			}
-			if (UID > 0){
-				this.elShow('jbtns');
-				if (cat.isMember){
-					this.elHide('bjoin');
-					this.elShow('bleave');
-				}else{
-					this.elShow('bjoin');
-					this.elHide('bleave');
-				}
-				if (R['isAdmin']){
-					this.elShow('bremove');
-				}
-				if (R.category.isAdmin(cat)){
-					this.elShow('bedit');
-				}
-			}
-		},
-		onClick: function(el, tp){
-			switch(el.id){
-			case tp['bremove']:
-				this.showRemovePanel();
-				return true;
-			case tp['bjoin']: 
-			case tp['bleave']:
-				this.memberStatusChange();
-				return true;
-			}
-		},
-		memberStatusChange: function(){
-			var __self = this;
-			this.elHide('jbtnsa');
-			this.elShow('jbloading');
-			NS.manager.categoryJoin(this.cat.id, function(){
-				__self.elShow('jbtnsa');
-				__self.elHide('jbloading');
-				__self.renderCategory(__self.cat);
-			});
-		},
-		showRemovePanel: function(){
-			new CategoryRemovePanel(this.cat, function(){
-				NS.navigator.go(NS.navigator.category.list());
-			});
 		}
 	});
 	NS.AuthorViewWidget = AuthorViewWidget;		
-
-
 };

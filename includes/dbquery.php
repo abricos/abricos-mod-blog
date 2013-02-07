@@ -564,6 +564,70 @@ class BlogTopicQuery {
 		";
 		$db->query_write($sql);
 	}
+
+	public static function AuthorRatingSQLExt(Ab_Database $db){
+		$urt = new stdClass();
+		$urt->fld = "";
+		$urt->tbl = "";
+		$userid = Abricos::$user->id;
+		if (BlogManager::$isURating && $userid>0){
+			$urt->fld .= "
+			,IF(ISNULL(urt.reputation), 0, urt.reputation) as rep,
+			IF(ISNULL(urt.skill), 0, urt.skill) as rtg
+			";
+			$urt->tbl .= "
+			LEFT JOIN ".$db->prefix."urating_user urt ON t.userid=urt.userid
+			";
+		}
+		
+		return $urt;
+	}
+	
+	public static function AuthorList(Ab_Database $db, $page, $limit){
+		$urt = BlogTopicQuery::AuthorRatingSQLExt($db);
+		
+		$sql = "
+			SELECT 
+				t.userid as id,
+				u.username as unm,
+				u.avatar as avt,
+				u.firstname as fnm,
+				u.lastname as lnm,
+				count(t.topicid) as tcnt
+				".$urt->fld."
+			FROM ".$db->prefix."bg_topic t
+			INNER JOIN ".$db->prefix."user u ON t.userid=u.userid
+			".$urt->tbl."
+			WHERE t.isdraft=0 AND t.deldate=0
+			GROUP BY t.userid
+			ORDER BY tcnt DESC
+			LIMIT ".bkint($limit)."
+		";
+		return $db->query_read($sql);
+	}
+	
+	public static function Author(Ab_Database $db, $authorid){
+		$urt = BlogTopicQuery::AuthorRatingSQLExt($db);
+	
+		$sql = "
+			SELECT
+				t.userid as id,
+				u.username as unm,
+				u.avatar as avt,
+				u.firstname as fnm,
+				u.lastname as lnm,
+				count(t.topicid) as tcnt
+				".$urt->fld."
+			FROM ".$db->prefix."bg_topic t
+			INNER JOIN ".$db->prefix."user u ON t.userid=u.userid
+			".$urt->tbl."
+			WHERE t.isdraft=0 AND t.deldate=0 AND t.userid=".$authorid."
+			GROUP BY t.userid
+			ORDER BY tcnt DESC
+			LIMIT 1
+		";
+		return $db->query_first($sql);
+	}
 	
 	public static function CommentLiveList(Ab_Database $db, $page, $limit){
 		$sql = "
@@ -590,7 +654,7 @@ class BlogTopicQuery {
 				WHERE tp.deldate = 0 AND catt.deldate=0 AND tp.isdraft = 0 AND tp.language='".bkstr(Abricos::$LNG)."'
 				GROUP BY contentid
 				ORDER BY dl DESC
-				LIMIT ".$limit."
+				LIMIT ".bkint($limit)."
 			) a
 			LEFT JOIN ".$db->prefix."cmt_comment c ON a.contentid = c.contentid AND c.dateline = a.dl
 			LEFT JOIN ".$db->prefix."user u ON c.userid = u.userid

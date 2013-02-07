@@ -225,6 +225,45 @@ class BlogUser {
 	}
 }
 
+class BlogAuthor extends BlogUser {
+	
+	public $topicCount;
+	public $reputation;
+	public $rating;
+	
+	public function __construct($d){
+		parent::__construct($d);
+		$this->topicCount	= $d['tcnt']*1;
+		$this->reputation	= $d['rep']*1;
+		$this->rating		= $d['rtg']*1;
+	}
+	public function ToAJAX(){
+		$ret = parent::ToAJAX();
+		$ret->tcnt = $this->topicCount;
+		$ret->rep = $this->reputation;
+		$ret->rtg = $this->rating;
+		return $ret;
+	}
+}
+
+class BlogAuthorList {
+
+	public $list;
+
+	public function __construct($list){
+		$this->list = $list;
+	}
+
+	public function ToAJAX(){
+		$ret = new stdClass();
+		$ret->authors = array();
+		for ($i=0;$i<count($this->list); $i++){
+			array_push($ret->authors, $this->list[$i]->ToAJAX());
+		}
+		return $ret;
+	}
+}
+
 
 class BlogTopicTag {
 	public $id;
@@ -398,57 +437,6 @@ class BlogCategoryList {
 			array_push($ret->categories, $this->list[$i]->ToAJAX());
 		}
 		return $ret;
-	}
-}
-
-/**
- * Роль пользователя в категории
- */
-class BlogCategoryUserRole {
-
-	/**
-	 * Идентификатор категории
-	 * @var integer
-	 */
-	public $catid = 0;
-	
-	/**
-	 * Идентификатор пользователя
-	 * @var integer
-	 */
-	public $userid = 0;
-	
-	/**
-	 * Пользователь подписан на блог (является его членом)
-	 * @var boolean
-	 */
-	public $isMemeber = false;
-	
-	/**
-	 * Пользователь имеет права админа на категорию
-	 * @var boolean
-	 */
-	public $isAdminFlag = false;
-	
-	/**
-	 * Пользователь имеет права модератора на категорию
-	 * @var boolean
-	 */
-	public $isModerFlag = false;
-	
-	/**
-	 * 
-	 * @param integer $catid
-	 * @param integer $userid
-	 * @param array $d информация роли полученной из базы
-	 */
-	public function __construct($catid, $userid, $d){
-		$this->catid = $catid;
-		$this->userid = $userid;
-		
-		$this->isMemeber = $d['mbr']==1;
-		$this->isAdminFlag = $d['adm'];
-		$this->isModerFlag = $d['mdr'];
 	}
 }
 

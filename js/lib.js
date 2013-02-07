@@ -68,6 +68,9 @@ Component.entryPoint = function(NS){
 		'author': {
 			'list': function(){
 				return WS+'author/AuthorListWidget/';
+			},
+			'view': function (authorid){
+				return WS+'author/AuthorViewWidget/'+authorid+'/';
 			}
 		},
 		'write': {
@@ -349,6 +352,7 @@ Component.entryPoint = function(NS){
 			if (this.id>0){
 				UP.viewer.users.update([d]);
 			}
+			this.user = UP.viewer.users.get(this.id);
 
 			this.topicCount = d['tcnt']*1;
 			this.rating		= d['rtg'];
@@ -579,13 +583,28 @@ Component.entryPoint = function(NS){
 			
 			cfg['do'] = 'authorlist';
 			this.ajax(cfg, function(d){
+				Brick.console(d);
 				var list = null;
 				
-				if (!L.isNull(d) && L.isArray(d['topics'])){
-					list = new NS.TopicList(d['topics']);
+				if (!L.isNull(d) && L.isArray(d['authors'])){
+					list = new NS.AuthorList(d['authors']);
 				}
 				
 				NS.life(callback, list);
+			});
+		},
+		authorLoad: function(authorid, callback){
+			this.ajax({
+				'do': 'author',
+				'authorid': authorid
+			}, function(d){
+				var author = null;
+				
+				if (!L.isNull(d) && !L.isNull(d['author'])){
+					author = new NS.Author(d['author']);
+				}
+				
+				NS.life(callback, author);
 			});
 		},
 		commentLiveListLoad: function(callback){

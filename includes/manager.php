@@ -63,6 +63,10 @@ class BlogManager extends Ab_ModuleManager {
 				return $this->CategoryJoin($d->catid);
 			case "categoryremove":
 				return $this->CategoryRemove($d->catid);
+			case "author": 
+				return $this->AuthorToAJAX($d->authorid);
+			case "authorlist": 
+				return $this->AuthorListToAJAX($d);
 			case "commentlivelist": 
 				return $this->CommentLiveListToAJAX($d);
 		}
@@ -416,29 +420,6 @@ class BlogManager extends Ab_ModuleManager {
 		return $catList->ToAJAX();
 	}
 
-	
-	private $_cacheCatUser = array();
-	
-	/**
-	 * Отношение пользователя к категории
-	 * @param integer $catid
-	 * @param integer $userid
-	 * @return BlogCategoryUserRole
-	 */
-	public function CategoryUserRole($catid, $userid){
-		if (!is_array($this->_cacheCatUser[$userid])){
-			$this->_cacheCatUser[$userid] = array(); 
-		}
-		if (!empty($this->_cacheCatUser[$userid][$catid])){
-			return $this->_cacheCatUser[$userid][$catid];
-		}
-		
-		$row = BlogTopicQuery::CategoryUser($this->db, $d->id, $this->userid);
-		$this->_cacheCatUser[$userid][$catid] = 
-			new BlogCategoryUserRole($catid, $userid, $row);
-		return $this->_cacheCatUser[$userid][$catid];
-	}
-	
 	/**
 	 * Сохранение категории (блога)
 	 * 
@@ -558,7 +539,56 @@ class BlogManager extends Ab_ModuleManager {
 		$ret->categories = $cats->categories;
 		return $ret;
 	}
+	
+	public function AuthorList($cfg){
+		if (!$this->IsViewRole()){
+			return null;
+		}
+		
+		if (!is_object($cfg)){
+			$cfg = new stdClass();
+		}
+		$cfg->page = max(intval($cfg->page), 1);
+		$cfg->limit = 30;
+		
+		$list = array();
+		
+		$rows = BlogTopicQuery::AuthorList($this->db, $cfg->page, $cfg->limit);
+		while (($row = $this->db->fetch_array($rows))){
+			array_push($list, new BlogAuthor($row));
+		}
+		return new BlogAuthorList($list);
+	}
+	
+	public function AuthorListToAJAX($cfg){
+		$list = $this->AuthorList($cfg);
+		if (is_null($list)){
+			return null;
+		}
+		
+		return $list->ToAJAX();
+	}
 
+	
+	public function Author($authorid){
+		if (!$this->IsViewRole()){
+			return null;
+		}
+	
+		$row = BlogTopicQuery::Author($this->db, $authorid);
+		if (empty($row)){ return null; }
+		return new BlogAuthor($row);
+	}
+	
+	public function AuthorToAJAX($authorid){
+		$author = $this->Author($authorid);
+		if (is_null($author)){
+			return null;
+		}
+		$ret = new stdClass();
+		$ret->author = $author->ToAJAX();
+		return $ret;
+	}
 	/**
 	 * Прямой эфир
 	 * @param object $cfg
