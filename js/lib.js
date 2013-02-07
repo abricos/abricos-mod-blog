@@ -293,9 +293,10 @@ Component.entryPoint = function(NS){
 	
 	var CategoryPerson = function(userid){ // персональный блог
 		var user = UP.viewer.users.get(userid);
+		this.user = user;
 		var d = L.merge({
 			'id': 0,
-			'tl': LNG['category']['my'].replace('{v#unm}', user.userName),
+			'tl': LNG.get('category.my').replace('{v#unm}', user.userName),
 			'nm': user.userName
 		}, d || {});
 		CategoryPerson.superclass.constructor.call(this, d);
@@ -306,7 +307,7 @@ Component.entryPoint = function(NS){
 			this.name = d['nm'];
 		},
 		url: function(){
-			return NS.navigator.category.view(this.id);
+			return NS.navigator.author.view(this.user.id);
 		}
 	});		
 	NS.CategoryPerson = CategoryPerson;
@@ -583,7 +584,6 @@ Component.entryPoint = function(NS){
 			
 			cfg['do'] = 'authorlist';
 			this.ajax(cfg, function(d){
-				Brick.console(d);
 				var list = null;
 				
 				if (!L.isNull(d) && L.isArray(d['authors'])){

@@ -117,6 +117,10 @@ class BlogTopicInfo {
 		$this->voteCount	= intval($d['vcnt']);
 		$this->voteMy		= $d['vmy'];
 		
+		if ($this->user->id == Abricos::$user->id){
+			$this->voteMy = 0;
+		}
+		
 		if (!is_null($this->voteMy) || !$this->IsVotingPeriod()){
 			$this->rating	= intval($d['rtg']); 
 

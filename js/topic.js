@@ -63,17 +63,16 @@ Component.entryPoint = function(NS){
 					'value': topic.rating,
 					'vote': topic.voteMy,
 					'onVotingError': function(error, merror){
-						/*
-						var s = '', lng = LNG['urating']['error'];
+						
+						var s = 'ERROR';
 						if (merror > 0){
-							s = lng['m'+merror];
+							s = LNG.get('topic.vote.error.m.'+merror);
 						}else if (error == 1){
-							s = LNG[error];
+							s = LNG.get('topic.vote.error.'+error);
 						}else{
 							return;
 						}
-						/**/
-						Brick.mod.widget.notice.show('ERROR');						
+						Brick.mod.widget.notice.show(s);						
 					}
 				});
 				this.elShow('topicvote');
@@ -143,6 +142,11 @@ Component.entryPoint = function(NS){
 			
 			if (R.topic.isManager(topic)){
 				this.manWidget = new NS.TopicManagerWidget(this.gel('man'), topic);
+			}
+			if (topic.isBody){
+				this.elShow('readmore');
+			}else{
+				this.elHide('readmore');
 			}
 		}
 	});

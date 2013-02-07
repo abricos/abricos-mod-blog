@@ -166,6 +166,9 @@ class BlogManager extends Ab_ModuleManager {
 		case "tag":
 			$rows = BlogTopicQuery::TopicList($this->db, $cfg->page, $cfg->limit, $fType, $fPrm);
 			break;
+		case "author":
+			$rows = BlogTopicQuery::TopicListByAuthor($this->db, $fPrm,  $cfg->page, $cfg->limit);
+			break;
 		default:
 			$rows = BlogTopicQuery::TopicList($this->db, $cfg->page, $cfg->limit);
 			break;
@@ -307,7 +310,7 @@ class BlogManager extends Ab_ModuleManager {
 				}
 			}else if ($isNewPublic){ // проверки по публикации
 				$row = BlogTopicQuery::TopicPublicCountByUser($this->db, $this->userid);
-				if (!empty($row) && $row['cnt'] > 3){
+				if (!empty($row) && $row['cnt'] > 3){ // не более 3 публикаций в день
 					$ret->error = 12;
 					return $ret;
 				}
@@ -646,9 +649,10 @@ class BlogManager extends Ab_ModuleManager {
 	 * Метод вызывается из модуля URating
 	 *
 	 * Возвращает код ошибки:
-	 *  0 - все нормально, голосовать можно;
-	 *  2 - голосовать можно только с положительным рейтингом;
-	 *  3 - недостаточно голосов (закончились голоса)
+	 *  0 - все нормально, голосовать можно,
+	 *  2 - голосовать можно только с положительным рейтингом,
+	 *  3 - недостаточно голосов (закончились голоса),
+	 *  4 - нальзя голосовать за свой топик
 	 *
 	 *
 	 * @param URatingUserReputation $uRep
@@ -681,6 +685,9 @@ class BlogManager extends Ab_ModuleManager {
 			$topic = $this->Topic($elid);
 			if (empty($topic) || !$topic->IsVotingPeriod()){
 				return null;
+			}
+			if ($topic->user->id == $this->userid){
+				return 4;
 			}
 		}
 	

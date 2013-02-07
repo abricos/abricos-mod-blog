@@ -95,11 +95,11 @@ class BlogTopicQuery {
 				cc.body as bd
 				".$urt->fld."
 			FROM ".$db->prefix."bg_topic t
-			INNER JOIN ".$db->prefix."bg_cat cat ON t.catid = cat.catid
+			LEFT JOIN ".$db->prefix."bg_cat cat ON t.catid = cat.catid
 			INNER JOIN ".$db->prefix."content cc ON t.contentid = cc.contentid
 			INNER JOIN ".$db->prefix."user u ON t.userid = u.userid
 			".$urt->tbl."
-			WHERE t.topicid = ".bkint($topicid)." AND t.deldate=0 AND cat.deldate=0
+			WHERE t.topicid = ".bkint($topicid)." AND t.deldate=0 AND (cat.deldate=0 OR t.catid=0)
 				AND (t.isdraft=0 OR (t.isdraft=1 AND t.userid=".bkint($userid)."))
 			LIMIT 1
 		";
@@ -121,17 +121,17 @@ class BlogTopicQuery {
 			";
 			$filter = " AND tg.title='".bkstr($fPrm)."'";
 		}
-		
+				
 		$sql = "
 			SELECT
 				".BlogTopicQuery::TopicFields($db)."
 				".$urt->fld."
 			FROM ".$db->prefix."bg_topic t
-			INNER JOIN ".$db->prefix."bg_cat cat ON t.catid = cat.catid
+			LEFT JOIN ".$db->prefix."bg_cat cat ON t.catid = cat.catid
 			INNER JOIN ".$db->prefix."content cc ON t.contentid = cc.contentid
 			INNER JOIN ".$db->prefix."user u ON t.userid = u.userid
 			".$urt->tbl."
-			WHERE t.deldate=0 AND cat.deldate=0 
+			WHERE t.deldate=0 AND (cat.deldate=0 OR t.catid=0)
 				AND t.isdraft=0 AND t.language='".bkstr(Abricos::$LNG)."'
 				".$filter."
 			ORDER BY t.pubdate DESC
@@ -157,17 +157,49 @@ class BlogTopicQuery {
 				".BlogTopicQuery::TopicFields($db)."
 				".$urt->fld."
 			FROM ".$db->prefix."bg_topic t
-			INNER JOIN ".$db->prefix."bg_cat cat ON t.catid = cat.catid
+			LEFT JOIN ".$db->prefix."bg_cat cat ON t.catid = cat.catid
 			INNER JOIN ".$db->prefix."content cc ON t.contentid = cc.contentid
 			INNER JOIN ".$db->prefix."user u ON t.userid = u.userid
 			".$urt->tbl."
 			WHERE t.userid=".bkint($userid)." AND t.isdraft=1 
-				AND t.deldate=0  AND cat.deldate=0 AND t.language='".bkstr(Abricos::$LNG)."'
+				AND t.deldate=0  AND (cat.deldate=0 OR t.catid=0) 
+				AND t.language='".bkstr(Abricos::$LNG)."'
 			ORDER BY t.dateline DESC
 			LIMIT ".$from.",".bkint($limit)."
 		";
 		return $db->query_read($sql);
 	}
+	
+	/**
+	 * Персональный блог имени <<пользователя>>
+	 * 
+	 * @param Ab_Database $db
+	 * @param integer $userid
+	 * @param integer $page
+	 * @param integer $limit
+	 */
+	public static function TopicListByAuthor(Ab_Database $db, $userid, $page=1, $limit=15){
+		$from = $limit * (max($page, 1) - 1);
+		$urt = BlogTopicQuery::TopicRatingSQLExt($db);
+	
+		$sql = "
+			SELECT
+				".BlogTopicQuery::TopicFields($db)."
+				".$urt->fld."
+			FROM ".$db->prefix."bg_topic t
+			LEFT JOIN ".$db->prefix."bg_cat cat ON t.catid = cat.catid
+			INNER JOIN ".$db->prefix."content cc ON t.contentid = cc.contentid
+			INNER JOIN ".$db->prefix."user u ON t.userid = u.userid
+			".$urt->tbl."
+			WHERE t.userid=".bkint($userid)." AND t.isdraft=0
+				AND t.deldate=0  AND (cat.deldate=0 OR t.catid=0)
+				AND t.language='".bkstr(Abricos::$LNG)."'
+			ORDER BY t.dateline DESC
+			LIMIT ".$from.",".bkint($limit)."
+		";
+		return $db->query_read($sql);
+	}
+	
 
 	public static function TopicListByIds(Ab_Database $db, $ids){
 		$awh = array();
