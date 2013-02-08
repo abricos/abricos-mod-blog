@@ -1,9 +1,25 @@
 /* * * * Список * * * */
-.aw-blog .topiclist .topic {
-	margin-bottom: 35px;
+.aw-blog .homelist .submenu {
+	padding: 8px 0 19px 15px;
 }
 
+.aw-blog .homelist .submenu a {
+	float: left;
+	margin-right: 10px;
+	padding: 3px 5px;
+}
+.aw-blog .homelist .submenu a.sel {
+	text-decoration: none;
+	color: #7B848D;
+    border: 1px solid #E5E5E5;
+	border-radius: 5px;
+	cursor: default;
+} 
+
 /* * * * Топик * * * */
+.aw-blog .topiclist .topic {
+	margin-bottom: 25px;
+}
 .aw-blog .topic .intro {
 	margin-top: 10px;
 	font-family: Verdana,Tahoma,sans-serif;

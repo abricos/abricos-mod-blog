@@ -1,3 +1,35 @@
+<!--{homelist}-->
+<div id="{i#id}" class="homelist">
+
+	<div id="{i#loading}" class="loading">
+		<img src="/images/loading.gif" /> Идет загрузка данных <br /> Пожалуйста, подождите...
+	</div>
+
+	<div id="{i#view}" style="display: none">
+	
+		<div id="{i#sm}" class="submenu" style="display: none">
+			<a href="{v#url}" id="{i#smi}">Интересные</a>
+			<a href="{v#urlnew}" id="{i#sminew}">Новые</a>
+			<div class="clear"></div>
+		</div>
+
+		<div id="{i#smpub}" class="submenu" style="display: none">
+			<a href="{v#urlpub}" id="{i#smipub}">Интересные</a>
+			<a href="{v#urlpubnew}" id="{i#smipubnew}">Новые</a>
+			<div class="clear"></div>
+		</div>
+	
+		<div id="{i#smpers}" class="submenu" style="display: none">
+			<a href="{v#urlpers}" id="{i#smipers}">Хорошие</a>
+			<a href="{v#urlpersnew}" id="{i#smipersnew}">Новые</a>
+			<div class="clear"></div>
+		</div>
+	
+		<div id="{i#list}"></div>
+	</div>
+</div>
+
+
 <!--{topiclist}-->
 <div id="{i#id}" class="topiclist">
 

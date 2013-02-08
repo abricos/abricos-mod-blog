@@ -33,7 +33,7 @@ Component.entryPoint = function(NS){
 	NS.AccessDeniedWidget = AccessDeniedWidget;
 
 	var GMID = {
-		'TopicListWidget': 'topics',
+		'TopicHomeListWidget': 'topics',
 		'TopicViewWidget': 'topics',
 		'CategoryListWidget': 'cats',
 		'CategoryViewWidget': 'cats',
@@ -41,12 +41,12 @@ Component.entryPoint = function(NS){
 		'AboutWidget': 'about'
 	};
 	GMIDI = {
-		'topics': ['all', 'pub', 'person'],
+		'topics': ['all', 'pub', 'pers'],
 		'write': ['topic', 'category', 'draftlist']
 	};
 	var DEFPAGE = {
 		'component': 'topic',
-		'wname': 'TopicListWidget',
+		'wname': 'TopicHomeListWidget',
 		'p1': '', 'p2': '', 'p3': '', 'p4': ''
 	};
 	
@@ -65,6 +65,8 @@ Component.entryPoint = function(NS){
 			return {
 				'urlhome': NG.home(),
 				'urltopics': NG.topic.list(),
+				'urltopicspub': NG.topic.list('pub'),
+				'urltopicspers': NG.topic.list('pers'),
 				'urlcats': NG.category.list(),
 				'urlauthors': NG.author.list(),
 				'urlwrite': NG.write.topic(),
@@ -172,7 +174,7 @@ Component.entryPoint = function(NS){
 		var args = arguments;
 		var pgInfo = {
 			'component': args[0] || 'topic',
-			'wname': args[1] || 'TopicListWidget',
+			'wname': args[1] || 'TopicHomeListWidget',
 			'p1': args[2], 'p2': args[3], 'p3': args[4], 'p4': args[5]
 		};
 		if (L.isNull(activeWSPanel) || activeWSPanel.isDestroy()){

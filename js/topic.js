@@ -12,7 +12,7 @@ Component.requires = {
 };
 Component.entryPoint = function(NS){
 
-	var L = YAHOO.lang,
+	var Dom = YAHOO.util.Dom, L = YAHOO.lang,
 		buildTemplate = this.buildTemplate,
 		NSUR = Brick.mod.urating || {},
 		LNG = this.language,
@@ -229,7 +229,8 @@ Component.entryPoint = function(NS){
 		}
 		
 		cfg = L.merge({
-			'filter': ''
+			'filter': '',
+			'onLoadCallback': null
 		}, cfg || {});
 		
 		TopicListWidget.superclass.constructor.call(this, container, {
@@ -240,13 +241,13 @@ Component.entryPoint = function(NS){
 		init: function(cfg){
 			this.catid = 0;
 			this.wsList = [];
-			this.wsMenuItem = 'all'; // использует wspace.js
 		},
 		onLoad: function(cfg){
 			var __self = this;
 			NS.initManager(function(){
 				NS.manager.topicListLoad(function(list){
 					__self.renderList(list);
+					NS.life(cfg['onLoadCallback'], list);
 				}, cfg);
 			});
 		},
@@ -276,5 +277,52 @@ Component.entryPoint = function(NS){
 		}
 	});
 	NS.TopicListWidget = TopicListWidget;
+	
+	var TopicHomeListWidget = function(container, f1, f2){
+		if (f1 == 'new'){f1 = ''; f2 = 'new';}
+		var cfg = {'f1': f1||'', 'f2': f2||''};
+		
+		TopicHomeListWidget.superclass.constructor.call(this, container, {
+			'buildTemplate': buildTemplate, 'tnames': 'homelist' 
+		}, cfg);
+	};
+	YAHOO.extend(TopicHomeListWidget, Brick.mod.widget.Widget, {
+		init: function(cfg){
+			this.cfg = cfg;
+
+			// использует wspace.js
+			this.wsMenuItem = cfg['f1'] == '' ? 'all' : cfg['f1'];
+		},
+		buildTData: function(cfg){
+			var NGT = NS.navigator.topic;
+			return {
+				'url': NGT.list(),
+				'urlnew': NGT.list('new'),
+				'urlpub': NGT.list('pub'),
+				'urlpubnew': NGT.list('pub', 'new'),
+				'urlpers': NGT.list('pers'),
+				'urlpersnew': NGT.list('pers', 'new')
+			};
+		},
+		onLoad: function(cfg){
+			var __self = this;
+			this.listWidget = new NS.TopicListWidget(this.gel('list'), {
+				'onLoadCallback': function(list){
+					__self.onLoadTopics(list);
+				}
+			});
+		},
+		onLoadTopics: function(list){
+			this.elHide('loading');
+			this.elShow('view');
+			
+
+			var cfg = this.cfg;
+			
+			this.elShow('sm'+cfg['f1']);
+			Dom.addClass(this.gel('smi'+cfg['f1']+cfg['f2']), 'sel');
+		}
+	});
+	NS.TopicHomeListWidget = TopicHomeListWidget;
 
 };

@@ -36,11 +36,18 @@ Component.entryPoint = function(NS){
 	
 	var WS = "#app={C#MODNAMEURI}/wspace/ws/";
 	
+	var urlJoinArgs = function(url, args){
+		for (var i=0;i<args.length;i++){
+			url += args[i]+"/";
+		}
+		return url;
+	};
+	
 	NS.navigator = {
 		'home': function(){ return WS; }, 
 		'topic': {
 			'list': function(){
-				return WS+'topic/TopicListWidget/';
+				return urlJoinArgs(WS+'topic/TopicHomeListWidget/', arguments);
 			},
 			'view': function(topicid){
 				return WS+'topic/TopicViewWidget/'+topicid+'/';
