@@ -71,6 +71,7 @@ if ($updateManager->isInstall()){
 
 			`isdraft` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1-черновик',
 			`isban` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'Наложить запрет на публикацию (админ, модер)',
+			`isindex` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1-принудительный вывод на главную',
 			
 			`dateline` integer(10) unsigned NOT NULL COMMENT 'Дата создания',
 			`upddate` integer(10) unsigned NOT NULL COMMENT 'Дата редактирования',
@@ -271,7 +272,8 @@ if ($updateManager->isUpdate('0.5') && !$updateManager->isInstall()){
 		ADD `notcomment` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1-запретить комментарии',
 		ADD `isdraft` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1-черновик',
 		ADD `isban` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'Наложить запрет на публикацию (админ, модер)',
-		
+		ADD `isindex` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1-принудительный вывод на главную',
+
 		ADD `commentcount` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Кол-во комментариев',
 		ADD `viewcount` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Кол-во просмотров (учет зарег.польз.)',
 		
@@ -357,7 +359,8 @@ if ($updateManager->isUpdate('0.5') && !$updateManager->isInstall()){
 	// перенести старое значения статуса в значение черновика и удалить поле
 	$db->query_write("
 		UPDATE ".$pfx."bg_topic
-		SET isdraft=IF(status<1, 1, 0)
+		SET isdraft=IF(status<1, 1, 0),
+			isindex=1
 	");
 	$db->query_write("
 		ALTER TABLE ".$pfx."bg_topic

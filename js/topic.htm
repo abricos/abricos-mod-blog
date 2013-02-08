@@ -7,28 +7,44 @@
 
 	<div id="{i#view}" style="display: none">
 	
-		<div id="{i#sm}" class="submenu" style="display: none">
-			<a href="{v#url}" id="{i#smi}">Интересные</a>
-			<a href="{v#urlnew}" id="{i#sminew}">Новые</a>
-			<div class="clear"></div>
-		</div>
+		<ul id="{i#sm}" class="submenu" style="display: none">
+			<li id="{i#smi}">
+				<a href="{v#url}">Интересные</a>
+			</li>
+			<li id="{i#sminew}">
+				<a href="{v#urlnew}">Новые</a>
+				<a href="{v#urlnew}" class="new" id="{i#sminewb}"></a>
+			</li>
+			<li class="clear">&nbsp;</li>
+		</ul>
 
-		<div id="{i#smpub}" class="submenu" style="display: none">
-			<a href="{v#urlpub}" id="{i#smipub}">Интересные</a>
-			<a href="{v#urlpubnew}" id="{i#smipubnew}">Новые</a>
-			<div class="clear"></div>
-		</div>
+		<ul id="{i#smpub}" class="submenu" style="display: none">
+			<li id="{i#smipub}">
+				<a href="{v#urlpub}" >Интересные</a>
+			</li>
+			<li id="{i#smipubnew}">
+				<a href="{v#urlpubnew}">Новые</a>
+				<a href="{v#urlpubnew}" id="{i#smipubnewb}" class="new"></a>
+			</li>
+			<li class="clear">&nbsp;</li>
+		</ul>
 	
-		<div id="{i#smpers}" class="submenu" style="display: none">
-			<a href="{v#urlpers}" id="{i#smipers}">Хорошие</a>
-			<a href="{v#urlpersnew}" id="{i#smipersnew}">Новые</a>
-			<div class="clear"></div>
-		</div>
+		<ul id="{i#smpers}" class="submenu" style="display: none">
+			<li id="{i#smipers}">
+				<a href="{v#urlpers}">Хорошие</a>
+			</li>
+			<li id="{i#smipersnew}">
+				<a href="{v#urlpersnew}" >Новые</a>
+				<a href="{v#urlpersnew}" id="{i#smipersnewb}" class="new"></a>
+			</li>
+			<li class="clear">&nbsp;</li>
+		</ul>
 	
+		<div class="clear"></div>
+		
 		<div id="{i#list}"></div>
 	</div>
 </div>
-
 
 <!--{topiclist}-->
 <div id="{i#id}" class="topiclist">

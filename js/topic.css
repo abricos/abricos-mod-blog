@@ -3,18 +3,25 @@
 	padding: 8px 0 19px 15px;
 }
 
-.aw-blog .homelist .submenu a {
+.aw-blog .homelist .submenu li {
 	float: left;
-	margin-right: 10px;
+	margin-right: 18px;
 	padding: 3px 5px;
 }
-.aw-blog .homelist .submenu a.sel {
-	text-decoration: none;
-	color: #7B848D;
+.aw-blog .homelist .submenu li.sel {
     border: 1px solid #E5E5E5;
 	border-radius: 5px;
 	cursor: default;
-} 
+}
+.aw-blog .homelist .submenu li.sel a {
+	text-decoration: none;
+	color: #7B848D;
+}
+
+.aw-blog .homelist .submenu a.new {
+	text-decoration: none;
+	margin-left: 5px;
+}
 
 /* * * * Топик * * * */
 .aw-blog .topiclist .topic {

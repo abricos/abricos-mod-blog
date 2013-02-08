@@ -155,25 +155,48 @@ class BlogManager extends Ab_ModuleManager {
 		
 		$fa = explode("/", $cfg->filter);
 		$fType = $fa[0]; $fPrm = $fa[1];
+		$total = 0;
+		$totalNew = 0;
 		
 		switch ($fType){
 		case "draft":
 			$rows = BlogTopicQuery::TopicDraftList($this->db, $this->userid, $cfg->page, $cfg->limit);
 			break;
-		case "cat":
-			$rows = BlogTopicQuery::TopicList($this->db, $cfg->page, $cfg->limit, $fType, $fPrm);
-			break;
-		case "tag":
-			$rows = BlogTopicQuery::TopicList($this->db, $cfg->page, $cfg->limit, $fType, $fPrm);
 			break;
 		case "author":
 			$rows = BlogTopicQuery::TopicListByAuthor($this->db, $fPrm,  $cfg->page, $cfg->limit);
 			break;
+			
+		case "new":		// новые
+			$fType = "";
+			$fPrm = "new";
+			
+			$rows = BlogTopicQuery::TopicList($this->db, $cfg->page, $cfg->limit, $fType, $fPrm);
+			$total = BlogTopicQuery::TopicList($this->db, $cfg->page, $cfg->limit, $fType, $fPrm, true);
+			$totalNew = $total;
+			break;
+		case "pub":		// коллективные (интересные/новые)
+		case "pers":	// персональные (хорошие/новые)
+			$rows = BlogTopicQuery::TopicList($this->db, $cfg->page, $cfg->limit, $fType, $fPrm);
+			$total = BlogTopicQuery::TopicList($this->db, $cfg->page, $cfg->limit, $fType, $fPrm, true);
+			if ($fPrm == "new"){
+				$totalNew = $total;
+			}else{
+				$totalNew = BlogTopicQuery::TopicList($this->db, $cfg->page, $cfg->limit, $fType, "new", true);
+			}
+			break;
+		case "tag":
+		case "cat":
+			$rows = BlogTopicQuery::TopicList($this->db, $cfg->page, $cfg->limit, $fType, $fPrm);
+			$total = BlogTopicQuery::TopicList($this->db, $cfg->page, $cfg->limit, $fType, $fPrm, true);
+			
+			break;
 		default:
 			$rows = BlogTopicQuery::TopicList($this->db, $cfg->page, $cfg->limit);
+			$total = BlogTopicQuery::TopicList($this->db, $cfg->page, $cfg->limit, "", "", true);
+			$totalNew = BlogTopicQuery::TopicList($this->db, $cfg->page, $cfg->limit, "", "new", true);
 			break;
 		}
-		
 		
 		$topics = array();
 		
@@ -183,7 +206,7 @@ class BlogManager extends Ab_ModuleManager {
 		
 		$this->TopicSetTags($topics);
 		
-		return new BlogTopicList($topics);
+		return new BlogTopicList($topics, $total, $totalNew);
 	}
 	
 	public function TopicListToAJAX($cfg){

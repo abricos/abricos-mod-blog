@@ -307,6 +307,7 @@ Component.entryPoint = function(NS){
 		onLoad: function(cfg){
 			var __self = this;
 			this.listWidget = new NS.TopicListWidget(this.gel('list'), {
+				'filter': cfg['f1']+"/"+cfg['f2'],
 				'onLoadCallback': function(list){
 					__self.onLoadTopics(list);
 				}
@@ -320,7 +321,15 @@ Component.entryPoint = function(NS){
 			var cfg = this.cfg;
 			
 			this.elShow('sm'+cfg['f1']);
+			
 			Dom.addClass(this.gel('smi'+cfg['f1']+cfg['f2']), 'sel');
+			
+			var sn = "";
+			if (list.totalNew>0){
+				sn = "+"+list.totalNew;
+			}
+
+			this.elSetHTML('smi'+cfg['f1']+'newb', sn);
 		}
 	});
 	NS.TopicHomeListWidget = TopicHomeListWidget;

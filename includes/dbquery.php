@@ -107,12 +107,35 @@ class BlogTopicQuery {
 	}
 	
 
-	public static function TopicList(Ab_Database $db, $page=1, $limit=50, $fType='', $fPrm=''){
+	public static function TopicList(Ab_Database $db, $page=1, $limit=50, $fType='', $fPrm='', $isCount = false){
 		$from = $limit * (max($page, 1) - 1);
 		$urt = BlogTopicQuery::TopicRatingSQLExt($db);
 		
+		$newPeriod = TIMENOW-60*60*24;
+
+		$filterRating = "";
+		if (BlogManager::$isURating){
+			$filterRating = " AND (t.rating >= 5 OR t.isindex=1)";
+		}
+		
+		
 		$filter = '';
-		if ($fType == 'cat'){
+		if ($fType == "" && $fPrm == "new"){ // главная
+			$filter = " AND t.pubdate>".$newPeriod;
+			$filterRating = "";
+		}else if ($fType == 'pub'){		// коллективные
+			$filter = " AND t.catid>0";
+			if ($fPrm == 'new'){
+				$filter .= " AND t.pubdate>".$newPeriod;
+				$filterRating = "";
+			}
+		}else if ($fType == 'pers'){		// персональные
+			$filter = " AND t.catid=0";
+			if ($fPrm == 'new'){
+				$filter .= " AND t.pubdate>".$newPeriod;
+				$filterRating = "";
+			}
+		}else if ($fType == 'cat'){
 			$filter = " AND t.catid=".bkint($fPrm);
 		}else if ($fType == 'tag'){
 			$urt->tbl .= "
@@ -121,11 +144,21 @@ class BlogTopicQuery {
 			";
 			$filter = " AND tg.title='".bkstr($fPrm)."'";
 		}
+		$filter .= $filterRating;
+		
+		$fld = "
+			".BlogTopicQuery::TopicFields($db)."
+			".$urt->fld."
+		";
+		$limit = "LIMIT ".$from.",".bkint($limit)."";
+		
+		if ($isCount){
+			$fld = "count(t.topicid) as cnt";
+			$limit = "LIMIT 1";
+		}
 				
 		$sql = "
-			SELECT
-				".BlogTopicQuery::TopicFields($db)."
-				".$urt->fld."
+			SELECT ".$fld."
 			FROM ".$db->prefix."bg_topic t
 			LEFT JOIN ".$db->prefix."bg_cat cat ON t.catid = cat.catid
 			INNER JOIN ".$db->prefix."content cc ON t.contentid = cc.contentid
@@ -135,8 +168,14 @@ class BlogTopicQuery {
 				AND t.isdraft=0 AND t.language='".bkstr(Abricos::$LNG)."'
 				".$filter."
 			ORDER BY t.pubdate DESC
-			LIMIT ".$from.",".bkint($limit)."
+			".$limit."
 		";
+		// print_r(array($ftype, $fPrm));
+		// print_r($sql);
+		if ($isCount){
+			$row = $db->query_first($sql);
+			return intval($row['cnt']);
+		}
 		return $db->query_read($sql);
 	}
 	

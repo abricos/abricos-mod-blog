@@ -189,16 +189,35 @@ class BlogTopicList {
 	
 	public $list;
 	
-	public function __construct($list){
+	/**
+	 * Всего таких записей в базе
+	 * @var integer
+	 */
+	public $total;
+	
+	/**
+	 * Из них новых записей
+	 * @var integer
+	 */
+	public $totalNew;
+	
+	public function __construct($list, $total=0, $totalNew=0){
 		$this->list = $list;
+		$this->total = $total;
+		$this->totalNew = $totalNew;
 	}
 	
 	public function ToAJAX(){
 		$ret = new stdClass();
-		$ret->topics = array();
+		$list = array();
 		for ($i=0;$i<count($this->list); $i++){
-			array_push($ret->topics, $this->list[$i]->ToAJAX());
+			array_push($list, $this->list[$i]->ToAJAX());
 		}
+		$ret->topics = new stdClass();
+		$ret->topics->list = $list;
+		$ret->topics->total = $this->total;
+		$ret->topics->totalNew = $this->totalNew;
+		
 		return $ret;
 	}
 }

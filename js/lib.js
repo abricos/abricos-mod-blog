@@ -249,6 +249,10 @@ Component.entryPoint = function(NS){
 	NS.Topic = Topic;
 	
 	var TopicList = function(d){
+		
+		this.total = 0; // всего записей на сервере
+		this.totalNew = 0; // новых записей
+		
 		TopicList.superclass.constructor.call(this, d, TopicInfo);
 	};
 	YAHOO.extend(TopicList, SysNS.ItemList, {});
@@ -510,11 +514,14 @@ Component.entryPoint = function(NS){
 			cfg['do'] = 'topiclist';
 			this.ajax(cfg, function(d){
 				var list = null;
-				
-				if (!L.isNull(d) && L.isArray(d['topics'])){
-					list = new NS.TopicList(d['topics']);
+
+				if (!L.isNull(d) && d['topics'] && L.isArray(d['topics']['list'])){
+					list = new NS.TopicList(d['topics']['list']);
+					list.total = d['topics']['total']*1;
+					list.totalNew = d['topics']['totalNew']*1;
 				}
-				
+				//Brick.console(d['topics']);
+
 				NS.life(callback, list);
 			});
 		},
