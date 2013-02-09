@@ -62,10 +62,8 @@ Component.entryPoint = function(NS){
 		onLoad: function(){
 			var __self = this;
 			NS.initManager(function(){
-				NS.manager.topicListLoad(function(list){
+				NS.manager.topicListLoad({'limit': 5}, function(list){
 					__self.renderList(list);
-				}, {
-					'limit': 5
 				});
 			});
 		},

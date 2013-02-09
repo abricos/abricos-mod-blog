@@ -7,7 +7,7 @@ var Component = new Brick.Component();
 Component.requires = {
 	mod:[
         {name: 'urating', files: ['vote.js']},
-        {name: '{C#MODNAME}', files: ['lib.js']}
+        {name: '{C#MODNAME}', files: ['widget.js', 'lib.js']}
 	]
 };
 Component.entryPoint = function(NS){
@@ -229,8 +229,10 @@ Component.entryPoint = function(NS){
 		}
 		
 		cfg = L.merge({
+			'page': 1,
 			'filter': '',
-			'onLoadCallback': null
+			'onLoadCallback': null,
+			'list': null
 		}, cfg || {});
 		
 		TopicListWidget.superclass.constructor.call(this, container, {
@@ -239,20 +241,24 @@ Component.entryPoint = function(NS){
 	};
 	YAHOO.extend(TopicListWidget, Brick.mod.widget.Widget, {
 		init: function(cfg){
+			this.cfg = cfg;
 			this.catid = 0;
 			this.wsList = [];
+			this.next = null;
 		},
 		onLoad: function(cfg){
 			var __self = this;
 			NS.initManager(function(){
-				NS.manager.topicListLoad(function(list){
-					__self.renderList(list);
-					NS.life(cfg['onLoadCallback'], list);
-				}, cfg);
+				NS.manager.topicListLoad(cfg, function(list){
+					__self.onLoadManager(list);
+				});
 			});
 		},
 		destroy: function(){
 			this.clearList();
+			if (!L.isNull(this.next)){
+				this.next.destroy();
+			}
 		},
 		clearList: function(){
 			var ws = this.wsList;
@@ -261,19 +267,50 @@ Component.entryPoint = function(NS){
 			}
 			this.elSetHTML('list', '');
 		},
-		
-		renderList: function(list){
-			this.clearList();
+		onLoadManager: function(list){
+			NS.life(this.cfg['onLoadCallback'], list);
+			
+			this.renderList(list);
+			if (L.isNull(list)){ return; }
+			
+			var __self = this, cfg = this.cfg;
+			this.next = new NS.NextWidget(this.gel('next'), {
+				'limit': list.limit,
+				'loaded': list.count(),
+				'total': list.total,
+				'nextCallback': function(page, callback){
+					cfg['page'] = page;
+					cfg['list'] = list;
+					NS.manager.topicListLoad(cfg, function(nlist){
+						NS.life(callback, {
+							'loaded': nlist.count(),
+							'total': nlist.total,
+						});
+						__self.renderList(nlist);
+					});
+				}
+			});
+		},
+		renderList: function(list, isClear){
+			if (isClear){
+				this.clearList();
+			}
 			this.elHide('loading');
 			
 			var elList = this.gel('list');
 			var ws = this.wsList;
 
 			list.foreach(function(topic){
+				
+				for (var i=0;i<ws.length;i++){
+					if (ws[i].topic.id == topic.id){ return; }
+				}
+				
 				var div = document.createElement('div');
 				elList.appendChild(div);
 				ws[ws.length] = new NS.TopicRowWidget(div, topic);
 			});
+			
 		}
 	});
 	NS.TopicListWidget = TopicListWidget;
@@ -305,9 +342,14 @@ Component.entryPoint = function(NS){
 			};
 		},
 		onLoad: function(cfg){
-			var __self = this;
+			var __self = this, f1 = cfg['f1'], f2 = cfg['f2'];
+			var filter = f1+"/"+f2;
+			if (f1 == '' && f2 == 'new'){
+				filter = 'new';
+			}
+			
 			this.listWidget = new NS.TopicListWidget(this.gel('list'), {
-				'filter': cfg['f1']+"/"+cfg['f2'],
+				'filter': filter,
 				'onLoadCallback': function(list){
 					__self.onLoadTopics(list);
 				}

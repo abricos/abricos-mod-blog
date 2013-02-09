@@ -107,7 +107,7 @@ class BlogTopicQuery {
 	}
 	
 
-	public static function TopicList(Ab_Database $db, $page=1, $limit=50, $fType='', $fPrm='', $isCount = false){
+	public static function TopicList(Ab_Database $db, $page=1, $limit=10, $fType='', $fPrm='', $isCount = false){
 		$from = $limit * (max($page, 1) - 1);
 		$urt = BlogTopicQuery::TopicRatingSQLExt($db);
 		
@@ -118,9 +118,8 @@ class BlogTopicQuery {
 			$filterRating = " AND (t.rating >= 5 OR t.isindex=1)";
 		}
 		
-		
 		$filter = '';
-		if ($fType == "" && $fPrm == "new"){ // главная
+		if ($fType == "" && $fPrm == "new"){ // главная - новые
 			$filter = " AND t.pubdate>".$newPeriod;
 			$filterRating = "";
 		}else if ($fType == 'pub'){		// коллективные
@@ -170,8 +169,7 @@ class BlogTopicQuery {
 			ORDER BY t.pubdate DESC
 			".$limit."
 		";
-		// print_r(array($ftype, $fPrm));
-		// print_r($sql);
+
 		if ($isCount){
 			$row = $db->query_first($sql);
 			return intval($row['cnt']);
@@ -187,7 +185,7 @@ class BlogTopicQuery {
 	 * @param integer $page
 	 * @param integer $limit
 	 */
-	public static function TopicDraftList(Ab_Database $db, $userid, $page=1, $limit=15){
+	public static function TopicDraftList(Ab_Database $db, $userid, $page=1, $limit=10){
 		$from = $limit * (max($page, 1) - 1);
 		$urt = BlogTopicQuery::TopicRatingSQLExt($db);
 
@@ -217,7 +215,7 @@ class BlogTopicQuery {
 	 * @param integer $page
 	 * @param integer $limit
 	 */
-	public static function TopicListByAuthor(Ab_Database $db, $userid, $page=1, $limit=15){
+	public static function TopicListByAuthor(Ab_Database $db, $userid, $page=1, $limit=10){
 		$from = $limit * (max($page, 1) - 1);
 		$urt = BlogTopicQuery::TopicRatingSQLExt($db);
 	

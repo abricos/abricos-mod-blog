@@ -1,7 +1,7 @@
 <?php
 /**
  * @package Abricos
- * @subpackage
+ * @subpackage Blog
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * @author Alexander Kuzmin <roosit@abricos.org>
  */
@@ -140,14 +140,16 @@ class BlogManager extends Ab_ModuleManager {
 	 * @return array
 	 */
 	public function TopicList($cfg){
-		if (!$this->IsViewRole()){
-			return null;
-		}
+		if (!$this->IsViewRole()){ return null; }
+		
 		if (!is_object($cfg)){
 			$cfg = new stdClass();
 		}
+		if (empty($cfg->limit)){ $cfg->limit = 10; }
+		if (empty($cfg->page)){ $cfg->page = 1; }
+				
 		$cfg->page = max(intval($cfg->page), 1);
-		$cfg->limit = max(1, min(50, intval($cfg->limit)));
+		$cfg->limit = max(1, min(25, intval($cfg->limit)));
 		
 		if (!is_string($cfg->filter)){
 			$cfg->filter = "";
@@ -162,7 +164,7 @@ class BlogManager extends Ab_ModuleManager {
 		case "draft":
 			$rows = BlogTopicQuery::TopicDraftList($this->db, $this->userid, $cfg->page, $cfg->limit);
 			break;
-			break;
+
 		case "author":
 			$rows = BlogTopicQuery::TopicListByAuthor($this->db, $fPrm,  $cfg->page, $cfg->limit);
 			break;
@@ -175,6 +177,7 @@ class BlogManager extends Ab_ModuleManager {
 			$total = BlogTopicQuery::TopicList($this->db, $cfg->page, $cfg->limit, $fType, $fPrm, true);
 			$totalNew = $total;
 			break;
+		
 		case "pub":		// коллективные (интересные/новые)
 		case "pers":	// персональные (хорошие/новые)
 			$rows = BlogTopicQuery::TopicList($this->db, $cfg->page, $cfg->limit, $fType, $fPrm);
@@ -185,12 +188,13 @@ class BlogManager extends Ab_ModuleManager {
 				$totalNew = BlogTopicQuery::TopicList($this->db, $cfg->page, $cfg->limit, $fType, "new", true);
 			}
 			break;
+		
 		case "tag":
 		case "cat":
 			$rows = BlogTopicQuery::TopicList($this->db, $cfg->page, $cfg->limit, $fType, $fPrm);
 			$total = BlogTopicQuery::TopicList($this->db, $cfg->page, $cfg->limit, $fType, $fPrm, true);
-			
 			break;
+
 		default:
 			$rows = BlogTopicQuery::TopicList($this->db, $cfg->page, $cfg->limit);
 			$total = BlogTopicQuery::TopicList($this->db, $cfg->page, $cfg->limit, "", "", true);
@@ -333,26 +337,32 @@ class BlogManager extends Ab_ModuleManager {
 				}
 			}else if ($isNewPublic){ // проверки по публикации
 				$row = BlogTopicQuery::TopicPublicCountByUser($this->db, $this->userid);
-				if (!empty($row) && $row['cnt'] > 3){ // не более 3 публикаций в день
+				$pubCount = intval($row['cnt']);
+				
+				if ($pubCount > 3){ // не более 3 публикаций в день
 					$ret->error = 12;
 					return $ret;
 				}
 				
 				// ограничения по репутации
 				if (BlogManager::$isURating){ // работает система репутации пользователя
-				
+
 					$urep = $this->GetURatingManager()->UserReputation();
-					if ($urep->reputation < 1){ // для создании топика необходима репутация >= 0
+
+					// ограничения по репутации категории
+					if (!empty($cat) && $urep->reputation < $cat->reputation){
+						$ret->error = 21;
+						return $ret;
+					}
+					
+					if ($urep->reputation == 0 && empty($cat)){ // публикует с нулевой репутацией в персональный блог
+						// ограничения для персонального блога не более 3-х публикаций в сутки
+					
+					}else if ($urep->reputation < 1){ // для публикации в коллективном блоге необходима репутация > 0
 						$ret->error = 20;
 						return $ret;
 					}
 				
-					// ограничения по репутации категории
-					if (!empty($cat) && $cat->reputation > 0 
-							&& $urep->reputation < $cat->reputation){
-						$ret->error = 21;
-						return $ret;
-					}
 				}
 			}
 		}

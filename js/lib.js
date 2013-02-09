@@ -250,8 +250,9 @@ Component.entryPoint = function(NS){
 	
 	var TopicList = function(d){
 		
-		this.total = 0; // всего записей на сервере
-		this.totalNew = 0; // новых записей
+		this.limit = 10;	// лимит загрузки за раз
+		this.total = 0;		// всего записей на сервере
+		this.totalNew = 0;	// новых записей
 		
 		TopicList.superclass.constructor.call(this, d, TopicInfo);
 	};
@@ -503,26 +504,39 @@ Component.entryPoint = function(NS){
 				NS.life(callback, __self.categoryList);
 			});			
 		},
-		topicListLoad: function(callback, cfg){
+		topicListLoad: function(cfg, callback){
 			cfg = L.merge({
+				'list': null,
 				'catid': 0,
 				'page': 1,
-				'limit': 15,
+				'limit': 10,
 				'filter': ''
 			}, cfg || {});
 			
-			cfg['do'] = 'topiclist';
-			this.ajax(cfg, function(d){
-				var list = null;
+			this.ajax({
+				'do': 'topiclist',
+				'catid': cfg['catid'],
+				'page': cfg['page'],
+				'limit': cfg['limit'],
+				'filter': cfg['filter']
+			}, function(d){
+				var rlist = null;
 
 				if (!L.isNull(d) && d['topics'] && L.isArray(d['topics']['list'])){
-					list = new NS.TopicList(d['topics']['list']);
-					list.total = d['topics']['total']*1;
-					list.totalNew = d['topics']['totalNew']*1;
+					rlist = new NS.TopicList(d['topics']['list']);
+					rlist.total = d['topics']['total']*1;
+					rlist.totalNew = d['topics']['totalNew']*1;
+					
+					var list = cfg['list'];
+					if (L.isObject(list)){
+						rlist.foreach(function(item){
+							list.add(item);
+						});
+						rlist = list;
+					}
 				}
-				//Brick.console(d['topics']);
 
-				NS.life(callback, list);
+				NS.life(callback, rlist);
 			});
 		},
 		topicLoad: function(topicid, callback){
