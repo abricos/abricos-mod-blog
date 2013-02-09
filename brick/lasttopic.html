@@ -1,15 +1,14 @@
 <!--[*]
-[script]lasttopic.php[/script]
+[script]brick_lasttopic.php[/script]
+[mcss=blog]blog.css[/mcss]
 
-[bkvar=lst][/bkvar]
 [bkvar=row]
 	<li>
-		<a class="category" href="{v#catlnk}">{v#cattl}</a>&nbsp;&#8594;&nbsp;
-		<a class="topic" href="{v#toplnk}">{v#topnm}</a>
+		<a href="{v#urlcat}" class="category">{v#cattl}</a>
+		&nbsp;→&nbsp; 
+		<a href="{v#urltop}" class="topic">{v#toptl}</a>
 	</li>
 [/bkvar]
-[mcss=blog]blog.css[/mcss]
-[p=showempty][/p]
 
 [bkvar=rss]
 	<span class="rssicon">
@@ -20,12 +19,14 @@
 [/bkvar]
 
 [*]-->
-<div class="mod-blog box">
-	<div class="topicblock">
-		<h3>{#brick.lasttopic.2} {v#rss}</h3>
-		<ul class="bloglasttopic">
-			[bkvar]lst[/bkvar]
-			<li class="fullblog"><a href="/blog/">{#brick.lasttopic.3}</a></li>
-		</ul>
+<div class="aw-blog box" id="aw-blog-brick-lasttopic">
+	<div class="topiclistbox blockbox">
+		<h4>
+			<a href="#" title="Записи в блоге">Записи в блоге {v#rss}</a>
+		</h4>
+		
+		<div class="list">
+			<ul>{v#rows}</ul>
+		</div>
 	</div>
 </div>

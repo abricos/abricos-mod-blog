@@ -75,6 +75,19 @@ class BlogManager extends Ab_ModuleManager {
 		return $this->AJAX_MethodToRemove($d);
 	}
 	
+	public function ParamToObject($o){
+		if (is_array($o)){
+			$ret = new stdClass();
+			foreach($o as $key => $value){
+				$ret->$key = $value;
+			}
+			return $ret;
+		}else if (!is_object($o)){
+			return new stdClass();
+		}
+		return $o;
+	}
+	
 	/**
 	 * @return URatingManager
 	 */
@@ -142,9 +155,8 @@ class BlogManager extends Ab_ModuleManager {
 	public function TopicList($cfg){
 		if (!$this->IsViewRole()){ return null; }
 		
-		if (!is_object($cfg)){
-			$cfg = new stdClass();
-		}
+		$cfg = $this->ParamToObject($cfg);
+		
 		if (empty($cfg->limit)){ $cfg->limit = 10; }
 		if (empty($cfg->page)){ $cfg->page = 1; }
 				
@@ -422,7 +434,8 @@ class BlogManager extends Ab_ModuleManager {
 		$ret->topicid = $d->id;
 		return $ret;
 	}
-	
+
+	private $_categoryListCache = null;
 
 	/**
 	 * @return BlogCategoryList
@@ -430,13 +443,19 @@ class BlogManager extends Ab_ModuleManager {
 	public function CategoryList(){
 		if (!$this->IsViewRole()){ return null; }
 		
+		
+		if (!empty($this->_categoryListCache)){
+			return $this->_categoryListCache;
+		}
+		
 		$cats = array();
 		$rows = BlogTopicQuery::CategoryList($this->db);
 		while (($row = $this->db->fetch_array($rows))){
 			array_push($cats, new BlogCategory($row));
 		}
 		
-		return new BlogCategoryList($cats);
+		$this->_categoryListCache = new BlogCategoryList($cats);
+		return $this->_categoryListCache;
 	}
 	
 	public function Category($catid){
@@ -770,90 +789,6 @@ class BlogManager extends Ab_ModuleManager {
 	/*                  МЕТОДЫ НА УДАЛЕНИЕ/ПЕРЕРАБОТКУ               */
 	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 	// TODO: Удалить
-	
-	/*
-	public function Bos_OnlineData(){
-		return $this->BoardInit(5);
-	}
-	/**/
-	/**
-	 * Данные инициализации приложения
-	 */
-	
-	public function BoardInit($limit = 15){
-		if (!$this->IsViewRole()){ return null; }
-		
-		$ret =  $this->BoardData(0, $limit, -1);
-		
-		$ret->categories = array();
-		$rows = BlogQueryApp::CategoryList($this->db);
-		while (($row = $this->db->fetch_array($rows))){
-			array_push($ret->categories, $row);
-		}
-		
-		return $ret;
-	}
-	
-	private function BoardData($page, $limit, $topicid = -1){
-		$ret =  new stdClass();
-		
-		$ret->topics = array();
-		$rows = BlogQueryApp::TopicList($this->db, $page, $limit, $topicid);
-		while (($row = $this->db->fetch_array($rows))){
-			array_push($ret->topics, $row);
-		}
-		
-		$ret->tags = array();
-		$rows = BlogQueryApp::TagList($this->db, $page, $limit, $topicid);
-		while (($row = $this->db->fetch_array($rows))){
-			array_push($ret->tags, $row);
-		}
-
-		$ret->toptags = array();
-		$rows = BlogQueryApp::TopicTagList($this->db, $page, $limit, $topicid);
-		while (($row = $this->db->fetch_array($rows))){
-			array_push($ret->toptags, $row);
-		}
-		
-		$ret->users = array();
-		$rows = BlogQueryApp::TopicUserList($this->db, $page, $limit, $topicid);
-		while (($row = $this->db->fetch_array($rows))){
-			array_push($ret->users, $row);
-		}
-		
-		// отправить сообщения рассылки из очереди (подобие крона)
-		$this->SubscribeTopicCheck();
-		
-		return $ret;
-	}
-	
-	public function BoardTopic($topicid){
-		if (!$this->IsViewRole()){ return null; }
-		$ret =  $this->BoardData(0, 1, $topicid);
-		
-		// отправить сообщения рассылки из очереди (подобие крона)
-		$this->SubscribeTopicCheck();
-		
-		return $ret;
-	}
-
-	/**
-	 * Есть ли доступ к записи в блоге?
-	 * @param integer $topicid идентификатор записи в блоге
-	 * @param integer $type тип действия (0-чтение, 1-изменение/удаление)
-	 */
-	public function TopicAccess($topicid, $type=0){
-		// админу можно все
-		if ($this->IsAdminRole()){ return true; }
-
-		$info = BlogQuery::TopicInfo($this->db, $topicid);
-		// автору можно все, если конечно же роли позволят
-		if ($info['userid'] == $this->userid){
-			return ($type == 0 && $this->IsViewRole()) || ($type == 1 && $this->IsWriteRole());
-		}
-		return $type == 0 && $this->IsViewRole() && $info['status'] == 1;
-	}
-	
 
 	public function SubscribeTopicCheck($sendlimit = 25){
 

@@ -77,7 +77,7 @@ Component.entryPoint = function(NS){
 					'cattl': cat.title,
 					'urlcat': cat.url(),
 					'toptl': topic.title,
-					'urlcmt': topic.url()
+					'urltop': topic.url()
 				});
 			});
 			this.elSetHTML('list', TM.replace('toplist', {

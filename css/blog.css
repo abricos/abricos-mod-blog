@@ -1,182 +1,490 @@
-.mod-blog .topicblock h3 {
+/* * * * * * * * * * * * * * * */
+/*   Файл создан из js/*.css   */ 
+/* * * * * * * * * * * * * * * */
+
+.aw-blog .clear { clear: both;}
+.aw-blog .loading,
+.aw-blog .nullitem { 
+	text-align: center;
+	padding: 70px 0; 
+}
+
+/* * * * * * AHref Button * * * * */
+.aw-blog a.habtn {
+	border-bottom: 1px dotted;
+	text-decoration: none;
+	margin: 0 5px;
+}
+.aw-blog a.warn {
+	color: #DA4242;
+}
+
+/* * * * Превьюшки * * * * */
+.aw-blog .tmb24 { width: 24px; height: 24px; }
+.aw-blog .tmb24 img { max-width: 24px; max-height: 24px; }
+
+.aw-blog .tmb { display: table; }
+.aw-blog .tmb .tmbpre {
+	display: table-cell;
+	vertical-align: middle;
+}
+.aw-blog .tmb .tmbpre img {
+	display: block;
+	margin: 0 auto;
+}
+
+
+/* * * * * * * * * * Editor Form * * * * * * * */
+.aw-blog .editform {
+	padding: 10px 0;
+	background-color: #F9F5DF;
+}
+.aw-blog .editform .dsc,
+.aw-blog .viewform .dsc {
+	color: #555555;
+	font-size: .9em;
+	/* width: 400px; /**/
+}
+
+.aw-blog .editform h3,
+.aw-blog .viewform h3 {
+    color: #333333;
+    font-size: 1.28em;
+    font-weight: bold;
+    padding-bottom: 0.5em;
+
+	font-weight: normal !important;
+}
+.aw-blog .editform h4,
+.aw-blog .viewform h4 {
+	margin-bottom: 10px;
+	font-weight: bold;
+}
+.aw-blog .editform .group,
+.aw-blog .viewform .group {
+	margin: 0 20px;
+	border-bottom: 1px solid #E3E3D7;
+	margin-bottom: 1em;
+	padding-bottom: .8em;
+}
+.aw-blog .editform .fieldline {
+	margin-bottom: 10px;
+}
+.aw-blog .editform dl,
+.aw-blog .viewform dl {
+	margin: 0 0 0.3em;
+    padding: 0;
+    clear: both;
+}
+.aw-blog .editform dt,
+.aw-blog .viewform dt {
+    float: left;
+    padding: 0.5em 0 0.5em 0;
+    width: 12em;
+}
+.aw-blog .viewform dt {
+	text-align: right;
+	color: #999999;
+}
+
+.aw-blog .editform dd,
+.aw-blog .viewform dd  {
+    float: none;
+    margin-left: 13em;
+    padding: 0.5em 0;
+}
+.aw-blog .editform p {
+	margin: 5px 0 7px;
+}
+.aw-blog .editform input.inp,
+.aw-blog .editform select.inp,
+.aw-blog .editform textarea.inp {
+    border: 1px solid #ACAEB4;
+    border-radius: 3px 3px 3px 3px;
+    line-height: 20px;
+    padding: 3px;
+    width: 400px;
+}
+.aw-blog .editform select.inp {
+	width: 407px;
+}
+.aw-blog .editform textarea.inp {
+	height: 100px;
+}
+.aw-blog .editform .baction {
+	margin-top: 10px;
+	margin-right: 2em;
+}
+.aw-blog .editform .baction input {
+ 	margin-right: 10px;
+    padding: 2px 5px;	
+}
+.aw-blog .editform .baction .error {
+	color: red;
+	margin-right: 10px;
+}
+/* * * * Authors * * * */
+.aw-blog .authorlist .author {
+	border-bottom: 1px solid #eee;	
+	padding-bottom: 10px;
+	margin-bottom: 10px;
+}
+.aw-blog .author .avtr {
+	float: left;
+	margin-right: 10px;
+}
+.aw-blog .author a.username {
+	font-family: Verdana, sans-serif;
+	font-size: 22px;
+}
+.aw-blog .author .stat {
+	margin-top: 4px;
+}
+.aw-blog .author .stat a {
+	color: #999999;
+}
+.aw-blog .authorview .topiclist {
+	margin-top: 20px;
+}
+
+/* * * * Блок * * * */
+.aw-blog .blockbox {
 	position: relative;
 }
-.mod-blog .topicblock .rssicon {
-	position: absolute;
-	right: 0px;
+.aw-blog .blockbox h4 {
+	font-size: 1.5em;
+	padding-bottom: 9px;
 }
-.mod-blog .topicblock .fullblog {
-	text-align: right;
+.aw-blog .blockbox h4 a {
+	text-decoration: none;
+	color: #6A7398;
 }
-.mod-blog .topicblock .fullblog a {
-	text-decoration: underline;
+.aw-blog .blockbox .bloading {
+	position: absolute; top: 4px; right: 2px;
 }
-
-
-.mod-blog .title { 
-	color:#767676;
-	font-family:normal Verdana,Tahoma,sans-serif;
-	font-size:140%;
-	font-size-adjust:none;
-	font-stretch:normal;
-	font-style:normal;
-	font-variant:normal;
-	font-weight:normal;
-	line-height:118%;
-	margin-bottom:0;
+.aw-blog .blockbox .list {
+	color: #6A7398;
 }
-.mod-blog .title .category {
-	color:#6A7398;
-}
-
-.mod-blog .title .subject {
-	color:#999999;
-}
-
-.mod-blog .delim {
-	padding-bottom:30px;
-} 
-
-.mod-blog ul.tags {
-	background: #fff url(../images/tag.gif) no-repeat scroll 0 50%;
-	margin: 10px 0 0 0;
-	clear: both;
-	list-style-image: none;
-	list-style-position: outside;
+.aw-blog .blockbox .list li {
 	list-style-type: none;
-	padding: 0.2em 0 0.1em 20px;
-	margin-top: 10px;
-	display: block;
+	padding-bottom: 1em;
+}
+.aw-blog .blockbox .list a {
+	margin-right: 0.5em;
+	text-decoration: none;	
+}
+.aw-blog .blockbox a.category {
+	color: #6A7398;
+	/* font-size: 0.92em; /**/
+	font-weight: bold;
+	margin-right: 0.4em;
+}
+.aw-blog .blockbox a.topic {
+	color: #999999;	
+}
+/* * * * Список * * * */
+.aw-blog .catlist .cathead {
+	padding-bottom: 4px;
+	border-bottom: 1px solid #eee;	
+}
+.aw-blog .catlist .cathead .htl {
+	margin-right: 350px;
+}
+.aw-blog .catlist .cathead .hrtg {
+	float: right;
+	width: 100px;
+}
+.aw-blog .catlist .catrow {
+	border-bottom: 1px solid #eee;	
+	padding-bottom: 10px;
+	margin-bottom: 10px;
+}
+.aw-blog .catlist .catrow .rtg {
+	float: right;
+	width: 100px;
+	font-family: Verdana, sans-serif;	
+	font-size: 17px;
+	padding-top: 5px;
+}
+.aw-blog .catlist .catrow .catinfo {
+	margin-right: 110px;
+}
+.aw-blog .catlist .title {
+	font-family: Verdana, sans-serif;
+	font-size: 22px;
+	float: left;
+	margin-right: 10px;
 }
 
-.mod-blog .tags li {
+/* * * * Категория * * * */
+.aw-blog .catview {
+	position: relative;
+}
+.aw-blog .catview .cattl {
+	color: #6A7398;
+	font-size: 1.5em;
+	font-size: 24px;
+	line-height: 1em;
+	font-weight: normal;
+	margin-bottom: 20px;	
+}
+.aw-blog .catview .catrtg .aw-urating {
+	position: absolute;
+	top: 0;
+	right: 0;
+}
+.aw-blog .catview .catinfo {
+	position: relative;
+	margin-bottom: 35px;
+}
+.aw-blog .catview .catinfo .jbtns {
+	position: absolute; top: 0; right: 0; 
+}
+/* * * * Статистика * * * */
+.aw-blog .catinfo .stat a {
+	color: #999999;
+}
+
+.aw-blog .tagview input.taginput {
+	width: 98%;
+	margin-bottom: 20px;
+	padding: 5px;
+	border: 1px solid #dadada;
+	border-radius: 3px;
+}
+
+/* * * * Список * * * */
+.aw-blog .homelist .submenu {
+	padding: 8px 0 19px 15px;
+}
+
+.aw-blog .homelist .submenu li {
+	float: left;
+	margin-right: 18px;
+	padding: 3px 5px;
+}
+.aw-blog .homelist .submenu li.sel {
+    border: 1px solid #E5E5E5;
+	border-radius: 5px;
+	cursor: default;
+}
+.aw-blog .homelist .submenu li.sel a {
+	text-decoration: none;
+	color: #7B848D;
+}
+
+.aw-blog .homelist .submenu a.new {
+	text-decoration: none;
+	margin-left: 5px;
+}
+
+/* * * * Топик * * * */
+.aw-blog .topiclist .topic {
+	margin-bottom: 25px;
+}
+.aw-blog .topic .intro {
+	margin-top: 10px;
+	font-family: Verdana,Tahoma,sans-serif;
+	line-height: 1.6em;
+	font-size: 1.1em;
+}
+.aw-blog .topic .title a {
+	color: #6A7398;
+	font-family: Verdana,Tahoma,sans-serif;
+    font-size: 1.5em;
+    font-size-adjust: none;
+    font-style: normal;
+    font-variant: normal;
+    font-weight: normal;
+    line-height: 118%;
+}
+.aw-blog .topic .title a.toptl {
+	color: #999999;
+}
+
+.aw-blog .topic .topicinfo,
+.aw-blog .topic .taglist {
+	margin-top: 15px;
+}
+
+/* * * Информационный блок топика * * */
+.aw-blog .topicinfo {
+    font-family: Verdana,"Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-size: 0.9em;
+	color: #7B848D;
+}
+.aw-blog .topicinfo .tpinbox {
+	border-radius: 5px;
+	border: 1px solid #E5E5E5;
+	float: left;
+	padding-right: 17px;
+}
+.aw-blog .topicinfo .topicvote,
+.aw-blog .topicinfo .user,
+.aw-blog .topicinfo .date,
+.aw-blog .topicinfo .comments {
+	padding-left: 17px;
+	float: left;
+}
+.aw-blog .topicinfo .user,
+.aw-blog .topicinfo .date,
+.aw-blog .topicinfo .comments {
+	line-height: 34px;
+}
+.aw-blog .topicinfo .topicvote {
+	margin-top: 10px;
+}
+.aw-blog .topicinfo .user .avtr {
+	margin-top: 4px;
+	margin-right: 10px; 
+}
+.aw-blog .topicinfo .user a {
+	float: left;
+	white-space: nowrap;
+}
+.aw-blog .topicinfo .user a,
+.aw-blog .topicinfo .comments a  {
+    color: #CC0000;
+}
+.aw-blog .topicinfo .comments a  {
+	background: url("/modules/blog/images/balloon-left.gif") no-repeat scroll 0 50%;
+	padding-left: 20px;
+}
+
+/* * * Список тегов * * */
+.aw-blog .taglist ul {
+	background: url("/modules/blog/images/tag.gif") no-repeat scroll 0 50% #FFFFFF;
+	list-style: none outside none;
+    padding: 0.2em 0 0.1em 20px;
+    display: block;
+    min-height: 14px;
+}
+.aw-blog .taglist li {
 	display: inline;
 	font-size: 0.83em;
 }
-.mod-blog .tags li a:link,
-.mod-blog .tags li a:visited {
-	color: #666;
+.aw-blog .taglist a {
+	color: #666666;
 }
 
-.mod-blog div.info {
-	border: 1px solid #e5e5e5;
-	clear: both;
-	font-family: Verdana,"Helvetica Neue",Helvetica,Arial,sans-serif;
-	font-size: 0.85em;
-	font-size-adjust: none;
-	font-stretch: normal;
-	font-style: normal;
-	font-variant: normal;
-	font-weight: normal;
-	margin-top: 2.22em;
-	width: 100%;
-	color: #7B848D;
-	padding: 5px 3px 3px 3px;
+/* * * Управление топиком * * */
+.aw-blog .topic .topicmanbtns {
+	text-align: right;
 }
 
-.mod-blog div.info span,
-.mod-blog div.info a {
-	vertical-align: top;
-}
-.mod-blog div.info span {
-	vertical-align: top;
-	padding: 2px 2em 3px 2px;
-}
-.mod-blog div.info a {
-	color: #c00;
-}
-
-.mod-blog div.info .user,
-.mod-blog div.info .date,
-.mod-blog div.info .comments,
-.mod-blog div.info .mod-socialist {
-	float: left;
-	margin-right: 20px;
-}
-.mod-blog div.info .mod-socialist {
-	margin-top: 3px;
-}
-
-.mod-blog div.info a.blog-comments {
-	background: #fff url(../images/balloon-left.gif) no-repeat scroll 0 50%;
-	/* color: #c00; /**/
-	padding-left: 21px; 
+.aw-blog .next .b {
 	cursor: pointer;
+	padding: 12px;
+	text-align: center;
+	border: 1px solid #CCCCCC;
 }
- 
-.mod-blog-tags a {
-	margin-right: 1em;
+
+.aw-blog .next:hover {
+	background-color: #E3E3D7;
+}
+
+.aw-blog .next .in span {
+	margin-right: 4px;
+}
+.aw-blog .wspage {
+	min-height: 160px;
+}
+.aw-blog .ws-loading {
+	margin: 70px 0;
+	text-align: center;
+}
+
+.aw-blog .gheadermenu {
+	position: relative;
+	padding: 15px 0 0 150px;
+	height: 100px;
+}
+.aw-blog .gheadermenu h2 {
+	padding: 5px 10px;
+	font-size: 1.5em;
+	background-color: #8c8d8e;
+	color: #fff;
+}
+.aw-blog .gheadermenu a.logo {
+	position: absolute;
+	top: 0; left: 30px;
+}
+.aw-blog .gheadermenu img.logo {
+	width: 96px;
+	height: 96px;
+}
+
+.aw-blog .gheadermenu .topmenublock {
+	position: relative;
+}
+.aw-blog .gheadermenu ul.topmenul {
+	margin: 10px;
+	margin-top: 6px;
+}
+.aw-blog .gheadermenu ul.topmenur {
+	position: absolute;	top: 1px; right: 1px;
+}
+.aw-blog .gheadermenu ul.topmenu li{
+	float: left;
+    padding: 1px 0.5em;
+    margin-right: 10px;
+}
+.aw-blog .gheadermenu ul.topmenu a {
+	font-size: 
+}
+.aw-blog .gheadermenu ul.topmenu li.sel {
+	background: none repeat scroll 0 0 #E3E3D7;
+    border: 1px solid #DDD9E2;
+}
+.aw-blog .gheadermenu ul.topmenu li.sel a {
+	color: #000;
 	text-decoration: none;
 }
-.mod-blog-tags .t75  {font-size: 75%;}
-.mod-blog-tags .t80  {font-size: 80%;}
-.mod-blog-tags .t85  {font-size: 85%;}
-.mod-blog-tags .t90  {font-size: 90%;}
-.mod-blog-tags .t95  {font-size: 95%;}
-.mod-blog-tags .t100 {font-size: 100%;}
-.mod-blog-tags .t105 {font-size: 105%;}
-.mod-blog-tags .t110 {font-size: 110%;}
-.mod-blog-tags .t115 {font-size: 115%;}
-.mod-blog-tags .t120 {font-size: 120%;}
-.mod-blog-tags .t125 {font-size: 125%;}
-.mod-blog-tags .t130 {font-size: 130%;}
-.mod-blog-tags .t135 {font-size: 135%;}
-.mod-blog-tags .t140 {font-size: 140%;}
-.mod-blog-tags .t145 {font-size: 145%;}
-.mod-blog-tags .t150 {font-size: 150%;}
 
-
-ul.bloglasttopic {
-	color:#6A7398;
+.aw-blog .gbmenu a {
+	text-decoration: none;
+	font-size: 1.2em;
+	color: #000;
 }
-ul.bloglasttopic li {
-	list-style-type:none;
-	padding-bottom:0.6em;
+.aw-blog .gbmenu .gbitems {
+	margin-left: 10px;
 }
-ul.bloglasttopic a {
-	margin-right:0.5em;
-	text-decoration:none;
+.aw-blog .gbmenu .gbitem {
+	background-color: #F4F4EE;
+	text-align: center;
+	min-width: 100px;
+	cursor: pointer;
+	float: left;
+	margin: 0 1px;
+	padding: 5px 15px; 
 }
-ul.bloglasttopic .category {
-	color:#6A7398;
-	font-size:0.92em;
-	font-weight:bold;
-	margin-right:0.4em;
+.aw-blog .gbmenu .r {
+	float: right;
 }
-ul.bloglasttopic .topic {
-	color:#999999;
+.aw-blog .gbmenu .gbitem:hover {
+	text-decoration: underline;	
+}
+.aw-blog .gbmenu .current {
+	background-color: #E3E3D7;
+}
+.aw-blog .gbmenu .current:hover {
+	text-decoration: none;	
+}
+.aw-blog .gbmenu .line {
+    background: url("/modules/blog/images/gmshadow.png") repeat-x scroll 0 0 transparent;
+	height: 16px;
 }
 
-ul.blogcatblock {
-	color:#6A7398;
+.aw-blog .wspacetable {
+	width: 100%;
 }
-ul.blogcatblock li {
-	list-style-type:none;
-	padding-bottom:0.4em;
+.aw-blog .wspacetable .wscol-content {
+	padding-right: 20px;
 }
-
-ul.blogcommentlive {
-	color:#6A7398;
-}
-ul.blogcommentlive li {
-	list-style-type:none;
-	padding-bottom:0.6em;
-}
-ul.blogcommentlive a {
-	margin-right:0.5em;
-	text-decoration:none;
-}
-ul.blogcommentlive .showuser {
-	font-size:0.87em;
+.aw-blog .wspacetable .wscol-right {
+	width: 240px;
 }
 
-ul.blogcommentlive .category {
-	color:#6A7398;
-	font-size:0.92em;
-	font-weight:bold;
-	margin-right:0.4em;
+.aw-blog .wscol-right .blockbox {
+	margin-bottom: 10px;
 }
-ul.blogcommentlive .topic {
-	color:#999999;
-}
-

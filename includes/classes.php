@@ -139,7 +139,18 @@ class BlogTopicInfo {
 	 */
 	public function IsVotingPeriod(){
 		return $this->publicDate > TIMENOW-60*60*24*31;
-		
+	}
+	
+	/**
+	 * @return BlogCategory
+	 */
+	public function Category(){
+		$cats = BlogManager::$instance->CategoryList();
+		return $cats->Get($this->catid);
+	}
+	public function URL(){
+		$cat = $this->Category();
+		return $cat->URL().$this->id."/";
 	}
 	
 	public function ToAJAX(){
@@ -219,6 +230,18 @@ class BlogTopicList {
 		$ret->topics->totalNew = $this->totalNew;
 		
 		return $ret;
+	}
+	
+	public function Count(){
+		return count($this->list);
+	}
+	
+	/**
+	 * @param integer $index
+	 * @return BlogTopic
+	 */
+	public function GetByIndex($index){
+		return $this->list[$index];
 	}
 }
 
@@ -443,16 +466,46 @@ class BlogCategory {
 		if (BlogManager::$instance->IsAdminRole()){ return true; }
 		return $this->isAdminFlag;
 	}
+	
+	public function URL(){
+		return "/blog/".$this->name."/";
+	}
 }
 
 class BlogCategoryList {
 
-	public $list;
+	private $list;
+	private $map;
 
 	public function __construct($list){
 		$this->list = $list;
+		$this->map = array();
+		for ($i=0;$i<count($list);$i++){
+			$this->map[$list[$i]->id] = $i;
+		}
+	}
+	
+	public function Count(){
+		return count($this->list);
 	}
 
+	/**
+	 * @param integer $id
+	 * @return BlogCategory
+	 */
+	public function Get($id){
+		$index = $this->map[$id];
+		return $this->GetByIndex($index);
+	}
+	
+	/**
+	 * @param integer $index
+	 * @return BlogCategory
+	 */
+	public function GetByIndex($index){
+		return $this->list[$index];
+	}
+	
 	public function ToAJAX(){
 		$ret = new stdClass();
 		$ret->categories = array();
