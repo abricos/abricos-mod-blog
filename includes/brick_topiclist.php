@@ -12,28 +12,31 @@ $v = &$brick->param->var;
 $man = BlogModule::$instance->GetManager();
 $cats = $man->CategoryList();
 
+if (BlogManager::$isURating){
+	Abricos::GetModule('urating')->GetManager();
+}
+
+
 $dir = Abricos::$adress->dir;
 
 $mcur = ""; $mcurpub = ""; $mcurpers = "";
-$f1 = ""; $f2 = "";
+$f1 = $dir[1]; $f2 = $dir[2];
 switch ($dir[1]){
 	case "new":
 		$mcur = "current";
-		$f2 = "new";
+		$f1 = ""; $f2 = "new";
 		break;
 	case "pub":
 		$mcurpub = "current";
-		$f1 = $dir[1];
 		break;
 	case "pers":
 		$mcurpers = "current";
-		$f1 = $dir[1];
 		break;
 	default:
 		$mcur = "current";
 		break;
 }
-$filter = $f1;
+$filter = $dir[1];
 if ($dir[2] == "new"){
 	$filter .= "/new";
 }
@@ -55,11 +58,20 @@ $brick->content = Brick::ReplaceVarByData($brick->content, array(
 	"currpers" => $mcurpers
 ));
 
+
 $count = $topics->Count();
 for ($i=0; $i<$count; $i++){
 	
 	$topic = $topics->GetByIndex($i);
-	$cat = $cats->Get($topic->catid);
+	$cat = $topic->Category();
+	
+	$vote = "";
+	if (BlogManager::$isURating){
+		$vote = URatingManager::$instance->VoteBrick(array(
+			"vote" => $topic->voteMy,
+			"value" =>$topic->rating
+		));
+	}
 
 	$atags = array();
 	for ($ti=0;$ti<count($topic->tags);$ti++){
@@ -80,6 +92,8 @@ for ($i=0; $i<$count; $i++){
 		"cmtcnt" => $topic->commentCount,
 		"date"	=> rusDateTime($topic->publicDate),
 		"taglist" => implode($v['tagdel'], $atags),
+			
+		"voting" => $vote,
 		
 		"intro"	=> $topic->intro,
 		"readmore" => $topic->bodyLength == 0 ? "" : Brick::ReplaceVarByData($v['readmore'], array(

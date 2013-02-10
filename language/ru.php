@@ -1,47 +1,7 @@
 <?php
 return array(
-	"modtitle" => "Блог",
-	"catblocktitle" => "Рубрики",
-	"cmtmailernewcom" => "Новый комментарий к топику ",
-	"cmtmaileruser" => "Пользователь ",
-	"cmtmailerwrotecom" => " написал комментарий к топику ",
-	"cmtmailerbestwishes" => "С наилучшими пожеланиями,",
-	"cmtmaileranswercom" => "Ответ на ваш комментарий к топику ",
-	"cmtmaileranswer" => " ответил на ваш комментарий к топику ",
-	"cmtmaileranswertext" => "Текст комментария:",
-	"pageauthor" => "автор текста",
-	"pagecom" => "комментарии ",
-	"pageread" => "Читать дальше",
-	"pageor" => " или ",
-	"pageopen" => "Открыть продолжение здесь",
-	"pagefirstpage" => "На первую страницу",
-	"pagebackpage" => "На страницу назад",
-	"pageback" => "назад",
-	"pageforwardpage" => "На страницу вперед",
-	"pageforward" => "вперед",
-	"pagelastpage" => "На последнюю страницу",
-	"commentlivehd" => "Прямой эфир ",
-	"commentliverefresh" => "Обновить",
-	"tagblocktags" => "Метки",
-	"tagblockalltags" => "Все метки",
-	"taglisttags" => "Метки (весь список)",
-	"topicauthor" => "автор текста",
+	'catperson'=> 'Блог им. {v#unm}',
 	'brick' => array(
-		'catblock' => array(
-			"1" => "Рубрики"
-		)
-,
-		'lasttopic' => array(
-			"1" => "Записи блога в формате RSS",
-			"2" => "Записи в блоге",
-			"3" => "Все записи"
-		)
-,
-		'tagblock' => array(
-			"1" => "Метки",
-			"2" => "Все метки"
-		)
-,
 		'templates' => array(
 			"1" => "Новый комментарий к топику \"{v#tl}\"",
 			"2" => "<p>Пользователь <b>{v#unm}</b> написал комментарий к топику \"<a href='{v#tpclnk}'>{v#tl}</a>\":</p>
@@ -82,19 +42,6 @@ return array(
 	</p>
 	 "
 		)
-,
-		'topic' => array(
-			"1" => "автор текста"
-		)
-,
-		'topiclist' => array(
-			"1" => "автор текста",
-			"2" => "комментарии",
-			"3" => "Читать дальше",
-			"4" => "или",
-			"5" => "Открыть продолжение здесь"
-		)
-
 	)
 );
 ?>

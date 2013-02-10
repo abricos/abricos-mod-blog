@@ -145,6 +145,9 @@ class BlogTopicInfo {
 	 * @return BlogCategory
 	 */
 	public function Category(){
+		if ($this->catid == 0){
+			return new BlogPersonalCategory($this->user);
+		}
 		$cats = BlogManager::$instance->CategoryList();
 		return $cats->Get($this->catid);
 	}
@@ -494,6 +497,22 @@ class BlogCategory {
 	
 	public function URL(){
 		return "/blog/".$this->name."/";
+	}
+}
+
+class BlogPersonalCategory {
+	
+	public $title;
+	public $user;
+	
+	public function __construct(BlogUser $user){
+		$this->user = $this->user;
+		$this->title = 
+			str_replace("{v#unm}", $user->userName, BlogModule::$instance->lang['catperson']);
+	}
+	
+	public function URL(){
+		
 	}
 }
 
