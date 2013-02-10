@@ -1,0 +1,125 @@
+<!--[*]
+[script]brick_topiclist.php[/script]
+
+[mcss=comment]comment.css[/mcss]
+[mcss=blog]blog.css[/mcss]
+
+[bkvar=submenu]
+	<ul class="submenu">
+		<li class="{v#f1sel}">
+			<a href="/blog/">Интересные</a>
+		</li>
+		<li class="{v#f2sel}">
+			<a href="/blog/new/">Новые</a><a href="/blog/new/" class="new">{v#newcnt}</a>
+		</li>
+		<li class="clear">&nbsp;</li>
+	</ul>
+[/bkvar]
+
+[bkvar=submenupub]
+	<ul class="submenu">
+		<li class="{v#f1sel}">
+			<a href="/blog/pub/">Интересные</a>
+		</li>
+		<li class="{v#f2sel}">
+			<a href="/blog/pub/new/">Новые</a><a href="/blog/pub/new/" class="new">{v#newcnt}</a>
+		</li>
+		<li class="clear">&nbsp;</li>
+	</ul>
+[/bkvar]
+
+[bkvar=submenupers]
+	<ul class="submenu">
+		<li class="{v#f1sel}">
+			<a href="/blog/pers/">Хорошие</a>
+		</li>
+		<li class="{v#f2sel}">
+			<a href="/blog/pers/new/">Новые</a><a href="/blog/pers/new/" class="new">{v#newcnt}</a>
+		</li>
+		<li class="clear">&nbsp;</li>
+	</ul>
+[/bkvar]
+
+[bkvar=readmore]
+	<div class="readmore">
+		<a href="{v#urlview}">Читать дальше → </a>
+	</div>
+[/bkvar]
+
+[bkvar=tagrow]
+	<li><a href="{v#url}">{v#tl}</a></li>
+[/bkvar]
+
+[bkvar=tagdel]
+	<li>, </li>
+[/bkvar]
+
+[bkvar=row]
+	<div class="topic">
+		<div class="title">
+			<a href="{v#urlcat}" class="cattl">{v#cattl}</a>
+			&nbsp;→&nbsp;
+			<a href="{v#urlview}" class="toptl">{v#toptl}</a>
+		</div>
+		
+		<div class="aw-page-content">
+			<div class="intro">{v#intro}</div>
+		</div>
+		
+		{v#readmore}
+	
+		<div class="taglist">
+			<ul>{v#taglist}</ul>
+			<div class="clear"></div>
+		</div>
+		
+		<div class="topicinfo">
+			<div class="tpinbox">
+				<div class="topicvote" style="display: none"></div>
+				<div class="user">
+					<a href="#" class="avtr tmb tmb24 show-user-profile user-{v#uid}">
+						<span class="tmbpre">
+							{v#avatar}
+						</span>
+					</a>
+					<a title="автор текста" class="unm show-user-profile user-{v#uid}" href="#">{v#unm}</a>
+				</div>
+				<div class="date">{v#date}</div>
+				<div class="comments" >
+					<a href="{v#urltop}" title="Читать комментарии">комментарии ({v#cmtcnt})</a>
+				</div>
+			</div>
+			<div class="clear"></div>
+		</div>
+	</div>
+[/bkvar]
+
+[*]-->
+<div class="aw-blog">
+	<div class="gbmenu">
+		<div id="{i#mttopics}" class="gbitems" >
+			<a class="gbitem {v#curr}" href="/blog/" >Все</a>
+			<a class="gbitem {v#currpub}" href="/blog/pub/">Коллективные</a>
+			<a class="gbitem {v#currpers}" href="/blog/pers/">Персональные</a>
+		</div>
+		
+		<br class="clear" />
+		<div class="line"></div>
+	</div>
+	
+	<div id="{i#id}" class="homelist">
+	
+		{v#submenu}
+		
+		<div class="clear"></div>
+		
+		<div id="{i#list}"></div>
+	</div>
+	
+	<div id="{i#id}" class="topiclist">
+		{v#rows}
+	</div>
+	
+</div>
+
+[mod]sitemap:paginator[/mod]

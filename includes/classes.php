@@ -269,6 +269,28 @@ class BlogUser {
 		$ret->lnm = $this->lastName;
 		return $ret;
 	}
+	
+	public function GetUserName(){
+		if (!empty($this->firstName) && !empty($this->lastName)){
+			return $this->firstName." ".$this->lastName;
+		}
+		return $this->userName;
+	}
+	
+	public function URL(){
+		$mod = Abricos::GetModule('uprofile');
+		if (empty($mod)){
+			return "#";
+		}
+		return '/uprofile/#app=uprofile/ws/showws/'.$this->id.'/';
+	}
+	
+	public function Avatar24(){
+		$url = empty($this->avatar) ?
+			'/modules/uprofile/images/nofoto24.gif' :
+			'/filemanager/i/'.$this->avatar.'/w_24-h_24/avatar.gif';
+		return '<img src="'.$url.'">';
+	}
 }
 
 class BlogAuthor extends BlogUser {
@@ -328,6 +350,10 @@ class BlogTopicTag {
 		$ret->tl = $this->title;
 		$ret->nm = $this->name;
 		return $ret;
+	}
+	
+	public function URL(){
+		return "/blog/tag/".$this->title."/";
 	}
 }
 
@@ -434,7 +460,6 @@ class BlogCategory {
 		$this->rating		= intval($d['rtg']);
 		$this->voteCount	= intval($d['vcnt']);
 		$this->voteMy		= $d['vmy'];
-		
 	}
 	
 	public function ToAJAX(){

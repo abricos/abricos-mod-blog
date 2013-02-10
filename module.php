@@ -22,14 +22,6 @@ class BlogModule extends Ab_Module {
 	 */
 	public static $instance = null;
 	
-	public $topicid; 
-	public $topicinfo;
-	public $page = 1;
-	public $baseUrl = "";
-	public $category = "";
-	public $tag = "";
-	public $taglimit = 50;
-	
 	private $_manager = null;
 	
 	public function BlogModule(){
@@ -57,6 +49,25 @@ class BlogModule extends Ab_Module {
 		return $this->_manager;
 	}
 	
+	public function GetContentName(){
+		$cname = 'topiclist';
+		
+		$dir = Abricos::$adress->dir;
+		
+		switch($dir[1]){
+			case 'new':
+			case 'pub':
+			case 'pers':
+							
+			break;
+		}
+		
+		
+		return $cname;
+	}
+	
+	
+	/*
 	private function IsPage($p){
 		if (substr($p, 0, 4) == 'page'){
 			$c = strlen($p);
@@ -174,6 +185,7 @@ class BlogModule extends Ab_Module {
 	public function RssMetaLink(){
 		return $this->registry->adress->host."/rss/blog/";
 	}
+	/**/
 	
 }
 

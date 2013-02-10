@@ -1,15 +1,103 @@
 <?php
 /**
- * @version $Id$
  * @package Abricos
  * @subpackage Blog
- * @copyright Copyright (C) 2008 Abricos All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
- * @author Alexander Kuzmin (roosit@abricos.org)
+ * @author Alexander Kuzmin <roosit@abricos.org>
  */
 
 $brick = Brick::$builder->brick;
-$in = Brick::$input;
+$v = &$brick->param->var;
+
+$man = BlogModule::$instance->GetManager();
+$cats = $man->CategoryList();
+
+$dir = Abricos::$adress->dir;
+
+$mcur = ""; $mcurpub = ""; $mcurpers = "";
+$f1 = ""; $f2 = "";
+switch ($dir[1]){
+	case "new":
+		$mcur = "current";
+		$f2 = "new";
+		break;
+	case "pub":
+		$mcurpub = "current";
+		$f1 = $dir[1];
+		break;
+	case "pers":
+		$mcurpers = "current";
+		$f1 = $dir[1];
+		break;
+	default:
+		$mcur = "current";
+		break;
+}
+$filter = $f1;
+if ($dir[2] == "new"){
+	$filter .= "/new";
+}
+
+$lst = "";
+$topics = $man->TopicList(array(
+	"limit" => 10,
+	"filter" => $filter
+));
+
+$brick->content = Brick::ReplaceVarByData($brick->content, array(
+	'submenu' => Brick::ReplaceVarByData($v['submenu'.$f1], array(
+		"newcnt" => $topics->totalNew>0 ? "+".$topics->totalNew : "",
+		"f1sel" => empty($f2) ? "sel" : "",
+		"f2sel" => empty($f2) ? "" : "sel"
+	)),
+	"curr" => $mcur,
+	"currpub" => $mcurpub,
+	"currpers" => $mcurpers
+));
+
+$count = $topics->Count();
+for ($i=0; $i<$count; $i++){
+	
+	$topic = $topics->GetByIndex($i);
+	$cat = $cats->Get($topic->catid);
+
+	$atags = array();
+	for ($ti=0;$ti<count($topic->tags);$ti++){
+		array_push($atags,Brick::ReplaceVarByData($v['tagrow'], array(
+			"tl" => $topic->tags[$ti]->title,
+			"url" => $topic->tags[$ti]->URL()
+		)));
+	}
+	
+	$lst .= Brick::ReplaceVarByData($v['row'], array(
+		"submenu" => $submenu,
+		"cattl" => $cat->title,
+		"urlcat" => $cat->URL(),
+			
+		"toptl" => $topic->title,
+		"urltop" => $topic->URL(),
+		"urlcmt" => $topic->URL(),
+		"cmtcnt" => $topic->commentCount,
+		"date"	=> rusDateTime($topic->publicDate),
+		"taglist" => implode($v['tagdel'], $atags),
+		
+		"intro"	=> $topic->intro,
+		"readmore" => $topic->bodyLength == 0 ? "" : Brick::ReplaceVarByData($v['readmore'], array(
+			"urlview" => $topic->URL()
+		)),
+		"urlusr" => $topic->user->URL(),
+		"uid" => $topic->user->id,
+		"unm" => $topic->user->GetUserName(),
+		"avatar" => $topic->user->Avatar24()
+	));
+}
+
+$brick->content = Brick::ReplaceVarByData($brick->content, array(
+	'rows' => $lst
+));
+
+
+/*
 
 $adress = Abricos::$adress;
 $category = "";
@@ -153,4 +241,5 @@ $brick->param->var = array();
 // отправить сообщения рассылки из очереди (подобие крона)
 BlogManager::$instance->SubscribeTopicCheck();
 
+/**/
 ?>
