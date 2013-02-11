@@ -13,11 +13,12 @@ $cats = $man->CategoryList();
 $modUProfile = Abricos::GetModule('uprofile');
 
 $lst = "";
-$topics = $man->TopicList(array("limit"=>5));
-$count = $topics->Count();
+$comms = $man->CommentLiveList();
+$count = $comms->Count();
 for ($i=0; $i<$count; $i++){
-	$topic = $topics->GetByIndex($i);
-	$cat = $cats->Get($topic->catid);
+	$comm = $comms->GetByIndex($i);
+	$topic = $comm->topic;
+	$cat = $topic->Category();
 	
 	$urlusr = "#";
 	if (!empty($modUProfile)){

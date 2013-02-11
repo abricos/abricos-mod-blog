@@ -86,4 +86,65 @@ Component.entryPoint = function(NS){
 		}
 	});
 	NS.TopicListBlockWidget = TopicListBlockWidget;	
+	
+	var TagListBlockWidget = function(container){
+		TagListBlockWidget.superclass.constructor.call(this, container, {
+			'buildTemplate': buildTemplate, 'tnames': 'tags,taglist,tagrow' 
+		});
+	};
+	YAHOO.extend(TagListBlockWidget, Brick.mod.widget.Widget, {
+		onLoad: function(){
+			var __self = this;
+			NS.initManager(function(){
+				NS.manager.tagListLoad({'limit': 35}, function(list){
+					__self.renderList(list);
+				});
+			});
+		},
+		renderList: function(list){
+			this.elHide('loading');
+			if (L.isNull(list)){ return; }
+
+			var arr = [], min = 999999, max = 0;
+			list.foreach(function(tag){
+				arr[arr.length] = tag;
+				min = Math.min(min, tag.topicCount);
+				max = Math.max(max, tag.topicCount);
+			});
+			
+			arr = arr.sort(function(t1, t2){
+				if (t1.title < t2.title){ return -1; }
+				if (t1.title > t2.title){ return 1; }
+				return 0;
+			});
+			
+			var fmin = 0, fmax = 10;
+			if (min == max){
+				max++;
+			}
+			var g1 = Math.log(min+1),
+				g2 = Math.log(max+1);
+			
+			var lst = "", TM = this._TM;
+			for (var i=0;i<arr.length;i++){
+				var tag = arr[i], cnt = tag.topicCount;
+				
+				var n1 = (fmin+Math.log(cnt+1)-g1)*fmax,
+					n2 = g2-g1,
+					v = Math.ceil(n1/n2);
+
+				lst += TM.replace('tagrow', {
+					'tagtl': tag.title,
+					'urltag': tag.url(),
+					'sz': v
+				});
+			}
+			this.elSetHTML('list', TM.replace('taglist', {
+				'rows': lst
+			}));
+		}
+	});
+	NS.TagListBlockWidget = TagListBlockWidget;	
+	
+
 };

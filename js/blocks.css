@@ -2,11 +2,12 @@
 .aw-blog .blockbox {
 	position: relative;
 }
-.aw-blog .blockbox h4 {
-	font-size: 1.5em;
+.aw-blog .blockbox .boxtl {
+	font-weight: bold;
 	padding-bottom: 9px;
+	font-size: 120%;
 }
-.aw-blog .blockbox h4 a {
+.aw-blog .blockbox .boxtl a {
 	text-decoration: none;
 	color: #6A7398;
 }
@@ -26,10 +27,34 @@
 }
 .aw-blog .blockbox a.category {
 	color: #6A7398;
-	/* font-size: 0.92em; /**/
 	font-weight: bold;
 	margin-right: 0.4em;
 }
 .aw-blog .blockbox a.topic {
 	color: #999999;	
 }
+
+.aw-blog .taglistbox ul {
+	text-align: center;
+	white-space: normal;
+	word-wrap: break-word;	
+}
+.aw-blog .taglistbox li {
+	display: inline;
+	line-height: 18px;
+}
+.aw-blog .taglistbox a.tag {
+	text-decoration: underline;
+}
+.aw-blog .taglistbox li a.sz-0 { font-size: 80%; }
+.aw-blog .taglistbox li a.sz-1 { font-size: 80%; }
+.aw-blog .taglistbox li a.sz-2 { font-size: 90%; }
+.aw-blog .taglistbox li a.sz-3 { font-size: 90%; }
+.aw-blog .taglistbox li a.sz-4 { font-size: 110%; }
+.aw-blog .taglistbox li a.sz-5 { font-size: 110%; }
+.aw-blog .taglistbox li a.sz-6 { font-size: 110%; }
+.aw-blog .taglistbox li a.sz-7 { font-size: 130%; }
+.aw-blog .taglistbox li a.sz-8 { font-size: 130%; }
+.aw-blog .taglistbox li a.sz-9 { font-size: 150%; }
+.aw-blog .taglistbox li a.sz-10 { font-size: 150%; }
+

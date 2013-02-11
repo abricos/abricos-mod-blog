@@ -108,7 +108,8 @@ Component.entryPoint = function(NS){
 		d = L.merge({
 			'id': 0,
 			'tl': '',
-			'nm': ''
+			'nm': '',
+			'cnt': 0
 		}, d || {});
 		Tag.superclass.constructor.call(this, d);
 	};
@@ -116,6 +117,7 @@ Component.entryPoint = function(NS){
 		update: function(d){
 			this.title = d['tl'];
 			this.name =  d['nm'];
+			this.topicCount = d['cnt'];
 		}, 
 		toAJAX: function(){
 			return {
@@ -643,6 +645,24 @@ Component.entryPoint = function(NS){
 				
 				if (!L.isNull(d) && !L.isNull(d['comments'])){
 					list = new NS.CommentLiveList(d['comments']);
+				}
+				
+				NS.life(callback, list);
+			});
+		},
+		tagListLoad: function(cfg, callback){
+			cfg = L.merge({
+				'limit': 25
+			}, cfg || {});
+
+			this.ajax({
+				'do': 'taglist',
+				'limit': cfg['limit']
+			}, function(d){
+				var list = null;
+				
+				if (!L.isNull(d) && !L.isNull(d['tags'])){
+					list = new NS.TagList(d['tags']);
 				}
 				
 				NS.life(callback, list);

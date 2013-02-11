@@ -1,8 +1,8 @@
 <!--{comments}-->
 <div id="{i#id}" class="commentlivebox blockbox">
-	<h4>
+	<div class="boxtl">
 		<a href="#" title="Весь эфир">Прямой эфир</a>
-	</h4>
+	</div>
 	
 	<img id="{i#loading}" class="bloading" src="/images/loading.gif" />
 
@@ -23,9 +23,9 @@
 
 <!--{topics}-->
 <div id="{i#id}" class="topiclistbox blockbox">
-	<h4>
+	<div class="boxtl">
 		<a href="#" title="Записи в блоге">Записи в блоге</a>
-	</h4>
+	</div>
 	
 	<img id="{i#loading}" class="bloading" src="/images/loading.gif" />
 
@@ -40,4 +40,23 @@
 	<a href="{v#urlcat}" class="category">{v#cattl}</a>
 	&nbsp;→&nbsp; 
 	<a href="{v#urltop}" class="topic">{v#toptl}</a>
+</li>
+
+<!--{tags}-->
+<div id="{i#id}" class="taglistbox blockbox">
+	<div class="boxtl">
+		<a href="#">Теги</a>
+	</div>
+	
+	<img id="{i#loading}" class="bloading" src="/images/loading.gif" />
+
+	<div id="{i#list}" class="list"></div>
+</div>
+
+<!--{taglist}-->
+<ul id="{i#list}">{v#rows}</ul>
+
+<!--{tagrow}-->
+<li>
+	<a href="{v#urltag}" class="tag sz-{v#sz}">{v#tagtl}</a>
 </li>

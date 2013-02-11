@@ -151,11 +151,12 @@
 .aw-blog .blockbox {
 	position: relative;
 }
-.aw-blog .blockbox h4 {
-	font-size: 1.5em;
+.aw-blog .blockbox .boxtl {
+	/*font-size: 1.5em; /**/
+	font-weight: bold;
 	padding-bottom: 9px;
 }
-.aw-blog .blockbox h4 a {
+.aw-blog .blockbox .boxtl a {
 	text-decoration: none;
 	color: #6A7398;
 }
@@ -182,6 +183,7 @@
 .aw-blog .blockbox a.topic {
 	color: #999999;	
 }
+
 /* * * * Список * * * */
 .aw-blog .catlist .cathead {
 	padding-bottom: 4px;

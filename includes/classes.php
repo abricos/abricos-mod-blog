@@ -340,11 +340,13 @@ class BlogTopicTag {
 	public $id;
 	public $title;
 	public $name;
+	public $topicCount;
 	
 	public function __construct($d){
 		$this->id = $d['id'];
 		$this->title = $d['tl'];
 		$this->name = $d['nm'];
+		$this->topicCount = intval($d['cnt']);
 	}
 	
 	public function ToAJAX(){
@@ -352,6 +354,9 @@ class BlogTopicTag {
 		$ret->id = $this->id;
 		$ret->tl = $this->title;
 		$ret->nm = $this->name;
+		if ($this->topicCount > 0){
+			$ret->cnt = $this->topicCount;
+		}
 		return $ret;
 	}
 	
@@ -359,6 +364,33 @@ class BlogTopicTag {
 		return "/blog/tag/".$this->title."/";
 	}
 }
+
+class BlogTopicTagList {
+
+	private $list;
+
+	public function __construct($list){
+		$this->list = $list;
+	}
+	
+	public function Count(){
+		return count($this->list);
+	}
+	
+	public function GetByIndex($index){
+		return $this->list[$index];
+	}
+
+	public function ToAJAX(){
+		$ret = new stdClass();
+		$ret->tags = array();
+		for ($i=0;$i<count($this->list); $i++){
+			array_push($ret->tags, $this->list[$i]->ToAJAX());
+		}
+		return $ret;
+	}
+}
+
 
 class BlogCategory {
 	
@@ -614,6 +646,18 @@ class BlogCommentLiveList {
 			array_push($ret->comments, $this->list[$i]->ToAJAX());
 		}
 		return $ret;
+	}
+	
+	public function Count(){
+		return count($this->list);
+	}
+	
+	/**
+	 * @param integer $index
+	 * @return BlogCommentLive
+	 */
+	public function GetByIndex($index){
+		return $this->list[$index];
 	}
 }
 

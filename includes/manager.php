@@ -69,10 +69,11 @@ class BlogManager extends Ab_ModuleManager {
 				return $this->AuthorListToAJAX($d);
 			case "commentlivelist": 
 				return $this->CommentLiveListToAJAX($d);
+			case "taglist": 
+				return $this->TagListToAJAX($d);
 		}
 
-		// TODO: Удалить
-		return $this->AJAX_MethodToRemove($d);
+		return null;
 	}
 	
 	public function ParamToObject($o){
@@ -600,11 +601,12 @@ class BlogManager extends Ab_ModuleManager {
 			return null;
 		}
 		
-		if (!is_object($cfg)){
-			$cfg = new stdClass();
-		}
+		$cfg = $this->ParamToObject($cfg);
 		$cfg->page = max(intval($cfg->page), 1);
-		$cfg->limit = 30;
+		
+		if (empty($cfg->limit)){ $cfg->limit = 5; }
+		$cfg->limit = max(min($cfg->limit, 25), 1);
+		
 		
 		$list = array();
 		
@@ -623,7 +625,6 @@ class BlogManager extends Ab_ModuleManager {
 		
 		return $list->ToAJAX();
 	}
-
 	
 	public function Author($authorid){
 		if (!$this->IsViewRole()){
@@ -649,14 +650,16 @@ class BlogManager extends Ab_ModuleManager {
 	 * @param object $cfg
 	 * @return BlogCommentLiveList
 	 */
-	public function CommentLiveList($cfg){
+	public function CommentLiveList($cfg = null){
 		if (!$this->IsViewRole()){ return null; }
 		
-		if (!is_object($cfg)){
-			$cfg = new stdClass();
-		}
+		$cfg = $this->ParamToObject($cfg);
+		
 		$cfg->page = max(intval($cfg->page), 1);
-		$cfg->limit = 5;
+
+		if (empty($cfg->limit)){ $cfg->limit = 5; }
+		$cfg->limit = max(min($cfg->limit, 25), 1);
+		
 		
 		$list = array();
 		$tids = array();
@@ -694,6 +697,29 @@ class BlogManager extends Ab_ModuleManager {
 		return $list->ToAJAX();
 	}
 
+	public function TagList($cfg){
+		if (!$this->IsViewRole()){ return null; }
+	
+		$cfg = $this->ParamToObject($cfg);
+		if (empty($cfg->limit)){ $cfg->limit = 25;}
+		
+		$cfg->limit = max(min($cfg->limit, 100), 1);
+		
+		$list = array();
+	
+		$rows = BlogTopicQuery::TagList($this->db, $cfg->page, $cfg->limit);
+		while (($row = $this->db->fetch_array($rows))){
+			array_push($list, new BlogTopicTag($row));
+		}
+		return new BlogTopicTagList($list);
+	}
+	
+	public function TagListToAJAX($cfg){
+		$list = $this->TagList($cfg);
+		if (is_null($list)){ return null; }
+	
+		return $list->ToAJAX();
+	}
 
 	/**
 	 * Можно ли проголосовать текущему пользователю за категорию/топик

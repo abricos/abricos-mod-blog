@@ -15,7 +15,7 @@ $topics = $man->TopicList(array("limit"=>5));
 $count = $topics->Count();
 for ($i=0; $i<$count; $i++){
 	$topic = $topics->GetByIndex($i);
-	$cat = $cats->Get($topic->catid);
+	$cat = $topic->Category();
 
 	$lst .= Brick::ReplaceVarByData($brick->param->var['row'], array(
 		"cattl" => $cat->title,

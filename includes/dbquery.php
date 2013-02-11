@@ -652,24 +652,15 @@ class BlogTopicQuery {
 		return $urt;
 	}
 	
-	public static function AuthorList(Ab_Database $db, $page, $limit){
-		$urt = BlogTopicQuery::AuthorRatingSQLExt($db);
-		
+	public static function TagList(Ab_Database $db, $page, $limit){
 		$sql = "
-			SELECT 
-				t.userid as id,
-				u.username as unm,
-				u.avatar as avt,
-				u.firstname as fnm,
-				u.lastname as lnm,
-				count(t.topicid) as tcnt
-				".$urt->fld."
-			FROM ".$db->prefix."bg_topic t
-			INNER JOIN ".$db->prefix."user u ON t.userid=u.userid
-			".$urt->tbl."
-			WHERE t.isdraft=0 AND t.deldate=0
-			GROUP BY t.userid
-			ORDER BY tcnt DESC
+			SELECT
+				t.tagid as id,
+				t.name as nm,
+				t.title as tl,
+				t.topiccount as cnt 
+			FROM ".$db->prefix."bg_tag t
+			ORDER BY cnt DESC
 			LIMIT ".bkint($limit)."
 		";
 		return $db->query_read($sql);
