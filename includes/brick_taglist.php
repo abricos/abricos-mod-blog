@@ -6,7 +6,6 @@
  * @author Alexander Kuzmin <roosit@abricos.org>
  */
 
-
 $brick = Brick::$builder->brick;
 $v = &$brick->param->var;
 $man = BlogModule::$instance->GetManager();

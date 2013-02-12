@@ -1,0 +1,24 @@
+<!--[*]
+[script]brick_catblock.php[/script]
+
+[mcss=blog]blog.css[/mcss]
+
+[bkvar=row]
+	<li>
+		<a href="{v#urlcat}" class="category">{v#cattl}</a>
+		<span>{v#rtg}</span>
+	</li>
+[/bkvar]
+
+[*]-->
+<div class="aw-blog box" id="aw-blog-brick-catblock">
+	<div class="catlistbox blockbox">
+		<div class="boxtl">
+			<a href="#" title="Популярные блоги">Блоги</a>
+		</div>
+		
+		<div class="list">
+			<ul>{v#rows}</ul>
+		</div>
+	</div>
+</div>
