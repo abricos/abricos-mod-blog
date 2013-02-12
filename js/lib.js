@@ -637,9 +637,14 @@ Component.entryPoint = function(NS){
 				NS.life(callback, author);
 			});
 		},
-		commentLiveListLoad: function(callback){
+		commentLiveListLoad: function(cfg, callback){
+			cfg = L.merge({
+				'limit': 5
+			}, cfg || {});
+			
 			this.ajax({
-				'do': 'commentlivelist'
+				'do': 'commentlivelist',
+				'limit': cfg['limit']
 			}, function(d){
 				var list = null;
 				

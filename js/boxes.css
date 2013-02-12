@@ -26,7 +26,9 @@
 	text-decoration: none;	
 }
 .aw-blog .blockbox a.category {
-	color: #6A7398;
+	/* color: #6A7398; /**/
+	color: #999999; 
+
 	font-weight: bold;
 	margin-right: 0.4em;
 }
@@ -34,6 +36,7 @@
 	color: #999999;	
 }
 
+/* * * * Облако тегов * * * */
 .aw-blog .taglistbox ul {
 	text-align: center;
 	white-space: normal;
@@ -45,6 +48,7 @@
 }
 .aw-blog .taglistbox a.tag {
 	text-decoration: underline;
+	color: #999999;
 }
 .aw-blog .taglistbox li a.sz-0 { font-size: 80%; }
 .aw-blog .taglistbox li a.sz-1 { font-size: 80%; }
@@ -58,3 +62,16 @@
 .aw-blog .taglistbox li a.sz-9 { font-size: 150%; }
 .aw-blog .taglistbox li a.sz-10 { font-size: 150%; }
 
+/* * * * Блоги * * * */
+.aw-blog .catlistbox li {
+	position: relative;
+}
+.aw-blog .catlistbox li a {
+	display: block;
+	width: 100%;
+	border-bottom: 1px dotted #999999;
+}
+.aw-blog .catlistbox li span {
+	position: absolute; top: 0; right: 0;
+	
+}

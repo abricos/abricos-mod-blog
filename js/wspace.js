@@ -6,7 +6,7 @@
 var Component = new Brick.Component();
 Component.requires = { 
 	mod:[
-        {name: '{C#MODNAME}', files: ['blocks.js']}
+        {name: '{C#MODNAME}', files: ['boxes.js']}
 	]		
 };
 Component.entryPoint = function(NS){
@@ -82,9 +82,10 @@ Component.entryPoint = function(NS){
 			});
 		},
 		onLoadManager: function(pgInfo){
-			this.cmtLiveWidget = new NS.CommentLiveBlockWidget(this.gel('cmtlive'));
-			this.topicListWidget = new NS.TopicListBlockWidget(this.gel('toplist'));
-			this.tagListWidget = new NS.TagListBlockWidget(this.gel('taglist'));
+			this.cmtLiveWidget = new NS.CommentLiveBoxWidget(this.gel('cmtlive'));
+			// this.topicListWidget = new NS.TopicListBoxWidget(this.gel('toplist'));
+			this.tagListWidget = new NS.TagListBoxWidget(this.gel('taglist'));
+			this.catListWidget = new NS.CategoryListBoxWidget(this.gel('catlist'));
 			this.showPage(pgInfo);
 		},
 		showPage: function(p){

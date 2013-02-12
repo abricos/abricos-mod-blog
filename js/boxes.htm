@@ -60,3 +60,23 @@
 <li>
 	<a href="{v#urltag}" class="tag sz-{v#sz}">{v#tagtl}</a>
 </li>
+
+<!--{cats}-->
+<div id="{i#id}" class="catlistbox blockbox">
+	<div class="boxtl">
+		<a href="#" title="Популярные блоги">Блоги</a>
+	</div>
+	
+	<img id="{i#loading}" class="bloading" src="/images/loading.gif" />
+
+	<div id="{i#list}" class="list"></div>
+</div>
+
+<!--{catlist}-->
+<ul id="{i#list}">{v#rows}</ul>
+
+<!--{catrow}-->
+<li>
+	<a href="{v#urlcat}" class="category">{v#cattl}</a>
+	<span>{v#rtg}</span>
+</li>

@@ -15,16 +15,16 @@ Component.entryPoint = function(NS){
 	
 	var buildTemplate = this.buildTemplate;
 	
-	var CommentLiveBlockWidget = function(container){
-		CommentLiveBlockWidget.superclass.constructor.call(this, container, {
+	var CommentLiveBoxWidget = function(container){
+		CommentLiveBoxWidget.superclass.constructor.call(this, container, {
 			'buildTemplate': buildTemplate, 'tnames': 'comments,cmtlist,cmtrow' 
 		});
 	};
-	YAHOO.extend(CommentLiveBlockWidget, Brick.mod.widget.Widget, {
+	YAHOO.extend(CommentLiveBoxWidget, Brick.mod.widget.Widget, {
 		onLoad: function(){
 			var __self = this;
 			NS.initManager(function(){
-				NS.manager.commentLiveListLoad(function(list){
+				NS.manager.commentLiveListLoad({'limit': 10}, function(list){
 					__self.renderList(list);
 				});
 			});
@@ -51,14 +51,14 @@ Component.entryPoint = function(NS){
 			}));
 		}
 	});
-	NS.CommentLiveBlockWidget = CommentLiveBlockWidget;
+	NS.CommentLiveBoxWidget = CommentLiveBoxWidget;
 
-	var TopicListBlockWidget = function(container){
-		TopicListBlockWidget.superclass.constructor.call(this, container, {
+	var TopicListBoxWidget = function(container){
+		TopicListBoxWidget.superclass.constructor.call(this, container, {
 			'buildTemplate': buildTemplate, 'tnames': 'topics,toplist,toprow' 
 		});
 	};
-	YAHOO.extend(TopicListBlockWidget, Brick.mod.widget.Widget, {
+	YAHOO.extend(TopicListBoxWidget, Brick.mod.widget.Widget, {
 		onLoad: function(){
 			var __self = this;
 			NS.initManager(function(){
@@ -85,14 +85,14 @@ Component.entryPoint = function(NS){
 			}));
 		}
 	});
-	NS.TopicListBlockWidget = TopicListBlockWidget;	
+	NS.TopicListBoxWidget = TopicListBoxWidget;	
 	
-	var TagListBlockWidget = function(container){
-		TagListBlockWidget.superclass.constructor.call(this, container, {
+	var TagListBoxWidget = function(container){
+		TagListBoxWidget.superclass.constructor.call(this, container, {
 			'buildTemplate': buildTemplate, 'tnames': 'tags,taglist,tagrow' 
 		});
 	};
-	YAHOO.extend(TagListBlockWidget, Brick.mod.widget.Widget, {
+	YAHOO.extend(TagListBoxWidget, Brick.mod.widget.Widget, {
 		onLoad: function(){
 			var __self = this;
 			NS.initManager(function(){
@@ -144,7 +144,41 @@ Component.entryPoint = function(NS){
 			}));
 		}
 	});
-	NS.TagListBlockWidget = TagListBlockWidget;	
+	NS.TagListBoxWidget = TagListBoxWidget;	
 	
+	var CategoryListBoxWidget = function(container){
+		CategoryListBoxWidget.superclass.constructor.call(this, container, {
+			'buildTemplate': buildTemplate, 'tnames': 'cats,catlist,catrow' 
+		});
+	};
+	YAHOO.extend(CategoryListBoxWidget, Brick.mod.widget.Widget, {
+		onLoad: function(){
+			var __self = this;
+			NS.initManager(function(){
+				__self.renderList();
+			});
+		},
+		renderList: function(){
+			var list = NS.manager.categoryList;
+			
+			this.elHide('loading');
+			if (L.isNull(list)){ return; }
+			
+			var lst = "", TM = this._TM, limit = 10, i = 0;
+			list.foreach(function(cat){
+
+				if (i++ >= limit){ return true; }
+				lst += TM.replace('catrow', {
+					'cattl': cat.title,
+					'urlcat': cat.url(),
+					'rtg': cat.rating
+				});
+			});
+			this.elSetHTML('list', TM.replace('catlist', {
+				'rows': lst
+			}));
+		}
+	});
+	NS.CategoryListBoxWidget = CategoryListBoxWidget;	
 
 };
