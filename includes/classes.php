@@ -365,6 +365,13 @@ class BlogTopicTag {
 	}
 }
 
+function BlogTopicTag_sortByTitle(BlogTopicTag $t1, BlogTopicTag $t2){
+	if ($t1->title < $t2->title){ return -1; }
+	if ($t1->title > $t2->title){ return 1; }
+	return 0;
+}
+
+
 class BlogTopicTagList {
 
 	private $list;
@@ -377,6 +384,14 @@ class BlogTopicTagList {
 		return count($this->list);
 	}
 	
+	public function SortByTitle(){
+		usort($this->list, "BlogTopicTag_sortByTitle");
+	}
+	
+	/**
+	 * @param integer $index
+	 * @return BlogTopicTag
+	 */
 	public function GetByIndex($index){
 		return $this->list[$index];
 	}
