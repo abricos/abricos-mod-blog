@@ -17,47 +17,10 @@ if (BlogManager::$isURating){
 }
 
 
-$dir = Abricos::$adress->dir;
-
-$mcur = ""; $mcurpub = ""; $mcurpers = "";
-$f1 = $dir[1]; $f2 = $dir[2];
-switch ($dir[1]){
-	case "new":
-		$mcur = "current";
-		$f1 = ""; $f2 = "new";
-		break;
-	case "pub":
-		$mcurpub = "current";
-		break;
-	case "pers":
-		$mcurpers = "current";
-		break;
-	default:
-		$mcur = "current";
-		break;
-}
-$filter = $dir[1];
-if ($dir[2] == "new"){
-	$filter .= "/new";
-}
+$pa = BlogModule::$instance->ParserAddress();
 
 $lst = "";
-$topics = $man->TopicList(array(
-	"limit" => 10,
-	"filter" => $filter
-));
-
-$brick->content = Brick::ReplaceVarByData($brick->content, array(
-	'submenu' => Brick::ReplaceVarByData($v['submenu'.$f1], array(
-		"newcnt" => $topics->totalNew>0 ? "+".$topics->totalNew : "",
-		"f1sel" => empty($f2) ? "sel" : "",
-		"f2sel" => empty($f2) ? "" : "sel"
-	)),
-	"curr" => $mcur,
-	"currpub" => $mcurpub,
-	"currpers" => $mcurpers
-));
-
+$topics = $pa->topicList;
 
 $count = $topics->Count();
 for ($i=0; $i<$count; $i++){

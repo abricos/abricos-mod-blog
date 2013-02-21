@@ -49,21 +49,72 @@ class BlogModule extends Ab_Module {
 		return $this->_manager;
 	}
 	
-	public function GetContentName(){
-		$cname = 'topiclist';
+	private $_cachepa = null;
+	
+	/**
+	 * @return BlogParserAddress
+	 */
+	public function ParserAddress(){
+		
+		if (!empty($this->_cachepa)){ return $this->_cachepa; }
+
+		$pa = new BlogParserAddress();
 		
 		$dir = Abricos::$adress->dir;
+		$lvl = Abricos::$adress->level;
 		
-		switch($dir[1]){
-			case 'new':
-			case 'pub':
-			case 'pers':
-							
-			break;
+		$d1 = $dir[1]; $d2 = $dir[2];
+		
+		// список топиков
+		if ($lvl == 1
+			|| $d1 == 'new' // новые топики главной
+			|| $d1 == 'pub' // коллективные
+			|| $d1 == 'pers' // персональные
+		){
+			if ($d1 == 'new'){
+				$d1 = 'index'; $d2 = "new";
+			}else if ($lvl == 1){
+				$d1 = 'index';
+			}
+			
+			$pa->type = 'topiclist';
+			$pa->topicListFilter = $d1."/".$d2;
+			$pa->topicList = $this->GetManager()->TopicList(array(
+				"limit" => 10,
+				"filter" => $pa->topicListFilter
+			));
 		}
 		
+		// возможно это категория
+		if (empty($pa->type) && !empty($d1)){
+			$cats = $this->GetManager()->CategoryList();
+			$pa->cat = $cats->GetByName($d1);
+			if (!empty($pa->cat)){
+				$pa->type = 'categoryview';
+				$pa->topicListFilter = "cat/".$pa->cat->id;
+				$pa->topicList = $this->GetManager()->TopicList(array(
+					"limit" => 10,
+					"filter" => $pa->topicListFilter
+				));
+			}else{
+				$pa->err404 = true;
+			}
+		}
 		
-		return $cname;
+		if (empty($pa->type) && !$pa->err404){
+			$pa->type = 'topiclist'; 
+		}
+		
+		$this->_cachepa = $pa;
+
+		return $pa;
+	}
+	
+	public function GetContentName(){
+		$pa = $this->ParserAddress();
+		if ($pa->err404){ return ''; } 
+		
+		return $pa->type;
 	}
 	
 	
@@ -187,6 +238,25 @@ class BlogModule extends Ab_Module {
 	}
 	/**/
 	
+}
+
+class BlogParserAddress {
+	public $type = '';
+	public $page = 1;
+	public $err404 = false;
+	
+	/**
+	 * Категория для type = 'categoryview'
+	 * @var BlogCategory
+	 */
+	public $cat = null;
+	
+	/**
+	 * @var BlogTopicList
+	 */
+	public $topicList = null;
+	
+	public $topicListFilter = "";
 }
 
 class BlogAction {

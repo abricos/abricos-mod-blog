@@ -567,12 +567,15 @@ class BlogCategoryList {
 
 	private $list;
 	private $map;
+	private $mapn;
 
 	public function __construct($list){
 		$this->list = $list;
 		$this->map = array();
+		$this->mapn = array();
 		for ($i=0;$i<count($list);$i++){
 			$this->map[$list[$i]->id] = $i;
+			$this->mapn[$list[$i]->name] = $i;
 		}
 	}
 	
@@ -595,6 +598,15 @@ class BlogCategoryList {
 	 */
 	public function GetByIndex($index){
 		return $this->list[$index];
+	}
+
+	/**
+	 * @param string $name
+	 * @return BlogCategory
+	 */
+	public function GetByName($name){
+		$index = $this->mapn[$name];
+		return $this->GetByIndex($index);
 	}
 	
 	public function ToAJAX(){

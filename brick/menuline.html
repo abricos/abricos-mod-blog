@@ -1,0 +1,63 @@
+<!--[*]
+[script]brick_menuline.php[/script]
+
+[mcss=blog]blog.css[/mcss]
+
+[bkvar=submenu]
+	<ul class="submenu">
+		<li class="{v#f1sel}">
+			<a href="/blog/">Интересные</a>
+		</li>
+		<li class="{v#f2sel}">
+			<a href="/blog/new/">Новые</a><a href="/blog/new/" class="new">{v#newcnt}</a>
+		</li>
+		<li class="clear">&nbsp;</li>
+	</ul>
+[/bkvar]
+
+[bkvar=submenupub]
+	<ul class="submenu">
+		<li class="{v#f1sel}">
+			<a href="/blog/pub/">Интересные</a>
+		</li>
+		<li class="{v#f2sel}">
+			<a href="/blog/pub/new/">Новые</a><a href="/blog/pub/new/" class="new">{v#newcnt}</a>
+		</li>
+		<li class="clear">&nbsp;</li>
+	</ul>
+[/bkvar]
+
+[bkvar=submenupers]
+	<ul class="submenu">
+		<li class="{v#f1sel}">
+			<a href="/blog/pers/">Хорошие</a>
+		</li>
+		<li class="{v#f2sel}">
+			<a href="/blog/pers/new/">Новые</a><a href="/blog/pers/new/" class="new">{v#newcnt}</a>
+		</li>
+		<li class="clear">&nbsp;</li>
+	</ul>
+[/bkvar]
+
+[*]-->
+<div class="aw-blog">
+	<div class="gbmenu">
+		<div id="{i#mttopics}" class="gbitems" >
+			<a class="gbitem {v#curr}" href="/blog/" >Все</a>
+			<a class="gbitem {v#currpub}" href="/blog/pub/">Коллективные</a>
+			<a class="gbitem {v#currpers}" href="/blog/pers/">Персональные</a>
+		</div>
+		
+		<br class="clear" />
+		<div class="line"></div>
+	</div>
+	
+	<div id="{i#id}" class="homelist">
+	
+		{v#submenu}
+		
+		<div class="clear"></div>
+		
+		<div id="{i#list}"></div>
+	</div>
+</div>

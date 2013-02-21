@@ -107,7 +107,7 @@ class BlogTopicQuery {
 	}
 	
 
-	public static function TopicList(Ab_Database $db, $page=1, $limit=10, $fType='', $fPrm='', $isCount = false){
+	public static function TopicList(Ab_Database $db, $page=1, $limit=10, $fType='index', $fPrm='', $isCount = false){
 		$from = $limit * (max($page, 1) - 1);
 		$urt = BlogTopicQuery::TopicRatingSQLExt($db);
 		
@@ -118,10 +118,13 @@ class BlogTopicQuery {
 			$filterRating = " AND (t.rating >= 5 OR t.isindex=1)";
 		}
 		
+		// print_r(array($fType, $fPrm, $isCount));
 		$filter = '';
-		if ($fType == "" && $fPrm == "new"){ // главная - новые
-			$filter = " AND t.pubdate>".$newPeriod;
-			$filterRating = "";
+		if ($fType == "index"){ // главная
+			if ($fPrm == "new"){
+				$filter = " AND t.pubdate>".$newPeriod;
+				$filterRating = "";
+			}
 		}else if ($fType == 'pub'){		// коллективные
 			$filter = " AND t.catid>0";
 			if ($fPrm == 'new'){

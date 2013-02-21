@@ -1,0 +1,32 @@
+<!--[*]
+[script]brick_categoryview.php[/script]
+
+[mcss=blog]blog.css[/mcss]
+
+[*]-->
+<div class="aw-blog">
+	<div class="catview">
+	
+		<div class="catrtg" style="display: none">{v#rating}</div>
+		<h2 class="cattl">{v#tl}</h2>
+		
+		<div class="catinfo">
+			<div class="stat">
+				<a href="#">читателей: <span>{v#mbrs}</span></a>
+				,&nbsp;
+				<a href="#">топиков: <span>{v#topics}</span></a>
+			</div>
+			<div id="{i#jbtns}" class="jbtns" style="display: none">
+				<a id="{i#bedit}" href="{v#urledit}" class="habtn" title="Редактировать" style="display: none">Редактировать</a>
+				<a id="{i#bremove}" href="{v#urlremove}" class="habtn warn" title="Удалить" style="display: none">Удалить</a>
+				<span id="{i#jbtnsa}">
+					<a id="{i#bjoin}" href="#" class="habtn" title="Стать читателем блога">Вступить в блог</a>
+					<a id="{i#bleave}" href="#" class="habtn" title="Перестать читать блог">Покинуть блог</a>
+				</span>
+				<img id="{i#jbloading}" src="/images/loading.gif" style="display: none" />
+			</div>
+		</div>
+		
+		{v#topiclist}
+	</div>
+</div>
