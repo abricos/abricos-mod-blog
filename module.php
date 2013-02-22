@@ -16,6 +16,8 @@ Abricos::GetModule('comment');
  * @subpackage Blog
  */
 class BlogModule extends Ab_Module {
+	
+	const TOPIC_PAGE_LIMIT = 10;
 
 	/**
 	 * @var BlogModule
@@ -51,6 +53,17 @@ class BlogModule extends Ab_Module {
 	
 	private $_cachepa = null;
 	
+	private function PageConvert($p){
+		if (substr($p, 0, 4) == 'page'){
+			$c = strlen($p);
+			if ($c<=4){
+				return 0;
+			}
+			return intval(substr($p, 4, $c-4));
+		}
+		return 0;
+	}
+	
 	/**
 	 * @return BlogParserAddress
 	 */
@@ -59,48 +72,91 @@ class BlogModule extends Ab_Module {
 		if (!empty($this->_cachepa)){ return $this->_cachepa; }
 
 		$pa = new BlogParserAddress();
+		$pa->uri = "/".$this->takelink."/";
 		
 		$dir = Abricos::$adress->dir;
 		$lvl = Abricos::$adress->level;
 		
-		$d1 = $dir[1]; $d2 = $dir[2];
+		for ($i=1;$i<$lvl;$i++){
+			if ($this->PageConvert($dir[$i])>0){ break; }
+			$pa->uri .= $dir[$i]."/";
+		}
+
+		$d1 = $dir[1]; $d2 = $dir[2]; $d3 = $dir[3];
+		$page = 1;
 		
-		// список топиков
-		if ($lvl == 1
-			|| $d1 == 'new' // новые топики главной
-			|| $d1 == 'pub' // коллективные
-			|| $d1 == 'pers' // персональные
-		){
-			if ($d1 == 'new'){
-				$d1 = 'index'; $d2 = "new";
-			}else if ($lvl == 1){
-				$d1 = 'index';
-			}
+		if ($lvl == 1){ //blog/
 			
 			$pa->type = 'topiclist';
-			$pa->topicListFilter = $d1."/".$d2;
-			$pa->topicList = $this->GetManager()->TopicList(array(
-				"limit" => 10,
-				"filter" => $pa->topicListFilter
-			));
-		}
-		
-		// возможно это категория
-		if (empty($pa->type) && !empty($d1)){
+			$pa->topicListFilter = "index";
+			
+		}else if (($page=$this->PageConvert($d1)) > 0){ //blog/pageN/
+			
+			$pa->type = 'topiclist';
+			$pa->topicListFilter = "index";
+			$pa->page = $page;
+			
+		}else if ($d1 == 'new'){ //blog/new/...
+			
+			$pa->type = 'topiclist';
+			$pa->topicListFilter = "index/new";
+			
+			if (($page=$this->PageConvert($d2)) > 0){ //blog/new/pageN/
+				$pa->page = $page;
+			}
+			
+		}else if ($d1 == 'pub' || $d1 == 'pers'){ //blog/[pub|pers]/...
+			
+			$pa->type = 'topiclist';
+			$pa->topicListFilter = $d1;
+			
+			if ($d2 == 'new'){ //blog/pub/new/
+				$pa->topicListFilter = $d1."/new";
+				
+				if (($page=$this->PageConvert($d3)) > 0){ //blog/[pub|pers]/new/pageN/
+					$pa->page = $page;
+				}
+			}else if (($page=$this->PageConvert($d2)) > 0){ //blog/[pub|pers]/pageN/
+				$pa->page = $page;
+			}
+
+		} else if (!empty($d1)){ //blog/%category_name%/
+
 			$cats = $this->GetManager()->CategoryList();
 			$pa->cat = $cats->GetByName($d1);
 			if (!empty($pa->cat)){
 				$pa->type = 'categoryview';
 				$pa->topicListFilter = "cat/".$pa->cat->id;
-				$pa->topicList = $this->GetManager()->TopicList(array(
-					"limit" => 10,
-					"filter" => $pa->topicListFilter
-				));
+				
+				if ($d2 == 'new'){ //blog/%category_name%/new/
+					$pa->topicListFilter .= "/new";
+				
+					if (($page=$this->PageConvert($d3)) > 0){ //blog/%category_name%/new/pageN/
+						$pa->page = $page;
+					}
+				}else if (($page=$this->PageConvert($d2)) > 0){ //blog/%category_name%/pageN/
+					$pa->page = $page;
+				}
+				
 			}else{
 				$pa->err404 = true;
 			}
+			
 		}
 		
+		if (!empty($pa->topicListFilter)){
+			$pa->topicList = $this->GetManager()->TopicList(array(
+				"limit" => BlogModule::TOPIC_PAGE_LIMIT,
+				"filter" => $pa->topicListFilter,
+				"page" => $pa->page
+			));
+		}
+		/*
+		
+		// возможно это категория
+		if (empty($pa->type) && !empty($d1)){
+		}
+		/**/
 		if (empty($pa->type) && !$pa->err404){
 			$pa->type = 'topiclist'; 
 		}
@@ -119,14 +175,6 @@ class BlogModule extends Ab_Module {
 	
 	
 	/*
-	private function IsPage($p){
-		if (substr($p, 0, 4) == 'page'){
-			$c = strlen($p);
-			if ($c<=4){ return -1; }
-			return intval(substr($p, 4, $c-4));
-		}
-		return -1;
-	}
 	
 	public function GetTopicLink($topic){
 		return "/blog/".$topic['catnm']."/".$topic['topicid']."/";
@@ -243,6 +291,7 @@ class BlogModule extends Ab_Module {
 class BlogParserAddress {
 	public $type = '';
 	public $page = 1;
+	public $uri = '/blog/';
 	public $err404 = false;
 	
 	/**

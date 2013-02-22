@@ -31,7 +31,7 @@ $lst = "";
 $topics = $pa->topicList ;
 
 $brick->content = Brick::ReplaceVarByData($brick->content, array(
-	'submenu' => Brick::ReplaceVarByData($v['submenu'.$f1], array(
+	'submenu' => Brick::ReplaceVarByData($v['submenu'.$f[0]], array(
 		"newcnt" => $topics->totalNew>0 ? "+".$topics->totalNew : "",
 		"f1sel" => !$isNew ? "sel" : "",
 		"f2sel" => !$isNew ? "" : "sel"

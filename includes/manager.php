@@ -170,10 +170,11 @@ class BlogManager extends Ab_ModuleManager {
 		
 		$fa = explode("/", $cfg->filter);
 		$fType = $fa[0]; $fPrm = $fa[1];
+		if (!empty($fa[2])){
+			$fPrm .= "/".$fa[2];
+		}
 		$total = 0;
 		$totalNew = 0;
-		
-		
 		
 		switch ($fType){
 		case "draft":
@@ -184,16 +185,6 @@ class BlogManager extends Ab_ModuleManager {
 			$rows = BlogTopicQuery::TopicListByAuthor($this->db, $fPrm,  $page, $limit);
 			break;
 		
-		/*
-		case "new":		// новые
-			$fType = "";
-			$fPrm = "new";
-			
-			$rows = BlogTopicQuery::TopicList($this->db, $page, $limit, $fType, $fPrm);
-			$total = BlogTopicQuery::TopicList($this->db, $page, $limit, $fType, $fPrm, true);
-			$totalNew = $total;
-			break;
-		/**/
 		case "index":	// список на главной (интересные/новые)
 		case "pub":		// коллективные (интересные/новые)
 		case "pers":	// персональные (хорошие/новые)
@@ -208,9 +199,18 @@ class BlogManager extends Ab_ModuleManager {
 			break;
 		
 		case "tag":
+			$rows = BlogTopicQuery::TopicList($this->db, $page, $limit, $fType, $fPrm);
+			$total = BlogTopicQuery::TopicList($this->db, $page, $limit, $fType, $fPrm, true);
+			break;
 		case "cat":
 			$rows = BlogTopicQuery::TopicList($this->db, $page, $limit, $fType, $fPrm);
 			$total = BlogTopicQuery::TopicList($this->db, $page, $limit, $fType, $fPrm, true);
+			
+			if ($fa[2] == "new"){
+				$totalNew = $total;
+			}else{
+				$totalNew = BlogTopicQuery::TopicList($this->db, page, $limit, $fType, $fa[1]."/new", true);
+			}
 			break;
 
 		default:

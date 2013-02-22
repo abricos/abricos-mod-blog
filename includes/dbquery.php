@@ -138,7 +138,14 @@ class BlogTopicQuery {
 				$filterRating = "";
 			}
 		}else if ($fType == 'cat'){
-			$filter = " AND t.catid=".bkint($fPrm);
+			$fa = explode("/", $fPrm);
+			$filter = " AND t.catid=".bkint($fa[0]);
+			
+			if ($fa[1] == 'new'){
+				$filter .= " AND t.pubdate>".$newPeriod;
+				$filterRating = "";
+			}
+
 		}else if ($fType == 'tag'){
 			$urt->tbl .= "
 				INNER JOIN ".$db->prefix."bg_toptag tt ON t.topicid=tt.topicid 

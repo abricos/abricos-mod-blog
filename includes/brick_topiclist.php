@@ -21,6 +21,10 @@ $pa = BlogModule::$instance->ParserAddress();
 
 $lst = "";
 $topics = $pa->topicList;
+if (empty($topics)){
+	$brick->content = "";
+	return;
+}
 
 $count = $topics->Count();
 for ($i=0; $i<$count; $i++){
@@ -72,6 +76,13 @@ for ($i=0; $i<$count; $i++){
 $brick->content = Brick::ReplaceVarByData($brick->content, array(
 	'rows' => $lst
 ));
+
+Brick::$builder->LoadBrickS('sitemap', 'paginator', $brick, array("p" => array(
+	"total" => $topics->total,
+	"page" => $pa->page,
+	"perpage" => 10,
+	"uri" => $pa->uri
+)));
 
 
 /*
@@ -196,13 +207,6 @@ while (($row = Abricos::$db->fetch_array($rows))){
 	
 	$lst .=  $brick->param->var['tb'].$t.$brick->param->var['te'];
 }
-
-Brick::$builder->LoadBrickS('sitemap', 'paginator', $brick, array("p" => array(
-	"total" => $topicCount,
-	"page" => $page,
-	"perpage" => $count,
-	"uri" => $baseUrl
-)));
 
 $scrpt = str_replace('#clst#', implode(',', $ctids), $brick->param->var['ts']);
 $scrpt = str_replace('#tlst#', implode(',', $ids), $scrpt);
