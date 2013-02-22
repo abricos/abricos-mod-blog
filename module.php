@@ -132,11 +132,11 @@ class BlogModule extends Ab_Module {
 			
 
 		} else if (!empty($d1)){ //blog/%category_name%/
-
-			$cats = $this->GetManager()->CategoryList();
+			$man = $this->GetManager();
+			$cats = $man->CategoryList();
 			$pa->cat = $cats->GetByName($d1);
 			if (!empty($pa->cat)){
-				$pa->type = 'categoryview';
+				$pa->type = 'catview';
 				$pa->topicListFilter = "cat/".$pa->cat->id;
 				
 				if ($d2 == 'new'){ //blog/%category_name%/new/
@@ -147,6 +147,17 @@ class BlogModule extends Ab_Module {
 					}
 				}else if (($page=$this->PageConvert($d2)) > 0){ //blog/%category_name%/pageN/
 					$pa->page = $page;
+				}else{ //blog/%category_name%/%topicid%/
+					
+					$topicid = intval($d2);
+					$topic = $man->Topic($topicid);
+					if (empty($topic)){
+						$pa->err404 = true;
+					}else{
+						$pa->type = 'topicview';
+						$pa->topicListFilter = '';
+						$pa->topic = $otpic;
+					}
 				}
 				
 			}else{
@@ -315,6 +326,11 @@ class BlogParserAddress {
 	 * @var BlogTopicList
 	 */
 	public $topicList = null;
+	
+	/**
+	 * @var BlogTopic
+	 */
+	public $topic = null;
 	
 	public $topicListFilter = "";
 }
