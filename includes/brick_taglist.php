@@ -8,9 +8,10 @@
 
 $brick = Brick::$builder->brick;
 $v = &$brick->param->var;
+$p = &$brick->param->param;
 $man = BlogModule::$instance->GetManager();
 
-$tags = $man->TagList(array("limit"=>35));
+$tags = $man->TagList(array("limit"=>intval($p['limit'])));
 $tags->SortByTitle();
 $count = $tags->Count();
 

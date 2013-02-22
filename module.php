@@ -90,13 +90,13 @@ class BlogModule extends Ab_Module {
 			$pa->type = 'topiclist';
 			$pa->topicListFilter = "index";
 			
-		}else if (($page=$this->PageConvert($d1)) > 0){ //blog/pageN/
+		} else if (($page=$this->PageConvert($d1)) > 0){ //blog/pageN/
 			
 			$pa->type = 'topiclist';
 			$pa->topicListFilter = "index";
 			$pa->page = $page;
 			
-		}else if ($d1 == 'new'){ //blog/new/...
+		} else if ($d1 == 'new'){ //blog/new/...
 			
 			$pa->type = 'topiclist';
 			$pa->topicListFilter = "index/new";
@@ -105,7 +105,7 @@ class BlogModule extends Ab_Module {
 				$pa->page = $page;
 			}
 			
-		}else if ($d1 == 'pub' || $d1 == 'pers'){ //blog/[pub|pers]/...
+		} else if ($d1 == 'pub' || $d1 == 'pers'){ //blog/[pub|pers]/...
 			
 			$pa->type = 'topiclist';
 			$pa->topicListFilter = $d1;
@@ -119,6 +119,17 @@ class BlogModule extends Ab_Module {
 			}else if (($page=$this->PageConvert($d2)) > 0){ //blog/[pub|pers]/pageN/
 				$pa->page = $page;
 			}
+
+		} else if ($d1 == 'tag'){ //blog/[pub|pers]/...
+			
+			if ($lvl == 2){
+				$pa->type = 'taglist';
+			}else{
+				
+				$pa->type = 'tagview';
+				$pa->topicListFilter = $d1."/".urldecode($d2);
+			}
+			
 
 		} else if (!empty($d1)){ //blog/%category_name%/
 
