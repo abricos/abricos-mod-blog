@@ -7,6 +7,7 @@ var Component = new Brick.Component();
 Component.requires = {
 	mod:[
         {name: 'urating', files: ['vote.js']},
+        {name: 'socialist', files: ['line.js']},
         {name: '{C#MODNAME}', files: ['widget.js', 'lib.js']}
 	]
 };
@@ -15,6 +16,7 @@ Component.entryPoint = function(NS){
 	var Dom = YAHOO.util.Dom, L = YAHOO.lang,
 		buildTemplate = this.buildTemplate,
 		NSUR = Brick.mod.urating || {},
+		NSSC = Brick.mod.socialist || {},
 		LNG = this.language,
 		R = NS.roles;
 	
@@ -76,6 +78,15 @@ Component.entryPoint = function(NS){
 					}
 				});
 				this.elShow('topicvote');
+			}
+			if (NSSC.LineWidget){
+				Brick.console('ok');
+				this.socLineWidget = new NSSC.LineWidget(this.gel('socialist'), {
+					'url': topic.url(),
+					'title': topic.title
+				});
+				this.elShow('socialist');
+				Brick.console(this.socLineWidget);
 			}
 		}
 	});
@@ -177,6 +188,7 @@ Component.entryPoint = function(NS){
 			});
 		},
 		renderTopic: function(topic){
+			Brick.console(topic);
 			this.elHide('loading');
 			
 			if (L.isNull(topic)){

@@ -321,11 +321,38 @@
 	margin-left: 5px;
 }
 
+/* * * topic.css begin * * */
+/* * * * Список * * * */
+.aw-blog .homelist .submenu {
+	padding: 8px 0 19px 15px;
+}
+
+.aw-blog .homelist .submenu li {
+	float: left;
+	margin-right: 18px;
+	padding: 3px 5px;
+}
+.aw-blog .homelist .submenu li.sel {
+    border: 1px solid #E5E5E5;
+	border-radius: 5px;
+	cursor: default;
+}
+.aw-blog .homelist .submenu li.sel a {
+	text-decoration: none;
+	color: #7B848D;
+}
+
+.aw-blog .homelist .submenu a.new {
+	text-decoration: none;
+	margin-left: 5px;
+}
+
 /* * * * Топик * * * */
 .aw-blog .topiclist .topic {
 	margin-bottom: 25px;
 }
-.aw-blog .topic .intro {
+.aw-blog .topic .intro,
+.aw-blog .topic .body {
 	margin-top: 10px;
 	font-family: Verdana,Tahoma,sans-serif;
 	line-height: 1.6em;
@@ -365,7 +392,8 @@
 .aw-blog .topicinfo .topicvote,
 .aw-blog .topicinfo .user,
 .aw-blog .topicinfo .date,
-.aw-blog .topicinfo .comments {
+.aw-blog .topicinfo .comments,
+.aw-blog .topicinfo .socialist  {
 	padding-left: 17px;
 	float: left;
 }
@@ -376,6 +404,9 @@
 }
 .aw-blog .topicinfo .topicvote {
 	margin-top: 10px;
+}
+.aw-blog .topicinfo .socialist {
+	margin-top: 9px;
 }
 .aw-blog .topicinfo .user .avtr {
 	margin-top: 4px;
@@ -414,6 +445,7 @@
 .aw-blog .topic .topicmanbtns {
 	text-align: right;
 }
+/* * * topic.css end * * */
 
 .aw-blog .next .b {
 	cursor: pointer;

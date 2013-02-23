@@ -25,6 +25,10 @@ if (empty($topics)){
 	$brick->content = "";
 	return;
 }
+$modSocialist = Abricos::GetModule('socialist');
+if (!empty($modSocialist)){
+	$modSocialist->GetManager();
+}
 
 $count = $topics->Count();
 for ($i=0; $i<$count; $i++){
@@ -37,6 +41,13 @@ for ($i=0; $i<$count; $i++){
 		$vote = URatingManager::$instance->VoteBrick(array(
 			"vote" => $topic->voteMy,
 			"value" =>$topic->rating
+		));
+	}
+	$soclinetpl = "";
+	if (!empty($modSocialist)){
+		$soclinetpl = SocialistManager::$instance->LikeLineHTML(array(
+				"uri" => $topic->URL(),
+				"title" => $topic->title
 		));
 	}
 
@@ -52,6 +63,7 @@ for ($i=0; $i<$count; $i++){
 		"submenu" => $submenu,
 		"cattl" => $cat->title,
 		"urlcat" => $cat->URL(),
+		"socialist" => $soclinetpl,
 			
 		"toptl" => $topic->title,
 		"urltop" => $topic->URL(),
@@ -64,7 +76,7 @@ for ($i=0; $i<$count; $i++){
 		
 		"intro"	=> $topic->intro,
 		"readmore" => $topic->bodyLength == 0 ? "" : Brick::ReplaceVarByData($v['readmore'], array(
-			"urlview" => $topic->URL()
+			"urltop" => $topic->URL()
 		)),
 		"urlusr" => $topic->user->URL(),
 		"uid" => $topic->user->id,

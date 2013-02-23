@@ -233,7 +233,7 @@ Component.entryPoint = function(NS){
 	
 	var Topic = function(d){
 		d = L.merge({
-			'body': ''
+			'bd': ''
 		}, d || {});
 		
 		Topic.superclass.constructor.call(this, d);
@@ -245,7 +245,7 @@ Component.entryPoint = function(NS){
 		},
 		update: function(d){
 			Topic.superclass.update.call(this, d);
-			this.body = d['body'];
+			this.body = d['bd'];
 		}
 	});
 	NS.Topic = Topic;
@@ -547,7 +547,6 @@ Component.entryPoint = function(NS){
 				'topicid': topicid
 			}, function(d){
 				var topic = null;
-				
 				if (!L.isNull(d) && !L.isNull(d['topic'])){
 					topic = new NS.Topic(d['topic']);
 				}

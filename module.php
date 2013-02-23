@@ -147,7 +147,7 @@ class BlogModule extends Ab_Module {
 					}
 				}else if (($page=$this->PageConvert($d2)) > 0){ //blog/%category_name%/pageN/
 					$pa->page = $page;
-				}else{ //blog/%category_name%/%topicid%/
+				}else if ($lvl > 2){ //blog/%category_name%/%topicid%/
 					
 					$topicid = intval($d2);
 					$topic = $man->Topic($topicid);
@@ -167,7 +167,6 @@ class BlogModule extends Ab_Module {
 			}else{
 				$pa->err404 = true;
 			}
-			
 		}
 		
 		if (!empty($pa->topicListFilter)){

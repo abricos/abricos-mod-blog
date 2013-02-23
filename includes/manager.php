@@ -176,6 +176,13 @@ class BlogManager extends Ab_ModuleManager {
 		$total = 0;
 		$totalNew = 0;
 		
+		if (empty($fType)){
+			$fType = 'index';
+		}else if ($fType == 'new'){
+			$fType = 'index';
+			$fPrm = 'new';
+		}
+		
 		switch ($fType){
 		case "draft":
 			$rows = BlogTopicQuery::TopicDraftList($this->db, $this->userid, $page, $limit);
