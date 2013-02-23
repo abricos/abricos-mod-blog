@@ -80,13 +80,11 @@ Component.entryPoint = function(NS){
 				this.elShow('topicvote');
 			}
 			if (NSSC.LineWidget){
-				Brick.console('ok');
 				this.socLineWidget = new NSSC.LineWidget(this.gel('socialist'), {
-					'url': topic.url(),
+					'url': topic.surl(),
 					'title': topic.title
 				});
 				this.elShow('socialist');
-				Brick.console(this.socLineWidget);
 			}
 		}
 	});
@@ -188,7 +186,6 @@ Component.entryPoint = function(NS){
 			});
 		},
 		renderTopic: function(topic){
-			Brick.console(topic);
 			this.elHide('loading');
 			
 			if (L.isNull(topic)){

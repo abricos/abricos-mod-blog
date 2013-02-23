@@ -220,6 +220,10 @@ Component.entryPoint = function(NS){
 		url: function(){
 			return NS.navigator.topic.view(this.id);
 		},
+		surl: function(){
+			
+			return '/blog/'+this.category().name+'/'+this.id+'/';
+		},
 		category: function(){
 			var catid = this.catid;
 			if (catid == 0){ // персональный блог
