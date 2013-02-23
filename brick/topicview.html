@@ -1,19 +1,63 @@
 <!--[*]
-[script]brick_tagview.php[/script]
+[script]brick_topicview.php[/script]
 
+[mcss=comment]comment.css[/mcss]
 [mcss=blog]blog.css[/mcss]
 
-[mod=blog]topiclist[/mod]
+[bkvar=tagrow]
+	<li><a href="{v#url}">{v#tl}</a></li>
+[/bkvar]
+
+[bkvar=tagdel]
+	<li>, </li>
+[/bkvar]
+
+[mod=comment]page[/mod]
 
 [*]-->
-<div class="aw-blog">
-
-	<div class="tagview">
-		<h2 class="tagtl">{v#tag}</h2>
+<div class="aw-blog"><div class="topicview">
 		
-		<input class="taginput" type="text" onfocus="this.select();" value="{v#tag}" style="display:none"/>
+	<div class="topic">
+		<div class="title">
+			<a href="{v#urlcat}" class="cattl">{v#cattl}</a>
+			&nbsp;→&nbsp;
+			<a href="{v#urltop}" class="toptl">{v#toptl}</a>
+		</div>
+		
+		<div class="aw-page-content">
+			<div class="intro">{v#intro}</div>
+			<div class="body">{v#body}</div>
+		</div>
+		
+		<div class="taglist">
+			<ul>{v#taglist}</ul>
+			<div class="clear"></div>
+		</div>
+		
+		<div class="topicinfo">
+			<div class="tpinbox">
+				<div class="topicvote">
+					{v#voting}
+				</div>
+				<div class="user">
+					<a href="#" class="avtr tmb tmb24 show-user-profile user-{v#uid}">
+						<span class="tmbpre">
+							{v#avatar}
+						</span>
+					</a>
+					<a title="автор текста" class="unm show-user-profile user-{v#uid}" href="#">{v#unm}</a>
+				</div>
+				<div class="date">{v#date}</div>
+				<div class="comments" >
+					<a href="{v#urltop}" title="Читать комментарии">комментарии ({v#cmtcnt})</a>
+				</div>
+				
+				{v#socialist}
+			</div>
+			<div class="clear"></div>
+		</div>
 	</div>
-	
-</div>
+		
+</div></div>
 
-[mod]blog:topiclist[/mod]
+[mod]comment:page[/mod]

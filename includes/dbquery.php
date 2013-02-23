@@ -85,8 +85,22 @@ class BlogTopicQuery {
 		return $db->query_first($sql);
 	}	
 
-	public static function Topic(Ab_Database $db, $topicid){
+	/**
+	 * Запросить топик по идентификатору
+	 * 
+	 * Если указан параметр $contentid, то запрос происходит по нему
+	 * 
+	 * @param Ab_Database $db
+	 * @param integer $topicid
+	 * @param integer $contentid
+	 */
+	public static function Topic(Ab_Database $db, $topicid, $contentid = 0){
 		$urt = BlogTopicQuery::TopicRatingSQLExt($db);
+		
+		$where = "t.topicid = ".bkint($topicid)."";
+		if ($contentid > 0){
+			$where = "t.contentid = ".bkint($contentid)."";
+		}
 		
 		$userid = Abricos::$user->id;
 		$sql = "
@@ -99,7 +113,7 @@ class BlogTopicQuery {
 			INNER JOIN ".$db->prefix."content cc ON t.contentid = cc.contentid
 			INNER JOIN ".$db->prefix."user u ON t.userid = u.userid
 			".$urt->tbl."
-			WHERE t.topicid = ".bkint($topicid)." AND t.deldate=0 AND (cat.deldate=0 OR t.catid=0)
+			WHERE ".$where." AND t.deldate=0 AND (cat.deldate=0 OR t.catid=0)
 				AND (t.isdraft=0 OR (t.isdraft=1 AND t.userid=".bkint($userid)."))
 			LIMIT 1
 		";
@@ -816,7 +830,7 @@ class BlogTopicQuery {
 /**
  * Запросы для приложения
  */
-class BlogQueryApp {
+class BlogQueryApp_OLD {
 	
 	public static function CategoryList(Ab_Database $db){
 		$sql = "
@@ -947,7 +961,7 @@ class BlogQueryApp {
 	}
 }
 
-class BlogQuery {
+class BlogQuery_OLD {
 	
 	private static function GetPageWhere(Ab_Database $db, $category, $tagid, $from, $count){
 		$where = "";

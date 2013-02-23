@@ -151,12 +151,16 @@ class BlogModule extends Ab_Module {
 					
 					$topicid = intval($d2);
 					$topic = $man->Topic($topicid);
+					
 					if (empty($topic)){
 						$pa->err404 = true;
 					}else{
 						$pa->type = 'topicview';
 						$pa->topicListFilter = '';
-						$pa->topic = $otpic;
+						$pa->topic = $topic;
+						
+						// указать контентid для комментарий
+						Brick::$contentId = $topic->contentid;
 					}
 				}
 				

@@ -242,12 +242,12 @@ class BlogManager extends Ab_ModuleManager {
 	/**
 	 * @return BlogTopic
 	 */
-	public function Topic($topicid){
+	public function Topic($topicid, $contentid = 0){
 		if (!$this->IsViewRole()){
 			return null;
 		}
 	
-		$row = BlogTopicQuery::Topic($this->db, $topicid);
+		$row = BlogTopicQuery::Topic($this->db, $topicid, $contentid);
 		if (empty($row)){
 			return null;
 		}
@@ -813,6 +813,107 @@ class BlogManager extends Ab_ModuleManager {
 		// $ret->skill = $rep->reputation * 10;
 		return $ret;
 	}	
+
+	/**
+	 * Есть ли разрешение на добавление комментария к топику?
+	 * 
+	 * Метод запрашивает модуль Comment
+	 * 
+	 * @param integer $contentid
+	 */
+	public function Comment_IsWrite($contentid){
+		$topic = $this->Topic(0, $contentid);
+		if (empty($topic)){ return false; }
+		
+		return true;
+	}
+
+	/**
+	 * Есть ли разрешение на вывод списка комментариев?
+	 *  
+	 * Метод запрашивает модуль Comment
+	 * 
+	 * @param integer $contentid
+	 */
+	public function Comment_IsViewList($contentid){
+		$topic = $this->Topic(0, $contentid);
+		
+		if (empty($topic)){ return false; }
+		
+		return true;
+	}
+	
+	/**
+	 * Отправить уведомление о новом комментарии.
+	 *
+	 * @param object $data
+	 */
+	public function Comment_SendNotify($data){
+		// данные по комментарию:
+		// $data->id	- идентификатор комментария
+		// $data->pid	- идентификатор родительского комментария
+		// $data->uid	- пользователь оставивший комментарий
+		// $data->bd	- текст комментария
+		// $data->cid	- идентификатор контента
+	
+		$topic = $this->Topic(0, $data->cid);
+		if (empty($topic)){ return; }
+		
+		$brick = Brick::$builder->LoadBrickS('blog', 'templates', null, null);
+		$host = $_SERVER['HTTP_HOST'] ? $_SERVER['HTTP_HOST'] : $_ENV['HTTP_HOST'];
+		$tpLink = "http://".$host.$topic->URL();
+	
+		// уведомление "комментарий на комментарий"
+		if ($data->pid > 0){
+	
+			$parent = CommentQuery::Comment($this->db, $data->pid, $data->cid, true);
+			if ($parent['uid'] != $this->userid){
+				$user = UserQuery::User($this->db, $parent['uid']);
+				$email = $user['email'];
+				if (!empty($email)){
+					$subject = Brick::ReplaceVarByData($brick->param->var['cmtemlsubject'], array(
+						"tl" => $topic->title
+					));
+					$body = Brick::ReplaceVarByData($brick->param->var['cmtemlbody'], array(
+						"email" => $email,
+						"tpclnk" => $tpLink,
+						"tl" => $topic->title,
+						"unm" => $this->user->info['username'],
+						"cmt1" => $parent['bd'],
+						"cmt2" => $data->bd,
+						"sitename" => Brick::$builder->phrase->Get('sys', 'site_name')
+					));
+					Abricos::Notify()->SendMail($email, $subject, $body);
+				}
+			}
+			if ($parent['userid'] == $topic->user->id){
+				// автору уже ушло уведомление, второе слать не имеет смысла
+				return;
+			}
+		}
+	
+		// уведомление автору
+		if ($topic->user->id == $this->userid){
+			// свой комментарий в уведомление не нуждается
+			return;
+		}
+		$autor = UserQuery::User($this->db, $topic->user->id);
+		$email = $autor['email'];
+		if (!empty($email)){
+			$subject = Brick::ReplaceVarByData($brick->param->var['cmtemlautorsubject'], array(
+				"tl" => $topic->title
+			));
+			$body = Brick::ReplaceVarByData($brick->param->var['cmtemlautorbody'], array(
+				"email" => $email,
+				"tpclnk" => $tpLink,
+				"tl" => $topic->title,
+				"unm" => $this->user->info['username'],
+				"cmt" => $data->bd,
+				"sitename" => Brick::$builder->phrase->Get('sys', 'site_name')
+			));
+			Abricos::Notify()->SendMail($email, $subject, $body);
+		}
+	}
 	
 	
 	
@@ -983,100 +1084,8 @@ class BlogManager extends Ab_ModuleManager {
 		
 		return $d;
 	}
+	
 
-	
-	/**
-	 * Список последних комментариев
-	 * @param integer $count вернуть кол-во $count
-	 */
-	/*
-	public function CommentLive($count){
-		if (!$this->IsViewRole()){ return null; }
-		return BlogQuery::CommentLive($this->db, $count);
-	}
-	/**/
-	
-	// комментарии
-	public function IsCommentList($contentid){
-		return true;
-	}
-	
-	public function IsCommentAppend($contentid){
-		return true;
-	}
-	
-	/**
-	 * Отправить уведомление о новом комментарии.
-	 * 
-	 * @param object $data
-	 */
-	public function CommentSendNotify($data){
-		// данные по комментарию:
-		// $data->id	- идентификатор комментария
-		// $data->pid	- идентификатор родительского комментария
-		// $data->uid	- пользователь оставивший комментарий
-		// $data->bd	- текст комментария
-		// $data->cid	- идентификатор контента
-		
-		
-		$topic = BlogQuery::TopicInfo($this->db, 0, $data->cid);
-		if (empty($topic)){ return; }
-		
-		$brick = Brick::$builder->LoadBrickS('blog', 'templates', null, null);
-		$host = $_SERVER['HTTP_HOST'] ? $_SERVER['HTTP_HOST'] : $_ENV['HTTP_HOST'];
-		$tpLink = "http://".$host.$this->module->GetTopicLink($topic);
-		
-		// уведомление "комментарий на комментарий"
-		if ($data->pid > 0){ 
-
-			$parent = CommentQuery::Comment($this->db, $data->pid, $data->cid, true);
-			if ($parent['uid'] != $this->userid){ 
-				$user = UserQuery::User($this->db, $parent['uid']);
-				$email = $user['email'];
-				if (!empty($email)){ 
-					$subject = Brick::ReplaceVarByData($brick->param->var['cmtemlsubject'], array(
-						"tl" => $topic['title']
-					));
-					$body = Brick::ReplaceVarByData($brick->param->var['cmtemlbody'], array(
-						"email" => $email,
-						"tpclnk" => $tpLink,
-						"tl" => $topic['title'],
-						"unm" => $this->user->info['username'],
-						"cmt1" => $parent['bd'],
-						"cmt2" => $data->bd,
-						"sitename" => Brick::$builder->phrase->Get('sys', 'site_name')
-					));
-					Abricos::Notify()->SendMail($email, $subject, $body);
-				}
-			}
-			if ($parent['userid'] == $topic['userid']){
-				// автору уже ушло уведомление, второе слать не имеет смысла 
-				return; 
-			}
-		}
-		
-		// уведомление автору
-		if ($topic['userid'] == $this->userid){
-			// свой комментарий в уведомление не нуждается 
-			return;
-		}
-		$autor = UserQuery::User($this->db, $topic['userid']);
-		$email = $autor['email'];
-		if (!empty($email)){ 
-			$subject = Brick::ReplaceVarByData($brick->param->var['cmtemlautorsubject'], array(
-				"tl" => $topic['title']
-			));
-			$body = Brick::ReplaceVarByData($brick->param->var['cmtemlautorbody'], array(
-				"email" => $email,
-				"tpclnk" => $tpLink,
-				"tl" => $topic['title'],
-				"unm" => $this->user->info['username'],
-				"cmt" => $data->bd,
-				"sitename" => Brick::$builder->phrase->Get('sys', 'site_name')
-			));
-			Abricos::Notify()->SendMail($email, $subject, $body);
-		}
-	}
 }
 
 ?>
