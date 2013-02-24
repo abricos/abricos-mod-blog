@@ -129,7 +129,25 @@ class BlogModule extends Ab_Module {
 				$pa->type = 'tagview';
 				$pa->topicListFilter = $d1."/".urldecode($d2);
 			}
+
+		} else if ($d1 = 'author'){
 			
+			if ($lvl == 2){//blog/author/
+				// список авторов
+				$pa->type = 'authorlist';
+			}else{//blog/author/%username%/
+				$username = urldecode($d2);
+				
+				$man = $this->GetManager();
+				$pa->author = $man->AuthorByUserName($username);
+				
+				if (empty($pa->author)){
+					$pa->err404 = true;
+				}else{
+					$pa->type = 'authorview';
+					$pa->topicListFilter = "author/".$pa->author->id;
+				}
+			}
 
 		} else if (!empty($d1)){ //blog/%category_name%/
 			$man = $this->GetManager();
@@ -180,6 +198,7 @@ class BlogModule extends Ab_Module {
 		
 		// возможно это категория
 		if (empty($pa->type) && !empty($d1)){
+		
 		}
 		/**/
 		if (empty($pa->type) && !$pa->err404){
@@ -331,11 +350,21 @@ class BlogParserAddress {
 	public $topicList = null;
 	
 	/**
+	 * Фильтр для списка топиков
+	 * @var string
+	 */
+	public $topicListFilter = "";
+	
+	/**
 	 * @var BlogTopic
 	 */
 	public $topic = null;
-	
-	public $topicListFilter = "";
+
+	/**
+	 * Автор
+	 * @var BlogAuthor
+	 */
+	public $author = null;
 }
 
 class BlogAction {

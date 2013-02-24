@@ -288,11 +288,19 @@ class BlogUser {
 		return '/uprofile/#app=uprofile/ws/showws/'.$this->id.'/';
 	}
 	
-	public function Avatar24(){
+	private function Avatar($size){
 		$url = empty($this->avatar) ?
-			'/modules/uprofile/images/nofoto24.gif' :
-			'/filemanager/i/'.$this->avatar.'/w_24-h_24/avatar.gif';
+		'/modules/uprofile/images/nofoto'.$size.'.gif' :
+		'/filemanager/i/'.$this->avatar.'/w_'.$size.'-h_'.$size.'/avatar.gif';
 		return '<img src="'.$url.'">';
+	}
+
+	public function Avatar24(){
+		return $this->Avatar(24);
+	}
+	
+	public function Avatar90(){
+		return $this->Avatar(90);
 	}
 }
 
@@ -550,16 +558,20 @@ class BlogCategory {
 class BlogPersonalCategory {
 	
 	public $title;
+	
+	/**
+	 * @var BlogUser
+	 */
 	public $user;
 	
 	public function __construct(BlogUser $user){
-		$this->user = $this->user;
+		$this->user = $user;
 		$this->title = 
 			str_replace("{v#unm}", $user->userName, BlogModule::$instance->lang['catperson']);
 	}
 	
 	public function URL(){
-		
+		return "/blog/author/".$this->user->userName."/";
 	}
 }
 

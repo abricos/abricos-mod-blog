@@ -639,11 +639,18 @@ class BlogManager extends Ab_ModuleManager {
 	}
 	
 	public function Author($authorid){
-		if (!$this->IsViewRole()){
-			return null;
-		}
+		if (!$this->IsViewRole()){ return null; }
 	
 		$row = BlogTopicQuery::Author($this->db, $authorid);
+		if (empty($row)){ return null; }
+		return new BlogAuthor($row);
+	}
+
+	public function AuthorByUserName($username){
+		if (!$this->IsViewRole()){ return null; }
+	
+		$row = BlogTopicQuery::AuthorByUserName($this->db, $username);
+
 		if (empty($row)){ return null; }
 		return new BlogAuthor($row);
 	}
