@@ -12,12 +12,14 @@ $v = &$brick->param->var;
 $man = BlogModule::$instance->GetManager();
 $pa = BlogModule::$instance->ParserAddress();
 
+$author = $pa->author;
 
 $brick->content = Brick::ReplaceVarByData($brick->content, array(
-	'uid' => $pa->author->id,
-	'unm' => $pa->author->GetUserName(),
-	'topics' => $pa->author->topicCount,
-	'avatar' => $pa->author->Avatar90()
+	'uid' => $author->id,
+	'unm' => $author->GetUserName(),
+	'urlusr' => $author->URL(),
+	'topics' => $author->topicCount,
+	'avatar' => $author->Avatar90()
 ));
 
 ?>

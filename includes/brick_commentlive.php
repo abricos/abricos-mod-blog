@@ -20,13 +20,8 @@ for ($i=0; $i<$count; $i++){
 	$topic = $comm->topic;
 	$cat = $topic->Category();
 	
-	$urlusr = "#";
-	if (!empty($modUProfile)){
-		$urlusr = '/uprofile/#app=uprofile/ws/showws/'.$topic->user->id.'/';
-	}
-
 	$lst .= Brick::ReplaceVarByData($brick->param->var['row'], array(
-		"urlusr" => $urlusr,
+		"urlusr" => $topic->user->URL(),
 		"uid" => $topic->user->id,
 		"login" => $topic->user->userName,
 		"cattl" => $cat->title,

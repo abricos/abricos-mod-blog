@@ -71,6 +71,7 @@ class BlogModule extends Ab_Module {
 		
 		if (!empty($this->_cachepa)){ return $this->_cachepa; }
 
+		$man = $this->GetManager();
 		$pa = new BlogParserAddress();
 		$pa->uri = "/".$this->takelink."/";
 		
@@ -82,7 +83,7 @@ class BlogModule extends Ab_Module {
 			$pa->uri .= $dir[$i]."/";
 		}
 
-		$d1 = $dir[1]; $d2 = $dir[2]; $d3 = $dir[3];
+		$d1 = $dir[1]; $d2 = $dir[2]; $d3 = $dir[3]; $d4 = $dir[4];
 		$page = 1;
 		
 		if ($lvl == 1){ //blog/
@@ -130,15 +131,31 @@ class BlogModule extends Ab_Module {
 				$pa->topicListFilter = $d1."/".urldecode($d2);
 			}
 
-		} else if ($d1 = 'author'){
+		} else if ($d1 == 'author'){
+			$page=$this->PageConvert($d3);
 			
 			if ($lvl == 2){//blog/author/
 				// список авторов
 				$pa->type = 'authorlist';
+			}else if($lvl == 4 && $page == 0){//blog/author/%username%/%topicid%/
+				
+				$topicid = intval($d3);
+				$topic = $man->Topic($topicid);
+					
+				if (empty($topic)){
+					$pa->err404 = true;
+				}else{
+					$pa->type = 'topicview';
+					$pa->topicListFilter = '';
+					$pa->topic = $topic;
+				
+					// указать контентid для комментарий
+					Brick::$contentId = $topic->contentid;
+				}
+				
 			}else{//blog/author/%username%/
 				$username = urldecode($d2);
 				
-				$man = $this->GetManager();
 				$pa->author = $man->AuthorByUserName($username);
 				
 				if (empty($pa->author)){
@@ -150,7 +167,6 @@ class BlogModule extends Ab_Module {
 			}
 
 		} else if (!empty($d1)){ //blog/%category_name%/
-			$man = $this->GetManager();
 			$cats = $man->CategoryList();
 			$pa->cat = $cats->GetByName($d1);
 			if (!empty($pa->cat)){
