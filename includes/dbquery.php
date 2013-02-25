@@ -367,6 +367,18 @@ class BlogTopicQuery {
 		";
 		return $db->query_read($sql);
 	}
+	
+	public static function TagListByLikeQuery(Ab_Database $db, $query){
+		$sql = "
+			SELECT title as tl
+			FROM ".$db->prefix."bg_tag
+			WHERE title LIKE '".bkstr($query)."%' AND language='".bkstr(Abricos::$LNG)."'
+			GROUP BY title
+			ORDER BY title
+			LIMIT 10
+		";
+		return $db->query_read($sql);
+	}
 
 	public static function TopicTagList(Ab_Database $db, $tids){
 		if (!is_array($tids)){

@@ -739,6 +739,24 @@ class BlogManager extends Ab_ModuleManager {
 	
 		return $list->ToAJAX();
 	}
+	
+	/**
+	 * Список тегов по запросу (автозаполение)
+	 * 
+	 * @param string $query
+	 */
+	public function TagListByLikeQuery($query){
+		if (empty($query) || !$this->IsViewRole()){ return null; }
+		
+		$ret = array();
+		
+		$rows = BlogTopicQuery::TagListByLikeQuery($this->db, $query);
+		while (($row = $this->db->fetch_array($rows))){
+			array_push($ret, $row['tl']);
+		}		
+		
+		return $ret;
+	}
 
 	/**
 	 * Можно ли проголосовать текущему пользователю за категорию/топик

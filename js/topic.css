@@ -18,10 +18,12 @@
 	text-decoration: none;
 	color: #7B848D;
 }
-
 .aw-blog .homelist .submenu a.new {
 	text-decoration: none;
 	margin-left: 5px;
+}
+.aw-blog .homelist .submenu li.rg {
+	float: right;
 }
 
 /* * * * Топик * * * */
