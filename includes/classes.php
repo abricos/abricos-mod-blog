@@ -8,6 +8,25 @@
 
 require_once 'dbquery.php';
 
+class BlogConfig {
+
+	/**
+	 * Количество отправляемых писем за один раз
+	 * @var integer
+	 */
+	public $subscribeSendLimit = 25;
+	
+	public function __construct($cfg){
+		if (empty($cfg)){ $cfg = array(); }
+		
+		if (isset($cfg['subscribeSendLimit'])){
+			$this->subscribeSendLimit = intval($subscribeSendLimit);
+		}
+	}
+	
+}
+
+
 /**
  * Информация о топике (записе в блоге)
  */

@@ -23,13 +23,22 @@ class BlogManager extends Ab_ModuleManager {
 	
 	public static $isURating = false;
 	
+	/**
+	 * Конфиг
+	 * @var BlogConfig
+	 */
+	public $config = null;
+	
 	public function __construct($module){
 		parent::__construct($module);
 
 		BlogManager::$instance = $this;
 		
 		$modURating = Abricos::GetModule("urating");
-		BlogManager::$isURating = !empty($modURating); 
+		BlogManager::$isURating = !empty($modURating);
+
+
+		$this->config = new BlogConfig(Abricos::$config['module']['blog']);
 	}
 	
 	public function IsAdminRole(){
@@ -947,19 +956,15 @@ class BlogManager extends Ab_ModuleManager {
 		}
 	}
 	
-	
-	
-	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-	/*                  МЕТОДЫ НА УДАЛЕНИЕ/ПЕРЕРАБОТКУ               */
-	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-	// TODO: Удалить
 
-	public function SubscribeTopicCheck($sendlimit = 25){
+	/**
+	 * Проверить наличие новых топиков и отправить по ним письма-уведомления
+	 * 
+	 * @param integer $sendlimit лимит отправки за раз
+	 */
+	public function SubscribeTopicCheck(){
 
-		$cfgSPL = intval(Abricos::$config['module']['blog']['subscribeSendLimit']);
-		if ($cfgSPL > 0){
-			$sendlimit = $cfgSPL;
-		}
+		$sendlimit = $this->config->subscribeSendLimit;
 		
 		// Топик в блоге из очереди на рассылку
 		$topic = BlogQuery::SubscribeTopic($this->db);
@@ -999,13 +1004,6 @@ class BlogManager extends Ab_ModuleManager {
 	}
 	
 	private $_brickTemplates = null;
-	
-	private function UserNameBuild($user){
-		$firstname = !empty($user['fnm']) ? $user['fnm'] : $user['firstname'];
-		$lastname = !empty($user['lnm']) ? $user['lnm'] : $user['lastname'];
-		$username = !empty($user['unm']) ? $user['unm'] : $user['username'];
-		return (!empty($firstname) && !empty($lastname)) ? $firstname." ".$lastname : $username;
-	}
 	
 	private function SubscribeTopicSend($topic, $user){
 		$email = $user['eml'];
@@ -1048,41 +1046,7 @@ class BlogManager extends Ab_ModuleManager {
 		return $pubkey;
 	}
 	
-	private function TopicTagsUpdate($obj){
-		$tagarr = array();
-		$tags = explode(",", $obj->tags);
-		foreach ($tags as $t){
-			$t = trim($t);
-			if (empty($t)){ continue; }
-			$tagarr[$t]['phrase'] = $t;
-			$tagarr[$t]['name'] = translateruen($t);
-		}
-		BlogQuery::TagSetId($this->db, $tagarr);
-		BlogQuery::TagUpdate($this->db, $obj->id, $tagarr);
-	}
 
-	/**
-	 * Список записей в блоге текущего пользователя
-	 * @param integer $page
-	 * @param integer $total
-	 */
-	public function TopicList_methodToRemove($page, $total){
-		if (!$this->IsWriteRole()){ return null; }
-		
-		// отправить сообщения рассылки из очереди (подобие крона)
-		$this->SubscribeTopicCheck();
-		
-		return BlogQuery::TopicListByUserId($this->db, $this->userid, $page, $total);
-	}
-	
-	/**
-	 * Кол-во записей в блоге текущего пользователя
-	 */
-	public function TopicListCount(){
-		if (!$this->IsWriteRole()){ return null; }
-		return BlogQuery::TopicCountByUserId($this->db, $this->userid); 
-	}
-	
 	public function UserGroupList(){
 		if (!$this->IsAdminRole()){ return null; }
 		
@@ -1091,32 +1055,6 @@ class BlogManager extends Ab_ModuleManager {
 		return UserQueryExt::GroupList($this->db);
 	}
 
-	
-	private function CategoryDataParse($d){
-		$utm = Abricos::TextParser(true);
-		$d->ph = $utm->Parser($d->ph);
-		$d->nm = $utm->Parser($d->nm);
-		
-		if (empty($d->ph)){
-			return null;
-		}
-		if (empty($d->nm)){
-			$d->nm = translateruen($d->ph);
-		}
-		
-		$arr = explode(",", $d->gps);
-		$narr = array();
-		for ($i=0; $i<count($arr); $i++){
-			$n = intval($arr[$i]);
-			if ($n > 0){
-				array_push($narr, $n);
-			}
-		}
-		$d->gps = implode(",", $narr);
-		
-		return $d;
-	}
-	
 
 }
 
