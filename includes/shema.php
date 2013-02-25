@@ -71,7 +71,8 @@ if ($updateManager->isInstall()){
 
 			`isdraft` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1-черновик',
 			`isban` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'Наложить запрет на публикацию (админ, модер)',
-			`isindex` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1-принудительный вывод на главную',
+			`isindex` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1-топик был выведен на главную',
+			`indexnochange` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1 - не менять статус вывода на главную автоматически',
 			
 			`dateline` integer(10) unsigned NOT NULL COMMENT 'Дата создания',
 			`upddate` integer(10) unsigned NOT NULL COMMENT 'Дата редактирования',
@@ -273,7 +274,8 @@ if ($updateManager->isUpdate('0.5') && !$updateManager->isInstall()){
 		ADD `isdraft` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1-черновик',
 		ADD `isban` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'Наложить запрет на публикацию (админ, модер)',
 		ADD `isindex` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1-принудительный вывод на главную',
-
+		ADD `indexnochange` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'не менять автоматически статус выхода на главную',
+			
 		ADD `commentcount` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Кол-во комментариев',
 		ADD `viewcount` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Кол-во просмотров (учет зарег.польз.)',
 		

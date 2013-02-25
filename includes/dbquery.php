@@ -873,6 +873,18 @@ class BlogTopicQuery {
 		";
 		$db->query_write($sql);
 	}
+	
+	public static function SubscribeTopicId(Ab_Database $db){
+		$sql = "
+			SELECT t.topicid as id
+			FROM ".$db->prefix."bg_topic t
+			INNER JOIN ".$db->prefix."bg_cat cat ON t.catid=cat.catid
+			WHERE t.scbcomplete=0 AND t.isindex=1 AND t.catid>0 AND t.deldate=0 AND cat.deldate=0
+			LIMIT 1
+		";
+		return $db->query_first($sql);
+	}
+		
 }
 
 
@@ -1644,25 +1656,7 @@ class BlogQuery_OLD {
 		";
 		$db->query_write($sql);
 	}
-	
-	public static function SubscribeTopic(Ab_Database $db){
-		$sql = "
-			SELECT t.*,
-				u.username as unm,
-				u.firstname as fnm,
-				u.lastname as lnm,
-				c.name as catname,
-				c.phrase as cattitle,
-				c.grouplist
-			FROM ".$db->prefix."bg_topic t
-			INNER JOIN ".$db->prefix."user u ON t.userid = u.userid
-			INNER JOIN ".$db->prefix."bg_cat c ON t.catid=c.catid
-			WHERE t.scbcomplete=0 AND t.deldate=0 AND t.status=1
-			LIMIT 1
-		";
-		return $db->query_first($sql);
-	}
-	
+
 	public static function SubscribeTopicUpdate(Ab_Database $db, $topicid, $lastUserid){
 		$sql = "
 			UPDATE ".$db->prefix."bg_topic 

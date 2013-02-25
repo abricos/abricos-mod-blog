@@ -966,10 +966,16 @@ class BlogManager extends Ab_ModuleManager {
 
 		$sendlimit = $this->config->subscribeSendLimit;
 		
-		// Топик в блоге из очереди на рассылку
-		$topic = BlogQuery::SubscribeTopic($this->db);
+		// Топик по которому есть рассылка
+		$row = BlogQuery::SubscribeTopic($this->db);
+		if (empty($row)){ return; }
+		
+		$topic = $this->Topic($row['id']);
 		if (empty($topic)){ return; }
 		
+		
+		
+		/*
 		$gps = explode(",", $topic['grouplist']);
 		if (count($gps) == 0){ return; }
 
@@ -1001,6 +1007,7 @@ class BlogManager extends Ab_ModuleManager {
 		for ($i=0; $i<count($users); $i++){
 			$this->SubscribeTopicSend($topic, $users[$i]);
 		}
+		/**/
 	}
 	
 	private $_brickTemplates = null;
