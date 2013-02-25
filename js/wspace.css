@@ -1,3 +1,4 @@
+/* * * * wspace.css begin * * * */
 .aw-blog .wspage {
 	min-height: 160px;
 }
@@ -14,7 +15,7 @@
 .aw-blog .gheadermenu h2 {
 	padding: 5px 10px;
 	font-size: 1.5em;
-	background-color: #8c8d8e;
+	background-color: #6A718A;
 	color: #fff;
 }
 .aw-blog .gheadermenu a.logo {
@@ -45,30 +46,30 @@
 	font-size: 
 }
 .aw-blog .gheadermenu ul.topmenu li.sel {
-	background: none repeat scroll 0 0 #E3E3D7;
-    border: 1px solid #DDD9E2;
+	background: none repeat scroll 0 0 #E8E9ED;
+    border: 1px solid #DCDEE4;
 }
 .aw-blog .gheadermenu ul.topmenu li.sel a {
-	color: #000;
+	color: #3B4054;
 	text-decoration: none;
 }
 
 .aw-blog .gbmenu a {
 	text-decoration: none;
-	font-size: 1.2em;
-	color: #000;
+	font-size: 14px;
+	color: #2A2D3C;
 }
 .aw-blog .gbmenu .gbitems {
 	margin-left: 10px;
 }
 .aw-blog .gbmenu .gbitem {
-	background-color: #F4F4EE;
 	text-align: center;
 	min-width: 100px;
 	cursor: pointer;
 	float: left;
 	margin: 0 1px;
 	padding: 5px 15px; 
+	background-color: #F3F4F6;
 }
 .aw-blog .gbmenu .r {
 	float: right;
@@ -77,7 +78,7 @@
 	text-decoration: underline;	
 }
 .aw-blog .gbmenu .current {
-	background-color: #E3E3D7;
+	background-color: #E8E9ED;
 }
 .aw-blog .gbmenu .current:hover {
 	text-decoration: none;	
@@ -101,3 +102,4 @@
 .aw-blog .wscol-right .blockbox {
 	margin-bottom: 10px;
 }
+/* * * * wspace.css end * * * */
