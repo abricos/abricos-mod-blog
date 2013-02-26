@@ -161,6 +161,9 @@ Component.entryPoint = function(NS){
 			'catid': 0,
 			'tl': '',
 			'dl': 0, 
+			'dft': 0,
+			'idx': 0,
+			'aidx': 0,
 			'cmt': 0,
 			'bdlen': 0,
 			'intro': '',
@@ -201,6 +204,10 @@ Component.entryPoint = function(NS){
 			
 			// дата публикации
 			this.date = d['dl']==0 ? null : new Date(d['dl']*1000);
+			this.isDraft = d['dft']>0;
+			this.isIndex = d['idx'];
+			this.isAutoIndex = d['aidx'];
+			
 			this.intro = d['intro'];
 			this.commentCount = d['cmt']*1;
 			this.contentid = d['ctid']*1;

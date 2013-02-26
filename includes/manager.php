@@ -311,6 +311,8 @@ class BlogManager extends Ab_ModuleManager {
 		
 		$d->id = intval($d->id);
 		$d->dft = intval($d->dft);
+		$d->idx = intval($d->idx);
+		$d->aidx = intval($d->aidx);
 		$d->catid = intval($d->catid);
 		
 		// проверка категории на возможность публиковать в ней
@@ -350,7 +352,7 @@ class BlogManager extends Ab_ModuleManager {
 				$isNewPublic = true;
 				$d->pdt = TIMENOW;
 			}
-		}else{
+		}else{ // сохранение существующего
 			if ($topic->isDraft && $d->dft!=0){ // черновик станет публикацией
 				$isNewPublic = true;
 				if ($topic->publicDate == 0){ // публикация в первый раз
@@ -457,6 +459,22 @@ class BlogManager extends Ab_ModuleManager {
 		
 		
 		$ret->topicid = $d->id;
+		
+		if ($this->IsAdminRole()){
+			
+			$topic = $this->Topic($d->id);
+			
+			$isIndex = $d->idx>0;
+
+			if ($isIndex){
+				// включить принудительный вывод на главную
+				BlogTopicQuery::TopicIndexUpdateByAdmin($this->db, $d->id, $isIndex, !$isIndex);
+			}else if (!$isIndex){
+				// отключить принудительный вывод на главную
+				BlogTopicQuery::TopicIndexUpdateByAdmin($this->db, $d->id, $isIndex, !$isIndex);
+			}
+		}
+		
 		return $ret;
 	}
 
@@ -824,7 +842,7 @@ class BlogManager extends Ab_ModuleManager {
 	}
 	
 	/**
-	 * Занести результат расчета репутации пользователя
+	 * Занести результат расчета рейтинга элемента (топика, блога)
 	 *
 	 * Метод вызывается из модуля urating
 	 *
@@ -837,7 +855,13 @@ class BlogManager extends Ab_ModuleManager {
 		if ($eltype == 'cat'){
 			BlogTopicQuery::CategoryRatingUpdate($this->db, $elid, $info['cnt'], $info['up'], $info['down']);
 		}else if($eltype == 'topic'){
-			BlogTopicQuery::TopicRatingUpdate($this->db, $elid, $info['cnt'], $info['up'], $info['down']);
+			$topicid = $elid;
+			$rating = $info['up'] - $info['down'];
+			
+			BlogTopicQuery::TopicRatingUpdate($this->db, $topicid, $info['cnt'], $info['up'], $info['down']);
+			
+			$isIndex = $rating >= $this->config->topicIndexRating;
+			BlogTopicQuery::TopicIndexUpdateByRating($this->db, $topicid, $isIndex);
 		}
 	}
 	
@@ -1023,8 +1047,6 @@ class BlogManager extends Ab_ModuleManager {
 		$unLnkBlog = "http://".$host."/blog/_unsubscribe/".$user['id']."/".$user['pubkey']."/".$topic->catid."/";
 		$unLnkAll = "http://".$host."/blog/_unsubscribe/".$user['id']."/".$user['pubkey']."/all/";
 
-		$buser = new BlogUser($user);
-		
 		$subject = Brick::ReplaceVarByData($v['topicnewsubj'], array(
 			"tl" => $cat->title
 		));
@@ -1032,7 +1054,7 @@ class BlogManager extends Ab_ModuleManager {
 			"email" => $email,
 			"blog" => $cat->title,
 			"topic" => $topic->title,
-			"unm" => $buser->GetUserName(),
+			"unm" => $topic->user->GetUserName(),
 			"tlnk" => $tLnk,
 			"unlnkall" => $unLnkAll,
 			"unlnkallblog" => $unLnkBlog,

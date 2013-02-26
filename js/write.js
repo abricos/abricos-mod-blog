@@ -146,6 +146,12 @@ Component.entryPoint = function(NS){
 				text += "<cut>" + topic.body;
 			}
 			this.editorWidget.setContent(text);
+			
+			if (R['isAdmin']){
+				this.elShow('admindex');
+				
+				this.gel('isindex').checked = (topic.isIndex && !topic.isAutoIndex) ? 'checked' : '';
+			}
 		},
 		onClick: function(el, tp){
 			switch(el.id){
@@ -167,7 +173,8 @@ Component.entryPoint = function(NS){
 				'tl': this.gel('title').value,
 				'tags': NS.TagList.stringToAJAX(stags),
 				'intro': splitText['intro'],
-				'body': splitText['body']
+				'body': splitText['body'],
+				'idx': this.gel('isindex').checked ? 1 : 0
 			};
 		},
 		showPreview: function(){

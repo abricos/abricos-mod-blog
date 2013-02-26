@@ -16,12 +16,25 @@ class BlogConfig {
 	 */
 	public $subscribeSendLimit = 25;
 	
+	
+	/**
+	 * Рейтинг топика для выхода на главную
+	 * 
+	 * @var integer
+	 */
+	public $topicIndexRating = 5;
+	
 	public function __construct($cfg){
 		if (empty($cfg)){ $cfg = array(); }
 		
 		if (isset($cfg['subscribeSendLimit'])){
-			$this->subscribeSendLimit = intval($subscribeSendLimit);
+			$this->subscribeSendLimit = intval($cfg['subscribeSendLimit']);
 		}
+		
+		if (isset($cfg['topicIndexRating'])){
+			$this->topicIndexRating = intval($cfg['topicIndexRating']);
+		}
+		
 	}
 	
 }
@@ -55,7 +68,19 @@ class BlogTopicInfo {
 	 * @var boolean
 	 */
 	public $isDraft;
+
+	/**
+	 * Топик выведен на главную
+	 * @var boolean
+	 */
+	public $isIndex;
 	
+	/**
+	 * Автоматически присваивать индекс главной (исходя из рейтинга)
+	 * 
+	 * @var boolean
+	 */
+	public $isAutoIndex;
 
 	/**
 	 * Дата публикации
@@ -125,6 +150,8 @@ class BlogTopicInfo {
 		
 		$this->user			= new BlogUser($d);
 		$this->isDraft		= $d['dft']>0;
+		$this->isIndex		= $d['idx']>0;
+		$this->isAutoIndex	= $d['aidx']>0;
 		$this->publicDate	= intval($d['dl']);
 		$this->commentCount	= intval($d['cmt']);
 		
@@ -185,6 +212,14 @@ class BlogTopicInfo {
 		$ret->bdlen		= $this->bodyLength;
 		$ret->cmt		= $this->commentCount;
 		$ret->ctid		= $this->contentid;
+
+		$ret->dft		=  $this->isDraft?1:0;
+		$ret->idx		=  $this->isIndex?1:0;
+		
+		if (BlogManager::$instance->IsAdminRole()){
+			$ret->aidx	= $this->isAutoIndex?1:0;
+		}
+		
 		$ret->dl		= $this->publicDate;
 		
 		$ret->rtg	= $this->rating;

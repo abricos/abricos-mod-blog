@@ -1,3 +1,4 @@
+/* * * * write.css begin * * * */
 /* * * * Общие * * * */
 .aw-blog .write select.catlist {
 	width: 250px;
@@ -30,13 +31,19 @@
 	width: 670px;
 	height: 350px;
 }
+.aw-blog .topiceditor .chkindex {
+	margin-top: 10px;
+}
+.aw-blog .topiceditor .chkindex label {
+	vertical-align: top;
+	margin-left: 5px;
+}
 
 /* * * * Preview * * * */
 .aw-blog .preview {
 	min-width: 764px;
 	min-height: 500px;
 }
-
 
 /* * * * Category * * * */
 .aw-blog .cateditor .edstedit .edstnew,
@@ -51,3 +58,4 @@
 	width: 670px;
 	height: 250px;
 }
+/* * * * write.css end * * * */

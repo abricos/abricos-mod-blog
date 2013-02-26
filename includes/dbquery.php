@@ -31,6 +31,9 @@ class BlogTopicQuery {
 				WHERE t.contentid = cm.contentid
 				GROUP by cm.contentid
 			) as cmt,
+			t.isdraft as dft,
+			t.isindex as idx,
+			t.autoindex as aidx,
 			t.pubdate as dl
 		";
 	}
@@ -290,7 +293,7 @@ class BlogTopicQuery {
 	
 		$sql = "
 			INSERT INTO ".$db->prefix."bg_topic
-			(catid, userid, language, title, name, intro, contentid, isdraft, pubdate, dateline, upddate) VALUES (
+			(catid, userid, language, title, name, intro, contentid, isdraft, autoindex, pubdate, dateline, upddate) VALUES (
 				".bkint($d->catid).",
 				".bkint($userid).",
 				'".bkstr(Abricos::$LNG)."',
@@ -299,6 +302,7 @@ class BlogTopicQuery {
 				'".bkstr($d->intro)."',
 				'".bkstr($contentid)."',
 				".($d->dft>0?1:0).",
+				1,
 				".bkint($d->pdt).",
 				".TIMENOW.",
 				".TIMENOW."
@@ -329,7 +333,7 @@ class BlogTopicQuery {
 		
 	public static function TopicRatingUpdate(Ab_Database $db, $topicid, $votecount, $voteup, $votedown){
 		$sql = "
-		UPDATE ".$db->prefix."bg_topic
+			UPDATE ".$db->prefix."bg_topic
 			SET
 				rating=".bkint($voteup-$votedown).",
 				voteup=".bkint($voteup).",
@@ -341,6 +345,35 @@ class BlogTopicQuery {
 		";
 		$db->query_write($sql);
 	}
+	
+	/**
+	 * Автоматическое обновление статуса вывода на главной согласно рейтинку
+	 * 
+	 * @param Ab_Database $db
+	 * @param boolean $topicid
+	 * @param boolean $isIndex
+	 */
+	public static function TopicIndexUpdateByRating(Ab_Database $db, $topicid, $isIndex){
+		$sql = "
+			UPDATE ".$db->prefix."bg_topic
+			SET isindex=".bkint($isIndex ? 1 : 0)."
+			WHERE topicid=".bkint($topicid)." AND autoindex=1
+			LIMIT 1
+		";
+		$db->query_write($sql);
+	}
+	
+	public static function TopicIndexUpdateByAdmin(Ab_Database $db, $topicid, $isIndex, $isAutoIndex){
+		$sql = "
+			UPDATE ".$db->prefix."bg_topic
+			SET isindex=".bkint($isIndex ? 1 : 0).",
+				autoindex=".bkint($isAutoIndex ? 1 : 0)."
+			WHERE topicid=".bkint($topicid)." 
+			LIMIT 1
+		";
+		$db->query_write($sql);
+	}
+	
 	
 	public static function TagListByTopicIds(Ab_Database $db, $tids){
 		if (!is_array($tids)){
