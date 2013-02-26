@@ -278,6 +278,9 @@ class BlogManager extends Ab_ModuleManager {
 		if (is_null($topic)){
 			return null;
 		}
+		
+		// проверить рассылку (подобие крона)
+		$this->SubscribeTopicCheck();
 	
 		$ret = new stdClass();
 		$ret->topic = $topic->ToAJAX();
@@ -594,7 +597,9 @@ class BlogManager extends Ab_ModuleManager {
 		$cat = $this->Category($catid);
 		if (is_null($cat)){ return null; }
 		
-		BlogTopicQuery::CategoryUserSetMember($this->db, $catid, $this->userid, !$cat->isMemberFlag);
+		$pubkey = md5(TIMENOW.$catid."+".$this->userid);
+		
+		BlogTopicQuery::CategoryUserSetMember($this->db, $catid, $this->userid, !$cat->isMemberFlag, $pubkey);
 		
 		BlogTopicQuery::CategoryMemberCountUpdate($this->db, $catid);
 		
@@ -967,52 +972,38 @@ class BlogManager extends Ab_ModuleManager {
 		$sendlimit = $this->config->subscribeSendLimit;
 		
 		// Топик по которому есть рассылка
-		$row = BlogQuery::SubscribeTopic($this->db);
+		$row = BlogTopicQuery::SubscribeTopic($this->db);
 		if (empty($row)){ return; }
 		
 		$topic = $this->Topic($row['id']);
 		if (empty($topic)){ return; }
 		
-		
-		
-		/*
-		$gps = explode(",", $topic['grouplist']);
-		if (count($gps) == 0){ return; }
-
-		// полчить список пользователей для рассылки
-		$users = array();
-		$lastid = 0;
-		$rows = BlogQuery::SubscribeUserList($this->db, $topic['catid'], $gps, $topic['scblastuserid'], $sendlimit);
+		$users = array(); $lastid = 0;
+		$rows = BlogTopicQuery::SubscribeUserList($this->db, $topic->catid, $row['sluid'], $sendlimit);
 		while (($u = $this->db->fetch_array($rows))){
 			$lastid = max($u['id'], $lastid);
 
-			if ($u['id'] == $topic['userid'] || empty($u['eml']) || $u['scboff']==1 || $u['scboffall']==1){
-				continue; 
-			}
-			if (empty($u['pubkey'])){
-				// Сам пользователь еще не подписан на блог. 
-				// Необходимо его подписать и присвоить ключ отписки
-				$u['pubkey'] = $this->SubscribeUserOnBlog($topic['catid'], $u['id']);
+			if ($u['id'] == $topic->user->id || empty($u['eml']) || $u['scboff']==1 || $u['scboffall']==1){
+				continue;
 			}
 			array_push($users, $u);
 		}
-
-		if ($lastid == 0){
-			BlogQuery::SubscribeTopicComplete($this->db, $topic['topicid']);
-		}else{
-			BlogQuery::SubscribeTopicUpdate($this->db, $topic['topicid'], $lastid);
-		}
 		
+		if ($lastid == 0){ // нет пользователей для рассылки
+			BlogTopicQuery::SubscribeTopicComplete($this->db, $topic->id);
+		}else{
+			BlogTopicQuery::SubscribeTopicUpdate($this->db, $topic->id, $lastid);
+		}
+
 		// осуществить рассылку
 		for ($i=0; $i<count($users); $i++){
 			$this->SubscribeTopicSend($topic, $users[$i]);
 		}
-		/**/
 	}
 	
 	private $_brickTemplates = null;
 	
-	private function SubscribeTopicSend($topic, $user){
+	private function SubscribeTopicSend(BlogTopic $topic, $user){
 		$email = $user['eml'];
 		if (empty($email)){ return; }
 		
@@ -1026,19 +1017,22 @@ class BlogManager extends Ab_ModuleManager {
 		$v = $brick->param->var;
 		$host = $_SERVER['HTTP_HOST'] ? $_SERVER['HTTP_HOST'] : $_ENV['HTTP_HOST'];
 		
+		$cat = $topic->Category();
 		
-		$tLnk = "http://".$host."/blog/".$topic['catname']."/".$topic['topicid']."/";
-		$unLnkBlog = "http://".$host."/blog/_unsubscribe/".$user['id']."/".$user['pubkey']."/".$topic['catid']."/";
+		$tLnk = "http://".$host.$topic->URL();
+		$unLnkBlog = "http://".$host."/blog/_unsubscribe/".$user['id']."/".$user['pubkey']."/".$topic->catid."/";
 		$unLnkAll = "http://".$host."/blog/_unsubscribe/".$user['id']."/".$user['pubkey']."/all/";
 
+		$buser = new BlogUser($user);
+		
 		$subject = Brick::ReplaceVarByData($v['topicnewsubj'], array(
-			"tl" => $topic['cattitle']
+			"tl" => $cat->title
 		));
 		$body = Brick::ReplaceVarByData($v['topicnew'], array(
 			"email" => $email,
-			"blog" => $topic['cattitle'],
-			"topic" => $topic['title'],
-			"unm" => $this->UserNameBuild($topic),
+			"blog" => $cat->title,
+			"topic" => $topic->title,
+			"unm" => $buser->GetUserName(),
 			"tlnk" => $tLnk,
 			"unlnkall" => $unLnkAll,
 			"unlnkallblog" => $unLnkBlog,
@@ -1046,22 +1040,6 @@ class BlogManager extends Ab_ModuleManager {
 		));
 		Abricos::Notify()->SendMail($email, $subject, $body);
 	}
-	
-	public function SubscribeUserOnBlog($catid, $userid){
-		$pubkey = md5(TIMENOW.$catid.$userid);
-		$id = BlogQuery::SubscribeUserOnBlog($this->db, $catid, $userid, $pubkey);
-		return $pubkey;
-	}
-	
-
-	public function UserGroupList(){
-		if (!$this->IsAdminRole()){ return null; }
-		
-		Abricos::$user->GetManager();
-		
-		return UserQueryExt::GroupList($this->db);
-	}
-
 
 }
 

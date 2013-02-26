@@ -72,7 +72,7 @@ if ($updateManager->isInstall()){
 			`isdraft` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1-черновик',
 			`isban` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'Наложить запрет на публикацию (админ, модер)',
 			`isindex` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1-топик был выведен на главную',
-			`indexnochange` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1 - не менять статус вывода на главную автоматически',
+			`autoindex` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1 - не менять статус вывода на главную автоматически',
 			
 			`dateline` integer(10) unsigned NOT NULL COMMENT 'Дата создания',
 			`upddate` integer(10) unsigned NOT NULL COMMENT 'Дата редактирования',
@@ -153,6 +153,7 @@ if ($updateManager->isUpdate('0.4.4') && !$updateManager->isInstall()){
 // Рассылка уведомлений
 if ($updateManager->isUpdate('0.4.4.1')){
 
+	// принудительная подписка групп пользователей
 	$db->query_write("
 		ALTER TABLE ".$pfx."bg_cat
 		ADD `grouplist` varchar(250) NOT NULL DEFAULT '' COMMENT 'Группы пользователей рассылки, идент. через запятую'
@@ -169,24 +170,11 @@ if ($updateManager->isUpdate('0.4.4.1')){
 	// отписка пользователя от всех рассылок в блоге
 	$db->query_write("
 		CREATE TABLE `".$pfx."bg_scbunset` (
-		`userid` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Пользователь',
-		`dateline` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата отписки',
+			`userid` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Пользователь',
+			`dateline` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата отписки',
 		PRIMARY KEY (`userid`) 
 	)". $charset);
-	
-	// подписка пользователя на новые записи в блоге
-	$db->query_write("
-		CREATE TABLE `".$pfx."bg_scbblog` (
-		  `catid` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Блог',
-		  `userid` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Пользователь',
-		  `pubkey` char(32) NOT NULL DEFAULT '' COMMENT 'Ключ отписки',
-		  
-		  `scboff` tinyint(1) unsigned NOT NULL DEFAULT 0 COMMENT '1-рассылка отключена',
-		  `scbcustom` tinyint(1) unsigned NOT NULL DEFAULT 0 COMMENT '1-пользователь сам подписался',
-			
-		UNIQUE KEY `blog` (`userid`,`catid`)
-	)". $charset);
-	
+
 }
 
 if ($updateManager->isUpdate('0.5')){
@@ -199,6 +187,9 @@ if ($updateManager->isUpdate('0.5')){
 			`isadmin` tinyint(1) unsigned NOT NULL DEFAULT 0 COMMENT 'Админ категории',
 			`ismoder` tinyint(1) unsigned NOT NULL DEFAULT 0 COMMENT 'Модератор категории',
 			`ismember` tinyint(1) unsigned NOT NULL DEFAULT 0 COMMENT 'Подписан на категорию (блог): 0 - нет, 1 - да',
+			
+			`pubkey` char(32) NOT NULL DEFAULT '' COMMENT 'Публичный ключ',
+			`scboff` tinyint(1) unsigned NOT NULL DEFAULT 0 COMMENT '1-рассылка отключена',
 			
 			`dateline` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата создания',
 			`upddate` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата обновления',
@@ -229,6 +220,20 @@ if ($updateManager->isUpdate('0.5')){
 if ($updateManager->isUpdate('0.5') && !$updateManager->isInstall()){
 
 	require_once 'dbquery.php';
+
+	// перенести подписчиков
+	$db->query_write("
+		INSERT IGNORE INTO ".$pfx."bg_catuserrole
+			(catid, userid, ismember, pubkey, dateline, upddate)
+		SELECT 
+			catid, userid, 1, pubkey, ".TIMENOW.", ".TIMENOW."
+		FROM ".$pfx."bg_scbblog
+		WHERE scboff=0
+	");
+	$db->query_write("DROP TABLE IF EXISTS`".$pfx."bg_scbblog`");
+	
+	// обновить информацию о подписчиках
+	BlogTopicQuery::CategoryMemberCountUpdate($db);
 	
 	// Таблица более не нужна
 	$db->query_write("DROP TABLE IF EXISTS`".$pfx."bg_topcat`");
@@ -274,8 +279,8 @@ if ($updateManager->isUpdate('0.5') && !$updateManager->isInstall()){
 		ADD `isdraft` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1-черновик',
 		ADD `isban` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'Наложить запрет на публикацию (админ, модер)',
 		ADD `isindex` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1-принудительный вывод на главную',
-		ADD `indexnochange` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'не менять автоматически статус выхода на главную',
-			
+		ADD `autoindex` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'не менять автоматически статус выхода на главную',
+
 		ADD `commentcount` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Кол-во комментариев',
 		ADD `viewcount` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Кол-во просмотров (учет зарег.польз.)',
 		
@@ -287,7 +292,6 @@ if ($updateManager->isUpdate('0.5') && !$updateManager->isInstall()){
 		ADD KEY `byuser` (`userid`, `isdraft`, `deldate`),
 		ADD KEY `bypub` (`language`, `isdraft`, `deldate`)
 	");
-	
 	
 	// В предыдущих версиях были дубликаты в регистре, их необходимо удалить
 	$db->query_write("RENAME TABLE ".$pfx."bg_tag TO ".$pfx."bg_tag_old");

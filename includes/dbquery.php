@@ -644,13 +644,14 @@ class BlogTopicQuery {
 		$db->query_write($sql);
 	}
 	
-	public static function CategoryUserSetMember(Ab_Database $db, $catid, $userid, $isMember){
+	public static function CategoryUserSetMember(Ab_Database $db, $catid, $userid, $isMember, $pubkey){
 		$sql = "
 			INSERT INTO ".$db->prefix."bg_catuserrole
-				(catid, userid, ismember, dateline, upddate) VALUES(
+				(catid, userid, ismember, pubkey, dateline, upddate) VALUES(
 				".bkint($catid).",
 				".bkint($userid).",
 				".($isMember?1:0).",
+				'".bkstr($pubkey)."',
 				".TIMENOW.",
 				".TIMENOW."
 			) ON DUPLICATE KEY UPDATE
@@ -874,9 +875,15 @@ class BlogTopicQuery {
 		$db->query_write($sql);
 	}
 	
-	public static function SubscribeTopicId(Ab_Database $db){
+	/**
+	 * Топик по которому есть рассылка уведомлений о том, что он опубликован
+	 * @param Ab_Database $db
+	 */
+	public static function SubscribeTopic(Ab_Database $db){
 		$sql = "
-			SELECT t.topicid as id
+			SELECT 
+				t.topicid as id,
+				t.scblastuserid as sluid
 			FROM ".$db->prefix."bg_topic t
 			INNER JOIN ".$db->prefix."bg_cat cat ON t.catid=cat.catid
 			WHERE t.scbcomplete=0 AND t.isindex=1 AND t.catid>0 AND t.deldate=0 AND cat.deldate=0
@@ -884,6 +891,72 @@ class BlogTopicQuery {
 		";
 		return $db->query_first($sql);
 	}
+	
+	/**
+	 * Список подписчиков на блог которым еще не было отправлено письмо о новом топике
+	 * 
+	 * 
+	 * @param Ab_Database $db
+	 * @param integer $catid
+	 * @param integer $lastUserId
+	 * @param integer $limit
+	 */
+	public static function SubscribeUserList(Ab_Database $db, $catid, $lastUserId, $limit = 25){
+		$modAntibot = Abricos::GetModule('antibot');
+		
+		$sql = "
+			SELECT 
+				u.userid as id,
+				u.username as unm,
+				u.lastname as lnm,
+				u.firstname as fnm,
+				u.email as eml,
+				IF ((cur.pubkey IS NULL), '', cur.pubkey) as pubkey,
+				IF ((cur.scboff IS NULL), 0, cur.scboff) as scboff,
+				IF ((uns.userid IS NULL), 0, 1) as scboffall
+				
+			FROM ".$db->prefix."bg_catuserrole cur
+			INNER JOIN ".$db->prefix."user u ON cur.userid=u.userid
+			LEFT JOIN ".$db->prefix."bg_scbunset uns ON cur.userid=uns.userid
+			
+			WHERE cur.ismember=1 AND cur.catid=".bkint($catid)." 
+				AND u.email <> '' AND cur.userid > ".bkint($lastUserId)."
+				".(!empty($modAntibot) ? " AND u.antibotdetect=0" : "")."
+				
+			ORDER BY cur.userid
+			LIMIT ".bkint($limit)."
+		";
+		return $db->query_read($sql);
+	}
+	
+	/**
+	 * Обновить информацию о последнем пользователе которому было отправлено письмо по подписке
+	 * @param Ab_Database $db
+	 * @param integer $topicid
+	 * @param integer $lastUserid
+	 */
+	public static function SubscribeTopicUpdate(Ab_Database $db, $topicid, $lastUserid){
+		$sql = "
+			UPDATE ".$db->prefix."bg_topic
+			SET scblastuserid=".bkint($lastUserid)."
+			WHERE topicid=".bkint($topicid)."
+			LIMIT 1
+		";
+		$db->query_write($sql);
+	}
+	
+	public static function SubscribeTopicComplete(Ab_Database $db, $topicid){
+		$sql = "
+		UPDATE ".$db->prefix."bg_topic
+		SET scbcomplete=1
+		WHERE topicid=".bkint($topicid)."
+		LIMIT 1
+		";
+		$db->query_write($sql);
+	}
+	
+	
+	
 		
 }
 
@@ -1294,206 +1367,7 @@ class BlogQuery_OLD {
 		";
 		return $db->query_read($sql);
 	}
-	
-	public static function TagAC(Ab_Database $db, $query){
-		$sql = "
-			SELECT phrase as ph
-			FROM ".$db->prefix."bg_tag
-			WHERE phrase LIKE '".$query."%' AND language='".bkstr(Abricos::$LNG)."'
-			GROUP BY phrase
-			ORDER BY phrase
-		";
-		return $db->query_read($sql);
-	}
-	
-	public static function Tag(Ab_Database $db, $tagname){
-		$sql = "
-			SELECT *
-			FROM ".$db->prefix."bg_tag
-			WHERE name='".bkstr($tagname)."' AND language='".bkstr(Abricos::$LNG)."'
-			LIMIT 1
-		";
-		return $db->query_first($sql);
-	}
-	
-	public static function Tags(Ab_Database $db, $topicid){
-		$sql = "
-			SELECT b.tagid as id, b.phrase as ph, b.name as nm 
-			FROM ".$db->prefix."bg_toptag a
-			LEFT JOIN ".$db->prefix."bg_tag b ON a.tagid = b.tagid
-			WHERE a.topicid=".bkint($topicid)."
-		";
-		return $db->query_read($sql);
-	}
-	
-	public static function TagList(Ab_Database $db){
-		$sql = "
-			SELECT a.tagid as id, sum(a.cnt) as cnt, b.name AS nm, b.phrase AS ph
-			FROM (
-				SELECT tagid, count( tagid ) AS cnt
-				FROM ".$db->prefix."bg_toptag
-				GROUP BY tagid
-				ORDER BY cnt DESC
-			) a
-			LEFT JOIN ".$db->prefix."bg_tag b ON b.tagid = a.tagid
-			WHERE b.name != '' AND b.language='".bkstr(Abricos::$LNG)."'
-			GROUP BY nm
-			ORDER BY cnt DESC	
-		";	 
-		return $db->query_write($sql);
-		
-	}
-	
-	public static function TagBlock(Ab_Database $db, $limit = 30){
-		$slimit = $limit == 0 ? "" : "LIMIT ".$limit;
-		
-		$sql = "
-			SELECT a.tagid as id, sum(a.cnt) as cnt, b.name AS nm, b.phrase AS ph
-			FROM (
-				SELECT tagid, count( tagid ) AS cnt
-				FROM ".$db->prefix."bg_toptag
-				GROUP BY tagid
-				ORDER BY cnt DESC
-				".$slimit."
-			) a
-			LEFT JOIN ".$db->prefix."bg_tag b ON b.tagid = a.tagid
-			WHERE b.name != '' AND b.language='".bkstr(Abricos::$LNG)."'
-			GROUP BY nm
-			ORDER BY ph	
-		";	 
-		return $db->query_write($sql);
-	}
-	
-	public static function TagTopicList(Ab_Database $db, $ids){
-		if (empty($ids)){
-			return null;
-		}
-		$where = array();
-		foreach ($ids as $id){
-			array_push($where, "a.topicid=".bkint($id));
-		}
-		$sql = "
-			SELECT a.topicid, a.tagid, b.name, b.phrase
-			FROM ".$db->prefix."bg_toptag a
-			LEFT JOIN ".$db->prefix."bg_tag b ON a.tagid = b.tagid
-			WHERE (".implode(" OR ", $where).") AND b.name != '' AND b.language='".bkstr(Abricos::$LNG)."'
-		";
-		return $db->query_read($sql);
-	}
-	
-	public static function TagUpdate(Ab_Database $db, $topicid, &$tags){
-		$sql = "
-			DELETE FROM ".$db->prefix."bg_toptag
-			WHERE topicid=".$topicid."
-		";
-		$db->query_write($sql);
-		
-		foreach ($tags as $t => $v){
-			$sql = "
-				INSERT INTO ".$db->prefix."bg_toptag
-				(topicid, tagid) VALUES
-				('".bkstr($topicid)."','".bkstr($v['id'])."')
-			";
-			$db->query_write($sql);
-		}
-	}
-	
-	public static function TagSetId(Ab_Database $db, &$tags){
-		if (empty($tags)){
-			return;
-		}
-		$where = array();
-		foreach ($tags as $t => $v){
-			array_push($where, "phrase='".bkstr($v['phrase'])."'");
-		}
-		$sql = "
-			SELECT tagid, phrase
-			FROM ".$db->prefix."bg_tag
-			WHERE ".implode(' OR ', $where)." AND language='".bkstr(Abricos::$LNG)."'
-		";
-		$rows = $db->query_read($sql);
-		while (($row = $db->fetch_array($rows))){
-			$key = $row['phrase'];
-			if (!empty($tags[$key])){
-				$tags[$row['phrase']]['id'] = $row['tagid'];
-			}
-		}
-		foreach ($tags as $t => &$v){
-			if (!empty($v['id'])){
-				continue;
-			}
-			$sql = "
-				INSERT INTO ".$db->prefix."bg_tag
-				(name, phrase, language) VALUES
-				('".bkstr($v['name'])."','".bkstr($v['phrase'])."', '".bkstr(Abricos::$LNG)."')
-			";
-			$db->query_write($sql);
-			$tags[$t]['id'] = $db->insert_id();
-		}
-	}
-	
-	
-	public static function TopicRecycleClear(Ab_Database $db, $userid){
-		$sql = "
-			SELECT contentid
-			FROM ".$db->prefix."bg_topic
-			WHERE userid=".$userid." AND deldate>0
-		";
-		$rows = $db->query_read($sql);
-		$where = array();
-		
-		while (($row = $db->fetch_array($rows))){
-			array_push($where, "contentid=".bkint($row['contentid']));
-		}
-		if (count($where) == 0){
-			return;
-		}
-		$sql = "
-			DELETE FROM ".$db->prefix."content
-			WHERE ".implode(" OR ", $where)."
-		";
-		$db->query_write($sql);
-		
-		$sql = "
-			DELETE FROM ".$db->prefix."bg_topic
-			WHERE userid=".bkint($userid)." AND deldate>0
-		";
-		$db->query_write($sql);
-	}
-	
-	public static function TopicPublish(Ab_Database $db, $topicid){
-		$sql = "
-			UPDATE ".$db->prefix."bg_topic
-			SET pubdate=".TIMENOW.", status=1
-			WHERE topicid=".bkint($topicid)." AND status=0
-		";
-		$db->query_write($sql);
-	}
-	
-	public static function TopicRestore(Ab_Database $db, $topicid){
-		$info = BlogQuery::TopicInfo($db, $topicid);
-		Ab_CoreQuery::ContentRestore($db, $info['contentid']);
-		
-		$sql = "
-			UPDATE ".$db->prefix."bg_topic
-			SET deldate=0
-			WHERE topicid=".bkint($topicid)."
-		";
-		$db->query_write($sql);
-	}
-	
-	public static function TopicRemove(Ab_Database $db, $topicid){
-		
-		$info = BlogQuery::TopicInfo($db, $topicid);
-		Ab_CoreQuery::ContentRemove($db, $info['contentid']);
-		
-		$sql = "
-			UPDATE ".$db->prefix."bg_topic
-			SET deldate=".TIMENOW."
-			WHERE topicid=".bkint($topicid)."
-		";
-		$db->query_write($sql);
-	}
+
 	
 	public static function TopicInfo(Ab_Database $db, $topicid, $contentid = 0){
 		if ($contentid > 0){
@@ -1657,61 +1531,6 @@ class BlogQuery_OLD {
 		$db->query_write($sql);
 	}
 
-	public static function SubscribeTopicUpdate(Ab_Database $db, $topicid, $lastUserid){
-		$sql = "
-			UPDATE ".$db->prefix."bg_topic 
-			SET scblastuserid=".bkint($lastUserid)."
-			WHERE topicid=".bkint($topicid)."
-			LIMIT 1
-		";
-		$db->query_write($sql);
-	}
-	
-	public static function SubscribeTopicComplete(Ab_Database $db, $topicid){
-		$sql = "
-			UPDATE ".$db->prefix."bg_topic
-			SET scbcomplete=1
-			WHERE topicid=".bkint($topicid)."
-			LIMIT 1
-		";
-		$db->query_write($sql);
-	}
-	
-	public static function SubscribeUserList(Ab_Database $db, $catid, $gps, $lastUserId, $limit = 25){
-		if (count($gps) == 0){ return; }
-		
-		$modAntibot = Abricos::GetModule('antibot'); 
-		
-		$aw = array();
-		for ($i=0; $i<count($gps); $i++){
-			array_push($aw, "g.groupid=".bkint($gps[$i]));
-		}
-		$sql = "
-			SELECT DISTINCT
-				u.userid as id,
-				u.username as unm,
-				u.lastname as lnm,
-				u.firstname as fnm,
-				u.email as eml,
-				IF ((s.pubkey IS NULL), '', s.pubkey) as pubkey,
-				IF ((s.scboff IS NULL), 0, s.scboff) as scboff,
-				IF ((s2.userid IS NULL), 0, 1) as scboffall,
-				IF ((s.scbcustom IS NULL), 0, s.scbcustom) as scbcustom
-				
-			FROM ".$db->prefix."usergroup ug
-			INNER JOIN ".$db->prefix."group g ON g.groupid = ug.groupid
-			INNER JOIN ".$db->prefix."user u ON ug.userid = u.userid
-			LEFT JOIN ".$db->prefix."bg_scbblog s ON u.userid=s.userid AND s.catid=".bkint($catid)."
-			LEFT JOIN ".$db->prefix."bg_scbunset s2 ON u.userid=s2.userid
-			WHERE u.language='".Abricos::$LNG."' AND u.email <> '' AND (".implode(" OR ", $aw).") AND u.userid>".bkint($lastUserId)."
-			".(!empty($modAntibot) ? " AND u.antibotdetect=0" : "")."
-			ORDER BY u.userid
-			LIMIT ".bkint($limit)."
-		";
-		return $db->query_read($sql);
-	}
-	
-	
 	public static function SubscribeUserOnBlog(Ab_Database $db, $catid, $userid, $pubkey, $custom = 0){
 		$sql = "
 			INSERT INTO ".$db->prefix."bg_scbblog
