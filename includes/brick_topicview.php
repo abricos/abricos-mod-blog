@@ -12,10 +12,6 @@ $v = &$brick->param->var;
 $man = BlogModule::$instance->GetManager();
 // $cats = $man->CategoryList();
 
-if (BlogManager::$isURating){
-	Abricos::GetModule('urating')->GetManager();
-}
-
 $pa = BlogModule::$instance->ParserAddress();
 
 if (empty($pa->topic)){
@@ -26,12 +22,16 @@ if (empty($pa->topic)){
 $topic = $pa->topic;
 $cat = $topic->Category();
 
-$vote = "";
+$vote = ""; $voteJSMan = "";
 if (BlogManager::$isURating){
-	$vote = URatingManager::$instance->VoteBrick(array(
+	Abricos::GetModule('urating')->GetManager();
+	$voteBuilder = new URatingBuilder("blog", "topic");
+	$vote = $voteBuilder->BuildVote(array(
+		"elid" => $topic->id,
 		"vote" => $topic->voteMy,
 		"value" =>$topic->rating
 	));
+	$voteJSMan = $voteBuilder->BuildJSMan();
 }
 
 $modSocialist = Abricos::GetModule('socialist');
@@ -54,6 +54,7 @@ for ($ti=0;$ti<count($topic->tags);$ti++){
 	)));
 }
 
+
 $brick->content = Brick::ReplaceVarByData($brick->content, array(
 	"submenu" => $submenu,
 	"cattl" => $cat->title,
@@ -75,10 +76,9 @@ $brick->content = Brick::ReplaceVarByData($brick->content, array(
 	"avatar" => $topic->user->Avatar24(),
 
 	"intro"	=> $topic->intro,
-	"body" => $topic->body
+	"body" => $topic->body,
+	'votejsman' => $voteJSMan
 ));
-
-// BlogManager::$instance->SubscribeTopicCheck();
 
 $meta_title = $topic->title." / ".$cat->title." / ".Brick::$builder->phrase->Get('sys', 'site_name');
 

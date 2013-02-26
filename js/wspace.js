@@ -87,6 +87,10 @@ Component.entryPoint = function(NS){
 			this.tagListWidget = new NS.TagListBoxWidget(this.gel('taglist'));
 			this.catListWidget = new NS.CategoryListBoxWidget(this.gel('catlist'));
 			this.showPage(pgInfo);
+			
+			if (R['isWrite']){
+				this.elShow('mwrite');
+			}
 		},
 		showPage: function(p){
 			p = L.merge(DEFPAGE, p || {});

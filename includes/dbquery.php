@@ -79,7 +79,7 @@ class BlogTopicQuery {
 	 */
 	public static function TopicPublicCountByUser(Ab_Database $db, $userid){
 		$day = 60*60*24;
-		$t1 = intval(round(TIMENOW/$day)*$day);
+		$t1 = intval(floor(TIMENOW/$day)*$day);
 		$sql = "
 			SELECT count(*) as cnt
 			FROM ".$db->prefix."bg_topic
