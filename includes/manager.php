@@ -37,7 +37,6 @@ class BlogManager extends Ab_ModuleManager {
 		$modURating = Abricos::GetModule("urating");
 		BlogManager::$isURating = !empty($modURating);
 
-
 		$this->config = new BlogConfig(Abricos::$config['module']['blog']);
 	}
 	
@@ -831,7 +830,7 @@ class BlogManager extends Ab_ModuleManager {
 		if ($eltype == 'topic'){
 			$topic = $this->Topic($elid);
 			if (empty($topic) || !$topic->IsVotingPeriod()){
-				return null;
+				return 99;
 			}
 			if ($topic->user->id == $this->userid){
 				return 4;
@@ -840,6 +839,33 @@ class BlogManager extends Ab_ModuleManager {
 	
 		return 0;
 	}
+	
+	/**
+	 * Можно ли проголосовать текущему пользователю за комментарий
+	 *
+	 * Метод вызывается из модуля Comment
+	 *
+	 * Возвращает код ошибки:
+	 *  0 - все нормально, голосовать можно,
+	 *  5 - закончился период для голосования
+	 *  
+	 * @param URatingUserReputation $uRep
+	 * @param unknown_type $act
+	 * @param unknown_type $commentid
+	 * @param unknown_type $contentid
+	 */
+	public function Comment_IsVoting(URatingUserReputation $uRep, $act, $commentid, $contentid){
+		
+		$topic = $this->Topic(0, $contentid);
+		if (empty($topic)){ return 99; }
+
+		if (!$topic->IsVotingPeriod()){
+			return 5;
+		}
+		
+		return 0;
+	}
+	
 	
 	/**
 	 * Занести результат расчета рейтинга элемента (топика, блога)
