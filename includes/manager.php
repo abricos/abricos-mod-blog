@@ -582,11 +582,7 @@ class BlogManager extends Ab_ModuleManager {
 				return $ret;
 			}
 			
-			// создатель категории становиться ее админом
-			BlogTopicQuery::CategoryUserSetAdmin($this->db, $d->id, $this->userid, true);
-			BlogTopicQuery::CategoryUserSetMember($this->db, $d->id, $this->userid, true);
-			
-			BlogTopicQuery::CategoryMemberCountUpdate($this->db, $d->id);
+			$this->CategoryJoin($d->id);
 		}else{
 			// А есть ли права админа на правку категории
 			$cat = $this->Category($d->id);

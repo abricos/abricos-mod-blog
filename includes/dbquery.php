@@ -1041,14 +1041,46 @@ class BlogTopicQuery {
 	
 	public static function SubscribeTopicComplete(Ab_Database $db, $topicid){
 		$sql = "
-		UPDATE ".$db->prefix."bg_topic
-		SET scbcomplete=1
-		WHERE topicid=".bkint($topicid)."
-		LIMIT 1
+			UPDATE ".$db->prefix."bg_topic
+			SET scbcomplete=1
+			WHERE topicid=".bkint($topicid)."
+			LIMIT 1
 		";
 		$db->query_write($sql);
 	}
 	
+
+	public static function CategoryUserRoleByPubKey(Ab_Database $db, $userid, $pubkey){
+		$sql = "
+			SELECT *
+			FROM ".$db->prefix."bg_catuserrole
+			WHERE userid=".bkint($userid)." AND pubkey='".bkstr($pubkey)."'
+			LIMIT 1
+		";
+		return $db->query_first($sql);
+	}
+	
+	
+	public static function UnSubscribeCategory(Ab_Database $db, $userid, $pubkey){
+		$sql = "
+			UPDATE ".$db->prefix."bg_catuserrole
+			SET scboff=1
+			WHERE userid=".bkint($userid)." AND pubkey='".bkstr($pubkey)."'
+		";
+		$db->query_write($sql);
+	}
+	
+	public static function UnSunbscribeAllBlog(Ab_Database $db, $userid){
+		$sql = "
+			INSERT IGNORE INTO ".$db->prefix."bg_scbunset
+			(userid, dateline) VALUES (
+				".bkint($userid).",
+				".TIMENOW."
+			)
+			";
+			$db->query_write($sql);
+			return $db->insert_id();
+	}
 	
 	
 		
@@ -1633,37 +1665,6 @@ class BlogQuery_OLD {
 				".bkint($userid).",
 				'".bkstr($pubkey)."',
 				".bkint($custom)."
-			)
-		";
-		$db->query_write($sql);
-		return $db->insert_id();
-	}
-	
-	public static function UnSubscribeBlog(Ab_Database $db, $userid, $pubkey){
-		$sql = "
-			UPDATE ".$db->prefix."bg_scbblog
-			SET scboff=1
-			WHERE userid=".bkint($userid)." AND pubkey='".bkstr($pubkey)."'
-		";
-		$db->query_write($sql);
-	}
-	
-	public static function SubscribeBlogInfo(Ab_Database $db, $userid, $pubkey){
-		$sql = "
-			SELECT *
-			FROM ".$db->prefix."bg_scbblog
-			WHERE userid=".bkint($userid)." AND pubkey='".bkstr($pubkey)."'
-			LIMIT 1
-		";
-		return $db->query_first($sql);
-	}
-	
-	public static function UnSunbscribeAllBlog(Ab_Database $db, $userid){
-		$sql = "
-			INSERT IGNORE INTO ".$db->prefix."bg_scbunset
-				(userid, dateline) VALUES (
-				".bkint($userid).",
-				".TIMENOW."
 			)
 		";
 		$db->query_write($sql);

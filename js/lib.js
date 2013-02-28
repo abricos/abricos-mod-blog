@@ -467,7 +467,7 @@ Component.entryPoint = function(NS){
 			return this.isEdit(topic);
 		},
 		isEdit: function(topic){
-			return topic.user.id == UID;
+			return topic.user.id == UID || R['isAdmin'];
 		}
 	};
 	NS.TopicUserRoleManager = TopicUserRoleManager;

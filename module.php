@@ -91,6 +91,13 @@ class BlogModule extends Ab_Module {
 			$pa->type = 'topiclist';
 			$pa->topicListFilter = "index";
 			
+		} else if ($d1 == '_unsubscribe'){
+			
+			$pa->type = 'unsubscribe';
+			$pa->usbUserId = intval($d2);
+			$pa->usbKey = $d3;
+			$pa->usbCatId = $d4;
+				
 		} else if (($page=$this->PageConvert($d1)) > 0){ //blog/pageN/
 			
 			$pa->type = 'topiclist';
@@ -210,13 +217,7 @@ class BlogModule extends Ab_Module {
 				"page" => $pa->page
 			));
 		}
-		/*
-		
-		// возможно это категория
-		if (empty($pa->type) && !empty($d1)){
-		
-		}
-		/**/
+
 		if (empty($pa->type) && !$pa->err404){
 			$pa->type = 'topiclist'; 
 		}
@@ -381,6 +382,12 @@ class BlogParserAddress {
 	 * @var BlogAuthor
 	 */
 	public $author = null;
+	
+	public $usbUserId = 0;
+	
+	public $usbKey = "";
+	
+	public $usbCatId = 0;
 }
 
 class BlogAction {
