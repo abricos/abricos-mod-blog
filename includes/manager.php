@@ -555,7 +555,7 @@ class BlogManager extends Ab_ModuleManager {
 				
 			if (BlogManager::$isURating){ // работает система репутации пользователя
 				$rep = $this->GetURatingManager()->UserReputation();
-				if ($rep->reputation < 5){ // для создании/редактировании категории необходима репутация >= 5
+				if ($rep->reputation < BlogConfig::$instance->categoryCreateRating){ // для создании/редактировании категории необходима репутация >= 5
 					$ret->error = 10;
 					return $ret;
 				}

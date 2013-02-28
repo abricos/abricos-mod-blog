@@ -9,7 +9,18 @@
 require_once 'dbquery.php';
 
 class BlogConfig {
-
+	
+	/**
+	 * @var BlogConfig
+	 */
+	public static $instance;
+	
+	/**
+	 * Фильтр по имени домена (если несколько, через запятую)
+	 * @var string
+	 */
+	public $domainFilter = "";
+	
 	/**
 	 * Количество отправляемых писем за один раз
 	 * @var integer
@@ -24,7 +35,16 @@ class BlogConfig {
 	 */
 	public $topicIndexRating = 5;
 	
+	
+	/**
+	 * Рейтинг пользователя необходимый для создания категории
+	 * @var integer
+	 */
+	public $categoryCreateRating = 5;
+	
 	public function __construct($cfg){
+		BlogConfig::$instance = $this;
+		
 		if (empty($cfg)){ $cfg = array(); }
 		
 		if (isset($cfg['subscribeSendLimit'])){
@@ -34,9 +54,15 @@ class BlogConfig {
 		if (isset($cfg['topicIndexRating'])){
 			$this->topicIndexRating = intval($cfg['topicIndexRating']);
 		}
+
+		if (isset($cfg['domainFilter'])){
+			$this->domainFilter = trim($cfg['domainFilter']);
+		}
 		
+		if (isset($cfg['categoryCreateRating'])){
+			$this->categoryCreateRating = intval($cfg['categoryCreateRating']);
+		}
 	}
-	
 }
 
 

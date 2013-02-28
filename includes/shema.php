@@ -21,6 +21,8 @@ if ($updateManager->isInstall()){
 			`userid` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Создатель',
 			
 			`language` CHAR(2) NOT NULL DEFAULT '' COMMENT 'Язык',
+			`domain` varchar(25) NOT NULL default 'Имя домена',
+			
 			`name` varchar(150) NOT NULL DEFAULT '' COMMENT 'Имя для URL',
 			`title` varchar(250) NOT NULL DEFAULT '' COMMENT 'Заголовок',
 			`descript` TEXT NOT NULL COMMENT 'Описание категории',
@@ -44,8 +46,8 @@ if ($updateManager->isInstall()){
 			PRIMARY KEY (`catid`),
 			KEY `parentcatid` (`parentcatid`),
 			KEY `name` (`name`),
-			KEY `language` (`language`),
-			KEY `deldate` (`deldate`)
+			KEY `ld` (`language`, `deldate`),
+			KEY `domain` (`domain`)
 		)". $charset
 	);
 	
@@ -74,6 +76,8 @@ if ($updateManager->isInstall()){
 			`isindex` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1-топик был выведен на главную',
 			`autoindex` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0 - не менять автоматически статус вывода на главную',
 			
+			`domain` varchar(25) NOT NULL default 'Имя домена',
+			
 			`dateline` integer(10) unsigned NOT NULL COMMENT 'Дата создания',
 			`upddate` integer(10) unsigned NOT NULL COMMENT 'Дата редактирования',
 			`pubdate` integer(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Дата публикации',
@@ -88,9 +92,10 @@ if ($updateManager->isInstall()){
 			PRIMARY KEY (`topicid`), 
 			KEY `name` (`name`),
 			KEY `catid` (`catid`),
-			KEY `bycat` (`catid`, `isdraft`, `deldate`),
-			KEY `byuser` (`userid`, `isdraft`, `deldate`),
-			KEY `bypub` (`language`, `isdraft`, `deldate`)
+			KEY `userid` (`userid`),
+			KEY `domain` (`domain`),
+			KEY `pubdate` (`pubdate`),
+			KEY `pub` (`isdraft`, `language`, `deldate`)
 		)". $charset
 	);
 	
@@ -243,6 +248,8 @@ if ($updateManager->isUpdate('0.5') && !$updateManager->isInstall()){
 			
 		CHANGE `phrase` `title` varchar(250) NOT NULL DEFAULT '' COMMENT 'Заголовок',
 
+		ADD `domain` varchar(25) NOT NULL default 'Имя домена',
+			
 		ADD `descript` TEXT NOT NULL COMMENT 'Описание категории',
 		ADD `userid` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Создатель',
 		ADD `isprivate` tinyint(1) unsigned NOT NULL DEFAULT 0 COMMENT '0 - публичнй, 1 -приватный',
@@ -263,7 +270,8 @@ if ($updateManager->isUpdate('0.5') && !$updateManager->isInstall()){
 		
 		ADD KEY `language` (`language`),
 		ADD KEY `name` (`name`),
-		ADD KEY `deldate` (`deldate`)
+		ADD KEY `ld` (`language`, `deldate`),
+		ADD KEY `domain` (`domain`)
 	");
 	
 	$db->query_write("
@@ -281,6 +289,8 @@ if ($updateManager->isUpdate('0.5') && !$updateManager->isInstall()){
 		ADD `isindex` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1-принудительный вывод на главную',
 		ADD `autoindex` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0 - не менять автоматически статус вывода на главную',
 
+		ADD `domain` varchar(25) NOT NULL default 'Имя домена',
+
 		ADD `commentcount` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Кол-во комментариев',
 		ADD `viewcount` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Кол-во просмотров (учет зарег.польз.)',
 		
@@ -288,9 +298,10 @@ if ($updateManager->isUpdate('0.5') && !$updateManager->isInstall()){
 		CHANGE `datepub` `pubdate` integer(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Дата публикации',
 		
 		ADD KEY `catid` (`catid`),
-		ADD KEY `bycat` (`catid`, `isdraft`, `deldate`),
-		ADD KEY `byuser` (`userid`, `isdraft`, `deldate`),
-		ADD KEY `bypub` (`language`, `isdraft`, `deldate`)
+		ADD KEY `userid` (`userid`),
+		ADD KEY `domain` (`domain`),
+		ADD KEY `pubdate` (`pubdate`),
+		ADD KEY `pub` (`isdraft`, `language`, `deldate`)
 	");
 	
 	// В предыдущих версиях были дубликаты в регистре, их необходимо удалить

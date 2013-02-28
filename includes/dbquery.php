@@ -8,6 +8,26 @@
 
 class BlogTopicQuery {
 	
+	public static function DomainFilterSQLExt(){
+		$ret = new stdClass();
+		
+		$dmfilter = "AND (cat.deldate=0 OR t.catid=0)";
+		$cfgDF = BlogConfig::$instance->domainFilter;
+		if (!empty($cfgDF)){
+			$arr = explode(",", $cfgDF);
+			$ca = array(); $ta = array();
+				
+			for ($i=0;$i<count($arr);$i++){
+				array_push($ca, "cat.domain='".trim($arr[$i])."'");
+				array_push($ta, "t.domain='".trim($arr[$i])."'");
+			}
+			
+			if (count($ta)>0){
+				return array("cat"=>$ca, "t"=>$ta);
+			}
+		}
+		return null;
+	}
 	private static function TopicFields(Ab_Database $db){
 		return "
 			t.topicid as id,
@@ -135,7 +155,6 @@ class BlogTopicQuery {
 			$filterRating = " AND (t.rating >= 5 OR t.isindex=1)";
 		}
 		
-		// print_r(array($fType, $fPrm, $isCount));
 		$filter = '';
 		if ($fType == "index"){ // главная
 			if ($fPrm == "new"){
@@ -182,6 +201,16 @@ class BlogTopicQuery {
 			$fld = "count(t.topicid) as cnt";
 			$limit = "LIMIT 1";
 		}
+		
+		$dmfilter = "AND (cat.deldate=0 OR t.catid=0)";
+		$dmfa = BlogTopicQuery::DomainFilterSQLExt();
+		if (!empty($dmfa)){
+			$dmfilter = " AND (
+				(cat.deldate=0 AND (".implode(" OR ", $dmfa['cat']).")) 
+				OR 
+				(t.catid=0 AND (".implode(" OR ", $dmfa['t'])."))
+			)";
+		}
 				
 		$sql = "
 			SELECT ".$fld."
@@ -190,8 +219,8 @@ class BlogTopicQuery {
 			INNER JOIN ".$db->prefix."content cc ON t.contentid = cc.contentid
 			INNER JOIN ".$db->prefix."user u ON t.userid = u.userid
 			".$urt->tbl."
-			WHERE t.deldate=0 AND (cat.deldate=0 OR t.catid=0)
-				AND t.isdraft=0 AND t.language='".bkstr(Abricos::$LNG)."'
+			WHERE t.deldate=0 AND t.isdraft=0 AND t.language='".bkstr(Abricos::$LNG)."'
+				".$dmfilter."
 				".$filter."
 			ORDER BY t.pubdate DESC
 			".$limit."
@@ -480,6 +509,12 @@ class BlogTopicQuery {
 	public static function CategoryList(Ab_Database $db){
 		$urt = BlogTopicQuery::CategoryRatingSQLExt($db);
 		
+		$dmfilter = "";
+		$dmfa = BlogTopicQuery::DomainFilterSQLExt();
+		if (!empty($dmfa)){
+			$dmfilter = " AND (".implode(" OR ", $dmfa['cat']).")";
+		}
+		
 		$sql = "
 			SELECT
 				cat.catid as id,
@@ -505,6 +540,7 @@ class BlogTopicQuery {
 				AND cur.userid=".bkint(Abricos::$user->id)."
 			".$urt->tbl."
 			WHERE cat.language='".bkstr(Abricos::$LNG)."' AND cat.deldate=0
+				".$dmfilter."
 			ORDER BY rtg DESC, tcnt DESC, tl
 		";
 		return $db->query_read($sql);
@@ -565,8 +601,9 @@ class BlogTopicQuery {
 	public static function CategoryAppend(Ab_Database $db, $userid, $d){
 		$sql = "
 			INSERT INTO ".$db->prefix."bg_cat
-			(userid, language, title, name, descript, isprivate, reputation, dateline, upddate) VALUES (
+			(userid, domain, language, title, name, descript, isprivate, reputation, dateline, upddate) VALUES (
 				".bkint($userid).",
+				'".bkstr(Abricos::$DOMAIN)."',
 				'".bkstr(Abricos::$LNG)."',
 				'".bkstr($d->tl)."',
 				'".bkstr($d->nm)."',
@@ -705,13 +742,29 @@ class BlogTopicQuery {
 	}
 	
 	public static function TagList(Ab_Database $db, $page, $limit){
+		
+		$dmfilter = "AND (cat.deldate=0 OR t.catid=0)";
+		$dmfa = BlogTopicQuery::DomainFilterSQLExt();
+		if (!empty($dmfa)){
+			$dmfilter = " AND (
+				(cat.deldate=0 AND (".implode(" OR ", $dmfa['cat'])."))
+					OR
+				(t.catid=0 AND (".implode(" OR ", $dmfa['t'])."))
+			)";
+		}
+				
 		$sql = "
 			SELECT
-				t.tagid as id,
-				t.name as nm,
-				t.title as tl,
-				t.topiccount as cnt
-			FROM ".$db->prefix."bg_tag t
+				tg.tagid as id,
+				tg.name as nm,
+				tg.title as tl,
+				tg.topiccount as cnt
+			FROM ".$db->prefix."bg_tag tg
+			INNER JOIN ".$db->prefix."bg_toptag tgtp ON tg.tagid = tgtp.tagid
+			INNER JOIN ".$db->prefix."bg_topic t ON t.topicid = tgtp.topicid
+			INNER JOIN ".$db->prefix."bg_cat cat ON cat.catid = t.catid
+			WHERE t.deldate=0 AND t.isdraft=0 AND t.isindex=1 AND t.language='".bkstr(Abricos::$LNG)."'
+				".$dmfilter."
 			ORDER BY cnt DESC
 			LIMIT ".bkint($limit)."
 		";
@@ -725,11 +778,11 @@ class BlogTopicQuery {
 		$userid = Abricos::$user->id;
 		if (BlogManager::$isURating && $userid>0){
 			$urt->fld .= "
-			,IF(ISNULL(urt.reputation), 0, urt.reputation) as rep,
-			IF(ISNULL(urt.skill), 0, urt.skill) as rtg
-			";
-			$urt->tbl .= "
-			LEFT JOIN ".$db->prefix."urating_user urt ON t.userid=urt.userid
+				,IF(ISNULL(urt.reputation), 0, urt.reputation) as rep,
+				IF(ISNULL(urt.skill), 0, urt.skill) as rtg
+				";
+				$urt->tbl .= "
+				LEFT JOIN ".$db->prefix."urating_user urt ON t.userid=urt.userid
 			";
 		}
 		
@@ -803,6 +856,13 @@ class BlogTopicQuery {
 	}
 	
 	public static function CommentLiveList(Ab_Database $db, $page, $limit){
+		
+		$dmfilter = "";
+		$dmfa = BlogTopicQuery::DomainFilterSQLExt();
+		if (!empty($dmfa)){
+			$dmfilter = " AND (".implode(" OR ", $dmfa['cat']).")";
+		}
+		
 		$sql = "
 			SELECT
 				c.commentid as id,
@@ -823,8 +883,9 @@ class BlogTopicQuery {
 				SELECT ap.contentid, max( ap.dateline ) AS dl, count(ap.contentid) as cnt
 				FROM ".$db->prefix."cmt_comment ap
 				INNER JOIN ".$db->prefix."bg_topic tp ON ap.contentid = tp.contentid
-				INNER JOIN ".$db->prefix."bg_cat catt ON tp.catid = catt.catid
-				WHERE tp.deldate = 0 AND catt.deldate=0 AND tp.isdraft = 0 AND tp.language='".bkstr(Abricos::$LNG)."'
+				INNER JOIN ".$db->prefix."bg_cat cat ON tp.catid = cat.catid
+				WHERE tp.deldate = 0 AND cat.deldate=0 AND tp.isdraft = 0 AND tp.language='".bkstr(Abricos::$LNG)."'
+					".$dmfilter."
 				GROUP BY contentid
 				ORDER BY dl DESC
 				LIMIT ".bkint($limit)."
@@ -832,8 +893,8 @@ class BlogTopicQuery {
 			LEFT JOIN ".$db->prefix."cmt_comment c ON a.contentid = c.contentid AND c.dateline = a.dl
 			LEFT JOIN ".$db->prefix."user u ON c.userid = u.userid
 			LEFT JOIN ".$db->prefix."bg_topic t ON c.contentid = t.contentid
-			LEFT JOIN ".$db->prefix."bg_cat cat ON t.catid = cat.catid
-			WHERE t.deldate = 0 AND cat.deldate=0 AND t.isdraft = 0 AND t.language='".bkstr(Abricos::$LNG)."'
+			LEFT JOIN ".$db->prefix."bg_cat catt ON t.catid = catt.catid
+			WHERE t.deldate = 0 AND catt.deldate=0 AND t.isdraft = 0 AND t.language='".bkstr(Abricos::$LNG)."'
 			ORDER BY dl DESC
 		";
 		return $db->query_read($sql);
