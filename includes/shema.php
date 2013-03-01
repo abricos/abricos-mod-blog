@@ -226,20 +226,6 @@ if ($updateManager->isUpdate('0.5') && !$updateManager->isInstall()){
 
 	require_once 'dbquery.php';
 
-	// перенести подписчиков
-	$db->query_write("
-		INSERT IGNORE INTO ".$pfx."bg_catuserrole
-			(catid, userid, ismember, pubkey, dateline, upddate)
-		SELECT 
-			catid, userid, 1, pubkey, ".TIMENOW.", ".TIMENOW."
-		FROM ".$pfx."bg_scbblog
-		WHERE scboff=0
-	");
-	$db->query_write("DROP TABLE IF EXISTS`".$pfx."bg_scbblog`");
-	
-	// обновить информацию о подписчиках
-	BlogTopicQuery::CategoryMemberCountUpdate($db);
-	
 	// Таблица более не нужна
 	$db->query_write("DROP TABLE IF EXISTS`".$pfx."bg_topcat`");
 	
@@ -303,6 +289,21 @@ if ($updateManager->isUpdate('0.5') && !$updateManager->isInstall()){
 		ADD KEY `pubdate` (`pubdate`),
 		ADD KEY `pub` (`isdraft`, `language`, `deldate`)
 	");
+	
+	// перенести подписчиков
+	$db->query_write("
+		INSERT IGNORE INTO ".$pfx."bg_catuserrole
+			(catid, userid, ismember, pubkey, dateline, upddate)
+		SELECT
+			catid, userid, 1, pubkey, ".TIMENOW.", ".TIMENOW."
+		FROM ".$pfx."bg_scbblog
+		WHERE scboff=0
+	");
+	$db->query_write("DROP TABLE IF EXISTS`".$pfx."bg_scbblog`");
+	
+	// обновить информацию о подписчиках
+	BlogTopicQuery::CategoryMemberCountUpdate($db);
+	
 	
 	// В предыдущих версиях были дубликаты в регистре, их необходимо удалить
 	$db->query_write("RENAME TABLE ".$pfx."bg_tag TO ".$pfx."bg_tag_old");

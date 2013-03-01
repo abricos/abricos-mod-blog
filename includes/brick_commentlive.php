@@ -8,12 +8,17 @@
 
 $brick = Brick::$builder->brick;
 $man = BlogModule::$instance->GetManager();
-$cats = $man->CategoryList();
 
 $modUProfile = Abricos::GetModule('uprofile');
 
 $lst = "";
 $comms = $man->CommentLiveList();
+
+if (empty($comms)){
+	$brick->content = "";
+	return;
+}
+
 $count = $comms->Count();
 for ($i=0; $i<$count; $i++){
 	$comm = $comms->GetByIndex($i);

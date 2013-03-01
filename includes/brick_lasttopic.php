@@ -8,10 +8,14 @@
 
 $brick = Brick::$builder->brick;
 $man = BlogModule::$instance->GetManager();
-$cats = $man->CategoryList();
 
 $lst = "";
 $topics = $man->TopicList(array("limit"=>5));
+if (empty($topics)){
+	$brick->content = "";
+	return;
+}
+
 $count = $topics->Count();
 for ($i=0; $i<$count; $i++){
 	$topic = $topics->GetByIndex($i);

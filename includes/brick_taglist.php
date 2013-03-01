@@ -12,6 +12,12 @@ $p = &$brick->param->param;
 $man = BlogModule::$instance->GetManager();
 
 $tags = $man->TagList(array("limit"=>intval($p['limit'])));
+
+if (empty($tags)){
+	$brick->content = "";
+	return;
+}
+
 $tags->SortByTitle();
 $count = $tags->Count();
 

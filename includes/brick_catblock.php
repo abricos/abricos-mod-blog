@@ -11,6 +11,12 @@ $v = &$brick->param->var;
 $man = BlogModule::$instance->GetManager();
 
 $cats = $man->CategoryList();
+
+if (empty($cats)){
+	$brick->content = "";
+	return;
+}
+
 $count = min($cats->Count(), 10);
 
 $lst = "";
