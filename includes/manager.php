@@ -337,6 +337,10 @@ class BlogManager extends Ab_ModuleManager {
 				if ($topic->user->id != $this->userid){ return null; } // hacker?
 			}
 			$d->pdt = $topic->publicDate;
+			
+			if ($topic->publicDate == 0 && $d->dft == 0){ // публикация черновика
+				$d->pdt = TIMENOW;
+			}
 		}
 		
 		$isNewPublic = false;
