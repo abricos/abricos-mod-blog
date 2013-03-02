@@ -29,7 +29,7 @@ $count = $topics->Count();
 
 if (BlogManager::$isURating){
 	Abricos::GetModule('urating')->GetManager();
-	$voteBuilder = new URatingBuilder("blog", "topic");
+	$voteBuilder = new URatingBuilder("blog", "topic", "topic.vote.error");
 }
 
 for ($i=0; $i<$count; $i++){
