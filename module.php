@@ -233,54 +233,46 @@ class BlogModule extends Ab_Module {
 		
 		return $pa->type;
 	}
-	
-	
-	/*
-	
-	public function GetTopicLink($topic){
-		return "/blog/".$topic['catnm']."/".$topic['topicid']."/";
-	}
 
-	// Отправить подписчикам уведомление по почте 
-	public function OnComment(){
-		Brick::$builder->LoadBrickS('blog', 'cmtmailer', null);
-	}
-	
 	public function GetLink(){
-		return $this->registry->adress->host."/".$this->takelink."/";
+		return Abricos::$adress->host."/".$this->takelink."/";
 	}
 	
 	public function RSS_GetItemList($inBosUI = false){
 		$ret = array();
 		
-		$url = $this->registry->adress->host;
+		$url = Abricos::$adress->host;
 		if ($inBosUI){
-			$url .= "/bos/#app=blog/topiclist/showTopicViewPanel/";
+			$url .= "/bos/#app=blog/wspace/ws/topic/TopicViewWidget/";
 		} else {
 			$url .= "/".$this->takelink."/";
 		}
 		
-		$manager = $this->GetManager();
-		$rows = $manager->TopicLastList(10);
-		while (($row = $this->registry->db->fetch_array($rows))){
-			$title = $row['catph']." / ".$row['tl'];
-				
+		
+		$topics = $this->GetManager()->TopicList();
+		
+		for ($i=0;$i<$topics->Count();$i++){
+			$topic = $topics->GetByIndex($i);
+			$cat = $topic->Category();
+			
+			$title = $topic->title." / ".$cat->title;
+
 			if ($inBosUI){
-				$link = $url.$row['id']."/";
+				$link = $url.$topic->id."/";
 			}else{
-				$link = $url.$row['catnm']."/".$row['id']."/";
+				$link = $url.$cat->name."/".$topic->id."/";
 			}
-			$item = new RSSItem($title, $link, $row['intro'], $row['dp']);
+			$item = new RSSItem($title, $link, $topic->intro, $topic->publicDate);
 			$item->modTitle = $this->lang['modtitle'];
 			array_push($ret, $item);
 		}
+	
 		return $ret;
 	}
-	
+
 	public function RssMetaLink(){
 		return $this->registry->adress->host."/rss/blog/";
 	}
-	/**/
 	
 }
 

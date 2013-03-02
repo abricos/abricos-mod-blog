@@ -161,7 +161,7 @@ class BlogManager extends Ab_ModuleManager {
 	 * @param object $cfg параметры списка
 	 * @return array
 	 */
-	public function TopicList($cfg){
+	public function TopicList($cfg = array()){
 		if (!$this->IsViewRole()){ return null; }
 		
 		$cfg = $this->ParamToObject($cfg);
