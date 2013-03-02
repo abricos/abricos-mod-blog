@@ -1089,6 +1089,11 @@ class BlogManager extends Ab_ModuleManager {
 		Abricos::Notify()->SendMail($email, $subject, $body);
 	}
 
+	
+	public function Bos_OnlineData(){
+		$ret = $this->TopicListToAJAX(array("limit" => 1));
+		return $ret->topics->total;
+	}
 }
 
 ?>

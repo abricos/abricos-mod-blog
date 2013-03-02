@@ -1,0 +1,11 @@
+.aw-blog-bosonline .topiclistbox {
+	margin: 5px;
+}
+.aw-blog-bosonline .topiclistbox .boxtl {
+	display: none;
+}
+
+.aw-blog-bosonline .topiclistbox a {
+	color: #006699 !important;
+	font-weight: normal !important; 
+}

@@ -240,72 +240,7 @@ class BlogModule extends Ab_Module {
 	public function GetTopicLink($topic){
 		return "/blog/".$topic['catnm']."/".$topic['topicid']."/";
 	}
-	
-	public function GetContentName(){
-		$manager = $this->GetManager();
-		$adress = $this->registry->adress;
-		$cname = '';
-		$baseUrl = "/".$this->takelink."/";
-		
-		if ($adress->level <= 1){
-			$this->baseUrl = $baseUrl;
-			$cname = 'index';
-		}else if ($adress->level==2){
-			$p = $adress->dir[1];
-			
-			if ($p == 'tag'){
-				$cname = 'taglist';
-				$this->taglimit = 0;
-			}else{
-				$numpage = $this->IsPage($p); 
-				$cname = 'index';
-				if ($numpage>-1){
-					$this->baseUrl = $baseUrl;
-					$this->page = $numpage;
-				}else{
-					$this->baseUrl = $baseUrl.$p."/";
-					$this->category = $p;
-				}
-			}
-		}else if ($adress->level >= 3){
-			$p = $adress->dir[2];
-			$p1 = $adress->dir[1];
-			$baseUrl = $baseUrl.$adress->dir[1]."/";
-			if ($p1 == '_unsubscribe'){
-				$cname = 'unsubscribe';
-			}else if ($p1 == 'tag'){
-				$this->tag = $p;
-				$cname = 'index';
-				$this->baseUrl = $baseUrl.$adress->dir[2]."/";
-				if ($adress->level > 3){
-					$numpage = $this->IsPage($adress->dir[3]);
-					if ($numpage > -1){
-						$this->page = $numpage;
-					}
-				}
-			}else{
-				$numpage = $this->IsPage($p); 
-				if ($numpage>-1){
-					$cname = 'index';
-					$this->baseUrl = $baseUrl;
-					$this->page = $numpage;
-					$this->category = $adress->dir[1];
-				}else{
-					$this->topicid = intval($adress->dir[2]);
-					$this->topicinfo = BlogQuery::TopicInfo($this->registry->db, $this->topicid);
-					if (!empty($this->topicinfo)){
-						Brick::$contentId = $this->topicinfo['contentid'];
-						$cname = 'topic';
-					}
-				}
-			}
-		}
-		if ($cname == ''){
-			$this->registry->SetPageStatus(PAGESTATUS_404);
-		}
-		return $cname;
-	}
-	
+
 	// Отправить подписчикам уведомление по почте 
 	public function OnComment(){
 		Brick::$builder->LoadBrickS('blog', 'cmtmailer', null);
