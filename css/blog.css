@@ -295,6 +295,49 @@
 	color: #999999;	
 }
 
+/* * * * boxes.css begin * * * */
+.aw-blog .blockbox {
+	position: relative;
+}
+.aw-blog .blockbox .boxtl {
+	font-weight: bold;
+	padding-bottom: 9px;
+	font-size: 120%;
+}
+.aw-blog .blockbox .boxtl a {
+	text-decoration: none;
+	color: #6A7398;
+}
+.aw-blog .blockbox .bloading {
+	position: absolute; top: 4px; right: 2px;
+}
+.aw-blog .blockbox .list {
+	color: #6A7398;
+}
+.aw-blog .blockbox .list li {
+	list-style-type: none;
+}
+.aw-blog .blockbox .list a {
+	text-decoration: none;	
+}
+.aw-blog .blockbox a.category {
+	color: #999999; 
+	font-weight: bold;
+	margin-right: 0.4em;
+}
+.aw-blog .blockbox a.topic {
+	color: #999999;	
+}
+
+/* * * * Comment Live * * * */
+.aw-blog .commentlivebox li {
+	padding-bottom: 12px;
+}
+.aw-blog .commentlivebox a.user,
+.aw-blog .commentlivebox a.topic {
+	margin-right: 7px;
+}
+
 /* * * * Облако тегов * * * */
 .aw-blog .taglistbox ul {
 	text-align: center;
@@ -303,7 +346,8 @@
 }
 .aw-blog .taglistbox li {
 	display: inline;
-	line-height: 18px;
+	line-height: 20px;
+	margin-right: 7px;
 }
 .aw-blog .taglistbox a.tag {
 	text-decoration: underline;
@@ -324,6 +368,7 @@
 /* * * * Блоги * * * */
 .aw-blog .catlistbox li {
 	position: relative;
+	padding-bottom: 12px;
 }
 .aw-blog .catlistbox li a {
 	display: block;
@@ -332,8 +377,9 @@
 }
 .aw-blog .catlistbox li span {
 	position: absolute; top: 0; right: 0;
-	
 }
+/* * * * boxes.css end * * * */
+
 
 /* * * * Список * * * */
 .aw-blog .catlist .cathead {

@@ -248,9 +248,9 @@ class BlogTopicInfo {
 		
 		$ret->dl		= $this->publicDate;
 		
-		$ret->rtg	= $this->rating;
-		$ret->vcnt	= $this->voteCount;
-		$ret->vmy	= $this->voteMy;
+		$ret->rtg		= $this->rating;
+		$ret->vcnt		= $this->voteCount;
+		$ret->vmy		= $this->voteMy;
 		
 		$ret->tags = array();
 		for ($i=0;$i<count($this->tags);$i++){

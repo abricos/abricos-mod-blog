@@ -16,6 +16,7 @@ Component.entryPoint = function(NS){
 		L = YAHOO.lang,
 		NSUR = Brick.mod.urating || {},
 		UID = Brick.env.user.id,
+		LNG = this.language,
 		R = NS.roles,
 		buildTemplate = this.buildTemplate;
 	
@@ -142,17 +143,15 @@ Component.entryPoint = function(NS){
 					'vote': cat.voteMy,
 					'hideButtons': UID == 0,
 					'onVotingError': function(error, merror){
-						/*
-						var s = '', lng = LNG['urating']['error'];
+						var s = 'ERROR';
 						if (merror > 0){
-							s = lng['m'+merror];
+							s = LNG.get('cat.vote.error.m.'+merror);
 						}else if (error == 1){
-							s = LNG[error];
+							s = LNG.get('cat.vote.error.'+error);
 						}else{
 							return;
 						}
-						/**/
-						Brick.mod.widget.notice.show('ERROR');						
+						Brick.mod.widget.notice.show(s);						
 					}
 				});
 			}

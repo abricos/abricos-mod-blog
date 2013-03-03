@@ -25,7 +25,7 @@ $cat = $topic->Category();
 $vote = ""; $voteJSMan = "";
 if (BlogManager::$isURating){
 	Abricos::GetModule('urating')->GetManager();
-	$voteBuilder = new URatingBuilder("blog", "topic");
+	$voteBuilder = new URatingBuilder("blog", "topic", "topic.vote.error");
 	$vote = $voteBuilder->BuildVote(array(
 		"elid" => $topic->id,
 		"vote" => $topic->voteMy,

@@ -24,11 +24,25 @@ $dir = Abricos::$adress->dir;
 
 $cat = $cats->GetByName($dir[1]);
 
+$vote = ""; $voteJSMan = "";
+if (BlogManager::$isURating){
+	Abricos::GetModule('urating')->GetManager();
+	$voteBuilder = new URatingBuilder("blog", "cat", "cat.vote.error");
+	$vote = $voteBuilder->BuildVote(array(
+		"elid" => $cat->id,
+		"vote" => $cat->voteMy,
+		"value" =>$cat->rating
+	));
+	$voteJSMan = $voteBuilder->BuildJSMan();
+}
+
 $topics = $pa->topicList ;
 
 $brick->content = Brick::ReplaceVarByData($brick->content, array(
 	'tl' => $cat->title,
 	"catname" => $cat->name,
+	"voting" => $vote,
+	'votejsman' => $voteJSMan,
 	'mbrs' => $cat->memberCount,
 	'topics' => $cat->topicCount,
 	"newcnt" => $topics->totalNew>0 ? "+".$topics->totalNew : "",

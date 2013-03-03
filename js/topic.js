@@ -65,7 +65,6 @@ Component.entryPoint = function(NS){
 					'value': topic.rating,
 					'vote': topic.voteMy,
 					'onVotingError': function(error, merror){
-						
 						var s = 'ERROR';
 						if (merror > 0){
 							s = LNG.get('topic.vote.error.m.'+merror);
@@ -208,7 +207,9 @@ Component.entryPoint = function(NS){
 						'onLoadComments': function(){
 							// aTargetBlank(TM.getEl('panel.drawbody'));
 							// aTargetBlank(TM.getEl('panel.comments'));
-						}
+						},
+						'voting': true
+
 						// ,
 						// 'readOnly': project.w*1 == 0,
 						// 'manBlock': L.isFunction(config['buildManBlock']) ? config.buildManBlock() : null

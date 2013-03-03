@@ -321,7 +321,7 @@ Component.entryPoint = function(NS){
 		this.user = user;
 		var d = L.merge({
 			'id': 0,
-			'tl': LNG.get('category.my').replace('{v#unm}', user.userName),
+			'tl': LNG.get('cat.my').replace('{v#unm}', user.userName),
 			'nm': user.userName
 		}, d || {});
 		CategoryPerson.superclass.constructor.call(this, d);
