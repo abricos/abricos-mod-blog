@@ -165,15 +165,13 @@ Component.entryPoint = function(NS){
 		},
 		getSaveData: function(){
 			var stags = this.gel('tags').value;
-			var splitText = this.editorWidget.getSplitContent();
 			
 			return {
 				'id': this.topic.id,
 				'catid': this.catSelWidget.getValue(),
 				'tl': this.gel('title').value,
 				'tags': NS.TagList.stringToAJAX(stags),
-				'intro': splitText['intro'],
-				'body': splitText['body'],
+				'body': this.editorWidget.getContent(),
 				'idx': this.gel('isindex').checked ? 1 : 0
 			};
 		},

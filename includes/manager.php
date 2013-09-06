@@ -441,8 +441,12 @@ class BlogManager extends Ab_ModuleManager {
 			$d->nm = translateruen($d->tl);
 		}
 		
-		$d->intro = $utm->Parser($d->intro);
 		$d->body = $utm->Parser($d->body);
+
+		$aText = $utm->Cut($d->body);
+		
+		$d->intro = $aText[0];
+		$d->body = $aText[1];
 		
 		// все проверки выполнены, добавление/сохранение топика
 		if ($d->id == 0){
