@@ -980,7 +980,7 @@ class BlogTopicQuery {
 				t.scblastuserid as sluid
 			FROM ".$db->prefix."bg_topic t
 			INNER JOIN ".$db->prefix."bg_cat cat ON t.catid=cat.catid
-			WHERE t.scbcomplete=0 AND t.isindex=1 AND t.catid>0 AND t.deldate=0 AND cat.deldate=0
+			WHERE t.isdraft=0 AND t.scbcomplete=0 AND t.isindex=1 AND t.catid>0 AND t.deldate=0 AND cat.deldate=0
 			LIMIT 1
 		";
 		return $db->query_first($sql);
