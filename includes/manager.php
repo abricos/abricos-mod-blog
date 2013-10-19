@@ -467,7 +467,7 @@ class BlogManager extends Ab_ModuleManager {
 		BlogTopicQuery::TagUpdate($this->db, $tags);
 		BlogTopicQuery::TopicTagUpdate($this->db, $d->id, $tags);
 		BlogTopicQuery::TopicTagCountUpdate($this->db, $tags);
-		
+		BlogTopicQuery::CategoryTopicCountUpdate($this->db);
 		
 		$ret->topicid = $d->id;
 		
