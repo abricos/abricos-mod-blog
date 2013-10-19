@@ -47,6 +47,12 @@ return array(
 		Пользователь <b>{v#unm}</b> опубликовал в блоге «{v#blog}» новый топик - <a href='{v#tlnk}'>{v#topic}</a>
 	</p>
 	
+	{v#topicintro}
+				
+	<p>
+		<a href='{v#tlnk}'>Читать дальше</a>
+	</p>
+	
 	<p>С наилучшими пожеланиями,<br />
 	 {v#sitename}</p>
 	 

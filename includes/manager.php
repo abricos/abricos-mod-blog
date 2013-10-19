@@ -1114,7 +1114,8 @@ class BlogManager extends Ab_ModuleManager {
 			"tlnk" => $tLnk,
 			"unlnkall" => $unLnkAll,
 			"unlnkallblog" => $unLnkBlog,
-			"sitename" => Brick::$builder->phrase->Get('sys', 'site_name')
+			"sitename" => Brick::$builder->phrase->Get('sys', 'site_name'),
+			"topicintro" => $topic->intro
 		));
 		Abricos::Notify()->SendMail($email, $subject, $body);
 	}
