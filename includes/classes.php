@@ -267,9 +267,14 @@ class BlogTopic extends BlogTopicInfo {
 
 	public $body;
 	
+	public $metakeys;
+	public $metadesc;
+	
 	public function __construct($d){
 		parent::__construct($d);
-		$this->body = $d['bd'];
+		$this->body = strval($d['bd']);
+		$this->metakeys = strval($d['mtks']);
+		$this->metadesc = strval($d['mtdsc']);
 	}
 	
 	public function ToAJAX(){
@@ -590,10 +595,10 @@ class BlogCategory {
 		$this->topicCount	= intval($d['tcnt']);
 		$this->memberCount	= intval($d['mcnt']);
 		$this->reputation	= intval($d['rep']);
-		$this->isPrivate	= $d['prv']>0;
-		$this->isAdminFlag		= $d['prm']>0;
-		$this->isModerFlag		= $d['mdr']>0;
-		$this->isMemberFlag		= $d['mbr']>0;
+		$this->isPrivate	= intval($d['prv'])>0;
+		$this->isAdminFlag	= intval($d['adm'])>0;
+		$this->isModerFlag	= intval($d['mdr'])>0;
+		$this->isMemberFlag	= intval($d['mbr'])>0;
 		
 		$this->rating		= intval($d['rtg']);
 		$this->voteCount	= intval($d['vcnt']);

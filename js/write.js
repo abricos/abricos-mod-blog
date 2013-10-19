@@ -15,14 +15,15 @@ Component.entryPoint = function(NS){
 	var L = YAHOO.lang,
 		R = NS.roles,
 		LNG = this.language,
-		buildTemplate = this.buildTemplate;
+		buildTemplate = this.buildTemplate,
+		BW = Brick.mod.widget.Widget;
 	
 	var WriteWidget = function(container, wType, p1){
 		WriteWidget.superclass.constructor.call(this, container, {
 			'buildTemplate': buildTemplate, 'tnames': 'widget' 
 		}, wType || 'topic', p1);
 	};
-	YAHOO.extend(WriteWidget, Brick.mod.widget.Widget, {
+	YAHOO.extend(WriteWidget, BW, {
 		init: function(wType, p1){
 			this.widget = null;
 		},
@@ -60,7 +61,7 @@ Component.entryPoint = function(NS){
 			'buildTemplate': buildTemplate, 'tnames': 'catsel,catselrow,catselmyrow' 
 		}, catid || 0);
 	};
-	YAHOO.extend(WriteCategorySelectWidget, Brick.mod.widget.Widget, {
+	YAHOO.extend(WriteCategorySelectWidget, BW, {
 		buildTData: function(catid){
 			var TM = this._TM, lst = TM.replace('catselmyrow');
 			NS.manager.categoryList.foreach(function(cat){
@@ -89,7 +90,7 @@ Component.entryPoint = function(NS){
 			'buildTemplate': buildTemplate, 'tnames': 'topic' 
 		}, topicid || 0);
 	};
-	YAHOO.extend(TopicEditorWidget, Brick.mod.widget.Widget, {
+	YAHOO.extend(TopicEditorWidget, BW, {
 		init: function(topicid){
 			this.topicid = topicid;
 			this.catSelWidget = null;
@@ -250,7 +251,7 @@ Component.entryPoint = function(NS){
 			'buildTemplate': buildTemplate, 'tnames': 'blog' 
 		}, catid || 0);
 	};
-	YAHOO.extend(CategoryEditorWidget, Brick.mod.widget.Widget, {
+	YAHOO.extend(CategoryEditorWidget, BW, {
 		init: function(catid){
 			this.catid = catid;
 			this.editorWidget = null;
@@ -292,11 +293,15 @@ Component.entryPoint = function(NS){
 
 			this.elSetValue({
 				'title': cat.title,
+				'name': cat.name,
 				'rep': cat.reputation
 			});
 			
 			if (NS.isURating){
 				this.elShow('repblock');
+			}
+			if (R['isAdmin']){
+				this.elShow('name');
 			}
 		},
 		onClick: function(el, tp){
@@ -311,6 +316,7 @@ Component.entryPoint = function(NS){
 			return {
 				'id': this.cat.id,
 				'tl': this.gel('title').value,
+				'nm': this.gel('name').value,
 				'dsc': this.editorWidget.getContent(),
 				'rep': this.gel('rep').value
 			};

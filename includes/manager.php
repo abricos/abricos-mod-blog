@@ -412,10 +412,9 @@ class BlogManager extends Ab_ModuleManager {
 		$utm = Abricos::TextParser();
 		$utmf = Abricos::TextParser(true);
 		
-		
-		// список тегов
+		// список тегов. не более 25
 		$tags = array();
-		for($i=0;$i<count($d->tags);$i++){
+		for($i=0;$i<min(count($d->tags), 25);$i++){
 			$tag = $utmf->Parser($d->tags[$i]);
 			
 			if (function_exists('mb_strtolower')){
@@ -447,6 +446,11 @@ class BlogManager extends Ab_ModuleManager {
 		
 		$d->intro = $aText[0];
 		$d->body = $aText[1];
+		
+		// META заголовки
+		$d->mtks = implode(", ", $tags); // keywords
+		$d->mtdsc = $utmf->Parser($d->intro); // descript
+		$d->mtdsc = substr($d->mtdsc, 0, 245).(strlen($d->mtdsc)>245 ? " ..." : "");
 		
 		// все проверки выполнены, добавление/сохранение топика
 		if ($d->id == 0){
@@ -483,6 +487,28 @@ class BlogManager extends Ab_ModuleManager {
 		}
 		
 		return $ret;
+	}
+	
+	/**
+	 * Генерация META заголовков для топиков, созданных предыдущей версии модуля
+	 * @param BlogTopic $topic
+	 */
+	public function TopicMetaTagBuild(BlogTopic $topic){
+		if (empty($topic)){ return; }
+		if (!empty($topic->metadesc) || !empty($topic->metakeys)){ return; }
+		
+		$utmf = Abricos::TextParser(true);
+		
+		$atags = array();
+		for ($ti=0;$ti<count($topic->tags);$ti++){
+			array_push($atags, $topic->tags[$ti]->title);
+		}
+		
+		$topic->metakeys = implode(", ", $atags); // keywords
+		$topic->metadesc = $utmf->Parser($topic->intro); // descript
+		$topic->metadesc = substr($topic->metadesc, 0, 245).(strlen($topic->metadesc)>245 ? " ..." : "");
+		
+		BlogTopicQuery::TopicMetaTagUpdate($this->db, $topic->id, $topic->metakeys, $topic->metadesc);
 	}
 
 	private $_categoryListCache = null;

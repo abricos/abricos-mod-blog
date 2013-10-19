@@ -28,7 +28,7 @@ class BlogModule extends Ab_Module {
 	
 	public function BlogModule(){
 		// версия модуля
-		$this->version = "0.5";
+		$this->version = "0.5.1";
 
 		// имя модуля 
 		$this->name = "blog";

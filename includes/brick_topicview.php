@@ -84,4 +84,9 @@ $meta_title = $topic->title." / ".$cat->title." / ".Brick::$builder->phrase->Get
 
 Brick::$builder->SetGlobalVar('meta_title', $meta_title);
 
+$man->TopicMetaTagBuild($topic);
+
+Brick::$builder->SetGlobalVar('meta_keys', $topic->metakeys);
+Brick::$builder->SetGlobalVar('meta_desc', $topic->metadesc);
+
 ?>

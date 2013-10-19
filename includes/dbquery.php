@@ -129,7 +129,9 @@ class BlogTopicQuery {
 		$sql = "
 			SELECT
 				".BlogTopicQuery::TopicFields($db).",
-				cc.body as bd
+				cc.body as bd,
+				t.metakeys as mtks,
+				t.metadesc as mtdsc
 				".$urt->fld."
 			FROM ".$db->prefix."bg_topic t
 			LEFT JOIN ".$db->prefix."bg_cat cat ON t.catid = cat.catid
@@ -322,13 +324,15 @@ class BlogTopicQuery {
 	
 		$sql = "
 			INSERT INTO ".$db->prefix."bg_topic
-			(catid, userid, language, title, name, intro, contentid, isdraft, autoindex, pubdate, dateline, upddate) VALUES (
+			(catid, userid, language, title, name, intro, metakeys, metadesc, contentid, isdraft, autoindex, pubdate, dateline, upddate) VALUES (
 				".bkint($d->catid).",
 				".bkint($userid).",
 				'".bkstr(Abricos::$LNG)."',
 				'".bkstr($d->tl)."',
 				'".bkstr($d->nm)."',
 				'".bkstr($d->intro)."',
+				'".bkstr($d->mtks)."',
+				'".bkstr($d->mtdsc)."',
 				'".bkstr($contentid)."',
 				".($d->dft>0?1:0).",
 				1,
@@ -351,6 +355,8 @@ class BlogTopicQuery {
 				title='".bkstr($d->tl)."',
 				name='".bkstr($d->nm)."',
 				intro='".bkstr($d->intro)."',
+				metakeys='".bkstr($d->mtks)."',
+				metadesc='".bkstr($d->mtdsc)."',
 				isdraft=".($d->dft>0?1:0).",
 				pubdate=".bkint($d->pdt).",
 				upddate=".TIMENOW."
@@ -359,7 +365,20 @@ class BlogTopicQuery {
 		";
 		$db->query_write($sql);
 	}
-		
+	
+	public static function TopicMetaTagUpdate(Ab_Database $db, $topicid, $metakeys, $metadesc){
+	
+		$sql = "
+			UPDATE ".$db->prefix."bg_topic
+			SET
+				metakeys='".bkstr($metakeys)."',
+				metadesc='".bkstr($metadesc)."'
+			WHERE topicid=".bkint($topicid)."
+			LIMIT 1
+		";
+		$db->query_write($sql);
+	}
+	
 	public static function TopicRatingUpdate(Ab_Database $db, $topicid, $votecount, $voteup, $votedown){
 		$sql = "
 			UPDATE ".$db->prefix."bg_topic
