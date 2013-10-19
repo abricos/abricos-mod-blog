@@ -177,8 +177,16 @@ Component.entryPoint = function(NS){
 			};
 		},
 		showPreview: function(){
-			var sd = this.getSaveData();
-			new TopicPreviewPanel(new NS.Topic(sd));
+			var __self = this, sd = this.getSaveData();
+
+			this.elHide('btnsblock');
+			this.elShow('bloading');
+			
+			NS.manager.topicPreview(sd, function(topic){
+				__self.elShow('btnsblock');
+				__self.elHide('bloading');
+				new TopicPreviewPanel(topic);
+			});
 		},
 		saveDraft: function(){
 			this.save(true);
@@ -229,7 +237,6 @@ Component.entryPoint = function(NS){
 			widget.elSetHTML({
 				'body': topic.body
 			});
-			
 			widget.elHide('readmore');
 		}
 	});

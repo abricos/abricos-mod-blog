@@ -565,9 +565,23 @@ Component.entryPoint = function(NS){
 				NS.life(callback, topic);
 			});
 		},
+		topicPreview: function(sd, callback){
+			this.ajax({
+				'do': 'topicpreview',
+				'savedata': sd
+			}, function(d){
+				var topic = null;
+				if (!L.isNull(d) && !L.isNull(d['topic'])){
+					topic = new NS.Topic(d['topic']);
+				}
+				NS.life(callback, topic);
+			});
+		},
 		topicSave: function(sd, callback){
-			sd['do'] = 'topicsave';
-			this.ajax(sd, function(d){
+			this.ajax({
+				'do': 'topicsave',
+				'savedata': sd
+			}, function(d){
 				var topicid = null, error = null;
 				
 				if (!L.isNull(d) && !L.isNull(d['error'])){

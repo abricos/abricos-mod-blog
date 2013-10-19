@@ -171,23 +171,23 @@ class BlogTopicInfo {
 	
 	
 	public function __construct($d){
-		$this->id			= $d['id'];
-		$this->catid		= $d['catid'];
+		$this->id			= intval($d['id']);
+		$this->catid		= intval($d['catid']);
 		
 		$this->user			= new BlogUser($d);
-		$this->isDraft		= $d['dft']>0;
-		$this->isIndex		= $d['idx']>0;
-		$this->isAutoIndex	= $d['aidx']>0;
+		$this->isDraft		= intval($d['dft'])>0;
+		$this->isIndex		= intval($d['idx'])>0;
+		$this->isAutoIndex	= intval($d['aidx'])>0;
 		$this->publicDate	= intval($d['dl']);
 		$this->commentCount	= intval($d['cmt']);
 		
-		$this->title		= $d['tl'];
-		$this->intro		= $d['intro'];
-		$this->bodyLength	= $d['bdlen'];
-		$this->contentid	= $d['ctid'];
+		$this->title		= strval($d['tl']);
+		$this->intro		= strval($d['intro']);
+		$this->bodyLength	= intval($d['bdlen']);
+		$this->contentid	= intval($d['ctid']);
 
 		$this->voteCount	= intval($d['vcnt']);
-		$this->voteMy		= $d['vmy'];
+		$this->voteMy		= intval($d['vmy']);
 		
 		if ($this->user->id == Abricos::$user->id){
 			$this->voteMy = 0;
@@ -341,11 +341,11 @@ class BlogUser {
 	public $lastName;
 	
 	public function __construct($d){
-		$this->id			= intval($d['uid'])>0 ? $d['uid'] : $d['id'];
-		$this->userName		= $d['unm'];
-		$this->avatar		= $d['avt'];
-		$this->firstName	= $d['fnm'];
-		$this->lastName		= $d['lnm'];
+		$this->id			= intval(intval($d['uid'])>0 ? $d['uid'] : $d['id']);
+		$this->userName		= strval($d['unm']);
+		$this->avatar		= strval($d['avt']);
+		$this->firstName	= strval($d['fnm']);
+		$this->lastName		= strval($d['lnm']);
 	}
 	
 	public function ToAJAX(){
@@ -436,9 +436,9 @@ class BlogTopicTag {
 	public $topicCount;
 	
 	public function __construct($d){
-		$this->id = $d['id'];
-		$this->title = $d['tl'];
-		$this->name = $d['nm'];
+		$this->id = intval($d['id']);
+		$this->title = strval($d['tl']);
+		$this->name = strval($d['nm']);
 		$this->topicCount = intval($d['cnt']);
 	}
 	

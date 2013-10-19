@@ -59,8 +59,10 @@ class BlogManager extends Ab_ModuleManager {
 		switch($d->do){
 			case "topic": 
 				return $this->TopicToAJAX($d->topicid);
+			case "topicpreview": 
+				return $this->TopicPreview($d->savedata);
 			case "topicsave": 
-				return $this->TopicSave($d);
+				return $this->TopicSave($d->savedata);
 			case "topiclist": 
 				return $this->TopicListToAJAX($d);
 			case "categorylist": 
@@ -281,6 +283,52 @@ class BlogManager extends Ab_ModuleManager {
 		// проверить рассылку (подобие крона)
 		$this->SubscribeTopicCheck();
 	
+		$ret = new stdClass();
+		$ret->topic = $topic->ToAJAX();
+		return $ret;
+	}
+	
+	public function TopicPreview($d){
+		if (!$this->IsWriteRole()){ return null; }
+
+		$utm = Abricos::TextParser();
+		$utmf = Abricos::TextParser(true);
+		
+		$d->tl = $utmf->Parser($d->tl);
+		$d->body = $utm->Parser($d->body);
+		
+		$aText = $utm->Cut($d->body);
+		
+		$d->intro = $aText[0];
+		$d->body = $aText[1];
+		
+		$topic = new BlogTopic(array(
+			"tl" => $d->tl,
+			"intro" => $d->intro,
+			"bd" => $d->body,
+			"bdlen" => strlen($d->body),
+			"uid" => $this->user->id,
+			"unm" => $this->user->info['username']
+		));
+		
+		// список тегов. не более 25
+		for($i=0;$i<min(count($d->tags), 25);$i++){
+			$tag = $utmf->Parser($d->tags[$i]);
+		
+			if (function_exists('mb_strtolower')){
+				$tag = mb_strtolower($tag, 'UTF-8');
+			}
+		
+			if (empty($tag)){
+				continue;
+			}
+			array_push($topic->tags, new BlogTopicTag(array(
+				"id" => $i+1,
+				"tl" => $tag,
+				"nm" => $tag
+			)));
+		}
+		
 		$ret = new stdClass();
 		$ret->topic = $topic->ToAJAX();
 		return $ret;

@@ -42,7 +42,11 @@
 /* * * * Preview * * * */
 .aw-blog .preview {
 	min-width: 764px;
+	width: 764px;
 	min-height: 500px;
+}
+.aw-blog .preview .topicmanbtns {
+	display: none;
 }
 
 /* * * * Category * * * */
