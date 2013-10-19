@@ -90,6 +90,7 @@ class BlogModule extends Ab_Module {
 			
 			$pa->type = 'topiclist';
 			$pa->topicListFilter = "index";
+			$pa->pageTitle = $this->lang['pagetitle']['index'];
 			
 		} else if ($d1 == '_unsubscribe'){
 			
@@ -103,29 +104,42 @@ class BlogModule extends Ab_Module {
 			$pa->type = 'topiclist';
 			$pa->topicListFilter = "index";
 			$pa->page = $page;
+			$pa->pageTitle = str_replace("{v#page}", $page, $this->lang['pagetitle']['indexpage']);
 			
 		} else if ($d1 == 'new'){ //blog/new/...
 			
 			$pa->type = 'topiclist';
 			$pa->topicListFilter = "index/new";
+			$pa->pageTitle = $this->lang['pagetitle']['indexnew'];
 			
 			if (($page=$this->PageConvert($d2)) > 0){ //blog/new/pageN/
 				$pa->page = $page;
+				$pa->pageTitle = str_replace("{v#page}", $page, $this->lang['pagetitle']['indexnewpage']);
 			}
 			
 		} else if ($d1 == 'pub' || $d1 == 'pers'){ //blog/[pub|pers]/...
 			
 			$pa->type = 'topiclist';
 			$pa->topicListFilter = $d1;
+			$pa->pageTitle = $this->lang['pagetitle'][$d1 == 'pub' ? 'pub' : 'pers'];
 			
-			if ($d2 == 'new'){ //blog/pub/new/
+			if ($d2 == 'new'){ //blog/[pub|pers]/new/
 				$pa->topicListFilter = $d1."/new";
+
+				$pa->pageTitle = $this->lang['pagetitle'][$d1=='pub'?'pubnew':'persnew'];
 				
 				if (($page=$this->PageConvert($d3)) > 0){ //blog/[pub|pers]/new/pageN/
 					$pa->page = $page;
+					$pa->pageTitle = str_replace("{v#page}", $page,
+						$this->lang['pagetitle'][$d1 == 'pub' ? 'pubpagepage' : 'perspagepage']
+					);
 				}
 			}else if (($page=$this->PageConvert($d2)) > 0){ //blog/[pub|pers]/pageN/
 				$pa->page = $page;
+				
+				$pa->pageTitle = str_replace("{v#page}", $page,
+					$this->lang['pagetitle'][$d1 == 'pub' ? 'pubpage' : 'perspage']
+				);
 			}
 
 		} else if ($d1 == 'tag'){ //blog/[pub|pers]/...
@@ -133,14 +147,18 @@ class BlogModule extends Ab_Module {
 			if ($lvl == 2){
 				$pa->type = 'taglist';
 			}else{
-				
 				$pa->type = 'tagview';
 				$pa->topicListFilter = $d1."/".urldecode($d2);
+				$pa->pageTitle = str_replace("{v#name}", urldecode($d2),
+					$this->lang['pagetitle']['tag']
+				);
 			}
 
 		} else if ($d1 == 'author'){
 			$page=$this->PageConvert($d3);
 			
+			$pa->pageTitle = $this->lang['pagetitle']['authors'];
+
 			if ($lvl == 2){//blog/author/
 				// список авторов
 				$pa->type = 'authorlist';
@@ -170,6 +188,9 @@ class BlogModule extends Ab_Module {
 				}else{
 					$pa->type = 'authorview';
 					$pa->topicListFilter = "author/".$pa->author->id;
+					$pa->pageTitle = str_replace("{v#name}", $username,
+						$this->lang['pagetitle']['author']
+					);
 				}
 			}
 
@@ -180,6 +201,10 @@ class BlogModule extends Ab_Module {
 				$pa->type = 'catview';
 				$pa->topicListFilter = "cat/".$pa->cat->id;
 				
+				$pa->pageTitle = str_replace("{v#name}", $pa->cat->title,
+					$this->lang['pagetitle']['cat']
+				);
+				
 				if ($d2 == 'new'){ //blog/%category_name%/new/
 					$pa->topicListFilter .= "/new";
 				
@@ -188,6 +213,12 @@ class BlogModule extends Ab_Module {
 					}
 				}else if (($page=$this->PageConvert($d2)) > 0){ //blog/%category_name%/pageN/
 					$pa->page = $page;
+					$pa->pageTitle = str_replace("{v#name}", $pa->cat->title,
+						$this->lang['pagetitle']['catpage']
+					);
+					$pa->pageTitle = str_replace("{v#page}", $page,
+						$pa->pageTitle
+					);
 				}else if ($lvl > 2){ //blog/%category_name%/%topicid%/
 					
 					$topicid = intval($d2);
@@ -277,6 +308,13 @@ class BlogModule extends Ab_Module {
 }
 
 class BlogParserAddress {
+	
+	/**
+	 * META заголовок страницы
+	 * @var string
+	 */
+	public $pageTitle = '';
+	
 	public $type = '';
 	public $page = 1;
 	public $uri = '/blog/';

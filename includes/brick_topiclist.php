@@ -104,6 +104,11 @@ Brick::$builder->LoadBrickS('sitemap', 'paginator', $brick, array("p" => array(
 	"uri" => $pa->uri
 )));
 
+if (!empty($pa->pageTitle)){
+	$meta_title = $pa->pageTitle." / ".Brick::$builder->phrase->Get('sys', 'site_name');
+	Brick::$builder->SetGlobalVar('meta_title', $meta_title);
+}
+
 // отправить сообщения рассылки из очереди (подобие крона)
 BlogManager::$instance->SubscribeTopicCheck();
 

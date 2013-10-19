@@ -22,4 +22,9 @@ $brick->content = Brick::ReplaceVarByData($brick->content, array(
 	'avatar' => $author->Avatar90()
 ));
 
+if (!empty($pa->pageTitle)){
+	$meta_title = $pa->pageTitle." / ".Brick::$builder->phrase->Get('sys', 'site_name');
+	Brick::$builder->SetGlobalVar('meta_title', $meta_title);
+}
+
 ?>
