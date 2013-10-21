@@ -303,6 +303,7 @@ class BlogManager extends Ab_ModuleManager {
 		$d->body = $aText[1];
 		
 		$topic = new BlogTopic(array(
+			"catid" => $d->catid,
 			"tl" => $d->tl,
 			"intro" => $d->intro,
 			"bd" => $d->body,
