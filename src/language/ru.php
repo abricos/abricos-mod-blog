@@ -1,5 +1,8 @@
 <?php
 return array(
+    "bosmenu" => array(
+        "blog" => "Блог"
+    ),
 	'pagetitle' => array(
 		'index' => 'Лучше записи в блогах',
 		'indexpage' => 'Страница {v#page} / Лучше записи в блогах',

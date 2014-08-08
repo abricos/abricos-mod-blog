@@ -304,7 +304,16 @@ class BlogModule extends Ab_Module {
 	public function RssMetaLink(){
 		return $this->registry->adress->host."/rss/blog/";
 	}
-	
+
+    /**
+     * This module added menu item in BOS Panel
+     * @return bool
+     */
+    public function Bos_IsMenu(){
+        return true;
+    }
+
+
 }
 
 class BlogParserAddress {

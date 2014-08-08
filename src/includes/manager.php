@@ -1174,6 +1174,20 @@ class BlogManager extends Ab_ModuleManager {
 		$ret = $this->TopicListToAJAX(array("limit" => 1));
 		return $ret->topics->total;
 	}
+
+    public function Bos_MenuData() {
+        $lng = $this->module->lang;
+        return array(
+            array(
+                "name" => "blog",
+                "title" => $lng['bosmenu']['blog'],
+                "role" => BlogAction::VIEW,
+                "icon" => "/modules/blog/images/app_icon.gif",
+                "url" => "blog/wspace/ws"
+            )
+        );
+    }
+
 }
 
 ?>
