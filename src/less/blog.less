@@ -1,0 +1,667 @@
+.aw-blog {
+  .clear {
+    clear: both;
+  }
+  .loading,
+  .nullitem {
+    text-align: center;
+    padding: 70px 0;
+  }
+
+  /* * * * * * AHref Button * * * * */
+  a.habtn {
+    border-bottom: 1px dotted;
+    text-decoration: none;
+    margin: 0 5px;
+  }
+  a.warn {
+    color: #DA4242;
+  }
+
+  /* * * * Превьюшки * * * * */
+  .tmb24 {
+    width: 24px;
+    height: 24px;
+  }
+  .tmb24 img {
+    max-width: 24px;
+    max-height: 24px;
+  }
+
+  .tmb {
+    display: table;
+  }
+  .tmb .tmbpre {
+    display: table-cell;
+    vertical-align: middle;
+  }
+  .tmb .tmbpre img {
+    display: block;
+    margin: 0 auto;
+  }
+
+  /* * * * * * * * * * Editor Form * * * * * * * */
+  .editform {
+    padding: 10px 0;
+    background-color: #F9F5DF;
+  }
+  .editform .dsc,
+  .viewform .dsc {
+    color: #555555;
+    font-size: .9em;
+    /* width: 400px; /**/
+  }
+
+  .editform h3,
+  .viewform h3 {
+    color: #333333;
+    font-size: 1.28em;
+    font-weight: bold;
+    padding-bottom: 0.5em;
+
+    font-weight: normal !important;
+  }
+  .editform h4,
+  .viewform h4 {
+    margin-bottom: 10px;
+    font-weight: bold;
+  }
+  .editform .group,
+  .viewform .group {
+    margin: 0 20px;
+    border-bottom: 1px solid #E3E3D7;
+    margin-bottom: 1em;
+    padding-bottom: .8em;
+  }
+  .editform .fieldline {
+    margin-bottom: 10px;
+  }
+  .editform dl,
+  .viewform dl {
+    margin: 0 0 0.3em;
+    padding: 0;
+    clear: both;
+  }
+  .editform dt,
+  .viewform dt {
+    float: left;
+    padding: 0.5em 0 0.5em 0;
+    width: 12em;
+  }
+  .viewform dt {
+    text-align: right;
+    color: #999999;
+  }
+
+  .editform dd,
+  .viewform dd {
+    float: none;
+    margin-left: 13em;
+    padding: 0.5em 0;
+  }
+  .editform p {
+    margin: 5px 0 7px;
+  }
+  .editform input.inp,
+  .editform select.inp,
+  .editform textarea.inp {
+    border: 1px solid #ACAEB4;
+    border-radius: 3px 3px 3px 3px;
+    line-height: 20px;
+    padding: 3px;
+    width: 400px;
+  }
+  .editform select.inp {
+    width: 407px;
+  }
+  .editform textarea.inp {
+    height: 100px;
+  }
+  .editform .baction {
+    margin-top: 10px;
+    margin-right: 2em;
+  }
+  .editform .baction input {
+    margin-right: 10px;
+    padding: 2px 5px;
+  }
+  .editform .baction .error {
+    color: red;
+    margin-right: 10px;
+  }
+
+  /* * * * wspace.css begin * * * */
+  .wspage {
+    min-height: 160px;
+  }
+  .ws-loading {
+    margin: 70px 0;
+    text-align: center;
+  }
+
+  .gheadermenu {
+    position: relative;
+    padding: 15px 0 0 150px;
+    height: 100px;
+
+    li {
+      list-style: none;
+    }
+    h2 {
+      padding: 5px 10px;
+      font-size: 1.5em;
+      background-color: #6A718A;
+      color: #fff;
+    }
+    a.logo {
+      position: absolute;
+      top: 0;
+      left: 30px;
+    }
+    img.logo {
+      width: 96px;
+      height: 96px;
+    }
+
+    .topmenublock {
+      position: relative;
+    }
+    ul.topmenul {
+      margin: 10px;
+      margin-top: 6px;
+    }
+    ul.topmenur {
+      position: absolute;
+      top: 1px;
+      right: 1px;
+    }
+    ul.topmenu li {
+      float: left;
+      padding: 1px 0.5em;
+      margin-right: 10px;
+    }
+    ul.topmenu a {
+
+    }
+    ul.topmenu li.sel {
+      background: none repeat scroll 0 0 #E8E9ED;
+      border: 1px solid #DCDEE4;
+    }
+    ul.topmenu li.sel a {
+      color: #3B4054;
+      text-decoration: none;
+    }
+  }
+
+  .gbmenu a {
+    text-decoration: none;
+    font-size: 14px;
+    color: #2A2D3C;
+  }
+  .gbmenu .gbitems {
+    margin-left: 10px;
+  }
+  .gbmenu .gbitem {
+    text-align: center;
+    min-width: 100px;
+    cursor: pointer;
+    float: left;
+    margin: 0 1px;
+    padding: 5px 15px;
+    background-color: #F3F4F6;
+  }
+  .gbmenu .r {
+    float: right;
+  }
+  .gbmenu .gbitem:hover {
+    text-decoration: underline;
+  }
+  .gbmenu .current {
+    background-color: #E8E9ED;
+  }
+  .gbmenu .current:hover {
+    text-decoration: none;
+  }
+  .gbmenu .line {
+    background: url("/modules/blog/images/gmshadow.png") repeat-x scroll 0 0 transparent;
+    height: 16px;
+  }
+
+  .wspacetable {
+    width: 100%;
+  }
+  .wspacetable .wscol-content {
+    padding-right: 20px;
+  }
+  .wspacetable .wscol-right {
+    width: 250px;
+    max-width: 250px;
+  }
+
+  .wscol-right .blockbox {
+    margin-bottom: 10px;
+  }
+  /* * * * wspace.css end * * * */
+
+  /* * * * Authors * * * */
+  .authorlist .author {
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+  }
+  .author .avtr {
+    float: left;
+    margin-right: 10px;
+  }
+  .author a.username {
+    font-family: Verdana, sans-serif;
+    font-size: 22px;
+  }
+  .author .stat {
+    margin-top: 4px;
+  }
+  .author .stat a {
+    color: #999999;
+  }
+  .authorview .topiclist {
+    margin-top: 20px;
+  }
+
+  /* * * * Boxes * * * */
+  .blockbox {
+    position: relative;
+  }
+  .blockbox .boxtl {
+    font-weight: bold;
+    padding-bottom: 9px;
+    font-size: 120%;
+  }
+  .blockbox .boxtl a {
+    text-decoration: none;
+    color: #6A7398;
+  }
+  .blockbox .bloading {
+    position: absolute;
+    top: 4px;
+    right: 2px;
+  }
+  .blockbox .list {
+    color: #6A7398;
+  }
+  .blockbox .list li {
+    list-style-type: none;
+    padding-bottom: 1em;
+  }
+  .blockbox .list a {
+    margin-right: 0.5em;
+    text-decoration: none;
+  }
+  .blockbox a.category {
+    /* color: #6A7398; /**/
+    color: #999999;
+
+    font-weight: bold;
+    margin-right: 0.4em;
+  }
+  .blockbox a.topic {
+    color: #999999;
+  }
+
+  /* * * * boxes.css begin * * * */
+  .blockbox {
+    position: relative;
+  }
+  .blockbox .boxtl {
+    font-weight: bold;
+    padding-bottom: 9px;
+    font-size: 120%;
+  }
+  .blockbox .boxtl a {
+    text-decoration: none;
+    color: #6A7398;
+  }
+  .blockbox .bloading {
+    position: absolute;
+    top: 4px;
+    right: 2px;
+  }
+  .blockbox .list {
+    color: #6A7398;
+  }
+  .blockbox .list li {
+    list-style-type: none;
+  }
+  .blockbox .list a {
+    text-decoration: none;
+  }
+  .blockbox a.category {
+    color: #999999;
+    font-weight: bold;
+    margin-right: 0.4em;
+  }
+  .blockbox a.topic {
+    color: #999999;
+  }
+
+  /* * * * Comment Live * * * */
+  .commentlivebox li {
+    padding-bottom: 12px;
+  }
+  .commentlivebox a.user,
+  .commentlivebox a.topic {
+    margin-right: 7px;
+  }
+
+  /* * * * Облако тегов * * * */
+  .taglistbox ul {
+    text-align: center;
+    white-space: normal;
+    word-wrap: break-word;
+  }
+  .taglistbox li {
+    display: inline;
+    line-height: 20px;
+    margin-right: 7px;
+  }
+  .taglistbox a.tag {
+    text-decoration: underline;
+    color: #999999;
+  }
+  .taglistbox li a.sz-0 {
+    font-size: 80%;
+  }
+  .taglistbox li a.sz-1 {
+    font-size: 80%;
+  }
+  .taglistbox li a.sz-2 {
+    font-size: 90%;
+  }
+  .taglistbox li a.sz-3 {
+    font-size: 90%;
+  }
+  .taglistbox li a.sz-4 {
+    font-size: 110%;
+  }
+  .taglistbox li a.sz-5 {
+    font-size: 110%;
+  }
+  .taglistbox li a.sz-6 {
+    font-size: 110%;
+  }
+  .taglistbox li a.sz-7 {
+    font-size: 130%;
+  }
+  .taglistbox li a.sz-8 {
+    font-size: 130%;
+  }
+  .taglistbox li a.sz-9 {
+    font-size: 150%;
+  }
+  .taglistbox li a.sz-10 {
+    font-size: 150%;
+  }
+
+  /* * * * Блоги * * * */
+  .catlistbox li {
+    position: relative;
+    padding-bottom: 12px;
+  }
+  .catlistbox li a {
+    display: block;
+    width: 100%;
+    border-bottom: 1px dotted #999999;
+  }
+  .catlistbox li span {
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+  /* * * * boxes.css end * * * */
+
+  /* * * * Список * * * */
+  .catlist .cathead {
+    padding-bottom: 4px;
+    border-bottom: 1px solid #eee;
+  }
+  .catlist .cathead .htl {
+    margin-right: 350px;
+  }
+  .catlist .cathead .hrtg {
+    float: right;
+    width: 100px;
+  }
+  .catlist .catrow {
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+  }
+  .catlist .catrow .rtg {
+    float: right;
+    width: 100px;
+    font-family: Verdana, sans-serif;
+    font-size: 17px;
+    padding-top: 5px;
+  }
+  .catlist .catrow .catinfo {
+    margin-right: 110px;
+  }
+  .catlist .title {
+    font-family: Verdana, sans-serif;
+    font-size: 22px;
+    float: left;
+    margin-right: 10px;
+  }
+
+  /* * * * Категория * * * */
+  .catview {
+    position: relative;
+  }
+  .catview .cattl {
+    color: #6A7398;
+    font-size: 1.5em;
+    font-size: 24px;
+    line-height: 1em;
+    font-weight: normal;
+    margin-bottom: 20px;
+  }
+  .catview .catrtg .aw-urating {
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+  .catview .catinfo {
+    position: relative;
+    margin-bottom: 35px;
+  }
+  .catview .catinfo .jbtns {
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+  /* * * * Статистика * * * */
+  .catinfo .stat a {
+    color: #999999;
+  }
+
+  .tagview input.taginput {
+    width: 98%;
+    margin-bottom: 20px;
+    padding: 5px;
+    border: 1px solid #dadada;
+    border-radius: 3px;
+  }
+
+  /* * * * Список * * * */
+  .homelist {
+    li {
+      list-style: none;
+    }
+    .submenu {
+      padding: 8px 0 19px 15px;
+    }
+
+    .submenu li {
+      float: left;
+      margin-right: 18px;
+      padding: 3px 5px;
+    }
+    .submenu li.sel {
+      border: 1px solid #E5E5E5;
+      border-radius: 5px;
+      cursor: default;
+    }
+    .submenu li.sel a {
+      text-decoration: none;
+      color: #7B848D;
+    }
+
+    .submenu a.new {
+      text-decoration: none;
+      margin-left: 5px;
+    }
+    .submenu li.rg {
+      float: right;
+    }
+
+    /* * * topic.css begin * * */
+    /* * * * Список * * * */
+    .submenu {
+      padding: 8px 0 19px 15px;
+    }
+
+    .submenu li {
+      float: left;
+      margin-right: 18px;
+      padding: 3px 5px;
+    }
+    .submenu li.sel {
+      border: 1px solid #E5E5E5;
+      border-radius: 5px;
+      cursor: default;
+    }
+    .submenu li.sel a {
+      text-decoration: none;
+      color: #7B848D;
+    }
+
+    .submenu a.new {
+      text-decoration: none;
+      margin-left: 5px;
+    }
+  }
+
+  /* * * * Топик * * * */
+  .topiclist .topic {
+    margin-bottom: 35px;
+  }
+  .topic .intro,
+  .topic .body {
+    margin-top: 10px;
+    font-family: Verdana, Tahoma, sans-serif;
+    line-height: 20px;
+    font-size: 13px;
+  }
+  .topic .title a {
+    color: #6A7398;
+    font-family: Verdana, Tahoma, sans-serif;
+    font-size: 18px;
+    font-size-adjust: none;
+    font-style: normal;
+    font-variant: normal;
+    font-weight: normal;
+    line-height: 118%;
+  }
+  .topic .title a.toptl {
+    color: #999999;
+  }
+
+  .topic .topicinfo,
+  .topic .taglist {
+    margin-top: 15px;
+  }
+
+  /* * * Информационный блок топика * * */
+  .topicinfo {
+    font-family: Verdana, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 11px;
+    color: #7B848D;
+  }
+  .topicinfo .tpinbox {
+    border-radius: 5px;
+    border: 1px solid #E5E5E5;
+    float: left;
+    padding-right: 17px;
+  }
+  .topicinfo .topicvote,
+  .topicinfo .user,
+  .topicinfo .date,
+  .topicinfo .comments,
+  .topicinfo .socialist {
+    padding-left: 17px;
+    float: left;
+  }
+  .topicinfo .user,
+  .topicinfo .date,
+  .topicinfo .comments {
+    line-height: 34px;
+  }
+  .topicinfo .topicvote {
+    margin-top: 10px;
+  }
+  .topicinfo .socialist {
+    margin-top: 9px;
+  }
+  .topicinfo .user .avtr {
+    margin-top: 4px;
+    margin-right: 10px;
+  }
+  .topicinfo .user a {
+    float: left;
+    white-space: nowrap;
+  }
+  .topicinfo .user a,
+  .topicinfo .comments a {
+    color: #CC0000;
+  }
+  .topicinfo .comments a {
+    background: url("/modules/blog/images/balloon-left.gif") no-repeat scroll 0 50%;
+    padding-left: 20px;
+  }
+
+  /* * * Список тегов * * */
+  .taglist ul {
+    background: url("/modules/blog/images/tag.gif") no-repeat scroll 0 50% #FFFFFF;
+    list-style: none outside none;
+    padding: 0.2em 0 0.1em 20px;
+    display: block;
+    min-height: 14px;
+  }
+  .taglist li {
+    display: inline;
+    font-size: 0.83em;
+  }
+  .taglist a {
+    color: #666666;
+  }
+
+  /* * * Управление топиком * * */
+  .topic .topicmanbtns {
+    text-align: right;
+  }
+  /* * * topic.css end * * */
+
+  .next .b {
+    cursor: pointer;
+    padding: 12px;
+    text-align: center;
+    border: 1px solid #CCCCCC;
+  }
+
+  .next:hover {
+    background-color: #E3E3D7;
+  }
+
+  .next .in span {
+    margin-right: 4px;
+  }
+}
