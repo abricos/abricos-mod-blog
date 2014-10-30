@@ -302,7 +302,7 @@ class BlogModule extends Ab_Module {
 	}
 
 	public function RssMetaLink(){
-		return $this->registry->adress->host."/rss/blog/";
+		return Ab_URI::fetch_host()."/rss/blog/";
 	}
 
     /**
