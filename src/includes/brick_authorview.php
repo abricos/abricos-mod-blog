@@ -23,7 +23,7 @@ $brick->content = Brick::ReplaceVarByData($brick->content, array(
 ));
 
 if (!empty($pa->pageTitle)){
-	$meta_title = $pa->pageTitle." / ".Brick::$builder->phrase->Get('sys', 'site_name');
+	$meta_title = $pa->pageTitle." / ".SystemModule::$instance->GetPhrases()->Get('site_name');
 	Brick::$builder->SetGlobalVar('meta_title', $meta_title);
 }
 

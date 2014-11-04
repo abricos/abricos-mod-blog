@@ -80,7 +80,7 @@ $brick->content = Brick::ReplaceVarByData($brick->content, array(
 	'votejsman' => $voteJSMan
 ));
 
-$meta_title = $topic->title." / ".$cat->title." / ".Brick::$builder->phrase->Get('sys', 'site_name');
+$meta_title = $topic->title." / ".$cat->title." / ".SystemModule::$instance->GetPhrases()->Get('site_name');
 
 Brick::$builder->SetGlobalVar('meta_title', $meta_title);
 
