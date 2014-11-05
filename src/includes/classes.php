@@ -651,8 +651,10 @@ class BlogPersonalCategory {
 	
 	public function __construct(BlogUser $user){
 		$this->user = $user;
-		$this->title = 
-			str_replace("{v#unm}", $user->userName, BlogModule::$instance->lang['catperson']);
+        $i18n = $this->GetI18n();
+
+        $this->title =
+			str_replace("{v#unm}", $user->userName, $i18n['catperson']);
 	}
 	
 	public function URL(){
