@@ -19,24 +19,6 @@ Component.entryPoint = function(NS){
         isView: 10
     });
 
-    /*
-    NS.roles = {
-        load: function(callback, context){
-            Brick.appFunc('user', 'userCurrent', function(err, res){
-                var user = res.userCurrent;
-
-                NS.roles['isAdmin'] = user.isRoleEnable('{C#MODNAME}', '50');
-                NS.roles['isWrite'] = user.isRoleEnable('{C#MODNAME}', '20');
-                NS.roles['isView'] = user.isRoleEnable('{C#MODNAME}', '10');
-
-                if (Y.Lang.isFunction(callback)){
-                    callback.call(context, NS.roles);
-                }
-            });
-        }
-    };
-    /**/
-
     var L = YAHOO.lang,
         R = NS.roles;
 
