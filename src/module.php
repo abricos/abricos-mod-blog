@@ -308,7 +308,7 @@ class BlogModule extends Ab_Module {
             }
             $item = new RSSItem($title, $link, $topic->intro, $topic->publicDate);
             $item->modTitle = $i18n['modtitle'];
-            array_push($ret, $item);
+            $ret[] = $item;
         }
 
         return $ret;
@@ -414,7 +414,7 @@ class BlogPermission extends Ab_UserPermission {
         // пользователю на публикацию топиков
         $modURating = Abricos::GetModule('urating');
         if (!empty($modURating)) {
-            array_push($defRoles, new Ab_UserRole(BlogAction::WRITE, Ab_UserGroup::REGISTERED));
+            $defRoles[] = new Ab_UserRole(BlogAction::WRITE, Ab_UserGroup::REGISTERED);
         }
 
         parent::__construct($module, $defRoles);

@@ -37,7 +37,7 @@ class BlogManager extends Ab_ModuleManager {
         $modURating = Abricos::GetModule("urating");
         BlogManager::$isURating = !empty($modURating);
 
-        $this->config = new BlogConfig(Abricos::$config['module']['blog']);
+        $this->config = new BlogConfig(isset(Abricos::$config['module']['blog']) ? Abricos::$config['module']['blog'] : array());
     }
 
     public function IsAdminRole() {
