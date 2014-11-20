@@ -434,8 +434,15 @@ class BlogTopicTag {
 	public $title;
 	public $name;
 	public $topicCount;
-	
-	public function __construct($d){
+
+    public function __construct($d) {
+        $d = array_merge(array(
+            'id' => 0,
+            'tl' => '',
+            'nm' => '',
+            'cnt' => 0
+        ), $d);
+
 		$this->id = intval($d['id']);
 		$this->title = strval($d['tl']);
 		$this->name = strval($d['nm']);

@@ -173,13 +173,9 @@ class BlogManager extends Ab_ModuleManager {
         }
 
         $cfg = $this->ParamToObject($cfg);
-
-        if (empty($cfg->limit)) {
-            $cfg->limit = 10;
-        }
-        if (empty($cfg->page)) {
-            $cfg->page = 1;
-        }
+        $cfg->limit = isset($cfg->limit) ? intval($cfg->limit) : 10;
+        $cfg->page = isset($cfg->page) ? intval($cfg->page) : 1;
+        $cfg->filter = isset($cfg->filter) ? $cfg->filter : '';
 
         $page = $cfg->page = max(intval($cfg->page), 1);
         $limit = $cfg->limit = max(1, min(25, intval($cfg->limit)));
@@ -189,10 +185,10 @@ class BlogManager extends Ab_ModuleManager {
         }
 
         $fa = explode("/", $cfg->filter);
-        $fType = $fa[0];
-        $fPrm = $fa[1];
-        if (!empty($fa[2])) {
-            $fPrm .= "/".$fa[2];
+        $fType = isset($fa[0]) ? $fa[0] : '';
+        $fPrm = isset($fa[1]) ? $fa[1] : '';
+        if (isset($fa[2])) {
+            $fPrm .= "/".$fPrm;
         }
         $total = 0;
         $totalNew = 0;
@@ -222,7 +218,7 @@ class BlogManager extends Ab_ModuleManager {
                 if ($fPrm == "new") {
                     $totalNew = $total;
                 } else {
-                    $totalNew = BlogTopicQuery::TopicList($this->db, page, $limit, $fType, "new", true);
+                    $totalNew = BlogTopicQuery::TopicList($this->db, $page, $limit, $fType, "new", true);
                 }
                 break;
 
@@ -372,11 +368,14 @@ class BlogManager extends Ab_ModuleManager {
         $ret->error = 0;
         $ret->topicid = 0;
 
-        $d->id = intval($d->id);
-        $d->dft = intval($d->dft);
-        $d->idx = intval($d->idx);
-        $d->aidx = intval($d->aidx);
-        $d->catid = intval($d->catid);
+        $d->id = isset($d->id) ? intval($d->id) : 0;
+        $d->dft = isset($d->dft) ? intval($d->dft) : 0;
+        $d->idx = isset($d->idx) ? intval($d->idx) : 0;
+        $d->aidx = isset($d->aidx) ? intval($d->aidx) : 0;
+        $d->catid = isset($d->catid) ? intval($d->catid) : 0;
+
+        $d->tl = isset($d->tl) ? strval($d->tl) : '';
+        $d->nm = isset($d->nm) ? strval($d->nm) : '';
 
         // проверка категории на возможность публиковать в ней
         $cat = null; // null - персональный блог
@@ -841,14 +840,11 @@ class BlogManager extends Ab_ModuleManager {
         }
 
         $cfg = $this->ParamToObject($cfg);
+        $cfg->limit = isset($cfg->limit) ? intval($cfg->limit) : 5;
+        $cfg->page = isset($cfg->page) ? intval($cfg->page) : 1;
 
         $cfg->page = max(intval($cfg->page), 1);
-
-        if (empty($cfg->limit)) {
-            $cfg->limit = 5;
-        }
         $cfg->limit = max(min($cfg->limit, 25), 1);
-
 
         $list = array();
         $tids = array();
@@ -892,9 +888,9 @@ class BlogManager extends Ab_ModuleManager {
         }
 
         $cfg = $this->ParamToObject($cfg);
-        if (empty($cfg->limit)) {
-            $cfg->limit = 25;
-        }
+
+        $cfg->limit = isset($cfg->limit) ? intval($cfg->limit) : 25;
+        $cfg->page = isset($cfg->page) ? intval($cfg->page) : 1;
 
         $cfg->limit = max(min($cfg->limit, 100), 1);
 
