@@ -1263,7 +1263,7 @@ class BlogManager extends Ab_ModuleManager {
                 "name" => "blog",
                 "title" => $lng['bosmenu']['blog'],
                 "role" => BlogAction::VIEW,
-                "icon" => "/modules/blog/images/app_icon.gif",
+                "icon" => "/modules/blog/images/blog-24.png",
                 "url" => "blog/wspace/ws"
             )
         );
