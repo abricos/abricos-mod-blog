@@ -664,9 +664,9 @@ class BlogManager extends Ab_ModuleManager {
             $d->nm = translateruen($d->tl);
         }
 
-        $d->dsc = $utm->Parser($d->dsc);
-        $d->rep = intval($d->rep);
-        $d->prv = intval($d->prv);
+        $d->dsc = isset($d->dsc) ? $utm->Parser($d->dsc) : '';
+        $d->rep = isset($d->rep) ? intval($d->rep) : 0;
+        $d->prv = isset($d->prv) ? intval($d->prv) : 0;
 
         if (!$this->IsAdminRole()) {
 
