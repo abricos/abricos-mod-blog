@@ -62,7 +62,6 @@ for ($i=0; $i<$count; $i++){
 	}
 	
 	$lst .= Brick::ReplaceVarByData($v['row'], array(
-		"submenu" => $submenu,
 		"cattl" => $cat->title,
 		"urlcat" => $cat->URL(),
 		"socialist" => $soclinetpl,

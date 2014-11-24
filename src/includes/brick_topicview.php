@@ -56,7 +56,6 @@ for ($ti=0;$ti<count($topic->tags);$ti++){
 
 
 $brick->content = Brick::ReplaceVarByData($brick->content, array(
-	"submenu" => $submenu,
 	"cattl" => $cat->title,
 	"urlcat" => $cat->URL(),
 	"socialist" => $soclinetpl,

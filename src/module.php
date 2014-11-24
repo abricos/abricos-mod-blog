@@ -88,10 +88,10 @@ class BlogModule extends Ab_Module {
             $pa->uri .= $dir[$i]."/";
         }
 
-        $d1 = $dir[1];
-        $d2 = $dir[2];
-        $d3 = $dir[3];
-        $d4 = $dir[4];
+        $d1 = isset($dir[1]) ? $dir[1] : "";
+        $d2 = isset($dir[2]) ? $dir[2] : "";
+        $d3 = isset($dir[3]) ? $dir[3] : "";
+        $d4 = isset($dir[4]) ? $dir[4] : "";
         $page = 1;
 
         $i18n = $this->GetI18n();

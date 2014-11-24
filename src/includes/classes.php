@@ -187,7 +187,7 @@ class BlogTopicInfo {
 		$this->contentid	= intval($d['ctid']);
 
 		$this->voteCount	= intval($d['vcnt']);
-		$this->voteMy		= intval($d['vmy']);
+		$this->voteMy		= isset($d['vmy']) ? intval($d['vmy']) : "";
 		
 		if ($this->user->id == Abricos::$user->id){
 			$this->voteMy = 0;
@@ -609,7 +609,7 @@ class BlogCategory {
 		
 		$this->rating		= intval($d['rtg']);
 		$this->voteCount	= intval($d['vcnt']);
-		$this->voteMy		= $d['vmy'];
+		$this->voteMy		= isset($d['vmy']) ? intval($d['vmy']) : 0;
 	}
 	
 	public function ToAJAX(){
