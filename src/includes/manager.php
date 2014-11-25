@@ -230,10 +230,10 @@ class BlogManager extends Ab_ModuleManager {
                 $rows = BlogTopicQuery::TopicList($this->db, $page, $limit, $fType, $fPrm);
                 $total = BlogTopicQuery::TopicList($this->db, $page, $limit, $fType, $fPrm, true);
 
-                if ($fa[2] == "new") {
+                if (isset($fa[2]) && $fa[2] == "new") {
                     $totalNew = $total;
                 } else {
-                    $totalNew = BlogTopicQuery::TopicList($this->db, page, $limit, $fType, $fa[1]."/new", true);
+                    $totalNew = BlogTopicQuery::TopicList($this->db, $page, $limit, $fType, $fa[1]."/new", true);
                 }
                 break;
 

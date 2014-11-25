@@ -179,7 +179,7 @@ class BlogTopicQuery {
 			$fa = explode("/", $fPrm);
 			$filter = " AND t.catid=".bkint($fa[0]);
 			
-			if ($fa[1] == 'new'){
+			if (isset($fa[1]) && $fa[1] == 'new'){
 				$filter .= " AND t.pubdate>".$newPeriod;
 				$filterRating = "";
 			}
