@@ -1,4 +1,4 @@
-<?php 
+<?php
 /**
  * @package Abricos
  * @subpackage Blog
@@ -9,48 +9,48 @@
 require_once 'dbquery.php';
 
 class BlogConfig {
-	
+
 	/**
 	 * @var BlogConfig
 	 */
 	public static $instance;
-	
+
 	/**
 	 * Фильтр по имени домена (если несколько, через запятую)
 	 * @var string
 	 */
 	public $domainFilter = "";
-	
+
 	/**
 	 * Количество отправляемых писем за один раз
 	 * @var integer
 	 */
 	public $subscribeSendLimit = 25;
-	
-	
+
+
 	/**
 	 * Рейтинг топика для выхода на главную
-	 * 
+	 *
 	 * @var integer
 	 */
 	public $topicIndexRating = 5;
-	
-	
+
+
 	/**
 	 * Рейтинг пользователя необходимый для создания категории
 	 * @var integer
 	 */
 	public $categoryCreateRating = 5;
-	
+
 	public function __construct($cfg){
 		BlogConfig::$instance = $this;
-		
+
 		if (empty($cfg)){ $cfg = array(); }
-		
+
 		if (isset($cfg['subscribeSendLimit'])){
 			$this->subscribeSendLimit = intval($cfg['subscribeSendLimit']);
 		}
-		
+
 		if (isset($cfg['topicIndexRating'])){
 			$this->topicIndexRating = intval($cfg['topicIndexRating']);
 		}
@@ -58,7 +58,7 @@ class BlogConfig {
 		if (isset($cfg['domainFilter'])){
 			$this->domainFilter = trim($cfg['domainFilter']);
 		}
-		
+
 		if (isset($cfg['categoryCreateRating'])){
 			$this->categoryCreateRating = intval($cfg['categoryCreateRating']);
 		}
@@ -82,13 +82,13 @@ class BlogTopicInfo {
 	 * @var BlogUser
 	 */
 	public $user;
-	
+
 	/**
 	 * Идентификатор категории
 	 * @var integer
 	 */
 	public $catid;
-	
+
 	/**
 	 * Черновик
 	 * @var boolean
@@ -100,10 +100,10 @@ class BlogTopicInfo {
 	 * @var boolean
 	 */
 	public $isIndex;
-	
+
 	/**
 	 * Автоматически присваивать индекс главной (исходя из рейтинга)
-	 * 
+	 *
 	 * @var boolean
 	 */
 	public $isAutoIndex;
@@ -119,68 +119,68 @@ class BlogTopicInfo {
 	 * @var integer
 	 */
 	public $commentCount;
-	
+
 	/**
 	 * Заголовок
 	 * @var string
 	 */
 	public $title;
-	
+
 	/**
 	 * Сокращенный текст записи
 	 * @var string
 	 */
 	public $intro;
-	
+
 	/**
 	 * Объем символов основного текста
 	 * @var integer
 	 */
 	public $bodyLength;
-	
+
 	/**
 	 * Идентификатор основного текста
 	 * @var integer
 	 */
 	public $contentid;
-	
+
 	/**
 	 * Метки (теги)
 	 * @var array
 	 */
 	public $tags = array();
-	
+
 	/**
 	 * Рейтинг топика
 	 * @var integer
 	 */
 	public $rating;
-	
+
 	/**
 	 * Количество голосов за рейтинг
 	 * @var integer
 	 */
 	public $voteCount;
-	
+
 	/**
 	 * Голос текущего пользователя
 	 * null - нет голоса, -1 - ПРОТИВ, 1 - ЗА, 0 - Воздержался
 	 * @var integer
 	 */
 	public $voteMy;
-	
-	
+
+
 	public function __construct($d){
 		$this->id			= intval($d['id']);
 		$this->catid		= intval($d['catid']);
-		
+
 		$this->user			= new BlogUser($d);
 		$this->isDraft		= intval($d['dft'])>0;
 		$this->isIndex		= intval($d['idx'])>0;
 		$this->isAutoIndex	= intval($d['aidx'])>0;
 		$this->publicDate	= intval($d['dl']);
 		$this->commentCount	= intval($d['cmt']);
-		
+
 		$this->title		= strval($d['tl']);
 		$this->intro		= strval($d['intro']);
 		$this->bodyLength	= intval($d['bdlen']);
@@ -188,13 +188,13 @@ class BlogTopicInfo {
 
 		$this->voteCount	= intval($d['vcnt']);
 		$this->voteMy		= isset($d['vmy']) ? intval($d['vmy']) : "";
-		
+
 		if ($this->user->id == Abricos::$user->id){
 			$this->voteMy = 0;
 		}
-		
+
 		if (!is_null($this->voteMy) || !$this->IsVotingPeriod()){
-			$this->rating	= intval($d['rtg']); 
+			$this->rating	= intval($d['rtg']);
 
 			// показать значение, значит запретить голосовать
 			if (is_null($this->voteMy)){
@@ -205,14 +205,14 @@ class BlogTopicInfo {
 			$this->rating	= null;
 		}
 	}
-	
+
 	/**
 	 * Можно ли еще голосовать за топик
 	 */
 	public function IsVotingPeriod(){
 		return $this->publicDate > TIMENOW-60*60*24*31;
 	}
-	
+
 	/**
 	 * @return BlogCategory
 	 */
@@ -227,7 +227,7 @@ class BlogTopicInfo {
 		$cat = $this->Category();
 		return $cat->URL().$this->id."/";
 	}
-	
+
 	public function ToAJAX(){
 		$ret = new stdClass();
 		$ret->id		= $this->id;
@@ -241,17 +241,17 @@ class BlogTopicInfo {
 
 		$ret->dft		=  $this->isDraft?1:0;
 		$ret->idx		=  $this->isIndex?1:0;
-		
+
 		if (BlogManager::$instance->IsAdminRole()){
 			$ret->aidx	= $this->isAutoIndex?1:0;
 		}
-		
+
 		$ret->dl		= $this->publicDate;
-		
+
 		$ret->rtg		= $this->rating;
 		$ret->vcnt		= $this->voteCount;
 		$ret->vmy		= $this->voteMy;
-		
+
 		$ret->tags = array();
 		for ($i=0;$i<count($this->tags);$i++){
 			array_push($ret->tags, $this->tags[$i]->ToAJAX());
@@ -266,17 +266,17 @@ class BlogTopicInfo {
 class BlogTopic extends BlogTopicInfo {
 
 	public $body;
-	
+
 	public $metakeys;
 	public $metadesc;
-	
+
 	public function __construct($d){
 		parent::__construct($d);
 		$this->body = strval($d['bd']);
 		$this->metakeys = strval($d['mtks']);
 		$this->metadesc = strval($d['mtdsc']);
 	}
-	
+
 	public function ToAJAX(){
 		$ret = parent::ToAJAX();
 		$ret->bd = $this->body;
@@ -285,27 +285,27 @@ class BlogTopic extends BlogTopicInfo {
 }
 
 class BlogTopicList {
-	
+
 	public $list;
-	
+
 	/**
 	 * Всего таких записей в базе
 	 * @var integer
 	 */
 	public $total;
-	
+
 	/**
 	 * Из них новых записей
 	 * @var integer
 	 */
 	public $totalNew;
-	
+
 	public function __construct($list, $total=0, $totalNew=0){
 		$this->list = $list;
 		$this->total = $total;
 		$this->totalNew = $totalNew;
 	}
-	
+
 	public function ToAJAX(){
 		$ret = new stdClass();
 		$list = array();
@@ -316,14 +316,14 @@ class BlogTopicList {
 		$ret->topics->list = $list;
 		$ret->topics->total = $this->total;
 		$ret->topics->totalNew = $this->totalNew;
-		
+
 		return $ret;
 	}
-	
+
 	public function Count(){
 		return count($this->list);
 	}
-	
+
 	/**
 	 * @param integer $index
 	 * @return BlogTopic
@@ -339,7 +339,7 @@ class BlogUser {
 	public $avatar;
 	public $firstName;
 	public $lastName;
-	
+
 	public function __construct($d){
 		$this->id			= intval(intval($d['uid'])>0 ? $d['uid'] : $d['id']);
 		$this->userName		= strval($d['unm']);
@@ -347,7 +347,7 @@ class BlogUser {
 		$this->firstName	= strval($d['fnm']);
 		$this->lastName		= strval($d['lnm']);
 	}
-	
+
 	public function ToAJAX(){
 		$ret = new stdClass();
 		$ret->id = $this->id;
@@ -357,14 +357,14 @@ class BlogUser {
 		$ret->lnm = $this->lastName;
 		return $ret;
 	}
-	
+
 	public function GetUserName(){
 		if (!empty($this->firstName) && !empty($this->lastName)){
 			return $this->firstName." ".$this->lastName;
 		}
 		return $this->userName;
 	}
-	
+
 	public function URL(){
 		$mod = Abricos::GetModule('uprofile');
 		if (empty($mod)){
@@ -372,7 +372,7 @@ class BlogUser {
 		}
 		return '/uprofile/#app=uprofile/ws/showws/'.$this->id.'/';
 	}
-	
+
 	private function Avatar($size){
 		$url = empty($this->avatar) ?
 		'/modules/uprofile/images/nofoto'.$size.'.gif' :
@@ -383,18 +383,18 @@ class BlogUser {
 	public function Avatar24(){
 		return $this->Avatar(24);
 	}
-	
+
 	public function Avatar90(){
 		return $this->Avatar(90);
 	}
 }
 
 class BlogAuthor extends BlogUser {
-	
+
 	public $topicCount;
 	public $reputation;
 	public $rating;
-	
+
 	public function __construct($d){
 		parent::__construct($d);
 		$this->topicCount	= $d['tcnt']*1;
@@ -448,7 +448,7 @@ class BlogTopicTag {
 		$this->name = strval($d['nm']);
 		$this->topicCount = intval($d['cnt']);
 	}
-	
+
 	public function ToAJAX(){
 		$ret = new stdClass();
 		$ret->id = $this->id;
@@ -459,7 +459,7 @@ class BlogTopicTag {
 		}
 		return $ret;
 	}
-	
+
 	public function URL(){
 		return "/blog/tag/".$this->title."/";
 	}
@@ -479,15 +479,15 @@ class BlogTopicTagList {
 	public function __construct($list){
 		$this->list = $list;
 	}
-	
+
 	public function Count(){
 		return count($this->list);
 	}
-	
+
 	public function SortByTitle(){
 		usort($this->list, "BlogTopicTag_sortByTitle");
 	}
-	
+
 	/**
 	 * @param integer $index
 	 * @return BlogTopicTag
@@ -508,25 +508,25 @@ class BlogTopicTagList {
 
 
 class BlogCategory {
-	
+
 	/**
 	 * Идентификатор категории
 	 * @var integet
 	 */
 	public $id;
-	
+
 	/**
 	 * Заголовок
 	 * @var string
 	 */
 	public $title;
-	
+
 	/**
 	 * Имя для формирования URL
 	 * @var string
 	 */
 	public $name;
-	
+
 	/**
 	 * Описание категории
 	 * @var string
@@ -538,19 +538,19 @@ class BlogCategory {
 	 * @var integer
 	 */
 	public $topicCount;
-	
+
 	/**
 	 * Кол-во читателей
 	 * @var integer
 	 */
 	public $memberCount;
-	
+
 	/**
 	 * Необходимая репутация для записи в блог
 	 * @var integer
 	 */
 	public $reputation;
-	
+
 	/**
 	 * Закрытая категория
 	 * @var boolean
@@ -562,38 +562,38 @@ class BlogCategory {
 	 * @var boolean
 	 */
 	public $isAdminFlag;
-	
+
 	/**
 	 * Текущий пользователь имеет права Модератора на эту категорию
 	 * @var boolean
 	 */
 	public $isModerFlag;
-	
+
 	/**
 	 * Текущий пользователь является членом категории
 	 * @var boolean
 	 */
 	public $isMemberFlag;
-	
+
 	/**
 	 * Рейтинг категории
 	 * @var integer
 	 */
 	public $rating;
-	
+
 	/**
 	 * Количество голосов за рейтинг
 	 * @var integer
 	 */
 	public $voteCount;
-	
+
 	/**
 	 * Голос текущего пользователя
 	 * null - нет голоса, -1 - ПРОТИВ, 1 - ЗА, 0 - Воздержался
 	 * @var integer
 	 */
 	public $voteMy;
-	
+
 	public function __construct($d){
 		$this->id			= intval($d['id']);
 		$this->title		= $d['tl'];
@@ -606,12 +606,12 @@ class BlogCategory {
 		$this->isAdminFlag	= intval($d['adm'])>0;
 		$this->isModerFlag	= intval($d['mdr'])>0;
 		$this->isMemberFlag	= intval($d['mbr'])>0;
-		
+
 		$this->rating		= intval($d['rtg']);
 		$this->voteCount	= intval($d['vcnt']);
 		$this->voteMy		= isset($d['vmy']) ? intval($d['vmy']) : 0;
 	}
-	
+
 	public function ToAJAX(){
 		$ret = new stdClass();
 		$ret->id	= $this->id;
@@ -622,48 +622,48 @@ class BlogCategory {
 		$ret->mcnt	= $this->memberCount;
 		$ret->rep	= $this->reputation;
 		$ret->prv	= $this->isPrivate?1:0;
-		
+
 		$ret->adm	= $this->isAdminFlag?1:0;
 		$ret->mdr	= $this->isModerFlag?1:0;
 		$ret->mbr	= $this->isMemberFlag?1:0;
-		
+
 		$ret->rtg	= $this->rating;
 		$ret->vcnt	= $this->voteCount;
 		$ret->vmy	= $this->voteMy;
 		return $ret;
 	}
-	
+
 	public function IsTopicWrite(){
 		return $this->IsAdmin() || $this->isMemberFlag || $this->isModerFlag;
 	}
-	
+
 	public function IsAdmin(){
 		if (BlogManager::$instance->IsAdminRole()){ return true; }
 		return $this->isAdminFlag;
 	}
-	
+
 	public function URL(){
 		return "/blog/".$this->name."/";
 	}
 }
 
 class BlogPersonalCategory {
-	
+
 	public $title;
-	
+
 	/**
 	 * @var BlogUser
 	 */
 	public $user;
-	
+
 	public function __construct(BlogUser $user){
 		$this->user = $user;
-        $i18n = $this->GetI18n();
+        $i18n = BlogModule::$instance->GetI18n();
 
         $this->title =
 			str_replace("{v#unm}", $user->userName, $i18n['catperson']);
 	}
-	
+
 	public function URL(){
 		return "/blog/author/".$this->user->userName."/";
 	}
@@ -684,7 +684,7 @@ class BlogCategoryList {
 			$this->mapn[$list[$i]->name] = $i;
 		}
 	}
-	
+
 	public function Count(){
 		return count($this->list);
 	}
@@ -697,7 +697,7 @@ class BlogCategoryList {
 		$index = $this->map[$id];
 		return $this->GetByIndex($index);
 	}
-	
+
 	/**
 	 * @param integer $index
 	 * @return BlogCategory
@@ -714,7 +714,7 @@ class BlogCategoryList {
 		$index = $this->mapn[$name];
 		return $this->GetByIndex($index);
 	}
-	
+
 	public function ToAJAX(){
 		$ret = new stdClass();
 		$ret->categories = array();
@@ -734,17 +734,17 @@ class BlogCommentLive {
 	public $topicid;
 	public $body;
 	public $date;
-	
+
 	/**
 	 * @var BlogUser
 	 */
 	public $user;
-	
+
 	/**
 	 * @var BlogTopicInfo
 	 */
 	public $topic;
-	
+
 	public function __construct($d){
 		$this->id			= $d['id'];
 		$this->topicid		= $d['tid'];
@@ -752,7 +752,7 @@ class BlogCommentLive {
 		$this->date			= $d['dl'];
 		$this->user = new BlogUser($d);
 	}
-	
+
 	public function ToAJAX(){
 		$ret = new stdClass();
 		$ret->id = $this->id;
@@ -780,11 +780,11 @@ class BlogCommentLiveList {
 		}
 		return $ret;
 	}
-	
+
 	public function Count(){
 		return count($this->list);
 	}
-	
+
 	/**
 	 * @param integer $index
 	 * @return BlogCommentLive
