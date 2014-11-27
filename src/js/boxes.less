@@ -1,84 +1,128 @@
-/* * * * boxes.css begin * * * */
-.aw-blog .blockbox {
-	position: relative;
-}
-.aw-blog .blockbox .boxtl {
-	font-weight: bold;
-	padding-bottom: 9px;
-	font-size: 120%;
-}
-.aw-blog .blockbox .boxtl a {
-	text-decoration: none;
-	color: #6A7398;
-}
-.aw-blog .blockbox .bloading {
-	position: absolute; top: 4px; right: 2px;
-}
-.aw-blog .blockbox .list {
-	color: #6A7398;
-}
-.aw-blog .blockbox .list li {
-	list-style-type: none;
-}
-.aw-blog .blockbox .list a {
-	text-decoration: none;	
-}
-.aw-blog .blockbox a.category {
-	color: #999999; 
-	font-weight: bold;
-	margin-right: 0.4em;
-}
-.aw-blog .blockbox a.topic {
-	color: #999999;	
-}
+.aw-blog {
 
-/* * * * Comment Live * * * */
-.aw-blog .commentlivebox li {
-	padding-bottom: 12px;
-}
-.aw-blog .commentlivebox a.user,
-.aw-blog .commentlivebox a.topic {
-	margin-right: 7px;
-}
+  .blockbox {
+    position: relative;
+    .boxtl {
+      font-weight: bold;
+      padding-bottom: 9px;
+      font-size: 120%;
+    }
+    .boxtl a {
+      text-decoration: none;
+      color: #6A7398;
+    }
+    .bloading {
+      position: absolute;
+      top: 4px;
+      right: 2px;
+    }
+    .list {
+      color: #6A7398;
+    }
+    .list li {
+      list-style-type: none;
+    }
+    .list a {
+      text-decoration: none;
+    }
+    a.category {
+      color: #999999;
+      font-weight: bold;
+      margin-right: 0.4em;
+    }
+    a.topic {
+      color: #999999;
+    }
+  }
 
-/* * * * Облако тегов * * * */
-.aw-blog .taglistbox ul {
-	text-align: center;
-	white-space: normal;
-	word-wrap: break-word;	
-}
-.aw-blog .taglistbox li {
-	display: inline;
-	line-height: 20px;
-	margin-right: 7px;
-}
-.aw-blog .taglistbox a.tag {
-	text-decoration: underline;
-	color: #999999;
-}
-.aw-blog .taglistbox li a.sz-0 { font-size: 80%; }
-.aw-blog .taglistbox li a.sz-1 { font-size: 80%; }
-.aw-blog .taglistbox li a.sz-2 { font-size: 90%; }
-.aw-blog .taglistbox li a.sz-3 { font-size: 90%; }
-.aw-blog .taglistbox li a.sz-4 { font-size: 110%; }
-.aw-blog .taglistbox li a.sz-5 { font-size: 110%; }
-.aw-blog .taglistbox li a.sz-6 { font-size: 110%; }
-.aw-blog .taglistbox li a.sz-7 { font-size: 130%; }
-.aw-blog .taglistbox li a.sz-8 { font-size: 130%; }
-.aw-blog .taglistbox li a.sz-9 { font-size: 150%; }
-.aw-blog .taglistbox li a.sz-10 { font-size: 150%; }
+  /* * * * Comment Live * * * */
+  .commentlivebox {
+    ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    li {
+      padding-bottom: 12px;
+    }
+    a.user,
+    a.topic {
+      margin-right: 7px;
+    }
+  }
 
-/* * * * Блоги * * * */
-.aw-blog .catlistbox li {
-	position: relative;
-	padding-bottom: 12px;
+  /* * * * Облако тегов * * * */
+  .taglistbox {
+    ul {
+      text-align: center;
+      white-space: normal;
+      word-wrap: break-word;
+    }
+    li {
+      display: inline;
+      line-height: 20px;
+      margin-right: 7px;
+    }
+    a.tag {
+      text-decoration: underline;
+      color: #999999;
+      /*white-space: nowrap;/**/
+    }
+    li a.sz-0 {
+      font-size: 80%;
+    }
+    li a.sz-1 {
+      font-size: 80%;
+    }
+    li a.sz-2 {
+      font-size: 90%;
+    }
+    li a.sz-3 {
+      font-size: 90%;
+    }
+    li a.sz-4 {
+      font-size: 110%;
+    }
+    li a.sz-5 {
+      font-size: 110%;
+    }
+    li a.sz-6 {
+      font-size: 110%;
+    }
+    li a.sz-7 {
+      font-size: 130%;
+    }
+    li a.sz-8 {
+      font-size: 130%;
+    }
+    li a.sz-9 {
+      font-size: 150%;
+    }
+    li a.sz-10 {
+      font-size: 150%;
+    }
+  }
+
+  /* * * * Блоги * * * */
+  .catlistbox {
+    ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    li {
+      position: relative;
+      padding-bottom: 12px;
+    }
+    li a {
+      display: block;
+      width: 100%;
+      border-bottom: 1px dotted #999999;
+    }
+    li span {
+      position: absolute;
+      top: 0;
+      right: 0;
+    }
+  }
 }
-.aw-blog .catlistbox li a {
-	display: block;
-	width: 100%;
-	border-bottom: 1px dotted #999999;
-}
-.aw-blog .catlistbox li span {
-	position: absolute; top: 0; right: 0;
-}
-/* * * * boxes.css end * * * */
