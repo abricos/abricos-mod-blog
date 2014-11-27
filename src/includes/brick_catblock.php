@@ -12,32 +12,32 @@ $man = BlogModule::$instance->GetManager();
 
 $cats = $man->CategoryList();
 
-if (empty($cats)){
-	$brick->content = "";
-	return;
+if (empty($cats)) {
+    $brick->content = "";
+    return;
 }
 
 $count = min($cats->Count(), 10);
 
 $lst = "";
-for ($i=0; $i<$count; $i++){
-	$cat = $cats->GetByIndex($i);
+for ($i = 0; $i < $count; $i++) {
+    $cat = $cats->GetByIndex($i);
 
-	$lst .= Brick::ReplaceVarByData($v['row'], array(
-		"cattl" => $cat->title,
-		"urlcat" => $cat->URL(),
-		"rtg" => $cat->rating
-	));
+    $lst .= Brick::ReplaceVarByData($v['row'], array(
+        "cattl" => $cat->title,
+        "urlcat" => $cat->URL(),
+        "rtg" => $cat->rating
+    ));
 }
 
 
-if (empty($lst)){
-	$brick->content = "";
-	return;
+if (empty($lst)) {
+    $brick->content = "";
+    return;
 }
 
 $brick->content = Brick::ReplaceVarByData($brick->content, array(
-	"rows" => $lst
+    "rows" => $lst
 ));
 
 ?>

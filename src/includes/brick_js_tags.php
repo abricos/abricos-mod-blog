@@ -11,8 +11,8 @@ $query = Abricos::CleanGPC('p', 'query', TYPE_STR);
 
 header('Content-type: text/plain');
 $tags = $man->TagListByLikeQuery($query);
-for ($i=0;$i<count($tags);$i++){
-	print ($tags[$i]."\n");
+for ($i = 0; $i < count($tags); $i++) {
+    print ($tags[$i]."\n");
 }
 exit;
 

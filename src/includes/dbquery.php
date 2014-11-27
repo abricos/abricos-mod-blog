@@ -1,35 +1,40 @@
 <?php
+
 /**
  * @package Abricos
  * @subpackage Blog
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * @author Alexander Kuzmin <roosit@abricos.org>
  */
-
 class BlogTopicQuery {
-	
-	public static function DomainFilterSQLExt(){
-		$ret = new stdClass();
-		
-		$dmfilter = "AND (cat.deldate=0 OR t.catid=0)";
-		$cfgDF = BlogConfig::$instance->domainFilter;
-		if (!empty($cfgDF)){
-			$arr = explode(",", $cfgDF);
-			$ca = array(); $ta = array();
-				
-			for ($i=0;$i<count($arr);$i++){
-				array_push($ca, "cat.domain='".trim($arr[$i])."'");
-				array_push($ta, "t.domain='".trim($arr[$i])."'");
-			}
-			
-			if (count($ta)>0){
-				return array("cat"=>$ca, "t"=>$ta);
-			}
-		}
-		return null;
-	}
-	private static function TopicFields(Ab_Database $db){
-		return "
+
+    public static function DomainFilterSQLExt() {
+        $ret = new stdClass();
+
+        $dmfilter = "AND (cat.deldate=0 OR t.catid=0)";
+        $cfgDF = BlogConfig::$instance->domainFilter;
+        if (!empty($cfgDF)) {
+            $arr = explode(",", $cfgDF);
+            $ca = array();
+            $ta = array();
+
+            for ($i = 0; $i < count($arr); $i++) {
+                array_push($ca, "cat.domain='".trim($arr[$i])."'");
+                array_push($ta, "t.domain='".trim($arr[$i])."'");
+            }
+
+            if (count($ta) > 0) {
+                return array(
+                    "cat" => $ca,
+                    "t" => $ta
+                );
+            }
+        }
+        return null;
+    }
+
+    private static function TopicFields(Ab_Database $db) {
+        return "
 			t.topicid as id,
 			t.catid as catid,
 			cc.contentid as ctid,
@@ -56,77 +61,78 @@ class BlogTopicQuery {
 			t.autoindex as aidx,
 			t.pubdate as dl
 		";
-	}
-	
-	private static function TopicRatingSQLExt(Ab_Database $db){
-		$ret = new stdClass();
-		$ret->fld = "";
-		$ret->tbl = "";
-		$userid = Abricos::$user->id;
-		if (BlogManager::$isURating && $userid>0){
-			$ret->fld .= "
+    }
+
+    private static function TopicRatingSQLExt(Ab_Database $db) {
+        $ret = new stdClass();
+        $ret->fld = "";
+        $ret->tbl = "";
+        $userid = Abricos::$user->id;
+        if (BlogManager::$isURating && $userid > 0) {
+            $ret->fld .= "
 				,IF(ISNULL(vt.userid), null, IF(vt.voteup>0, 1, IF(vt.votedown>0, -1, 0))) as vmy
 			";
-			$ret->tbl .= "
+            $ret->tbl .= "
 				LEFT JOIN ".$db->prefix."urating_vote vt
 					ON vt.module='blog' AND vt.elementtype='topic'
 					AND vt.elementid=t.topicid
 					AND vt.userid=".bkint($userid)."
 			";
-		}
-		return $ret;
-	}
-	
-	/**
-	 * Количество черновиков в профиле пользователя
-	 *
-	 * @param Ab_Database $db
-	 * @param integer $userid
-	 */
-	public static function TopicDraftCountByUser(Ab_Database $db, $userid){
-		$sql = "
+        }
+        return $ret;
+    }
+
+    /**
+     * Количество черновиков в профиле пользователя
+     *
+     * @param Ab_Database $db
+     * @param integer $userid
+     */
+    public static function TopicDraftCountByUser(Ab_Database $db, $userid) {
+        $sql = "
 			SELECT count(*) as cnt
 			FROM ".$db->prefix."bg_topic
 			WHERE userid=".bkint($userid)." AND isdraft=1
 		";
-		return $db->query_first($sql);
-	}
-	
-	/**
-	 * Количество опубликованных записей за текущие сутки
-	 * @param Ab_Database $db
-	 * @param integer $userid
-	 */
-	public static function TopicPublicCountByUser(Ab_Database $db, $userid){
-		$day = 60*60*24;
-		$t1 = intval(floor(TIMENOW/$day)*$day);
-		$sql = "
+        return $db->query_first($sql);
+    }
+
+    /**
+     * Количество опубликованных записей за текущие сутки
+     *
+     * @param Ab_Database $db
+     * @param integer $userid
+     */
+    public static function TopicPublicCountByUser(Ab_Database $db, $userid) {
+        $day = 60 * 60 * 24;
+        $t1 = intval(floor(TIMENOW / $day) * $day);
+        $sql = "
 			SELECT count(*) as cnt
 			FROM ".$db->prefix."bg_topic
 			WHERE userid=".bkint($userid)." AND pubdate>".$t1."
 		";
-		return $db->query_first($sql);
-	}	
+        return $db->query_first($sql);
+    }
 
-	/**
-	 * Запросить топик по идентификатору
-	 * 
-	 * Если указан параметр $contentid, то запрос происходит по нему
-	 * 
-	 * @param Ab_Database $db
-	 * @param integer $topicid
-	 * @param integer $contentid
-	 */
-	public static function Topic(Ab_Database $db, $topicid, $contentid = 0){
-		$urt = BlogTopicQuery::TopicRatingSQLExt($db);
-		
-		$where = "t.topicid = ".bkint($topicid)."";
-		if ($contentid > 0){
-			$where = "t.contentid = ".bkint($contentid)."";
-		}
-		
-		$userid = Abricos::$user->id;
-		$sql = "
+    /**
+     * Запросить топик по идентификатору
+     *
+     * Если указан параметр $contentid, то запрос происходит по нему
+     *
+     * @param Ab_Database $db
+     * @param integer $topicid
+     * @param integer $contentid
+     */
+    public static function Topic(Ab_Database $db, $topicid, $contentid = 0) {
+        $urt = BlogTopicQuery::TopicRatingSQLExt($db);
+
+        $where = "t.topicid = ".bkint($topicid)."";
+        if ($contentid > 0) {
+            $where = "t.contentid = ".bkint($contentid)."";
+        }
+
+        $userid = Abricos::$user->id;
+        $sql = "
 			SELECT
 				".BlogTopicQuery::TopicFields($db).",
 				cc.body as bd,
@@ -142,79 +148,79 @@ class BlogTopicQuery {
 				AND (t.isdraft=0 OR (t.isdraft=1 AND t.userid=".bkint($userid)."))
 			LIMIT 1
 		";
-		return $db->query_first($sql);
-	}
-	
+        return $db->query_first($sql);
+    }
 
-	public static function TopicList(Ab_Database $db, $page=1, $limit=10, $fType='index', $fPrm='', $isCount = false){
-		$from = $limit * (max($page, 1) - 1);
-		$urt = BlogTopicQuery::TopicRatingSQLExt($db);
-		
-		$newPeriod = TIMENOW-60*60*24;
 
-		$filterRating = "";
-		if (BlogManager::$isURating){
-			$filterRating = " AND (t.rating >= 5 OR t.isindex=1)";
-		}
-		
-		$filter = '';
-		if ($fType == "index"){ // главная
-			if ($fPrm == "new"){
-				$filter = " AND t.pubdate>".$newPeriod;
-				$filterRating = "";
-			}
-		}else if ($fType == 'pub'){		// коллективные
-			$filter = " AND t.catid>0";
-			if ($fPrm == 'new'){
-				$filter .= " AND t.pubdate>".$newPeriod;
-				$filterRating = "";
-			}
-		}else if ($fType == 'pers'){		// персональные
-			$filter = " AND t.catid=0";
-			if ($fPrm == 'new'){
-				$filter .= " AND t.pubdate>".$newPeriod;
-				$filterRating = "";
-			}
-		}else if ($fType == 'cat'){
-			$fa = explode("/", $fPrm);
-			$filter = " AND t.catid=".bkint($fa[0]);
-			
-			if (isset($fa[1]) && $fa[1] == 'new'){
-				$filter .= " AND t.pubdate>".$newPeriod;
-				$filterRating = "";
-			}
+    public static function TopicList(Ab_Database $db, $page = 1, $limit = 10, $fType = 'index', $fPrm = '', $isCount = false) {
+        $from = $limit * (max($page, 1) - 1);
+        $urt = BlogTopicQuery::TopicRatingSQLExt($db);
 
-		}else if ($fType == 'tag'){
-			$urt->tbl .= "
+        $newPeriod = TIMENOW - 60 * 60 * 24;
+
+        $filterRating = "";
+        if (BlogManager::$isURating) {
+            $filterRating = " AND (t.rating >= 5 OR t.isindex=1)";
+        }
+
+        $filter = '';
+        if ($fType == "index") { // главная
+            if ($fPrm == "new") {
+                $filter = " AND t.pubdate>".$newPeriod;
+                $filterRating = "";
+            }
+        } else if ($fType == 'pub') {        // коллективные
+            $filter = " AND t.catid>0";
+            if ($fPrm == 'new') {
+                $filter .= " AND t.pubdate>".$newPeriod;
+                $filterRating = "";
+            }
+        } else if ($fType == 'pers') {        // персональные
+            $filter = " AND t.catid=0";
+            if ($fPrm == 'new') {
+                $filter .= " AND t.pubdate>".$newPeriod;
+                $filterRating = "";
+            }
+        } else if ($fType == 'cat') {
+            $fa = explode("/", $fPrm);
+            $filter = " AND t.catid=".bkint($fa[0]);
+
+            if (isset($fa[1]) && $fa[1] == 'new') {
+                $filter .= " AND t.pubdate>".$newPeriod;
+                $filterRating = "";
+            }
+
+        } else if ($fType == 'tag') {
+            $urt->tbl .= "
 				INNER JOIN ".$db->prefix."bg_toptag tt ON t.topicid=tt.topicid 
 				INNER JOIN ".$db->prefix."bg_tag tg ON tg.tagid=tt.tagid
 			";
-			$filter = " AND tg.title='".bkstr($fPrm)."'";
-		}
-		$filter .= $filterRating;
-		
-		$fld = "
+            $filter = " AND tg.title='".bkstr($fPrm)."'";
+        }
+        $filter .= $filterRating;
+
+        $fld = "
 			".BlogTopicQuery::TopicFields($db)."
 			".$urt->fld."
 		";
-		$limit = "LIMIT ".$from.",".bkint($limit)."";
-		
-		if ($isCount){
-			$fld = "count(t.topicid) as cnt";
-			$limit = "LIMIT 1";
-		}
-		
-		$dmfilter = "AND (cat.deldate=0 OR t.catid=0)";
-		$dmfa = BlogTopicQuery::DomainFilterSQLExt();
-		if (!empty($dmfa)){
-			$dmfilter = " AND (
+        $limit = "LIMIT ".$from.",".bkint($limit)."";
+
+        if ($isCount) {
+            $fld = "count(t.topicid) as cnt";
+            $limit = "LIMIT 1";
+        }
+
+        $dmfilter = "AND (cat.deldate=0 OR t.catid=0)";
+        $dmfa = BlogTopicQuery::DomainFilterSQLExt();
+        if (!empty($dmfa)) {
+            $dmfilter = " AND (
 				(cat.deldate=0 AND (".implode(" OR ", $dmfa['cat']).")) 
 				OR 
 				(t.catid=0 AND (".implode(" OR ", $dmfa['t'])."))
 			)";
-		}
-				
-		$sql = "
+        }
+
+        $sql = "
 			SELECT ".$fld."
 			FROM ".$db->prefix."bg_topic t
 			LEFT JOIN ".$db->prefix."bg_cat cat ON t.catid = cat.catid
@@ -228,26 +234,26 @@ class BlogTopicQuery {
 			".$limit."
 		";
 
-		if ($isCount){
-			$row = $db->query_first($sql);
-			return intval($row['cnt']);
-		}
-		return $db->query_read($sql);
-	}
-	
-	/**
-	 * Список черновиков пользователя
-	 * 
-	 * @param Ab_Database $db
-	 * @param integer $userid
-	 * @param integer $page
-	 * @param integer $limit
-	 */
-	public static function TopicDraftList(Ab_Database $db, $userid, $page=1, $limit=10){
-		$from = $limit * (max($page, 1) - 1);
-		$urt = BlogTopicQuery::TopicRatingSQLExt($db);
+        if ($isCount) {
+            $row = $db->query_first($sql);
+            return intval($row['cnt']);
+        }
+        return $db->query_read($sql);
+    }
 
-		$sql = "
+    /**
+     * Список черновиков пользователя
+     *
+     * @param Ab_Database $db
+     * @param integer $userid
+     * @param integer $page
+     * @param integer $limit
+     */
+    public static function TopicDraftList(Ab_Database $db, $userid, $page = 1, $limit = 10) {
+        $from = $limit * (max($page, 1) - 1);
+        $urt = BlogTopicQuery::TopicRatingSQLExt($db);
+
+        $sql = "
 			SELECT
 				".BlogTopicQuery::TopicFields($db)."
 				".$urt->fld."
@@ -262,22 +268,22 @@ class BlogTopicQuery {
 			ORDER BY t.dateline DESC
 			LIMIT ".$from.",".bkint($limit)."
 		";
-		return $db->query_read($sql);
-	}
-	
-	/**
-	 * Персональный блог имени <<пользователя>>
-	 * 
-	 * @param Ab_Database $db
-	 * @param integer $userid
-	 * @param integer $page
-	 * @param integer $limit
-	 */
-	public static function TopicListByAuthor(Ab_Database $db, $userid, $page=1, $limit=10){
-		$from = $limit * (max($page, 1) - 1);
-		$urt = BlogTopicQuery::TopicRatingSQLExt($db);
-	
-		$sql = "
+        return $db->query_read($sql);
+    }
+
+    /**
+     * Персональный блог имени <<пользователя>>
+     *
+     * @param Ab_Database $db
+     * @param integer $userid
+     * @param integer $page
+     * @param integer $limit
+     */
+    public static function TopicListByAuthor(Ab_Database $db, $userid, $page = 1, $limit = 10) {
+        $from = $limit * (max($page, 1) - 1);
+        $urt = BlogTopicQuery::TopicRatingSQLExt($db);
+
+        $sql = "
 			SELECT
 				".BlogTopicQuery::TopicFields($db)."
 				".$urt->fld."
@@ -292,21 +298,21 @@ class BlogTopicQuery {
 			ORDER BY t.dateline DESC
 			LIMIT ".$from.",".bkint($limit)."
 		";
-		return $db->query_read($sql);
-	}
-	
+        return $db->query_read($sql);
+    }
 
-	public static function TopicListByIds(Ab_Database $db, $ids){
-		$awh = array();
-		for ($i=0;$i<count($ids);$i++){
-			array_push($awh, "t.topicid=".bkint($ids[$i]));
-		}
-		if (count($ids) == 0){
-			return null;
-		}
-		$urt = BlogTopicQuery::TopicRatingSQLExt($db);
-		
-		$sql = "
+
+    public static function TopicListByIds(Ab_Database $db, $ids) {
+        $awh = array();
+        for ($i = 0; $i < count($ids); $i++) {
+            array_push($awh, "t.topicid=".bkint($ids[$i]));
+        }
+        if (count($ids) == 0) {
+            return null;
+        }
+        $urt = BlogTopicQuery::TopicRatingSQLExt($db);
+
+        $sql = "
 			SELECT
 				".BlogTopicQuery::TopicFields($db)."
 				".$urt->fld."
@@ -316,13 +322,13 @@ class BlogTopicQuery {
 			".$urt->tbl."
 			WHERE ".implode(" OR ", $ids)."
 		";
-		return $db->query_read($sql);
-	}
-	
-	public static function TopicAppend(Ab_Database $db, $userid, $d){
-		$contentid = Ab_CoreQuery::CreateContent($db, $d->body, 'blog');
-	
-		$sql = "
+        return $db->query_read($sql);
+    }
+
+    public static function TopicAppend(Ab_Database $db, $userid, $d) {
+        $contentid = Ab_CoreQuery::CreateContent($db, $d->body, 'blog');
+
+        $sql = "
 			INSERT INTO ".$db->prefix."bg_topic
 			(catid, userid, language, title, name, intro, metakeys, metadesc, contentid, isdraft, autoindex, pubdate, dateline, upddate) VALUES (
 				".bkint($d->catid).",
@@ -334,21 +340,21 @@ class BlogTopicQuery {
 				'".bkstr($d->mtks)."',
 				'".bkstr($d->mtdsc)."',
 				'".bkstr($contentid)."',
-				".($d->dft>0?1:0).",
+				".($d->dft > 0 ? 1 : 0).",
 				1,
 				".bkint($d->pdt).",
 				".TIMENOW.",
 				".TIMENOW."
 			)
 		";
-		$db->query_write($sql);
-		return $db->insert_id();
-	}
-	
-	public static function TopicUpdate(Ab_Database $db, $topicid, $contentid, $d){
-		Ab_CoreQuery::ContentUpdate($db, $contentid, $d->body);
-	
-		$sql = "
+        $db->query_write($sql);
+        return $db->insert_id();
+    }
+
+    public static function TopicUpdate(Ab_Database $db, $topicid, $contentid, $d) {
+        Ab_CoreQuery::ContentUpdate($db, $contentid, $d->body);
+
+        $sql = "
 			UPDATE ".$db->prefix."bg_topic
 			SET
 				catid=".bkint($d->catid).",
@@ -357,18 +363,18 @@ class BlogTopicQuery {
 				intro='".bkstr($d->intro)."',
 				metakeys='".bkstr($d->mtks)."',
 				metadesc='".bkstr($d->mtdsc)."',
-				isdraft=".($d->dft>0?1:0).",
+				isdraft=".($d->dft > 0 ? 1 : 0).",
 				pubdate=".bkint($d->pdt).",
 				upddate=".TIMENOW."
 			WHERE topicid=".bkint($topicid)."
 			LIMIT 1
 		";
-		$db->query_write($sql);
-	}
-	
-	public static function TopicMetaTagUpdate(Ab_Database $db, $topicid, $metakeys, $metadesc){
-	
-		$sql = "
+        $db->query_write($sql);
+    }
+
+    public static function TopicMetaTagUpdate(Ab_Database $db, $topicid, $metakeys, $metadesc) {
+
+        $sql = "
 			UPDATE ".$db->prefix."bg_topic
 			SET
 				metakeys='".bkstr($metakeys)."',
@@ -376,14 +382,14 @@ class BlogTopicQuery {
 			WHERE topicid=".bkint($topicid)."
 			LIMIT 1
 		";
-		$db->query_write($sql);
-	}
-	
-	public static function TopicRatingUpdate(Ab_Database $db, $topicid, $votecount, $voteup, $votedown){
-		$sql = "
+        $db->query_write($sql);
+    }
+
+    public static function TopicRatingUpdate(Ab_Database $db, $topicid, $votecount, $voteup, $votedown) {
+        $sql = "
 			UPDATE ".$db->prefix."bg_topic
 			SET
-				rating=".bkint($voteup-$votedown).",
+				rating=".bkint($voteup - $votedown).",
 				voteup=".bkint($voteup).",
 				votedown=".bkint($votedown).",
 				votecount=".bkint($votecount).",
@@ -391,52 +397,52 @@ class BlogTopicQuery {
 			WHERE topicid=".bkint($topicid)."
 			LIMIT 1
 		";
-		$db->query_write($sql);
-	}
-	
-	/**
-	 * Автоматическое обновление статуса вывода на главной согласно рейтинку
-	 * 
-	 * @param Ab_Database $db
-	 * @param boolean $topicid
-	 * @param boolean $isIndex
-	 */
-	public static function TopicIndexUpdateByRating(Ab_Database $db, $topicid, $isIndex){
-		$sql = "
+        $db->query_write($sql);
+    }
+
+    /**
+     * Автоматическое обновление статуса вывода на главной согласно рейтинку
+     *
+     * @param Ab_Database $db
+     * @param boolean $topicid
+     * @param boolean $isIndex
+     */
+    public static function TopicIndexUpdateByRating(Ab_Database $db, $topicid, $isIndex) {
+        $sql = "
 			UPDATE ".$db->prefix."bg_topic
 			SET isindex=".bkint($isIndex ? 1 : 0)."
 			WHERE topicid=".bkint($topicid)." AND autoindex=1
 			LIMIT 1
 		";
-		$db->query_write($sql);
-	}
-	
-	public static function TopicIndexUpdateByAdmin(Ab_Database $db, $topicid, $isIndex, $isAutoIndex){
-		$sql = "
+        $db->query_write($sql);
+    }
+
+    public static function TopicIndexUpdateByAdmin(Ab_Database $db, $topicid, $isIndex, $isAutoIndex) {
+        $sql = "
 			UPDATE ".$db->prefix."bg_topic
 			SET isindex=".bkint($isIndex ? 1 : 0).",
 				autoindex=".bkint($isAutoIndex ? 1 : 0)."
 			WHERE topicid=".bkint($topicid)." 
 			LIMIT 1
 		";
-		$db->query_write($sql);
-	}
-	
-	
-	public static function TagListByTopicIds(Ab_Database $db, $tids){
-		if (!is_array($tids)){
-			$tids = array(intval($tids));
-		}
-		if (count($tids) == 0){
-			return null;
-		}
-		
-		$awh = array();
-		for ($i=0; $i<count($tids); $i++){
-			array_push($awh, "tg.topicid=".bkint($tids[$i]));
-		}
-	
-		$sql = "
+        $db->query_write($sql);
+    }
+
+
+    public static function TagListByTopicIds(Ab_Database $db, $tids) {
+        if (!is_array($tids)) {
+            $tids = array(intval($tids));
+        }
+        if (count($tids) == 0) {
+            return null;
+        }
+
+        $awh = array();
+        for ($i = 0; $i < count($tids); $i++) {
+            array_push($awh, "tg.topicid=".bkint($tids[$i]));
+        }
+
+        $sql = "
 			SELECT
 				DISTINCT
 				g.tagid as id,
@@ -446,11 +452,11 @@ class BlogTopicQuery {
 			INNER JOIN ".$db->prefix."bg_tag g ON tg.tagid = g.tagid
 			WHERE ".implode(" OR ", $awh)."
 		";
-		return $db->query_read($sql);
-	}
-	
-	public static function TagListByLikeQuery(Ab_Database $db, $query){
-		$sql = "
+        return $db->query_read($sql);
+    }
+
+    public static function TagListByLikeQuery(Ab_Database $db, $query) {
+        $sql = "
 			SELECT title as tl
 			FROM ".$db->prefix."bg_tag
 			WHERE title LIKE '".bkstr($query)."%' AND language='".bkstr(Abricos::$LNG)."'
@@ -458,41 +464,41 @@ class BlogTopicQuery {
 			ORDER BY title
 			LIMIT 10
 		";
-		return $db->query_read($sql);
-	}
+        return $db->query_read($sql);
+    }
 
-	public static function TopicTagList(Ab_Database $db, $tids){
-		if (!is_array($tids)){
-			$tids = array(intval($tids));
-		}
-		if (count($tids) == 0){
-			return null;
-		}
-		$awh = array();
-		for ($i=0; $i<count($tids); $i++){
-			array_push($awh, "tg.topicid=".bkint($tids[$i]));
-		}
-	
-		$sql = "
+    public static function TopicTagList(Ab_Database $db, $tids) {
+        if (!is_array($tids)) {
+            $tids = array(intval($tids));
+        }
+        if (count($tids) == 0) {
+            return null;
+        }
+        $awh = array();
+        for ($i = 0; $i < count($tids); $i++) {
+            array_push($awh, "tg.topicid=".bkint($tids[$i]));
+        }
+
+        $sql = "
 			SELECT
 				tg.topicid as tid,
 				tg.tagid as tgid
 			FROM ".$db->prefix."bg_toptag tg
 			WHERE ".implode(" OR ", $awh)."
 		";
-		return $db->query_read($sql);
-	}
-	
-	public static function UserList(Ab_Database $db, $uids){
-		if (!is_array($uids)){
-			$uids = array(intval($uids));
-		}
-		$awh = array();
-		for ($i=0; $i<count($uids); $i++){
-			array_push($awh, "u.userid=".bkint($uids[$i]));
-		}
-	
-		$sql = "
+        return $db->query_read($sql);
+    }
+
+    public static function UserList(Ab_Database $db, $uids) {
+        if (!is_array($uids)) {
+            $uids = array(intval($uids));
+        }
+        $awh = array();
+        for ($i = 0; $i < count($uids); $i++) {
+            array_push($awh, "u.userid=".bkint($uids[$i]));
+        }
+
+        $sql = "
 			SELECT
 				DISTINCT
 				u.userid as id,
@@ -503,38 +509,38 @@ class BlogTopicQuery {
 			FROM ".$db->prefix."user u
 			WHERE ".implode(" OR ", $awh)."
 		";
-		return $db->query_read($sql);
-	}
-	
-	private static function CategoryRatingSQLExt(Ab_Database $db){
-		$ret = new stdClass();
-		$ret->fld = "";
-		$ret->tbl = "";
-		$userid = Abricos::$user->id;
-		if (BlogManager::$isURating && $userid>0){
-			$ret->fld .= "
+        return $db->query_read($sql);
+    }
+
+    private static function CategoryRatingSQLExt(Ab_Database $db) {
+        $ret = new stdClass();
+        $ret->fld = "";
+        $ret->tbl = "";
+        $userid = Abricos::$user->id;
+        if (BlogManager::$isURating && $userid > 0) {
+            $ret->fld .= "
 				,IF(ISNULL(vt.userid), null, IF(vt.voteup>0, 1, IF(vt.votedown>0, -1, 0))) as vmy
 			";
-			$ret->tbl .= "
+            $ret->tbl .= "
 				LEFT JOIN ".$db->prefix."urating_vote vt 
 					ON vt.module='blog' AND vt.elementtype='cat' 
 					AND vt.elementid=cat.catid 
 					AND vt.userid=".bkint($userid)."
 			";
-		}
-		return $ret;
-	}
-	
-	public static function CategoryList(Ab_Database $db){
-		$urt = BlogTopicQuery::CategoryRatingSQLExt($db);
-		
-		$dmfilter = "";
-		$dmfa = BlogTopicQuery::DomainFilterSQLExt();
-		if (!empty($dmfa)){
-			$dmfilter = " AND (".implode(" OR ", $dmfa['cat']).")";
-		}
-		
-		$sql = "
+        }
+        return $ret;
+    }
+
+    public static function CategoryList(Ab_Database $db) {
+        $urt = BlogTopicQuery::CategoryRatingSQLExt($db);
+
+        $dmfilter = "";
+        $dmfa = BlogTopicQuery::DomainFilterSQLExt();
+        if (!empty($dmfa)) {
+            $dmfilter = " AND (".implode(" OR ", $dmfa['cat']).")";
+        }
+
+        $sql = "
 			SELECT
 				cat.catid as id,
 				cat.name as nm,
@@ -562,13 +568,13 @@ class BlogTopicQuery {
 				".$dmfilter."
 			ORDER BY rtg DESC, tcnt DESC, tl
 		";
-		return $db->query_read($sql);
-	}
-	
-	public static function Category(Ab_Database $db, $catid){
-		$urt = BlogTopicQuery::CategoryRatingSQLExt($db);
-		
-		$sql = "
+        return $db->query_read($sql);
+    }
+
+    public static function Category(Ab_Database $db, $catid) {
+        $urt = BlogTopicQuery::CategoryRatingSQLExt($db);
+
+        $sql = "
 			SELECT
 				cat.catid as id,
 				cat.name as nm,
@@ -594,18 +600,18 @@ class BlogTopicQuery {
 			WHERE cat.catid=".bkint($catid)." AND cat.deldate=0
 			LIMIT 1
 		";
-		return $db->query_first($sql);
-	}
-	
+        return $db->query_first($sql);
+    }
 
-	/**
-	 * Информация о последнем созданной категории пользователем
-	 * 
-	 * @param Ab_Database $db
-	 * @param integer $userid
-	 */
-	public static function CategoryLastCreated(Ab_Database $db, $userid){
-		$sql = "
+
+    /**
+     * Информация о последнем созданной категории пользователем
+     *
+     * @param Ab_Database $db
+     * @param integer $userid
+     */
+    public static function CategoryLastCreated(Ab_Database $db, $userid) {
+        $sql = "
 			SELECT
 				cat.catid as id,
 				cat.dateline as dl
@@ -614,11 +620,11 @@ class BlogTopicQuery {
 			ORDER BY dateline DESC
 			LIMIT 1
 		";
-		return $db->query_first($sql);		
-	}
-	
-	public static function CategoryAppend(Ab_Database $db, $userid, $d){
-		$sql = "
+        return $db->query_first($sql);
+    }
+
+    public static function CategoryAppend(Ab_Database $db, $userid, $d) {
+        $sql = "
 			INSERT INTO ".$db->prefix."bg_cat
 			(userid, domain, language, title, name, descript, isprivate, reputation, dateline, upddate) VALUES (
 				".bkint($userid).",
@@ -627,37 +633,37 @@ class BlogTopicQuery {
 				'".bkstr($d->tl)."',
 				'".bkstr($d->nm)."',
 				'".bkstr($d->dsc)."',
-				".($d->prv>0?1:0).",
+				".($d->prv > 0 ? 1 : 0).",
 				".bkint($d->rep).",
 				".TIMENOW.",
 				".TIMENOW."
 			)
 		";
-		$db->query_write($sql);
-		return $db->insert_id();
-	}
-	
-	public static function CategoryUpdate(Ab_Database $db, $catid, $d){
-		$sql = "
+        $db->query_write($sql);
+        return $db->insert_id();
+    }
+
+    public static function CategoryUpdate(Ab_Database $db, $catid, $d) {
+        $sql = "
 			UPDATE ".$db->prefix."bg_cat
 			SET 
 				title='".bkstr($d->tl)."',
 				name='".bkstr($d->nm)."',
 				descript='".bkstr($d->dsc)."',
-				isprivate=".($d->prv>0?1:0).",
+				isprivate=".($d->prv > 0 ? 1 : 0).",
 				reputation=".bkint($d->rep).",
 				upddate=".TIMENOW."
 			WHERE catid=".bkint($catid)."
 			LIMIT 1
 		";
-		$db->query_write($sql);
-	}
-	
-	public static function CategoryRatingUpdate(Ab_Database $db, $catid, $votecount, $voteup, $votedown){
-		$sql = "
+        $db->query_write($sql);
+    }
+
+    public static function CategoryRatingUpdate(Ab_Database $db, $catid, $votecount, $voteup, $votedown) {
+        $sql = "
 			UPDATE ".$db->prefix."bg_cat
 			SET
-				rating=".bkint($voteup-$votedown).",
+				rating=".bkint($voteup - $votedown).",
 				voteup=".bkint($voteup).",
 				votedown=".bkint($votedown).",
 				votecount=".bkint($votecount).",
@@ -665,11 +671,11 @@ class BlogTopicQuery {
 			WHERE catid=".bkint($catid)."
 			LIMIT 1
 		";
-		$db->query_write($sql);
-	}
-	
-	public static function CategoryTopicCountUpdate(Ab_Database $db, $catid = 0){
-		$sql = "
+        $db->query_write($sql);
+    }
+
+    public static function CategoryTopicCountUpdate(Ab_Database $db, $catid = 0) {
+        $sql = "
 			UPDATE ".$db->prefix."bg_cat cat
 			SET cat.topiccount = (
 				SELECT count(*) as cnt
@@ -678,16 +684,16 @@ class BlogTopicQuery {
 				GROUP BY t.catid
 			)
 		";
-		if ($catid > 0){
-			$sql .= "
+        if ($catid > 0) {
+            $sql .= "
 				WHERE catid=".bkint($catid)."
 			";
-		}
-		$db->query_write($sql);
-	}
+        }
+        $db->query_write($sql);
+    }
 
-	public static function CategoryMemberCountUpdate(Ab_Database $db, $catid = 0){
-		$sql = "
+    public static function CategoryMemberCountUpdate(Ab_Database $db, $catid = 0) {
+        $sql = "
 			UPDATE ".$db->prefix."bg_cat cat
 			SET cat.membercount = (
 				SELECT count(*) as cnt
@@ -696,16 +702,16 @@ class BlogTopicQuery {
 				GROUP BY ur.catid
 			)
 		";
-		if ($catid > 0){
-			$sql .= "
+        if ($catid > 0) {
+            $sql .= "
 				WHERE cat.catid=".bkint($catid)."
 			";
-		}
-		$db->query_write($sql);
-	}
-	
-	public static function CategoryUser(Ab_Database $db, $catid, $userid){
-		$sql = "
+        }
+        $db->query_write($sql);
+    }
+
+    public static function CategoryUser(Ab_Database $db, $catid, $userid) {
+        $sql = "
 			SELECT
 				isadmin as adm,
 				ismoder as mdr,
@@ -714,65 +720,65 @@ class BlogTopicQuery {
 			WHERE catid=".bkint($catid)." AND userid=".bkint($userid)."
 			LIMIT 1
 		";
-		return $db->query_first($sql);		
-	}
-	
-	public static function CategoryUserSetAdmin(Ab_Database $db, $catid, $userid, $isAdmin = false){
-		$sql = "
+        return $db->query_first($sql);
+    }
+
+    public static function CategoryUserSetAdmin(Ab_Database $db, $catid, $userid, $isAdmin = false) {
+        $sql = "
 			INSERT INTO ".$db->prefix."bg_catuserrole
 			(catid, userid, isadmin, dateline, upddate) VALUES(
 				".bkint($catid).",
 				".bkint($userid).",
-				".($isAdmin?1:0).",
+				".($isAdmin ? 1 : 0).",
 				".TIMENOW.",
 				".TIMENOW."
 			) ON DUPLICATE KEY UPDATE
-				isadmin=".($isAdmin?1:0).",
+				isadmin=".($isAdmin ? 1 : 0).",
 				upddate=".TIMENOW."
 		";
-		$db->query_write($sql);
-	}
-	
-	public static function CategoryUserSetMember(Ab_Database $db, $catid, $userid, $isMember, $pubkey){
-		$sql = "
+        $db->query_write($sql);
+    }
+
+    public static function CategoryUserSetMember(Ab_Database $db, $catid, $userid, $isMember, $pubkey) {
+        $sql = "
 			INSERT INTO ".$db->prefix."bg_catuserrole
 				(catid, userid, ismember, pubkey, dateline, upddate) VALUES(
 				".bkint($catid).",
 				".bkint($userid).",
-				".($isMember?1:0).",
+				".($isMember ? 1 : 0).",
 				'".bkstr($pubkey)."',
 				".TIMENOW.",
 				".TIMENOW."
 			) ON DUPLICATE KEY UPDATE
-				ismember=".($isMember?1:0).",
+				ismember=".($isMember ? 1 : 0).",
 				upddate=".TIMENOW."
 		";
-		$db->query_write($sql);
-	}
-	
-	public static function CategoryRemove(Ab_Database $db, $catid){
-		$sql = "
+        $db->query_write($sql);
+    }
+
+    public static function CategoryRemove(Ab_Database $db, $catid) {
+        $sql = "
 			UPDATE ".$db->prefix."bg_cat
 			SET deldate=".TIMENOW."
 			WHERE catid=".bkint($catid)."
 			LIMIT 1
 		";
-		$db->query_write($sql);
-	}
-	
-	public static function TagList(Ab_Database $db, $page, $limit){
-		
-		$dmfilter = "AND (cat.deldate=0 OR t.catid=0)";
-		$dmfa = BlogTopicQuery::DomainFilterSQLExt();
-		if (!empty($dmfa)){
-			$dmfilter = " AND (
+        $db->query_write($sql);
+    }
+
+    public static function TagList(Ab_Database $db, $page, $limit) {
+
+        $dmfilter = "AND (cat.deldate=0 OR t.catid=0)";
+        $dmfa = BlogTopicQuery::DomainFilterSQLExt();
+        if (!empty($dmfa)) {
+            $dmfilter = " AND (
 				(cat.deldate=0 AND (".implode(" OR ", $dmfa['cat'])."))
 					OR
 				(t.catid=0 AND (".implode(" OR ", $dmfa['t'])."))
 			)";
-		}
-				
-		$sql = "
+        }
+
+        $sql = "
 			SELECT
 				DISTINCT tg.tagid as id,
 				tg.name as nm,
@@ -787,31 +793,31 @@ class BlogTopicQuery {
 			ORDER BY cnt DESC
 			LIMIT ".bkint($limit)."
 		";
-		return $db->query_read($sql);
-	}
-	
-	public static function AuthorRatingSQLExt(Ab_Database $db){
-		$urt = new stdClass();
-		$urt->fld = "";
-		$urt->tbl = "";
-		$userid = Abricos::$user->id;
-		if (BlogManager::$isURating && $userid>0){
-			$urt->fld .= "
+        return $db->query_read($sql);
+    }
+
+    public static function AuthorRatingSQLExt(Ab_Database $db) {
+        $urt = new stdClass();
+        $urt->fld = "";
+        $urt->tbl = "";
+        $userid = Abricos::$user->id;
+        if (BlogManager::$isURating && $userid > 0) {
+            $urt->fld .= "
 				,IF(ISNULL(urt.reputation), 0, urt.reputation) as rep,
 				IF(ISNULL(urt.skill), 0, urt.skill) as rtg
 				";
-				$urt->tbl .= "
+            $urt->tbl .= "
 				LEFT JOIN ".$db->prefix."urating_user urt ON t.userid=urt.userid
 			";
-		}
-		
-		return $urt;
-	}
-	
-	public static function Author(Ab_Database $db, $authorid){
-		$urt = BlogTopicQuery::AuthorRatingSQLExt($db);
-	
-		$sql = "
+        }
+
+        return $urt;
+    }
+
+    public static function Author(Ab_Database $db, $authorid) {
+        $urt = BlogTopicQuery::AuthorRatingSQLExt($db);
+
+        $sql = "
 			SELECT
 				t.userid as id,
 				u.username as unm,
@@ -827,13 +833,13 @@ class BlogTopicQuery {
 			GROUP BY t.userid
 			LIMIT 1
 		";
-		return $db->query_first($sql);
-	}
-	
-	public static function AuthorByUserName(Ab_Database $db, $username){
-		$urt = BlogTopicQuery::AuthorRatingSQLExt($db);
-	
-		$sql = "
+        return $db->query_first($sql);
+    }
+
+    public static function AuthorByUserName(Ab_Database $db, $username) {
+        $urt = BlogTopicQuery::AuthorRatingSQLExt($db);
+
+        $sql = "
 			SELECT
 				t.userid as id,
 				u.username as unm,
@@ -849,13 +855,13 @@ class BlogTopicQuery {
 			GROUP BY t.userid
 			LIMIT 1
 		";
-		return $db->query_first($sql);
-	}
-	
-	public static function AuthorList(Ab_Database $db, $page, $limit){
-		$urt = BlogTopicQuery::AuthorRatingSQLExt($db);
-	
-		$sql = "
+        return $db->query_first($sql);
+    }
+
+    public static function AuthorList(Ab_Database $db, $page, $limit) {
+        $urt = BlogTopicQuery::AuthorRatingSQLExt($db);
+
+        $sql = "
 			SELECT
 				t.userid as id,
 				u.username as unm,
@@ -871,18 +877,18 @@ class BlogTopicQuery {
 			GROUP BY t.userid
 			ORDER BY tcnt DESC
 		";
-		return $db->query_read($sql);
-	}
-	
-	public static function CommentLiveList(Ab_Database $db, $page, $limit){
-		
-		$dmfilter = "";
-		$dmfa = BlogTopicQuery::DomainFilterSQLExt();
-		if (!empty($dmfa)){
-			$dmfilter = " AND (".implode(" OR ", $dmfa['cat']).")";
-		}
-		
-		$sql = "
+        return $db->query_read($sql);
+    }
+
+    public static function CommentLiveList(Ab_Database $db, $page, $limit) {
+
+        $dmfilter = "";
+        $dmfa = BlogTopicQuery::DomainFilterSQLExt();
+        if (!empty($dmfa)) {
+            $dmfilter = " AND (".implode(" OR ", $dmfa['cat']).")";
+        }
+
+        $sql = "
 			SELECT
 				c.commentid as id,
 				c.contentid as ctid,
@@ -916,47 +922,51 @@ class BlogTopicQuery {
 			WHERE t.deldate = 0 AND catt.deldate=0 AND t.isdraft = 0 AND t.language='".bkstr(Abricos::$LNG)."'
 			ORDER BY dl DESC
 		";
-		return $db->query_read($sql);
-	}
-	
-	public static function TagUpdate(Ab_Database $db, $tags){
-		if (!is_array($tags) || count($tags) == 0){ return; }
-		$av = array();
-		for ($i=0;$i<count($tags);$i++){
-			$tag = $tags[$i];
-			array_push($av, "(
+        return $db->query_read($sql);
+    }
+
+    public static function TagUpdate(Ab_Database $db, $tags) {
+        if (!is_array($tags) || count($tags) == 0) {
+            return;
+        }
+        $av = array();
+        for ($i = 0; $i < count($tags); $i++) {
+            $tag = $tags[$i];
+            array_push($av, "(
 				'".bkstr($tag)."',
 				'".bkstr(translateruen($tag))."',
 				'".bkstr(Abricos::$LNG)."'
 			)");
-		}
-		
-		$sql = "
+        }
+
+        $sql = "
 			INSERT IGNORE INTO ".$db->prefix."bg_tag 
 			(title, name, language) VALUES
 			".implode(", ", $av)."	
 		";
-		$db->query_write($sql);
-	}
-	
-	public static function TopicTagUpdate(Ab_Database $db, $topicid, $tags){
+        $db->query_write($sql);
+    }
 
-		// зачистить все по топику
-		$sql = "
+    public static function TopicTagUpdate(Ab_Database $db, $topicid, $tags) {
+
+        // зачистить все по топику
+        $sql = "
 			DELETE FROM ".$db->prefix."bg_toptag
 			WHERE topicid=".bkint($topicid)."
 		";
-		$db->query_write($sql);
-		
-		if (!is_array($tags) || count($tags) == 0){ return; }
-		
-		$av = array();
-		for ($i=0;$i<count($tags);$i++){
-			array_push($av, "title='".bkstr($tags[$i])."'");
-		}
-		
-		// вставить новый список тегов
-		$sql = "
+        $db->query_write($sql);
+
+        if (!is_array($tags) || count($tags) == 0) {
+            return;
+        }
+
+        $av = array();
+        for ($i = 0; $i < count($tags); $i++) {
+            array_push($av, "title='".bkstr($tags[$i])."'");
+        }
+
+        // вставить новый список тегов
+        $sql = "
 			INSERT INTO ".$db->prefix."bg_toptag
 				(topicid, tagid)
 			SELECT 
@@ -965,17 +975,19 @@ class BlogTopicQuery {
 			FROM ".$db->prefix."bg_tag
 			WHERE (".implode(" OR ", $av).") AND language='".bkstr(Abricos::$LNG)."'
 		";
-		$db->query_write($sql);
-	}
-	
-	public static function TopicTagCountUpdate(Ab_Database $db, $tags){
-		if (!is_array($tags) || count($tags) == 0){ return; }
-		$av = array();
-		for ($i=0;$i<count($tags);$i++){
-			$tag = $tags[$i];
-			array_push($av, "t.title='".bkstr($tag)."'");
-		}
-		$sql = "
+        $db->query_write($sql);
+    }
+
+    public static function TopicTagCountUpdate(Ab_Database $db, $tags) {
+        if (!is_array($tags) || count($tags) == 0) {
+            return;
+        }
+        $av = array();
+        for ($i = 0; $i < count($tags); $i++) {
+            $tag = $tags[$i];
+            array_push($av, "t.title='".bkstr($tag)."'");
+        }
+        $sql = "
 			UPDATE ".$db->prefix."bg_tag t
 			SET topiccount=(
 				SELECT count(*)
@@ -985,15 +997,16 @@ class BlogTopicQuery {
 			)
 			WHERE (".implode(" OR ", $av).") AND language='".bkstr(Abricos::$LNG)."'
 		";
-		$db->query_write($sql);
-	}
-	
-	/**
-	 * Топик по которому есть рассылка уведомлений о том, что он опубликован
-	 * @param Ab_Database $db
-	 */
-	public static function SubscribeTopic(Ab_Database $db){
-		$sql = "
+        $db->query_write($sql);
+    }
+
+    /**
+     * Топик по которому есть рассылка уведомлений о том, что он опубликован
+     *
+     * @param Ab_Database $db
+     */
+    public static function SubscribeTopic(Ab_Database $db) {
+        $sql = "
 			SELECT 
 				t.topicid as id,
 				t.scblastuserid as sluid
@@ -1002,22 +1015,22 @@ class BlogTopicQuery {
 			WHERE t.isdraft=0 AND t.scbcomplete=0 AND t.isindex=1 AND t.catid>0 AND t.deldate=0 AND cat.deldate=0
 			LIMIT 1
 		";
-		return $db->query_first($sql);
-	}
-	
-	/**
-	 * Список подписчиков на блог которым еще не было отправлено письмо о новом топике
-	 * 
-	 * 
-	 * @param Ab_Database $db
-	 * @param integer $catid
-	 * @param integer $lastUserId
-	 * @param integer $limit
-	 */
-	public static function SubscribeUserList(Ab_Database $db, $catid, $lastUserId, $limit = 25){
-		$modAntibot = Abricos::GetModule('antibot');
-		
-		$sql = "
+        return $db->query_first($sql);
+    }
+
+    /**
+     * Список подписчиков на блог которым еще не было отправлено письмо о новом топике
+     *
+     *
+     * @param Ab_Database $db
+     * @param integer $catid
+     * @param integer $lastUserId
+     * @param integer $limit
+     */
+    public static function SubscribeUserList(Ab_Database $db, $catid, $lastUserId, $limit = 25) {
+        $modAntibot = Abricos::GetModule('antibot');
+
+        $sql = "
 			SELECT 
 				u.userid as id,
 				u.username as unm,
@@ -1039,68 +1052,69 @@ class BlogTopicQuery {
 			ORDER BY cur.userid
 			LIMIT ".bkint($limit)."
 		";
-		return $db->query_read($sql);
-	}
-	
-	/**
-	 * Обновить информацию о последнем пользователе которому было отправлено письмо по подписке
-	 * @param Ab_Database $db
-	 * @param integer $topicid
-	 * @param integer $lastUserid
-	 */
-	public static function SubscribeTopicUpdate(Ab_Database $db, $topicid, $lastUserid){
-		$sql = "
+        return $db->query_read($sql);
+    }
+
+    /**
+     * Обновить информацию о последнем пользователе которому было отправлено письмо по подписке
+     *
+     * @param Ab_Database $db
+     * @param integer $topicid
+     * @param integer $lastUserid
+     */
+    public static function SubscribeTopicUpdate(Ab_Database $db, $topicid, $lastUserid) {
+        $sql = "
 			UPDATE ".$db->prefix."bg_topic
 			SET scblastuserid=".bkint($lastUserid)."
 			WHERE topicid=".bkint($topicid)."
 			LIMIT 1
 		";
-		$db->query_write($sql);
-	}
-	
-	public static function SubscribeTopicComplete(Ab_Database $db, $topicid){
-		$sql = "
+        $db->query_write($sql);
+    }
+
+    public static function SubscribeTopicComplete(Ab_Database $db, $topicid) {
+        $sql = "
 			UPDATE ".$db->prefix."bg_topic
 			SET scbcomplete=1
 			WHERE topicid=".bkint($topicid)."
 			LIMIT 1
 		";
-		$db->query_write($sql);
-	}
-	
+        $db->query_write($sql);
+    }
 
-	public static function CategoryUserRoleByPubKey(Ab_Database $db, $userid, $pubkey){
-		$sql = "
+
+    public static function CategoryUserRoleByPubKey(Ab_Database $db, $userid, $pubkey) {
+        $sql = "
 			SELECT *
 			FROM ".$db->prefix."bg_catuserrole
 			WHERE userid=".bkint($userid)." AND pubkey='".bkstr($pubkey)."'
 			LIMIT 1
 		";
-		return $db->query_first($sql);
-	}
-	
-	
-	public static function UnSubscribeCategory(Ab_Database $db, $userid, $pubkey){
-		$sql = "
+        return $db->query_first($sql);
+    }
+
+
+    public static function UnSubscribeCategory(Ab_Database $db, $userid, $pubkey) {
+        $sql = "
 			UPDATE ".$db->prefix."bg_catuserrole
 			SET scboff=1
 			WHERE userid=".bkint($userid)." AND pubkey='".bkstr($pubkey)."'
 		";
-		$db->query_write($sql);
-	}
-	
-	public static function UnSunbscribeAllBlog(Ab_Database $db, $userid){
-		$sql = "
+        $db->query_write($sql);
+    }
+
+    public static function UnSunbscribeAllBlog(Ab_Database $db, $userid) {
+        $sql = "
 			INSERT IGNORE INTO ".$db->prefix."bg_scbunset
 			(userid, dateline) VALUES (
 				".bkint($userid).",
 				".TIMENOW."
 			)
 			";
-			$db->query_write($sql);
-			return $db->insert_id();
-	}
-		
+        $db->query_write($sql);
+        return $db->insert_id();
+    }
+
 }
 
 ?>

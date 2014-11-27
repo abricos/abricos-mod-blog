@@ -15,16 +15,16 @@ $pa = BlogModule::$instance->ParserAddress();
 $author = $pa->author;
 
 $brick->content = Brick::ReplaceVarByData($brick->content, array(
-	'uid' => $author->id,
-	'unm' => $author->GetUserName(),
-	'urlusr' => $author->URL(),
-	'topics' => $author->topicCount,
-	'avatar' => $author->Avatar90()
+    'uid' => $author->id,
+    'unm' => $author->GetUserName(),
+    'urlusr' => $author->URL(),
+    'topics' => $author->topicCount,
+    'avatar' => $author->Avatar90()
 ));
 
-if (!empty($pa->pageTitle)){
-	$meta_title = $pa->pageTitle." / ".SystemModule::$instance->GetPhrases()->Get('site_name');
-	Brick::$builder->SetGlobalVar('meta_title', $meta_title);
+if (!empty($pa->pageTitle)) {
+    $meta_title = $pa->pageTitle." / ".SystemModule::$instance->GetPhrases()->Get('site_name');
+    Brick::$builder->SetGlobalVar('meta_title', $meta_title);
 }
 
 ?>

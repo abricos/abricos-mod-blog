@@ -25,6 +25,7 @@ class BlogManager extends Ab_ModuleManager {
 
     /**
      * Конфиг
+     *
      * @var BlogConfig
      */
     public $config = null;
@@ -188,7 +189,7 @@ class BlogManager extends Ab_ModuleManager {
         $fType = isset($fa[0]) ? $fa[0] : '';
         $fPrm = isset($fa[1]) ? $fa[1] : '';
         if (isset($fa[2])) {
-            $fPrm .= "/".$fPrm;
+            $fPrm .= "/".$fa[2];
         }
         $total = 0;
         $totalNew = 0;
@@ -562,6 +563,7 @@ class BlogManager extends Ab_ModuleManager {
 
     /**
      * Генерация META заголовков для топиков, созданных предыдущей версии модуля
+     *
      * @param BlogTopic $topic
      */
     public function TopicMetaTagBuild(BlogTopic $topic) {
@@ -595,7 +597,6 @@ class BlogManager extends Ab_ModuleManager {
         if (!$this->IsViewRole()) {
             return null;
         }
-
 
         if (!empty($this->_categoryListCache)) {
             return $this->_categoryListCache;
@@ -831,6 +832,7 @@ class BlogManager extends Ab_ModuleManager {
 
     /**
      * Прямой эфир
+     *
      * @param object $cfg
      * @return BlogCommentLiveList
      */
@@ -1135,7 +1137,7 @@ class BlogManager extends Ab_ModuleManager {
                     Abricos::Notify()->SendMail($email, $subject, $body);
                 }
             }
-            if ($parent['userid'] == $topic->user->id) {
+            if ($parent['uid'] == $topic->user->id) {
                 // автору уже ушло уведомление, второе слать не имеет смысла
                 return;
             }
