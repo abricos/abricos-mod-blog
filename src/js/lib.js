@@ -8,7 +8,7 @@ Component.requires = {
     mod: [
         {name: 'uprofile', files: ['users.js']},
         {name: 'urating', files: ['vote.js']},
-        {name: 'widget', files: ['notice.js']}
+        {name: 'widget', files: ['notice.js', 'lib.js']}
     ]
 };
 Component.entryPoint = function(NS){
