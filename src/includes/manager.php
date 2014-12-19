@@ -1114,13 +1114,15 @@ class BlogManager extends Ab_ModuleManager {
         $host = $_SERVER['HTTP_HOST'] ? $_SERVER['HTTP_HOST'] : $_ENV['HTTP_HOST'];
         $tpLink = "http://".$host.$topic->URL();
 
+        $userManager = UserModule::$instance->GetManager();
+
         // уведомление "комментарий на комментарий"
         if ($data->pid > 0) {
 
             $parent = CommentQuery::Comment($this->db, $data->pid, $data->cid, true);
             if ($parent['uid'] != $this->userid) {
-                $user = UserQuery::User($this->db, $parent['uid']);
-                $email = $user['email'];
+                $user = $userManager->User($parent['uid']);
+                $email = $user->email;
                 if (!empty($email)) {
                     $subject = Brick::ReplaceVarByData($brick->param->var['cmtemlsubject'], array(
                         "tl" => $topic->title
@@ -1129,7 +1131,7 @@ class BlogManager extends Ab_ModuleManager {
                         "email" => $email,
                         "tpclnk" => $tpLink,
                         "tl" => $topic->title,
-                        "unm" => $this->user->info['username'],
+                        "unm" => Abricos::$user->FullName(),
                         "cmt1" => $parent['bd'],
                         "cmt2" => $data->bd,
                         "sitename" => SystemModule::$instance->GetPhrases()->Get('site_name')
@@ -1148,8 +1150,8 @@ class BlogManager extends Ab_ModuleManager {
             // свой комментарий в уведомление не нуждается
             return;
         }
-        $autor = UserQuery::User($this->db, $topic->user->id);
-        $email = $autor['email'];
+        $autor = $userManager->User($topic->user->id);
+        $email = $autor->email;
         if (!empty($email)) {
             $subject = Brick::ReplaceVarByData($brick->param->var['cmtemlautorsubject'], array(
                 "tl" => $topic->title
@@ -1158,7 +1160,7 @@ class BlogManager extends Ab_ModuleManager {
                 "email" => $email,
                 "tpclnk" => $tpLink,
                 "tl" => $topic->title,
-                "unm" => $this->user->info['username'],
+                "unm" => Abricos::$user->FullName(),
                 "cmt" => $data->bd,
                 "sitename" => SystemModule::$instance->GetPhrases()->Get('site_name')
             ));
