@@ -2,7 +2,8 @@
 /**
  * @package Abricos
  * @subpackage Blog
- * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
+ * @copyright 2008-2015 Alexander Kuzmin
+ * @license http://opensource.org/licenses/mit-license.php MIT License
  * @author Alexander Kuzmin <roosit@abricos.org>
  */
 
@@ -16,29 +17,29 @@ $pa = BlogModule::$instance->ParserAddress();
 
 $lst = "";
 $topics = $pa->topicList;
-if (empty($topics)) {
+if (empty($topics)){
     $brick->content = "";
     return;
 }
 $modSocialist = Abricos::GetModule('socialist');
-if (!empty($modSocialist)) {
+if (!empty($modSocialist)){
     $modSocialist->GetManager();
 }
 
 $count = $topics->Count();
 
-if (BlogManager::$isURating) {
+if (BlogManager::$isURating){
     Abricos::GetModule('urating')->GetManager();
     $voteBuilder = new URatingBuilder("blog", "topic", "topic.vote.error");
 }
 
-for ($i = 0; $i < $count; $i++) {
+for ($i = 0; $i < $count; $i++){
 
     $topic = $topics->GetByIndex($i);
     $cat = $topic->Category();
 
     $vote = "";
-    if (BlogManager::$isURating) {
+    if (BlogManager::$isURating){
         $vote = $voteBuilder->BuildVote(array(
             "elid" => $topic->id,
             "vote" => $topic->voteMy,
@@ -46,7 +47,7 @@ for ($i = 0; $i < $count; $i++) {
         ));
     }
     $soclinetpl = "";
-    if (!empty($modSocialist)) {
+    if (!empty($modSocialist)){
         $soclinetpl = SocialistManager::$instance->LikeLineHTML(array(
             "uri" => $topic->URL(),
             "title" => $topic->title
@@ -54,7 +55,7 @@ for ($i = 0; $i < $count; $i++) {
     }
 
     $atags = array();
-    for ($ti = 0; $ti < count($topic->tags); $ti++) {
+    for ($ti = 0; $ti < count($topic->tags); $ti++){
         array_push($atags, Brick::ReplaceVarByData($v['tagrow'], array(
             "tl" => $topic->tags[$ti]->title,
             "url" => $topic->tags[$ti]->URL()
@@ -87,7 +88,7 @@ for ($i = 0; $i < $count; $i++) {
 }
 
 $voteJSMan = "";
-if (BlogManager::$isURating) {
+if (BlogManager::$isURating){
     $voteJSMan = $voteBuilder->BuildJSMan();
 }
 
@@ -105,7 +106,7 @@ Brick::$builder->LoadBrickS('sitemap', 'paginator', $brick, array(
     )
 ));
 
-if (!empty($pa->pageTitle)) {
+if (!empty($pa->pageTitle)){
     $meta_title = $pa->pageTitle." / ".SystemModule::$instance->GetPhrases()->Get('site_name');
     Brick::$builder->SetGlobalVar('meta_title', $meta_title);
 }

@@ -2,7 +2,8 @@
 /**
  * @package Abricos
  * @subpackage Blog
- * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
+ * @copyright 2008-2015 Alexander Kuzmin
+ * @license http://opensource.org/licenses/mit-license.php MIT License
  * @author Alexander Kuzmin <roosit@abricos.org>
  */
 
@@ -11,7 +12,7 @@ $query = Abricos::CleanGPC('p', 'query', TYPE_STR);
 
 header('Content-type: text/plain');
 $tags = $man->TagListByLikeQuery($query);
-for ($i = 0; $i < count($tags); $i++) {
+for ($i = 0; $i < count($tags); $i++){
     print ($tags[$i]."\n");
 }
 exit;

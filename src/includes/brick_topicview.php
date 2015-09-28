@@ -2,7 +2,8 @@
 /**
  * @package Abricos
  * @subpackage Blog
- * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
+ * @copyright 2008-2015 Alexander Kuzmin
+ * @license http://opensource.org/licenses/mit-license.php MIT License
  * @author Alexander Kuzmin <roosit@abricos.org>
  */
 
@@ -14,7 +15,7 @@ $man = BlogModule::$instance->GetManager();
 
 $pa = BlogModule::$instance->ParserAddress();
 
-if (empty($pa->topic)) {
+if (empty($pa->topic)){
     $brick->content = "";
     return;
 }
@@ -24,7 +25,7 @@ $cat = $topic->Category();
 
 $vote = "";
 $voteJSMan = "";
-if (BlogManager::$isURating) {
+if (BlogManager::$isURating){
     Abricos::GetModule('urating')->GetManager();
     $voteBuilder = new URatingBuilder("blog", "topic", "topic.vote.error");
     $vote = $voteBuilder->BuildVote(array(
@@ -36,11 +37,11 @@ if (BlogManager::$isURating) {
 }
 
 $modSocialist = Abricos::GetModule('socialist');
-if (!empty($modSocialist)) {
+if (!empty($modSocialist)){
     $modSocialist->GetManager();
 }
 $soclinetpl = "";
-if (!empty($modSocialist)) {
+if (!empty($modSocialist)){
     $soclinetpl = SocialistManager::$instance->LikeLineHTML(array(
         "uri" => $topic->URL(),
         "title" => $topic->title
@@ -48,7 +49,7 @@ if (!empty($modSocialist)) {
 }
 
 $atags = array();
-for ($ti = 0; $ti < count($topic->tags); $ti++) {
+for ($ti = 0; $ti < count($topic->tags); $ti++){
     array_push($atags, Brick::ReplaceVarByData($v['tagrow'], array(
         "tl" => $topic->tags[$ti]->title,
         "url" => $topic->tags[$ti]->URL()

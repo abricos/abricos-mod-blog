@@ -2,7 +2,8 @@
 /**
  * @package Abricos
  * @subpackage Blog
- * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
+ * @copyright 2008-2015 Alexander Kuzmin
+ * @license http://opensource.org/licenses/mit-license.php MIT License
  * @author Alexander Kuzmin <roosit@abricos.org>
  */
 
@@ -17,18 +18,18 @@ $userid = $pa->usbUserId;
 $pubkey = $pa->usbKey;
 
 $info = BlogTopicQuery::CategoryUserRoleByPubKey(Abricos::$db, $userid, $pubkey);
-if (empty($info)) {
+if (empty($info)){
     sleep(1);
     return;
 }
 
 $v = &$brick->param->var;
 
-if (empty($info)) {
+if (empty($info)){
     $v['result'] = $v['errid'];
 } else {
 
-    if ($pa->usbCatId == 'all') {
+    if ($pa->usbCatId == 'all'){
         $v['result'] = $v['unsetall'];
         BlogTopicQuery::UnSunbscribeAllBlog(Abricos::$db, $userid);
     } else {
@@ -41,8 +42,6 @@ if (empty($info)) {
         BlogTopicQuery::UnSubscribeCategory(Abricos::$db, $userid, $pubkey);
     }
 }
-
-
 
 
 ?>

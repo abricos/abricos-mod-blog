@@ -2,7 +2,8 @@
 /**
  * @package Abricos
  * @subpackage Blog
- * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
+ * @copyright 2008-2015 Alexander Kuzmin
+ * @license http://opensource.org/licenses/mit-license.php MIT License
  * @author Alexander Kuzmin <roosit@abricos.org>
  */
 
@@ -11,13 +12,13 @@ $man = BlogModule::$instance->GetManager();
 
 $lst = "";
 $topics = $man->TopicList(array("limit" => 5));
-if (empty($topics)) {
+if (empty($topics)){
     $brick->content = "";
     return;
 }
 
 $count = $topics->Count();
-for ($i = 0; $i < $count; $i++) {
+for ($i = 0; $i < $count; $i++){
     $topic = $topics->GetByIndex($i);
     $cat = $topic->Category();
 
@@ -29,7 +30,7 @@ for ($i = 0; $i < $count; $i++) {
     ));
 }
 
-if (empty($lst)) {
+if (empty($lst)){
     $brick->content = "";
     return;
 }

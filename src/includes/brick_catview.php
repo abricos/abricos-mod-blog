@@ -2,7 +2,8 @@
 /**
  * @package Abricos
  * @subpackage Blog
- * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
+ * @copyright 2008-2015 Alexander Kuzmin
+ * @license http://opensource.org/licenses/mit-license.php MIT License
  * @author Alexander Kuzmin <roosit@abricos.org>
  */
 
@@ -17,7 +18,7 @@ $isNew = isset($f[2]) && $f[2] == 'new';
 
 $cats = $man->CategoryList();
 
-if (BlogManager::$isURating) {
+if (BlogManager::$isURating){
     Abricos::GetModule('urating')->GetManager();
 }
 
@@ -27,7 +28,7 @@ $cat = $cats->GetByName($dir[1]);
 
 $vote = "";
 $voteJSMan = "";
-if (BlogManager::$isURating) {
+if (BlogManager::$isURating){
     Abricos::GetModule('urating')->GetManager();
     $voteBuilder = new URatingBuilder("blog", "cat", "cat.vote.error");
     $vote = $voteBuilder->BuildVote(array(

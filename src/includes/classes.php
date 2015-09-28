@@ -2,7 +2,8 @@
 /**
  * @package Abricos
  * @subpackage Blog
- * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
+ * @copyright 2008-2015 Alexander Kuzmin
+ * @license http://opensource.org/licenses/mit-license.php MIT License
  * @author Alexander Kuzmin <roosit@abricos.org>
  */
 
@@ -45,26 +46,26 @@ class BlogConfig {
      */
     public $categoryCreateRating = 5;
 
-    public function __construct($cfg) {
+    public function __construct($cfg){
         BlogConfig::$instance = $this;
 
-        if (empty($cfg)) {
+        if (empty($cfg)){
             $cfg = array();
         }
 
-        if (isset($cfg['subscribeSendLimit'])) {
+        if (isset($cfg['subscribeSendLimit'])){
             $this->subscribeSendLimit = intval($cfg['subscribeSendLimit']);
         }
 
-        if (isset($cfg['topicIndexRating'])) {
+        if (isset($cfg['topicIndexRating'])){
             $this->topicIndexRating = intval($cfg['topicIndexRating']);
         }
 
-        if (isset($cfg['domainFilter'])) {
+        if (isset($cfg['domainFilter'])){
             $this->domainFilter = trim($cfg['domainFilter']);
         }
 
-        if (isset($cfg['categoryCreateRating'])) {
+        if (isset($cfg['categoryCreateRating'])){
             $this->categoryCreateRating = intval($cfg['categoryCreateRating']);
         }
     }
@@ -190,7 +191,7 @@ class BlogTopicInfo {
     public $voteMy;
 
 
-    public function __construct($d) {
+    public function __construct($d){
         $this->id = intval($d['id']);
         $this->catid = intval($d['catid']);
 
@@ -209,15 +210,15 @@ class BlogTopicInfo {
         $this->voteCount = intval($d['vcnt']);
         $this->voteMy = isset($d['vmy']) ? intval($d['vmy']) : "";
 
-        if ($this->user->id == Abricos::$user->id) {
+        if ($this->user->id == Abricos::$user->id){
             $this->voteMy = 0;
         }
 
-        if (!is_null($this->voteMy) || !$this->IsVotingPeriod()) {
+        if (!is_null($this->voteMy) || !$this->IsVotingPeriod()){
             $this->rating = intval($d['rtg']);
 
             // показать значение, значит запретить голосовать
-            if (is_null($this->voteMy)) {
+            if (is_null($this->voteMy)){
                 $this->voteMy = 0;
             }
         } else {
@@ -229,27 +230,27 @@ class BlogTopicInfo {
     /**
      * Можно ли еще голосовать за топик
      */
-    public function IsVotingPeriod() {
+    public function IsVotingPeriod(){
         return $this->publicDate > TIMENOW - 60 * 60 * 24 * 31;
     }
 
     /**
      * @return BlogCategory
      */
-    public function Category() {
-        if ($this->catid == 0) {
+    public function Category(){
+        if ($this->catid == 0){
             return new BlogPersonalCategory($this->user);
         }
         $cats = BlogManager::$instance->CategoryList();
         return $cats->Get($this->catid);
     }
 
-    public function URL() {
+    public function URL(){
         $cat = $this->Category();
         return $cat->URL().$this->id."/";
     }
 
-    public function ToAJAX() {
+    public function ToAJAX(){
         $ret = new stdClass();
         $ret->id = $this->id;
         $ret->catid = $this->catid;
@@ -263,7 +264,7 @@ class BlogTopicInfo {
         $ret->dft = $this->isDraft ? 1 : 0;
         $ret->idx = $this->isIndex ? 1 : 0;
 
-        if (BlogManager::$instance->IsAdminRole()) {
+        if (BlogManager::$instance->IsAdminRole()){
             $ret->aidx = $this->isAutoIndex ? 1 : 0;
         }
 
@@ -274,7 +275,7 @@ class BlogTopicInfo {
         $ret->vmy = $this->voteMy;
 
         $ret->tags = array();
-        for ($i = 0; $i < count($this->tags); $i++) {
+        for ($i = 0; $i < count($this->tags); $i++){
             array_push($ret->tags, $this->tags[$i]->ToAJAX());
         }
         return $ret;
@@ -291,14 +292,14 @@ class BlogTopic extends BlogTopicInfo {
     public $metakeys;
     public $metadesc;
 
-    public function __construct($d) {
+    public function __construct($d){
         parent::__construct($d);
         $this->body = strval($d['bd']);
         $this->metakeys = strval($d['mtks']);
         $this->metadesc = strval($d['mtdsc']);
     }
 
-    public function ToAJAX() {
+    public function ToAJAX(){
         $ret = parent::ToAJAX();
         $ret->bd = $this->body;
         return $ret;
@@ -323,16 +324,16 @@ class BlogTopicList {
      */
     public $totalNew;
 
-    public function __construct($list, $total = 0, $totalNew = 0) {
+    public function __construct($list, $total = 0, $totalNew = 0){
         $this->list = $list;
         $this->total = $total;
         $this->totalNew = $totalNew;
     }
 
-    public function ToAJAX() {
+    public function ToAJAX(){
         $ret = new stdClass();
         $list = array();
-        for ($i = 0; $i < count($this->list); $i++) {
+        for ($i = 0; $i < count($this->list); $i++){
             array_push($list, $this->list[$i]->ToAJAX());
         }
         $ret->topics = new stdClass();
@@ -343,7 +344,7 @@ class BlogTopicList {
         return $ret;
     }
 
-    public function Count() {
+    public function Count(){
         return count($this->list);
     }
 
@@ -351,7 +352,7 @@ class BlogTopicList {
      * @param integer $index
      * @return BlogTopic
      */
-    public function GetByIndex($index) {
+    public function GetByIndex($index){
         return $this->list[$index];
     }
 }
@@ -363,7 +364,7 @@ class BlogUser {
     public $firstName;
     public $lastName;
 
-    public function __construct($d) {
+    public function __construct($d){
         $this->id = intval(intval($d['uid']) > 0 ? $d['uid'] : $d['id']);
         $this->userName = strval($d['unm']);
         $this->avatar = strval($d['avt']);
@@ -371,7 +372,7 @@ class BlogUser {
         $this->lastName = strval($d['lnm']);
     }
 
-    public function ToAJAX() {
+    public function ToAJAX(){
         $ret = new stdClass();
         $ret->id = $this->id;
         $ret->unm = $this->userName;
@@ -381,33 +382,33 @@ class BlogUser {
         return $ret;
     }
 
-    public function GetUserName() {
-        if (!empty($this->firstName) && !empty($this->lastName)) {
+    public function GetUserName(){
+        if (!empty($this->firstName) && !empty($this->lastName)){
             return $this->firstName." ".$this->lastName;
         }
         return $this->userName;
     }
 
-    public function URL() {
+    public function URL(){
         $mod = Abricos::GetModule('uprofile');
-        if (empty($mod)) {
+        if (empty($mod)){
             return "#";
         }
         return '/uprofile/#app=uprofile/ws/showws/'.$this->id.'/';
     }
 
-    private function Avatar($size) {
+    private function Avatar($size){
         $url = empty($this->avatar) ?
             '/modules/uprofile/images/nofoto'.$size.'.gif' :
             '/filemanager/i/'.$this->avatar.'/w_'.$size.'-h_'.$size.'/avatar.gif';
         return '<img src="'.$url.'">';
     }
 
-    public function Avatar24() {
+    public function Avatar24(){
         return $this->Avatar(24);
     }
 
-    public function Avatar90() {
+    public function Avatar90(){
         return $this->Avatar(90);
     }
 }
@@ -418,14 +419,14 @@ class BlogAuthor extends BlogUser {
     public $reputation;
     public $rating;
 
-    public function __construct($d) {
+    public function __construct($d){
         parent::__construct($d);
         $this->topicCount = $d['tcnt'] * 1;
         $this->reputation = $d['rep'] * 1;
         $this->rating = $d['rtg'] * 1;
     }
 
-    public function ToAJAX() {
+    public function ToAJAX(){
         $ret = parent::ToAJAX();
         $ret->tcnt = $this->topicCount;
         $ret->rep = $this->reputation;
@@ -438,14 +439,14 @@ class BlogAuthorList {
 
     public $list;
 
-    public function __construct($list) {
+    public function __construct($list){
         $this->list = $list;
     }
 
-    public function ToAJAX() {
+    public function ToAJAX(){
         $ret = new stdClass();
         $ret->authors = array();
-        for ($i = 0; $i < count($this->list); $i++) {
+        for ($i = 0; $i < count($this->list); $i++){
             array_push($ret->authors, $this->list[$i]->ToAJAX());
         }
         return $ret;
@@ -459,7 +460,7 @@ class BlogTopicTag {
     public $name;
     public $topicCount;
 
-    public function __construct($d) {
+    public function __construct($d){
         $d = array_merge(array(
             'id' => 0,
             'tl' => '',
@@ -473,27 +474,27 @@ class BlogTopicTag {
         $this->topicCount = intval($d['cnt']);
     }
 
-    public function ToAJAX() {
+    public function ToAJAX(){
         $ret = new stdClass();
         $ret->id = $this->id;
         $ret->tl = $this->title;
         $ret->nm = $this->name;
-        if ($this->topicCount > 0) {
+        if ($this->topicCount > 0){
             $ret->cnt = $this->topicCount;
         }
         return $ret;
     }
 
-    public function URL() {
+    public function URL(){
         return "/blog/tag/".$this->title."/";
     }
 }
 
-function BlogTopicTag_sortByTitle(BlogTopicTag $t1, BlogTopicTag $t2) {
-    if ($t1->title < $t2->title) {
+function BlogTopicTag_sortByTitle(BlogTopicTag $t1, BlogTopicTag $t2){
+    if ($t1->title < $t2->title){
         return -1;
     }
-    if ($t1->title > $t2->title) {
+    if ($t1->title > $t2->title){
         return 1;
     }
     return 0;
@@ -504,15 +505,15 @@ class BlogTopicTagList {
 
     private $list;
 
-    public function __construct($list) {
+    public function __construct($list){
         $this->list = $list;
     }
 
-    public function Count() {
+    public function Count(){
         return count($this->list);
     }
 
-    public function SortByTitle() {
+    public function SortByTitle(){
         usort($this->list, "BlogTopicTag_sortByTitle");
     }
 
@@ -520,14 +521,14 @@ class BlogTopicTagList {
      * @param integer $index
      * @return BlogTopicTag
      */
-    public function GetByIndex($index) {
+    public function GetByIndex($index){
         return $this->list[$index];
     }
 
-    public function ToAJAX() {
+    public function ToAJAX(){
         $ret = new stdClass();
         $ret->tags = array();
-        for ($i = 0; $i < count($this->list); $i++) {
+        for ($i = 0; $i < count($this->list); $i++){
             array_push($ret->tags, $this->list[$i]->ToAJAX());
         }
         return $ret;
@@ -636,7 +637,7 @@ class BlogCategory {
      */
     public $voteMy;
 
-    public function __construct($d) {
+    public function __construct($d){
         $this->id = intval($d['id']);
         $this->title = $d['tl'];
         $this->name = $d['nm'];
@@ -654,7 +655,7 @@ class BlogCategory {
         $this->voteMy = isset($d['vmy']) ? intval($d['vmy']) : 0;
     }
 
-    public function ToAJAX() {
+    public function ToAJAX(){
         $ret = new stdClass();
         $ret->id = $this->id;
         $ret->tl = $this->title;
@@ -675,18 +676,18 @@ class BlogCategory {
         return $ret;
     }
 
-    public function IsTopicWrite() {
+    public function IsTopicWrite(){
         return $this->IsAdmin() || $this->isMemberFlag || $this->isModerFlag;
     }
 
-    public function IsAdmin() {
-        if (BlogManager::$instance->IsAdminRole()) {
+    public function IsAdmin(){
+        if (BlogManager::$instance->IsAdminRole()){
             return true;
         }
         return $this->isAdminFlag;
     }
 
-    public function URL() {
+    public function URL(){
         return "/blog/".$this->name."/";
     }
 }
@@ -700,7 +701,7 @@ class BlogPersonalCategory {
      */
     public $user;
 
-    public function __construct(BlogUser $user) {
+    public function __construct(BlogUser $user){
         $this->user = $user;
         $i18n = BlogModule::$instance->GetI18n();
 
@@ -708,7 +709,7 @@ class BlogPersonalCategory {
             str_replace("{v#unm}", $user->userName, $i18n['catperson']);
     }
 
-    public function URL() {
+    public function URL(){
         return "/blog/author/".$this->user->userName."/";
     }
 }
@@ -719,17 +720,17 @@ class BlogCategoryList {
     private $map;
     private $mapn;
 
-    public function __construct($list) {
+    public function __construct($list){
         $this->list = $list;
         $this->map = array();
         $this->mapn = array();
-        for ($i = 0; $i < count($list); $i++) {
+        for ($i = 0; $i < count($list); $i++){
             $this->map[$list[$i]->id] = $i;
             $this->mapn[$list[$i]->name] = $i;
         }
     }
 
-    public function Count() {
+    public function Count(){
         return count($this->list);
     }
 
@@ -737,7 +738,7 @@ class BlogCategoryList {
      * @param integer $id
      * @return BlogCategory
      */
-    public function Get($id) {
+    public function Get($id){
         $index = $this->map[$id];
         return $this->GetByIndex($index);
     }
@@ -746,7 +747,7 @@ class BlogCategoryList {
      * @param integer $index
      * @return BlogCategory
      */
-    public function GetByIndex($index) {
+    public function GetByIndex($index){
         return $this->list[$index];
     }
 
@@ -754,15 +755,15 @@ class BlogCategoryList {
      * @param string $name
      * @return BlogCategory
      */
-    public function GetByName($name) {
+    public function GetByName($name){
         $index = $this->mapn[$name];
         return $this->GetByIndex($index);
     }
 
-    public function ToAJAX() {
+    public function ToAJAX(){
         $ret = new stdClass();
         $ret->categories = array();
-        for ($i = 0; $i < count($this->list); $i++) {
+        for ($i = 0; $i < count($this->list); $i++){
             array_push($ret->categories, $this->list[$i]->ToAJAX());
         }
         return $ret;
@@ -790,7 +791,7 @@ class BlogCommentLive {
      */
     public $topic;
 
-    public function __construct($d) {
+    public function __construct($d){
         $this->id = $d['id'];
         $this->topicid = $d['tid'];
         $this->body = $d['body'];
@@ -798,7 +799,7 @@ class BlogCommentLive {
         $this->user = new BlogUser($d);
     }
 
-    public function ToAJAX() {
+    public function ToAJAX(){
         $ret = new stdClass();
         $ret->id = $this->id;
         $ret->bd = $this->body;
@@ -813,20 +814,20 @@ class BlogCommentLiveList {
 
     public $list;
 
-    public function __construct($list) {
+    public function __construct($list){
         $this->list = $list;
     }
 
-    public function ToAJAX() {
+    public function ToAJAX(){
         $ret = new stdClass();
         $ret->comments = array();
-        for ($i = 0; $i < count($this->list); $i++) {
+        for ($i = 0; $i < count($this->list); $i++){
             array_push($ret->comments, $this->list[$i]->ToAJAX());
         }
         return $ret;
     }
 
-    public function Count() {
+    public function Count(){
         return count($this->list);
     }
 
@@ -834,7 +835,7 @@ class BlogCommentLiveList {
      * @param integer $index
      * @return BlogCommentLive
      */
-    public function GetByIndex($index) {
+    public function GetByIndex($index){
         return $this->list[$index];
     }
 }

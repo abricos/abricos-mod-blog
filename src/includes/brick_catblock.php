@@ -2,7 +2,8 @@
 /**
  * @package Abricos
  * @subpackage Blog
- * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
+ * @copyright 2008-2015 Alexander Kuzmin
+ * @license http://opensource.org/licenses/mit-license.php MIT License
  * @author Alexander Kuzmin <roosit@abricos.org>
  */
 
@@ -12,7 +13,7 @@ $man = BlogModule::$instance->GetManager();
 
 $cats = $man->CategoryList();
 
-if (empty($cats)) {
+if (empty($cats)){
     $brick->content = "";
     return;
 }
@@ -20,7 +21,7 @@ if (empty($cats)) {
 $count = min($cats->Count(), 10);
 
 $lst = "";
-for ($i = 0; $i < $count; $i++) {
+for ($i = 0; $i < $count; $i++){
     $cat = $cats->GetByIndex($i);
 
     $lst .= Brick::ReplaceVarByData($v['row'], array(
@@ -31,7 +32,7 @@ for ($i = 0; $i < $count; $i++) {
 }
 
 
-if (empty($lst)) {
+if (empty($lst)){
     $brick->content = "";
     return;
 }
