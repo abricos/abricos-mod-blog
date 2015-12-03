@@ -8,6 +8,10 @@ Component.requires = {
 };
 Component.entryPoint = function(NS){
 
+    var Y = Brick.YUI,
+        COMPONENT = this,
+        SYS = Brick.mod.sys;
+
     var Dom = YAHOO.util.Dom, L = YAHOO.lang,
         buildTemplate = this.buildTemplate,
         NSUR = Brick.mod.urating || {},
@@ -172,10 +176,10 @@ Component.entryPoint = function(NS){
             }
         },
         onLoad: function(topicid){
-            var __self = this;
+            var instance = this;
             NS.initManager(function(){
                 NS.manager.topicLoad(topicid, function(topic){
-                    __self.renderTopic(topic);
+                    instance.renderTopic(topic);
                 });
             });
         },
@@ -218,6 +222,7 @@ Component.entryPoint = function(NS){
     NS.TopicViewWidget = TopicViewWidget;
 
     var TopicListWidget = function(container){
+
         var args = arguments, cfg = {};
 
         if (L.isObject(args[1])){
@@ -253,10 +258,10 @@ Component.entryPoint = function(NS){
             this.next = null;
         },
         onLoad: function(cfg){
-            var __self = this;
+            var instance = this;
             NS.initManager(function(){
                 NS.manager.topicListLoad(cfg, function(list){
-                    __self.onLoadManager(list);
+                    instance.onLoadManager(list);
                 });
             });
         },
@@ -281,7 +286,7 @@ Component.entryPoint = function(NS){
                 return;
             }
 
-            var __self = this, cfg = this.cfg;
+            var instance = this, cfg = this.cfg;
             this.next = new NS.NextWidget(this.gel('next'), {
                 'limit': list.limit,
                 'loaded': list.count(),
@@ -294,7 +299,7 @@ Component.entryPoint = function(NS){
                             'loaded': nlist.count(),
                             'total': nlist.total,
                         });
-                        __self.renderList(nlist);
+                        instance.renderList(nlist);
                     });
                 }
             });
@@ -325,6 +330,75 @@ Component.entryPoint = function(NS){
     });
     NS.TopicListWidget = TopicListWidget;
 
+    NS.TopicHomeListWidget = Y.Base.create('topicViewWidget', SYS.AppWidget, [], {
+
+        buildTData: function(){
+            // var NGT = NS.navigator.topic;
+            return {
+                /*
+                 'url': NGT.list(),
+                 'urlnew': NGT.list('new'),
+                 'urlpub': NGT.list('pub'),
+                 'urlpubnew': NGT.list('pub', 'new'),
+                 'urlpers': NGT.list('pers'),
+                 'urlpersnew': NGT.list('pers', 'new')
+                 /**/
+            };
+        },
+        onInitAppWidget: function(err, appInstance){
+            var instance = this,
+                cfg = {},
+                f1 = cfg['f1'], f2 = cfg['f2'],
+                filter = f1 + "/" + f2;
+
+            if (f1 == '' && f2 == 'new'){
+                filter = 'new';
+            }
+            var tp = this.template;
+
+            this.listWidget = new NS.TopicListWidget(tp.gel('list'), {
+                filter: filter,
+                onLoadCallback: function(list){
+                    instance.onLoadTopics(list);
+                }
+            });
+        },
+        onLoadTopics: function(list){
+
+            var tp = this.template;
+
+            tp.hide('loading');
+            tp.show('view');
+
+            var cfg = this.cfg || {};
+
+            tp.show('sm' + cfg['f1']);
+
+            tp.addClass('smi' + cfg['f1'] + cfg['f2'], 'sel');
+
+            var sn = "";
+            if (list.totalNew > 0){
+                sn = "+" + list.totalNew;
+            }
+
+            tp.setHTML('smi' + cfg['f1'] + 'newb', sn);
+        }
+    }, {
+        ATTRS: {
+            component: {value: COMPONENT},
+            templateBlockName: {value: 'homelist'},
+        },
+        CLICKS: {},
+        parseURLParam: function(args){
+            return {
+                // topicid: args[0] | 0
+            };
+        }
+    });
+
+    // TODO: remove old functions
+    return; /////////////////////////////////////////////////
+
     var TopicHomeListWidget = function(container, f1, f2){
         if (f1 == 'new'){
             f1 = '';
@@ -333,7 +407,7 @@ Component.entryPoint = function(NS){
         var cfg = {'f1': f1 || '', 'f2': f2 || ''};
 
         TopicHomeListWidget.superclass.constructor.call(this, container, {
-            'buildTemplate': buildTemplate, 'tnames': 'homelist'
+            'buildTemplate': buildTemplate, 'tnames': ''
         }, cfg);
     };
     YAHOO.extend(TopicHomeListWidget, Brick.mod.widget.Widget, {
@@ -343,49 +417,6 @@ Component.entryPoint = function(NS){
             // использует wspace.js
             this.wsMenuItem = cfg['f1'] == '' ? 'all' : cfg['f1'];
         },
-        buildTData: function(cfg){
-            var NGT = NS.navigator.topic;
-            return {
-                'url': NGT.list(),
-                'urlnew': NGT.list('new'),
-                'urlpub': NGT.list('pub'),
-                'urlpubnew': NGT.list('pub', 'new'),
-                'urlpers': NGT.list('pers'),
-                'urlpersnew': NGT.list('pers', 'new')
-            };
-        },
-        onLoad: function(cfg){
-            var __self = this, f1 = cfg['f1'], f2 = cfg['f2'];
-            var filter = f1 + "/" + f2;
-            if (f1 == '' && f2 == 'new'){
-                filter = 'new';
-            }
-
-            this.listWidget = new NS.TopicListWidget(this.gel('list'), {
-                'filter': filter,
-                'onLoadCallback': function(list){
-                    __self.onLoadTopics(list);
-                }
-            });
-        },
-        onLoadTopics: function(list){
-            this.elHide('loading');
-            this.elShow('view');
-
-
-            var cfg = this.cfg;
-
-            this.elShow('sm' + cfg['f1']);
-
-            Dom.addClass(this.gel('smi' + cfg['f1'] + cfg['f2']), 'sel');
-
-            var sn = "";
-            if (list.totalNew > 0){
-                sn = "+" + list.totalNew;
-            }
-
-            this.elSetHTML('smi' + cfg['f1'] + 'newb', sn);
-        }
     });
     NS.TopicHomeListWidget = TopicHomeListWidget;
 

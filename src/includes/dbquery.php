@@ -54,12 +54,6 @@ class BlogTopicQuery {
 			u.avatar as avt,
 			u.firstname as fnm,
 			u.lastname as lnm,
-			(
-				SELECT count(cm.contentid) as cnt
-				FROM ".$db->prefix."cmt_comment cm
-				WHERE t.contentid = cm.contentid
-				GROUP by cm.contentid
-			) as cmt,
 			t.isdraft as dft,
 			t.isindex as idx,
 			t.autoindex as aidx,
@@ -885,7 +879,7 @@ class BlogTopicQuery {
     }
 
     public static function CommentLiveList(Ab_Database $db, $page, $limit){
-
+        return null; // TODO: release
         $dmfilter = "";
         $dmfa = BlogTopicQuery::DomainFilterSQLExt();
         if (!empty($dmfa)){

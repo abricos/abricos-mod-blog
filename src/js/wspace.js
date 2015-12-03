@@ -153,41 +153,39 @@ Component.entryPoint = function(NS){
     });
     NS.WSWidget = WSWidget;
 
+    var Y = Brick.YUI,
+        COMPONENT = this,
+        SYS = Brick.mod.sys;
 
-    var WSPanel = function(pgInfo){
-        this.pgInfo = pgInfo || [];
+    NS.WorkspaceWidget = Y.Base.create('workspaceWidget', SYS.AppWidget, [
+        SYS.AppWorkspace
+    ], {
+        onInitAppWorkspace: function(err, appInstance){
+            var tp = this.template;
+            this.cmtLiveWidget = new NS.CommentLiveBoxWidget(tp.gel('commentLive'));
+            this.tagListWidget = new NS.TagListBoxWidget(tp.gel('tagList'));
+            this.catListWidget = new NS.CategoryListBoxWidget(tp.gel('categoryList'));
 
-        WSPanel.superclass.constructor.call(this, {
-            fixedcenter: true, width: '790px', height: '400px'
-        });
-    };
-    YAHOO.extend(WSPanel, Brick.widget.Panel, {
-        initTemplate: function(){
-            return buildTemplate(this, 'panel').replace('panel');
         },
-        onLoad: function(){
-            this.widget = new NS.WSWidget(this._TM.getEl('panel.widget'), this.pgInfo);
-        },
-        showPage: function(p){
-            this.widget.showPage(p);
+        destroy: function(){
+            if (this.cmtLiveWidget){
+                this.cmtLiveWidget.destroy();
+                this.tagListWidget.destroy();
+                this.catListWidget.destroy();
+            }
+        }
+    }, {
+        ATTRS: {
+            component: {value: COMPONENT},
+            templateBlockName: {value: 'widget'},
+            defaultPage: {
+                value: {
+                    component: 'topic',
+                    widget: 'TopicHomeListWidget'
+                }
+            }
         }
     });
-    NS.WSPanel = WSPanel;
 
-    var activeWSPanel = null;
-    NS.API.ws = function(){
-        var args = arguments;
-        var pgInfo = {
-            'component': args[0] || 'topic',
-            'wname': args[1] || 'TopicHomeListWidget',
-            'p1': args[2], 'p2': args[3], 'p3': args[4], 'p4': args[5]
-        };
-        if (L.isNull(activeWSPanel) || activeWSPanel.isDestroy()){
-            activeWSPanel = new WSPanel(pgInfo);
-        } else {
-            activeWSPanel.showPage(pgInfo);
-        }
-        return activeWSPanel;
-    };
-
+    NS.ws = SYS.AppWorkspace.build('{C#MODNAME}', NS.WorkspaceWidget);
 };

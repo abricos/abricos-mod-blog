@@ -38,6 +38,7 @@ if ($updateManager->isInstall()){
 			
 			topiccount int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Кол-во топиков',
 			membercount int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Кол-во подписчиков',
+			grouplist varchar(250) NOT NULL DEFAULT '' COMMENT 'Группы пользователей рассылки, идент. через запятую',
 			
 			dateline int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата создания',
 			upddate int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата обновления',
@@ -88,7 +89,10 @@ if ($updateManager->isInstall()){
 			
 			metadesc varchar( 250 ) NOT NULL DEFAULT '',
 			metakeys varchar( 150 ) NOT NULL DEFAULT '',
-			
+
+            scblastuserid int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Идентификатор пользователя получивший уведомление',
+            scbcomplete tinyint(1) unsigned NOT NULL DEFAULT 0 COMMENT '1-рассылка закончена',
+
 			PRIMARY KEY (topicid), 
 			KEY name (name),
 			KEY catid (catid),
@@ -156,7 +160,7 @@ if ($updateManager->isUpdate('0.4.4') && !$updateManager->isInstall()){
 
 
 // Рассылка уведомлений
-if ($updateManager->isUpdate('0.4.4.1')){
+if ($updateManager->isUpdate('0.4.4.1') && !$updateManager->isInstall()){
 
     // принудительная подписка групп пользователей
     $db->query_write("
@@ -171,15 +175,16 @@ if ($updateManager->isUpdate('0.4.4.1')){
 	");
     // по существующим рассылку делать не нужно
     $db->query_write("UPDATE ".$pfx."bg_topic SET scbcomplete=1");
+}
 
+if ($updateManager->isUpdate('0.4.4.1')){
     // отписка пользователя от всех рассылок в блоге
     $db->query_write("
 		CREATE TABLE ".$pfx."bg_scbunset (
 			userid int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Пользователь',
 			dateline int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата отписки',
-		PRIMARY KEY (userid) 
+		PRIMARY KEY (userid)
 	)".$charset);
-
 }
 
 if ($updateManager->isUpdate('0.5')){
@@ -397,6 +402,28 @@ if ($updateManager->isUpdate('0.5') && !$updateManager->isInstall()){
 			WHERE t.tagid=tt.tagid AND top.isdraft=0 AND top.deldate=0
 		)
 	");
+}
+
+if ($updateManager->isUpdate('0.5.3') && !$updateManager->isInstall()){
+    $db->query_write("
+		UPDATE ".$pfx."comment_owner o
+		INNER JOIN ".$pfx."bg_topic t ON t.contentid=o.ownerid
+		    AND o.ownerModule='blog' AND o.ownerType='content'
+		SET
+		    o.ownerid=t.topicid,
+		    o.ownerType='topic'
+	");
+
+    $db->query_write("
+		UPDATE ".$pfx."comment_ownerstat o
+		INNER JOIN ".$pfx."bg_topic t ON t.contentid=o.ownerid
+		    AND o.ownerModule='blog' AND o.ownerType='content'
+		SET
+		    o.ownerid=t.topicid,
+		    o.ownerType='topic'
+	");
+
+    $db->query_write("DELETE FROM ".$pfx."content WHERE modman='blog'");
 }
 
 

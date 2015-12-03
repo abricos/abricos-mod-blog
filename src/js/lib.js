@@ -8,11 +8,36 @@ Component.requires = {
 };
 Component.entryPoint = function(NS){
 
+    var COMPONENT = this,
+        SYS = Brick.mod.sys;
+
     NS.roles = new Brick.AppRoles('{C#MODNAME}', {
         isAdmin: 50,
         isWrite: 20,
         isView: 10
     });
+
+    SYS.Application.build(COMPONENT, {}, {
+        initializer: function(){
+            NS.roles.load(function(){
+                this.initCallbackFire();
+            }, this);
+        }
+    }, [], {
+        APPS: {
+            uprofile: {},
+            comment: {},
+            notify: {}
+        },
+        ATTRS: {},
+        REQS: {},
+        URLS: {
+            ws: "#app={C#MODNAMEURI}/wspace/ws/",
+        }
+    });
+
+    // TODO: remove old functions
+    /* * * * * * * * * * * * * * * * Old functions * * * * * * * * * * * * * * */
 
     var L = YAHOO.lang,
         R = NS.roles;
@@ -496,18 +521,19 @@ Component.entryPoint = function(NS){
         init: function(callback){
             NS.manager = this;
 
-            this.users = Brick.mod.uprofile.viewer.users;
             this.categoryList = new NS.CategoryList();
 
             var __self = this;
-            R.load(function(){
 
-                R.category = new NS.CategoryUserRoleManager();
-                R.topic = new NS.TopicUserRoleManager();
+            NS.initApp({
+                initCallback: function(err, appInstance){
+                    R.category = new NS.CategoryUserRoleManager();
+                    R.topic = new NS.TopicUserRoleManager();
 
-                __self.categoryListLoad(function(){
-                    NS.life(callback, __self);
-                });
+                    __self.categoryListLoad(function(){
+                        NS.life(callback, __self);
+                    });
+                }
             });
         },
         ajax: function(data, callback){
