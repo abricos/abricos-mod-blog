@@ -127,9 +127,7 @@ class BlogTopicInfo {
     public $publicDate;
 
     /**
-     * Количество комментариев
-     *
-     * @var integer
+     * @deprecated
      */
     public $commentCount;
 
@@ -155,11 +153,9 @@ class BlogTopicInfo {
     public $bodyLength;
 
     /**
-     * Идентификатор основного текста
-     *
-     * @var integer
+     * @deprecated
      */
-    public $contentid;
+    private $contentid;
 
     /**
      * Метки (теги)
@@ -200,12 +196,12 @@ class BlogTopicInfo {
         $this->isIndex = intval($d['idx']) > 0;
         $this->isAutoIndex = intval($d['aidx']) > 0;
         $this->publicDate = intval($d['dl']);
-        $this->commentCount = intval($d['cmt']);
+        // $this->commentCount = intval($d['cmt']);
 
         $this->title = strval($d['tl']);
         $this->intro = strval($d['intro']);
         $this->bodyLength = intval($d['bdlen']);
-        $this->contentid = intval($d['ctid']);
+        // $this->contentid = intval($d['ctid']);
 
         $this->voteCount = intval($d['vcnt']);
         $this->voteMy = isset($d['vmy']) ? intval($d['vmy']) : "";

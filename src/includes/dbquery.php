@@ -13,8 +13,6 @@
 class BlogTopicQuery {
 
     public static function DomainFilterSQLExt(){
-        $ret = new stdClass();
-
         $dmfilter = "AND (cat.deldate=0 OR t.catid=0)";
         $cfgDF = BlogConfig::$instance->domainFilter;
         if (!empty($cfgDF)){
@@ -41,10 +39,9 @@ class BlogTopicQuery {
         return "
 			t.topicid as id,
 			t.catid as catid,
-			cc.contentid as ctid,
 			t.title as tl,
 			t.intro as intro,
-			length(cc.body) as bdlen,
+			length(t.body) as bdlen,
 			
 			t.rating as rtg,
 			t.votecount as vcnt,
@@ -115,31 +112,24 @@ class BlogTopicQuery {
     /**
      * Запросить топик по идентификатору
      *
-     * Если указан параметр $contentid, то запрос происходит по нему
-     *
      * @param Ab_Database $db
      * @param integer $topicid
-     * @param integer $contentid
      */
-    public static function Topic(Ab_Database $db, $topicid, $contentid = 0){
+    public static function TopicById(Ab_Database $db, $topicid){
         $urt = BlogTopicQuery::TopicRatingSQLExt($db);
 
         $where = "t.topicid = ".bkint($topicid)."";
-        if ($contentid > 0){
-            $where = "t.contentid = ".bkint($contentid)."";
-        }
 
         $userid = Abricos::$user->id;
         $sql = "
 			SELECT
 				".BlogTopicQuery::TopicFields($db).",
-				cc.body as bd,
+				t.body as bd,
 				t.metakeys as mtks,
 				t.metadesc as mtdsc
 				".$urt->fld."
 			FROM ".$db->prefix."bg_topic t
 			LEFT JOIN ".$db->prefix."bg_cat cat ON t.catid = cat.catid
-			INNER JOIN ".$db->prefix."content cc ON t.contentid = cc.contentid
 			INNER JOIN ".$db->prefix."user u ON t.userid = u.userid
 			".$urt->tbl."
 			WHERE ".$where." AND t.deldate=0 AND (cat.deldate=0 OR t.catid=0)
@@ -222,7 +212,6 @@ class BlogTopicQuery {
 			SELECT ".$fld."
 			FROM ".$db->prefix."bg_topic t
 			LEFT JOIN ".$db->prefix."bg_cat cat ON t.catid = cat.catid
-			INNER JOIN ".$db->prefix."content cc ON t.contentid = cc.contentid
 			INNER JOIN ".$db->prefix."user u ON t.userid = u.userid
 			".$urt->tbl."
 			WHERE t.deldate=0 AND t.isdraft=0 AND t.language='".bkstr(Abricos::$LNG)."'
@@ -257,7 +246,6 @@ class BlogTopicQuery {
 				".$urt->fld."
 			FROM ".$db->prefix."bg_topic t
 			LEFT JOIN ".$db->prefix."bg_cat cat ON t.catid = cat.catid
-			INNER JOIN ".$db->prefix."content cc ON t.contentid = cc.contentid
 			INNER JOIN ".$db->prefix."user u ON t.userid = u.userid
 			".$urt->tbl."
 			WHERE t.userid=".bkint($userid)." AND t.isdraft=1 
@@ -287,7 +275,6 @@ class BlogTopicQuery {
 				".$urt->fld."
 			FROM ".$db->prefix."bg_topic t
 			LEFT JOIN ".$db->prefix."bg_cat cat ON t.catid = cat.catid
-			INNER JOIN ".$db->prefix."content cc ON t.contentid = cc.contentid
 			INNER JOIN ".$db->prefix."user u ON t.userid = u.userid
 			".$urt->tbl."
 			WHERE t.userid=".bkint($userid)." AND t.isdraft=0
@@ -315,7 +302,6 @@ class BlogTopicQuery {
 				".BlogTopicQuery::TopicFields($db)."
 				".$urt->fld."
 			FROM ".$db->prefix."bg_topic t
-			INNER JOIN ".$db->prefix."content cc ON t.contentid = cc.contentid
 			INNER JOIN ".$db->prefix."user u ON t.userid = u.userid
 			".$urt->tbl."
 			WHERE ".implode(" OR ", $ids)."
@@ -324,20 +310,18 @@ class BlogTopicQuery {
     }
 
     public static function TopicAppend(Ab_Database $db, $userid, $d){
-        $contentid = Ab_CoreQuery::CreateContent($db, $d->body, 'blog');
-
-        $sql = "
+            $sql = "
 			INSERT INTO ".$db->prefix."bg_topic
-			(catid, userid, language, title, name, intro, metakeys, metadesc, contentid, isdraft, autoindex, pubdate, dateline, upddate) VALUES (
+			(catid, userid, language, title, name, intro, body, metakeys, metadesc, isdraft, autoindex, pubdate, dateline, upddate) VALUES (
 				".bkint($d->catid).",
 				".bkint($userid).",
 				'".bkstr(Abricos::$LNG)."',
 				'".bkstr($d->tl)."',
 				'".bkstr($d->nm)."',
 				'".bkstr($d->intro)."',
+				'".bkstr($d->body)."',
 				'".bkstr($d->mtks)."',
 				'".bkstr($d->mtdsc)."',
-				'".bkstr($contentid)."',
 				".($d->dft > 0 ? 1 : 0).",
 				1,
 				".bkint($d->pdt).",
@@ -349,9 +333,7 @@ class BlogTopicQuery {
         return $db->insert_id();
     }
 
-    public static function TopicUpdate(Ab_Database $db, $topicid, $contentid, $d){
-        Ab_CoreQuery::ContentUpdate($db, $contentid, $d->body);
-
+    public static function TopicUpdate(Ab_Database $db, $topicid, $d){
         $sql = "
 			UPDATE ".$db->prefix."bg_topic
 			SET
@@ -359,6 +341,7 @@ class BlogTopicQuery {
 				title='".bkstr($d->tl)."',
 				name='".bkstr($d->nm)."',
 				intro='".bkstr($d->intro)."',
+				body='".bkstr($d->body)."',
 				metakeys='".bkstr($d->mtks)."',
 				metadesc='".bkstr($d->mtdsc)."',
 				isdraft=".($d->dft > 0 ? 1 : 0).",
@@ -879,7 +862,6 @@ class BlogTopicQuery {
     }
 
     public static function CommentLiveList(Ab_Database $db, $page, $limit){
-        return null; // TODO: release
         $dmfilter = "";
         $dmfa = BlogTopicQuery::DomainFilterSQLExt();
         if (!empty($dmfa)){
@@ -887,38 +869,27 @@ class BlogTopicQuery {
         }
 
         $sql = "
-			SELECT
-				c.commentid as id,
-				c.contentid as ctid,
-				c.body,
-				c.dateline as dl,
-
+            SELECT DISTINCT
+                o.lastCommentid as id,
+                c.body,
+                o.lastCommentDate as dl,
 				t.topicid as tid,
-				a.cnt,
-				
-				u.userid as uid,
-				u.username as unm,
-				u.avatar as avt,
-				u.firstname as fnm,
-				u.lastname as lnm
-				
-			FROM (
-				SELECT ap.contentid, max( ap.dateline ) AS dl, count(ap.contentid) as cnt
-				FROM ".$db->prefix."cmt_comment ap
-				INNER JOIN ".$db->prefix."bg_topic tp ON ap.contentid = tp.contentid
-				INNER JOIN ".$db->prefix."bg_cat cat ON tp.catid = cat.catid
-				WHERE tp.deldate = 0 AND cat.deldate=0 AND tp.isdraft = 0 AND tp.language='".bkstr(Abricos::$LNG)."'
+                o.commentCount as cnt,
+                o.lastUserid as uid,
+                u.username as unm,
+                u.firstname as fnm,
+                u.lastname as lnm,
+                u.avatar as avt
+			FROM ".$db->prefix."comment_ownerstat o
+			INNER JOIN ".$db->prefix."comment c ON c.commentid=o.lastCommentid
+			INNER JOIN ".$db->prefix."user u ON u.userid=o.lastUserid
+			INNER JOIN ".$db->prefix."bg_topic t ON t.topicid=o.ownerid
+            INNER JOIN ".$db->prefix."bg_cat cat ON t.catid = cat.catid
+			WHERE o.ownerModule='blog' AND o.ownerType='topic'
+                AND t.deldate=0 AND cat.deldate=0 AND t.isdraft=0 AND t.language='".bkstr(Abricos::$LNG)."'
 					".$dmfilter."
-				GROUP BY contentid
-				ORDER BY dl DESC
-				LIMIT ".bkint($limit)."
-			) a
-			LEFT JOIN ".$db->prefix."cmt_comment c ON a.contentid = c.contentid AND c.dateline = a.dl
-			LEFT JOIN ".$db->prefix."user u ON c.userid = u.userid
-			LEFT JOIN ".$db->prefix."bg_topic t ON c.contentid = t.contentid
-			LEFT JOIN ".$db->prefix."bg_cat catt ON t.catid = catt.catid
-			WHERE t.deldate = 0 AND catt.deldate=0 AND t.isdraft = 0 AND t.language='".bkstr(Abricos::$LNG)."'
-			ORDER BY dl DESC
+			ORDER BY o.lastCommentDate DESC
+			LIMIT ".bkint($limit)."
 		";
         return $db->query_read($sql);
     }

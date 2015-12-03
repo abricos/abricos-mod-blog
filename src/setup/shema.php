@@ -63,7 +63,7 @@ if ($updateManager->isInstall()){
 			title varchar(250) NOT NULL DEFAULT '' COMMENT 'Заголовок',
 			
 			intro TEXT NOT NULL,
-			contentid integer(10) unsigned NOT NULL,
+            body text NOT NULL COMMENT 'Запись топика',
 			notcomment tinyint(1) NOT NULL DEFAULT 0 COMMENT '1-запретить комментарии',
 			
 			rating int(10) NOT NULL DEFAULT 0 COMMENT 'Рейтинг',
@@ -405,6 +405,19 @@ if ($updateManager->isUpdate('0.5') && !$updateManager->isInstall()){
 }
 
 if ($updateManager->isUpdate('0.5.3') && !$updateManager->isInstall()){
+
+    $db->query_write("
+		ALTER TABLE ".$pfx."bg_topic
+		ADD body text NOT NULL COMMENT 'Запись топика'
+	");
+
+    $db->query_write("
+		UPDATE ".$pfx."bg_topic t
+		INNER JOIN ".$pfx."content c ON c.contentid=t.contentid
+		SET t.body=c.body
+	");
+
+
     $db->query_write("
 		UPDATE ".$pfx."comment_owner o
 		INNER JOIN ".$pfx."bg_topic t ON t.contentid=o.ownerid
@@ -424,6 +437,12 @@ if ($updateManager->isUpdate('0.5.3') && !$updateManager->isInstall()){
 	");
 
     $db->query_write("DELETE FROM ".$pfx."content WHERE modman='blog'");
+
+    $db->query_write("
+		ALTER TABLE ".$pfx."bg_topic
+		DROP contentid
+	");
+
 }
 
 
