@@ -1,11 +1,11 @@
 <!--{homelist}-->
 <div class="homelist">
 
-	<div id="{i#loading}" class="loading">
+	<div class="loading" data-wait="show">
 		<img src="/images/loading.gif" /> Идет загрузка данных <br /> Пожалуйста, подождите...
 	</div>
 
-	<div id="{i#view}" style="display: none">
+	<div id="{i#view}" class="hide">
 	
 		<ul id="{i#sm}" class="submenu" style="display: none">
 			<li id="{i#smi}">
@@ -60,15 +60,15 @@
 <!--{topicview}-->
 <div id="{i#id}" class="topicview">
 
-	<div id="{i#loading}" class="loading">
+	<div class="loading" data-wait="show">
 		<img src="/images/loading.gif" /> Идет загрузка данных <br /> Пожалуйста, подождите...
 	</div>
 
-	<div id="{i#nullitem}" class="nullitem" style="display: none">
+    <div id="{i#view}" data-wait="hide"></div>
+
+    <div id="{i#nullitem}" class="nullitem hide">
 		Запись в блоге не найдена или недостаточно прав для ее просмотра
 	</div>
-
-	<div id="{i#view}"></div>
 </div>
 
 <!--{row}-->

@@ -31,16 +31,17 @@ Component.entryPoint = function(NS){
             }
             var lst = "", TM = this._TM;
             list.foreach(function(cmt){
-                var cat = cmt.topic.category();
+                var cat = cmt.topic.category(),
+                    user = cmt.user;
                 lst += TM.replace('cmtrow', {
-                    'uid': cmt.user.id,
-                    'login': cmt.user.userName,
-                    'unm': cmt.user.getUserName(),
-                    'cattl': cat.title,
-                    'urlcat': cat.url(),
-                    'toptl': cmt.topic.title,
-                    'urlcmt': cmt.topic.url(),
-                    'cmtcnt': cmt.topic.commentCount
+                    uid: user.get('id'),
+                    login: user.get('username'),
+                    unm: user.get('viewName'),
+                    cattl: cat.title,
+                    urlcat: cat.url(),
+                    toptl: cmt.topic.title,
+                    urlcmt: cmt.topic.url(),
+                    cmtcnt: cmt.topic.commentCount
                 });
             });
             this.elSetHTML('list', TM.replace('cmtlist', {

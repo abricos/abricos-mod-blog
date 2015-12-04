@@ -164,6 +164,7 @@ Component.entryPoint = function(NS){
             var tp = this.template;
             this.cmtLiveWidget = new NS.CommentLiveBoxWidget(tp.gel('commentLive'));
             this.tagListWidget = new NS.TagListBoxWidget(tp.gel('tagList'));
+
             this.catListWidget = new NS.CategoryListBoxWidget(tp.gel('categoryList'));
 
         },

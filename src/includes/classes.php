@@ -7,8 +7,6 @@
  * @author Alexander Kuzmin <roosit@abricos.org>
  */
 
-require_once 'dbquery.php';
-
 class BlogConfig {
 
     /**

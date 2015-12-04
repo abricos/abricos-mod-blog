@@ -14,7 +14,10 @@ class BlogTopicQuery {
 
     public static function DomainFilterSQLExt(){
         $dmfilter = "AND (cat.deldate=0 OR t.catid=0)";
-        $cfgDF = BlogConfig::$instance->domainFilter;
+
+        /** @var BlogConfig $config */
+        $config = Abricos::GetModule('blog')->GetManager()->GetApp()->Config();
+        $cfgDF = $config->domainFilter;
         if (!empty($cfgDF)){
             $arr = explode(",", $cfgDF);
             $ca = array();

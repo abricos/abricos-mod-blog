@@ -3,6 +3,7 @@ Component.requires = {
     mod: [
         {name: 'urating', files: ['vote.js']},
         {name: 'socialist', files: ['line.js']},
+        {name: 'comment', files: ['tree.js']},
         {name: '{C#MODNAME}', files: ['widget.js', 'lib.js']}
     ]
 };
@@ -12,7 +13,7 @@ Component.entryPoint = function(NS){
         COMPONENT = this,
         SYS = Brick.mod.sys;
 
-    var Dom = YAHOO.util.Dom, L = YAHOO.lang,
+    var L = YAHOO.lang,
         buildTemplate = this.buildTemplate,
         NSUR = Brick.mod.urating || {},
         NSSC = Brick.mod.socialist || {},
@@ -48,11 +49,11 @@ Component.entryPoint = function(NS){
         buildTData: function(topic, cfg){
             var user = topic.user;
             return {
-                'date': L.isNull(topic.date) ? LNG.get('topic.draft') : Brick.dateExt.convert(topic.date),
-                'uid': user.id,
-                'avatar': user.avatar24(),
-                'unm': user.getUserName(),
-                'cmt': topic.commentCount
+                date: L.isNull(topic.date) ? LNG.get('topic.draft') : Brick.dateExt.convert(topic.date),
+                uid: user.get('id'),
+                avatar: user.get('avatarSrc24'),
+                unm: user.get('viewName'),
+                cmt: topic.commentCount
             };
         },
         onLoad: function(topic, cfg){
@@ -159,44 +160,47 @@ Component.entryPoint = function(NS){
     });
     NS.TopicRowWidget = TopicRowWidget;
 
-    var TopicViewWidget = function(container, topicid){
-        TopicViewWidget.superclass.constructor.call(this, container, {
-            'buildTemplate': buildTemplate, 'tnames': 'topicview'
-        }, topicid);
-    };
-    YAHOO.extend(TopicViewWidget, Brick.mod.widget.Widget, {
-        init: function(topicid){
-            this.topicid = topicid;
-            this.topic = null;
-            this.viewWidget = null;
-        },
-        destroy: function(){
-            if (!L.isNull(this.viewWidget)){
-                this.viewWidget.destroy();
-            }
-        },
-        onLoad: function(topicid){
-            var instance = this;
+    NS.TopicViewWidget = Y.Base.create('topicViewWidget', SYS.AppWidget, [], {
+        onInitAppWidget: function(err, appInstance){
+            this.set('waiting', true);
+
+            var instance = this,
+                topicid = this.get('topicid');
+
             NS.initManager(function(){
                 NS.manager.topicLoad(topicid, function(topic){
-                    instance.renderTopic(topic);
+                    instance._renderTopic(topic);
                 });
             });
         },
-        renderTopic: function(topic){
-            this.elHide('loading');
-
-            if (L.isNull(topic)){
-                this.elShow('nullitem');
-                return;
+        destroy: function(){
+            if (this.viewWidget){
+                this.viewWidget.destroy();
             }
+        },
+        _renderTopic: function(topic){
+            this.set('waiting', false);
+            var tp = this.template;
 
-            var widget = this.viewWidget = new NS.TopicRowWidget(this.gel('view'), topic);
+            tp.toggleView(!topic, 'nullitem', 'view');
+
+            var widget = this.viewWidget = new NS.TopicRowWidget(tp.gel('view'), topic);
             widget.elSetHTML({
-                'body': topic.body
+                body: topic.body
             });
             widget.elHide('readmore');
 
+            this._commentsWidget = new Brick.mod.comment.CommentTreeWidget({
+                srcNode: widget.gel('comments'),
+                commentOwner: {
+                    module: 'blog',
+                    type: 'topic',
+                    ownerid: topic.id
+                },
+                readOnly: !NS.roles.isWrite 
+            });
+
+            /*
             // Инициализировать менеджер комментариев
             Brick.ff('comment', 'comment', function(){
                 Brick.mod.comment.API.buildCommentTree({
@@ -217,9 +221,21 @@ Component.entryPoint = function(NS){
                     }
                 });
             });
+            /**/
+        }
+    }, {
+        ATTRS: {
+            component: {value: COMPONENT},
+            templateBlockName: {value: 'topicview'},
+            topicid: {},
+            topic: {}
+        },
+        parseURLParam: function(args){
+            return {
+                topicid: args[0] | 0
+            };
         }
     });
-    NS.TopicViewWidget = TopicViewWidget;
 
     var TopicListWidget = function(container){
 
