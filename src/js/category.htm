@@ -1,85 +1,86 @@
 <!--{catlist}-->
 <div id="{i#id}" class="catlist">
-	<div class="cathead">
-		<div class="hrtg">Рейтинг</div>
-		<div class="htl">Название</div>
-	</div>
+    <div class="cathead">
+        <div class="hrtg">Рейтинг</div>
+        <div class="htl">Название</div>
+    </div>
 
-	<div id="{i#loading}" class="loading">
-		<img src="/images/loading.gif" /> Идет загрузка данных <br /> Пожалуйста, подождите...
-	</div>
+    <div id="{i#loading}" class="loading">
+        <img src="/images/loading.gif"/> Идет загрузка данных <br/> Пожалуйста, подождите...
+    </div>
 
-	<div id="{i#list}" class="list"></div>
+    <div id="{i#list}" class="list"></div>
 </div>
 
 <!--{row}-->
 <div id="{v#id}" class="catrow">
-	<div class="rtg">{v#rtg}</div>
-	<div id="{i#info}" class="catinfo">
-		<div id="{i#tlcont}" class="title">
-			<a id="{i#tl}" href="{v#urlview}" class="cattl"></a>
-		</div>
-		<div class="clear"></div>
-		<div class="stat">
-			<span>читателей: {v#mbrs}</span>
-			,&nbsp;
-			<span>топиков: {v#topics}</span>
-		</div>
-	</div>
+    <div class="rtg">{v#rtg}</div>
+    <div id="{i#info}" class="catinfo">
+        <div id="{i#tlcont}" class="title">
+            <a id="{i#tl}" href="{v#urlview}" class="cattl"></a>
+        </div>
+        <div class="clear"></div>
+        <div class="stat">
+            <span>читателей: {v#mbrs}</span>
+            ,&nbsp;
+            <span>топиков: {v#topics}</span>
+        </div>
+    </div>
 </div>
 
 <!--{catview}-->
-<div id="{i#id}" class="catview">
+<div class="catview">
 
-	<div id="{i#loading}" class="loading">
-		<img src="/images/loading.gif" /> Идет загрузка данных <br /> Пожалуйста, подождите...
-	</div>
+    <div class="loading" data-wait="show">
+        <img src="/images/loading.gif"/> Идет загрузка данных <br/> Пожалуйста, подождите...
+    </div>
 
-	<div id="{i#nullitem}" class="nullitem" style="display: none">
-		Блог не найден или недостаточно прав для его просмотра
-	</div>
+    <div id="{i#nullitem}" class="nullitem hide">
+        Блог не найден или недостаточно прав для его просмотра
+    </div>
 
-	<div id="{i#view}" style="display: none">
-	
-		<div id="{i#rating}" class="catrtg"></div>
-		<h2 id="{i#tl}" class="cattl"></h2>
-		
-		<div id="{i#info}" class="catinfo">
-			<div class="stat">
-				<a href="#">читателей: <span id="{i#mbrs}"></span></a>
-				,&nbsp;
-				<a href="#">топиков: <span id="{i#topics}"></span></a>
-			</div>
-			<div id="{i#jbtns}" class="jbtns" style="display: none">
-				<a id="{i#bedit}" href="{v#urledit}" class="habtn" title="Редактировать" style="display: none">Редактировать</a>
-				<a id="{i#bremove}" href="{v#urlremove}" class="habtn warn" title="Удалить" style="display: none">Удалить</a>
+    <div id="{i#view}" data-wait="hide">
+
+        <div id="{i#rating}" class="catrtg"></div>
+        <h2 id="{i#tl}" class="cattl"></h2>
+
+        <div id="{i#info}" class="catinfo">
+            <div class="stat">
+                <a href="#">читателей: <span id="{i#mbrs}"></span></a>
+                ,&nbsp;
+                <a href="#">топиков: <span id="{i#topics}"></span></a>
+            </div>
+            <div id="{i#jbtns}" class="jbtns hide">
+                <a id="{i#bedit}" href="#" data-url="category.edit({v#id})" class="habtn hide" title="Редактировать">Редактировать</a>
+                <a id="{i#bremove}" href="#" class="habtn warn hide" title="Удалить">Удалить</a>
 				<span id="{i#jbtnsa}">
 					<a id="{i#bjoin}" href="#" class="habtn" title="Стать читателем блога">Вступить в блог</a>
 					<a id="{i#bleave}" href="#" class="habtn" title="Перестать читать блог">Покинуть блог</a>
 				</span>
-				<img id="{i#jbloading}" src="/images/loading.gif" style="display: none" />
-			</div>
-		</div>
-		
-		<div id="{i#toplist}"></div>
-	</div>
+                <img id="{i#jbloading}" src="/images/loading.gif" style="display: none"/>
+            </div>
+        </div>
+
+        <div id="{i#toplist}"></div>
+    </div>
 </div>
 
 <!--{removepanel}-->
 <div class='hd'>Удаление блога</div>
 <div class='bd aw-blog'>
-	<div id="{i#dialogremove}" class="field">
-		<p>
-			Вы действительно хотите удалить блог со всем ее содержимым?
-		</p>
-		<div class="buttons right">
+    <div id="{i#dialogremove}" class="field">
+        <p>
+            Вы действительно хотите удалить блог со всем ее содержимым?
+        </p>
+
+        <div class="buttons right">
 			<span id="{i#btns}">
-				<input id="{i#bremove}" value="Удалить" type="button" />
-				<input id="{i#bcancel}" value="Отмена" type="button" />
+				<input id="{i#bremove}" value="Удалить" type="button"/>
+				<input id="{i#bcancel}" value="Отмена" type="button"/>
 			</span>
 			<span id="{i#bloading}" style="display: none">
-				<img src="/images/loading.gif" /> Удаление...
+				<img src="/images/loading.gif"/> Удаление...
 			</span>
-		</div>
-	</div>
+        </div>
+    </div>
 </div>

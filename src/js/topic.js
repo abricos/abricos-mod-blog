@@ -197,31 +197,8 @@ Component.entryPoint = function(NS){
                     type: 'topic',
                     ownerid: topic.id
                 },
-                readOnly: !NS.roles.isWrite 
+                readOnly: !NS.roles.isWrite
             });
-
-            /*
-            // Инициализировать менеджер комментариев
-            Brick.ff('comment', 'comment', function(){
-                Brick.mod.comment.API.buildCommentTree({
-                    'container': widget.gel('comments'),
-                    'dbContentId': topic.contentid,
-                    'config': {
-                        'onLoadComments': function(){
-                            // aTargetBlank(TM.getEl('panel.drawbody'));
-                            // aTargetBlank(TM.getEl('panel.comments'));
-                        },
-                        'voting': true
-
-                        // ,
-                        // 'readOnly': project.w*1 == 0,
-                        // 'manBlock': L.isFunction(config['buildManBlock']) ? config.buildManBlock() : null
-                    },
-                    'instanceCallback': function(b){
-                    }
-                });
-            });
-            /**/
         }
     }, {
         ATTRS: {

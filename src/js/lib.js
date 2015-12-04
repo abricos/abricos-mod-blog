@@ -28,6 +28,60 @@ Component.entryPoint = function(NS){
         REQS: {},
         URLS: {
             ws: "#app={C#MODNAMEURI}/wspace/ws/",
+            topic: {
+                list: function(){
+                    return this.getURL('ws');
+                    return urlJoinArgs(WS + 'topic/TopicHomeListWidget/', arguments);
+                },
+                view: function(topicid){
+                    return WS + 'topic/TopicViewWidget/' + topicid + '/';
+                },
+                edit: function(topicid){
+                    return NS.navigator.write.topic(topicid);
+                }
+            },
+            tag: {
+                view: function(tag){
+                    return WS + 'tag/TagViewWidget/' + tag + '/';
+                }
+            },
+            category: {
+                list: function(){
+                    return WS + 'category/CategoryListWidget/';
+                },
+                view: function(catid){
+                    return WS + 'category/CategoryViewWidget/' + catid + '/';
+                },
+                edit: function(catid){
+                    return this.getURL('write.category', catid);
+                }
+            },
+            author: {
+                list: function(){
+                    return WS + 'author/AuthorListWidget/';
+                },
+                view: function(authorid){
+                    return WS + 'author/AuthorViewWidget/' + authorid + '/';
+                }
+            },
+            write: {
+                view: function(){
+                    return WS + 'write/WriteWidget/';
+                },
+                topic: function(id){
+                    id = id || 0;
+                    return WS + 'write/WriteWidget/topic/' + (id > 0 ? id + "/" : "");
+                },
+                category: function(id){
+                    return this.getURL('ws') + 'write/WriteWidget/category/' + id | 0 + "/";
+                },
+                draftlist: function(){
+                    return WS + 'write/WriteWidget/draftlist/';
+                }
+            },
+            about: function(){
+                return WS + 'about/AboutWidget/';
+            },
         }
     });
 

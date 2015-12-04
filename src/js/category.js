@@ -7,34 +7,37 @@ Component.requires = {
 };
 Component.entryPoint = function(NS){
 
-    var Dom = YAHOO.util.Dom,
-        L = YAHOO.lang,
+    var Y = Brick.YUI,
+        COMPONENT = this,
+        SYS = Brick.mod.sys;
+
+    var L = YAHOO.lang,
         NSUR = Brick.mod.urating || {},
         UID = Brick.env.user.id,
         LNG = this.language,
         R = NS.roles,
         buildTemplate = this.buildTemplate;
 
-    var CategoryRowWidget = function(container, cat){
+    var CategoryRowWidget = function(container, category){
         CategoryRowWidget.superclass.constructor.call(this, container, {
             'buildTemplate': buildTemplate, 'tnames': 'row'
-        }, cat);
+        }, category);
     };
     YAHOO.extend(CategoryRowWidget, Brick.mod.widget.Widget, {
-        init: function(cat){
-            this.cat = cat;
+        init: function(category){
+            this.category = category;
         },
-        buildTData: function(cat){
+        buildTData: function(category){
             return {
-                'urlview': cat.url(),
-                'rtg': cat.rating,
-                'mbrs': cat.memberCount,
-                'topics': cat.topicCount
+                'urlview': category.url(),
+                'rtg': category.rating,
+                'mbrs': category.memberCount,
+                'topics': category.topicCount
             };
         },
-        onLoad: function(cat){
+        onLoad: function(category){
             this.elSetHTML({
-                'tl': cat.title
+                'tl': category.title
             });
         }
     });
@@ -50,10 +53,10 @@ Component.entryPoint = function(NS){
             this.wsList = [];
             this.wsMenuItem = 'all'; // использует wspace.js
         },
-        onLoad: function(catid){
-            var __self = this;
+        onLoad: function(categoryid){
+            var instance = this;
             NS.initManager(function(){
-                __self.renderList();
+                instance.renderList();
             });
         },
         destroy: function(){
@@ -74,75 +77,70 @@ Component.entryPoint = function(NS){
             var elList = this.gel('list');
             var ws = this.wsList;
 
-            NS.manager.categoryList.foreach(function(cat){
+            NS.manager.categoryList.foreach(function(category){
                 var div = document.createElement('div');
                 elList.appendChild(div);
-                ws[ws.length] = new NS.CategoryRowWidget(div, cat);
+                ws[ws.length] = new NS.CategoryRowWidget(div, category);
             });
         }
     });
     NS.CategoryListWidget = CategoryListWidget;
 
-    var CategoryViewWidget = function(container, catid){
-        CategoryViewWidget.superclass.constructor.call(this, container, {
-            'buildTemplate': buildTemplate, 'tnames': 'catview'
-        }, catid);
-    };
-    YAHOO.extend(CategoryViewWidget, Brick.mod.widget.Widget, {
-        init: function(catid){
-            this.catid = catid;
-            this.voteWidget = null;
-            this.topicListWidget = null;
+    NS.CategoryViewWidget = Y.Base.create('categoryViewWidget', SYS.AppWidget, [], {
+        buildTData: function(){
+            return {id: this.get('categoryid')}
         },
-        buildTData: function(catid){
-            return {
-                'urledit': NS.navigator.category.edit(catid)
-            };
+        onInitAppWidget: function(err, appInstance){
+            this.set('waiting', true);
+
+            var instance = this,
+                categoryid = this.get('categoryid');
+
+            NS.initManager(function(){
+                var category = NS.manager.categoryList.get(categoryid);
+                instance.renderCategory(category);
+            });
+
         },
         destroy: function(){
-            if (!L.isNull(this.voteWidget)){
+            if (this.voteWidget){
                 this.voteWidget.destroy();
             }
-            if (!L.isNull(this.topicListWidget)){
+            if (this.topicListWidget){
                 this.topicListWidget.destroy();
             }
         },
-        onLoad: function(catid){
-            var __self = this;
-            NS.initManager(function(){
-                var cat = NS.manager.categoryList.get(catid);
-                __self.renderCategory(cat);
-            });
-        },
-        renderCategory: function(cat){
-            this.cat = cat;
-            this.elHide('loading');
+        renderCategory: function(category){
+            this.set('waiting', false);
+            this.set('category', category);
 
-            if (L.isNull(cat)){
-                this.elShow('nullitem');
+            var tp = this.template;
+
+            tp.toggleView(!category, 'nullitem', 'view');
+
+            if (!category){
                 return;
             }
-            this.elShow('view');
-            this.elSetHTML({
-                'tl': cat.title,
-                'mbrs': cat.memberCount,
-                'topics': cat.topicCount
+            tp.setHTML({
+                'tl': category.title,
+                'mbrs': category.memberCount,
+                'topics': category.topicCount
             });
 
-            if (NSUR.VotingWidget && L.isNull(this.voteWidget)){
+            if (NSUR.VotingWidget && Y.Lang.isNull(this.voteWidget)){
                 this.voteWidget = new NSUR.VotingWidget(this.gel('rating'), {
                     'modname': '{C#MODNAME}',
-                    'elementType': 'cat',
-                    'elementId': cat.id,
-                    'value': cat.rating,
-                    'vote': cat.voteMy,
+                    'elementType': 'category',
+                    'elementId': category.id,
+                    'value': category.rating,
+                    'vote': category.voteMy,
                     'hideButtons': UID == 0,
                     'onVotingError': function(error, merror){
                         var s = 'ERROR';
                         if (merror > 0){
-                            s = LNG.get('cat.vote.error.m.' + merror);
+                            s = LNG.get('category.vote.error.m.' + merror);
                         } else if (error == 1){
-                            s = LNG.get('cat.vote.error.' + error);
+                            s = LNG.get('category.vote.error.' + error);
                         } else {
                             return;
                         }
@@ -150,26 +148,16 @@ Component.entryPoint = function(NS){
                     }
                 });
             }
-            if (L.isNull(this.topicListWidget)){
-                this.topicListWidget = new NS.TopicListWidget(this.gel('toplist'), {
-                    'filter': 'cat/' + cat.id
+            if (!this.topicListWidget){
+                this.topicListWidget = new NS.TopicListWidget(tp.gel('toplist'), {
+                    'filter': 'category/' + category.id
                 });
             }
             if (UID > 0){
-                this.elShow('jbtns');
-                if (cat.isMember){
-                    this.elHide('bjoin');
-                    this.elShow('bleave');
-                } else {
-                    this.elShow('bjoin');
-                    this.elHide('bleave');
-                }
-                if (R['isAdmin']){
-                    this.elShow('bremove');
-                }
-                if (R.category.isAdmin(cat)){
-                    this.elShow('bedit');
-                }
+                tp.show('jbtns');
+                tp.toggleView(category.isMember, 'bleave', 'bjoin');
+                tp.toggleView(R.isAdmin, 'bremove');
+                tp.toggleView(R.category.isAdmin(category), 'bedit');
             }
         },
         onClick: function(el, tp){
@@ -184,25 +172,39 @@ Component.entryPoint = function(NS){
             }
         },
         memberStatusChange: function(){
-            var __self = this;
+            var instance = this;
             this.elHide('jbtnsa');
             this.elShow('jbloading');
-            NS.manager.categoryJoin(this.cat.id, function(){
-                __self.elShow('jbtnsa');
-                __self.elHide('jbloading');
-                __self.renderCategory(__self.cat);
+            NS.manager.categoryJoin(this.category.id, function(){
+                instance.elShow('jbtnsa');
+                instance.elHide('jbloading');
+                instance.renderCategory(instance.category);
             });
         },
         showRemovePanel: function(){
-            new CategoryRemovePanel(this.cat, function(){
+            new CategoryRemovePanel(this.category, function(){
                 NS.navigator.go(NS.navigator.category.list());
             });
         }
+    }, {
+        ATTRS: {
+            component: {value: COMPONENT},
+            templateBlockName: {value: 'catview'},
+            categoryid: {},
+            category: {}
+        },
+        parseURLParam: function(args){
+            return {
+                categoryid: args[0] | 0
+            };
+        }
     });
-    NS.CategoryViewWidget = CategoryViewWidget;
 
-    var CategoryRemovePanel = function(cat, callback){
-        this.cat = cat;
+
+    return;
+
+    var CategoryRemovePanel = function(category, callback){
+        this.category = category;
         this.callback = callback;
         CategoryRemovePanel.superclass.constructor.call(this, {fixedcenter: true});
     };
@@ -226,15 +228,16 @@ Component.entryPoint = function(NS){
             var TM = this._TM, gel = function(n){
                     return TM.getEl('removepanel.' + n);
                 },
-                __self = this;
+                instance = this;
             Dom.setStyle(gel('btns'), 'display', 'none');
             Dom.setStyle(gel('bloading'), 'display', '');
-            NS.manager.categoryRemove(this.cat.id, function(){
-                __self.close();
-                NS.life(__self.callback);
+            NS.manager.categoryRemove(this.category.id, function(){
+                instance.close();
+                NS.life(instance.callback);
             });
         }
     });
     NS.CategoryRemovePanel = CategoryRemovePanel;
+    /**/
 
 };
