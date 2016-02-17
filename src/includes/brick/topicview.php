@@ -65,7 +65,7 @@ $brick->content = Brick::ReplaceVarByData($brick->content, array(
     "toptl" => $topic->title,
     "urltop" => $topic->URL(),
     "urlcmt" => $topic->URL(),
-    "cmtcnt" => $topic->commentCount,
+    "cmtcnt" => !empty($topic->commentStatistic) ? $topic->commentStatistic->count : 0,
     "date" => rusDateTime($topic->publicDate),
     "taglist" => implode($v['tagdel'], $atags),
 
@@ -80,6 +80,15 @@ $brick->content = Brick::ReplaceVarByData($brick->content, array(
     "body" => $topic->body,
     'votejsman' => $voteJSMan
 ));
+
+Brick::$builder->LoadBrickS('comment', 'tree', $brick, array(
+    "p" => array(
+        "module" => 'blog',
+        "type" => 'topic',
+        "ownerid" => $topic->id
+    )
+));
+
 
 $meta_title = $topic->title." / ".$cat->title." / ".SystemModule::$instance->GetPhrases()->Get('site_name');
 

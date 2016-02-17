@@ -63,6 +63,8 @@ for ($i = 0; $i < $count; $i++){
         )));
     }
 
+    $commentStat = $topic->commentStatistic;
+
     $lst .= Brick::ReplaceVarByData($v['row'], array(
         "cattl" => $cat->title,
         "urlcat" => $cat->URL(),
@@ -71,7 +73,7 @@ for ($i = 0; $i < $count; $i++){
         "toptl" => $topic->title,
         "urltop" => $topic->URL(),
         "urlcmt" => $topic->URL(),
-        "cmtcnt" => $topic->commentCount,
+        "cmtcnt" => empty($commentStat) ? 0 : $commentStat->count,
         "date" => rusDateTime($topic->publicDate),
         "taglist" => implode($v['tagdel'], $atags),
 
