@@ -47,13 +47,14 @@ Component.entryPoint = function(NS){
             this.topic = topic;
         },
         buildTData: function(topic, cfg){
-            var user = topic.user;
+            var user = topic.user,
+                commentStat = topic.commentStatistic;
             return {
                 date: L.isNull(topic.date) ? LNG.get('topic.draft') : Brick.dateExt.convert(topic.date),
                 uid: user.get('id'),
                 avatar: user.get('avatarSrc24'),
                 unm: user.get('viewName'),
-                cmt: topic.commentCount
+                cmt: commentStat.get('count')
             };
         },
         onLoad: function(topic, cfg){

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package Abricos
  * @subpackage Blog
@@ -6,7 +7,6 @@
  * @license http://opensource.org/licenses/mit-license.php MIT License
  * @author Alexander Kuzmin <roosit@abricos.org>
  */
-
 class BlogConfig {
 
     /**
@@ -125,11 +125,6 @@ class BlogTopicInfo {
     public $publicDate;
 
     /**
-     * @deprecated
-     */
-    public $commentCount;
-
-    /**
      * Заголовок
      *
      * @var string
@@ -149,11 +144,6 @@ class BlogTopicInfo {
      * @var integer
      */
     public $bodyLength;
-
-    /**
-     * @deprecated
-     */
-    private $contentid;
 
     /**
      * Метки (теги)
@@ -184,6 +174,20 @@ class BlogTopicInfo {
      */
     public $voteMy;
 
+    /**
+     * @var CommentStatistic
+     */
+    public $commentStatistic;
+
+    /**
+     * @deprecated
+     */
+    private $commentCount;
+
+    /**
+     * @deprecated
+     */
+    private $contentid;
 
     public function __construct($d){
         $this->id = intval($d['id']);
@@ -221,6 +225,20 @@ class BlogTopicInfo {
         }
     }
 
+    private $_commentOwner;
+
+    public function GetCommentOwner(){
+        if (!empty($this->_commentOwner)){
+            return $this->_commentOwner;
+        }
+
+        return $this->_commentOwner = BlogManager::$instance->GetApp()->CommentApp()->InstanceClass('Owner', array(
+            "module" => "blog",
+            "type" => "topic",
+            "ownerid" => $this->id
+        ));
+    }
+
     /**
      * Можно ли еще голосовать за топик
      */
@@ -252,8 +270,6 @@ class BlogTopicInfo {
         $ret->user = $this->user->ToAJAX();
         $ret->intro = $this->intro;
         $ret->bdlen = $this->bodyLength;
-        $ret->cmt = $this->commentCount;
-        $ret->ctid = $this->contentid;
 
         $ret->dft = $this->isDraft ? 1 : 0;
         $ret->idx = $this->isIndex ? 1 : 0;
@@ -267,6 +283,10 @@ class BlogTopicInfo {
         $ret->rtg = $this->rating;
         $ret->vcnt = $this->voteCount;
         $ret->vmy = $this->voteMy;
+
+        if ($this->commentStatistic){
+            $ret->commentStatistic = $this->commentStatistic->ToJSON();
+        }
 
         $ret->tags = array();
         for ($i = 0; $i < count($this->tags); $i++){
@@ -348,6 +368,21 @@ class BlogTopicList {
      */
     public function GetByIndex($index){
         return $this->list[$index];
+    }
+
+    /**
+     * @param $topicid
+     * @return BlogTopicInfo
+     */
+    public function Get($topicid){
+        $count = count($this->list);
+
+        for ($i = 0; $i < $count; $i++){
+            if (intval($this->list[$i]->id) === intval($topicid)){
+                return $this->list[$i];
+            }
+        }
+        return null;
     }
 }
 

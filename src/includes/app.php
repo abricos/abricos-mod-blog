@@ -37,6 +37,45 @@ class BlogApp extends AbricosApplication {
         return $this->manager->IsViewRole();
     }
 
+    private $_commentApp = null;
+
+    /**
+     * @return CommentApp
+     */
+    public function CommentApp(){
+        if (!is_null($this->_commentApp)){
+            return $this->_commentApp;
+        }
+        $module = Abricos::GetModule('comment');
+        return $this->_commentApp = $module->GetManager()->GetApp();
+    }
+
+    private $_uprofileApp = null;
+
+    /**
+     * @return UProfileApp
+     */
+    public function UProfileApp(){
+        if (!is_null($this->_uprofileApp)){
+            return $this->_uprofileApp;
+        }
+        $module = Abricos::GetModule('uprofile');
+        return $this->_uprofileApp = $module->GetManager()->GetApp();
+    }
+
+    private $_notifyApp = null;
+
+    /**
+     * @return NotifyApp
+     */
+    public function NotifyApp(){
+        if (!is_null($this->_notifyApp)){
+            return $this->_notifyApp;
+        }
+        $module = Abricos::GetModule('notify');
+        return $this->_notifyApp = $module->GetManager()->GetApp();
+    }
+
     public function ResponseToJSON($d){
         switch ($d->do){
             case "topic":
@@ -66,6 +105,7 @@ class BlogApp extends AbricosApplication {
         }
         return null;
     }
+
 
     public function ParamToObject($o){
         if (is_array($o)){
@@ -156,7 +196,7 @@ class BlogApp extends AbricosApplication {
      * Список записей блога
      *
      * @param object $cfg параметры списка
-     * @return array
+     * @return BlogTopicList
      */
     public function TopicList($cfg = array()){
         if (!$this->IsViewRole()){
@@ -236,14 +276,30 @@ class BlogApp extends AbricosApplication {
         }
 
         $topics = array();
+        $topicids = array();
 
         while (($row = $this->db->fetch_array($rows))){
-            array_push($topics, new BlogTopicInfo($row));
+            $topic = new BlogTopicInfo($row);
+            array_push($topics, $topic);
+            $topicids[] = $topic->id;
         }
 
         $this->TopicSetTags($topics);
 
-        return new BlogTopicList($topics, $total, $totalNew);
+        $list = new BlogTopicList($topics, $total, $totalNew);
+
+        $statList = $this->CommentApp()->StatisticList('blog', 'topic', $topicids);
+        $cnt = $statList->Count();
+        for ($i = 0; $i < $cnt; $i++){
+            $stat = $statList->GetByIndex($i);
+            $topic = $list->Get($stat->id);
+            if (empty($topic)){
+                continue; // what is it? %)
+            }
+            $topic->commentStatistic = $stat;
+        }
+
+        return $list;
     }
 
     public function TopicListToAJAX($cfg){
@@ -267,6 +323,9 @@ class BlogApp extends AbricosApplication {
             return null;
         }
         $topic = new BlogTopic($row);
+
+        $topic->commentStatistic = $this->CommentApp()->Statistic($topic->GetCommentOwner());
+
         $this->TopicSetTags(array($topic));
 
         return $topic;

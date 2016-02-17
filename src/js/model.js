@@ -12,8 +12,7 @@ Component.entryPoint = function(NS){
         isView: 10
     });
 
-    var COMPONENT = this,
-        SYS = Brick.mod.sys;
+    var SYS = Brick.mod.sys;
 
     var L = YAHOO.lang,
         R = NS.roles;
@@ -129,8 +128,6 @@ Component.entryPoint = function(NS){
             this.isAutoIndex = d['aidx'];
 
             this.intro = d['intro'];
-            this.commentCount = d['cmt'] * 1;
-            this.contentid = d['ctid'] * 1;
 
             this.tagList.update(d['tags']);
 
@@ -141,6 +138,16 @@ Component.entryPoint = function(NS){
             this.rating = d['rtg'];
             this.voteCount = d['vcnt'] * 1;
             this.voteMy = d['vmy'];
+
+            // this.commentCount = d['cmt'] * 1;
+            // this.contentid = d['ctid'] * 1;
+
+            var commentApp = NS.appInstance.getApp('comment'),
+                CommentStatistic = commentApp.get('Statistic');
+
+            this.commentStatistic = new CommentStatistic(Y.merge({
+                appInstance: commentApp
+            }, d.commentStatistic || {}));
         },
         url: function(){
             return NS.navigator.topic.view(this.id);
