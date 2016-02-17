@@ -10,8 +10,9 @@
 $brick = Brick::$builder->brick;
 $v = &$brick->param->var;
 
+
 $man = BlogModule::$instance->GetManager();
-$cats = $man->CategoryList();
+$cats = $man->GetApp()->CategoryList();
 
 $pa = BlogModule::$instance->ParserAddress();
 
@@ -112,6 +113,6 @@ if (!empty($pa->pageTitle)){
 }
 
 // отправить сообщения рассылки из очереди (подобие крона)
-BlogManager::$instance->SubscribeTopicCheck();
+BlogManager::$instance->GetApp()->SubscribeTopicCheck();
 
 ?>

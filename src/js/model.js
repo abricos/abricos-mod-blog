@@ -1,5 +1,9 @@
 var Component = new Brick.Component();
-Component.requires = {};
+Component.requires = {
+    mod: [
+        {name: 'sys', files: ['item.js', 'date.js']},
+    ]
+};
 Component.entryPoint = function(NS){
 
     NS.roles = new Brick.AppRoles('{C#MODNAME}', {

@@ -100,7 +100,6 @@ class BlogModule extends Ab_Module {
             $pa->type = 'topiclist';
             $pa->topicListFilter = "index";
             $pa->pageTitle = $i18n['pagetitle']['index'];
-
         } else if ($d1 == '_unsubscribe') {
 
             $pa->type = 'unsubscribe';
@@ -190,7 +189,7 @@ class BlogModule extends Ab_Module {
             } else {//blog/author/%username%/
                 $username = urldecode($d2);
 
-                $pa->author = $man->AuthorByUserName($username);
+                $pa->author = $man->GetApp()->AuthorByUserName($username);
 
                 if (empty($pa->author)) {
                     $pa->err404 = true;
@@ -204,7 +203,7 @@ class BlogModule extends Ab_Module {
             }
 
         } else if (!empty($d1)) { //blog/%category_name%/
-            $cats = $man->CategoryList();
+            $cats = $man->GetApp()->CategoryList();
             $pa->cat = $cats->GetByName($d1);
             if (!empty($pa->cat)) {
                 $pa->type = 'catview';
@@ -231,7 +230,7 @@ class BlogModule extends Ab_Module {
                 } else if ($lvl > 2) { //blog/%category_name%/%topicid%/
 
                     $topicid = intval($d2);
-                    $topic = $man->Topic($topicid);
+                    $topic = $man->GetApp()->Topic($topicid);
 
                     if (empty($topic)) {
                         $pa->err404 = true;
@@ -241,7 +240,7 @@ class BlogModule extends Ab_Module {
                         $pa->topic = $topic;
 
                         // указать контентid для комментарий
-                        Brick::$contentId = $topic->contentid;
+                        // Brick::$contentId = $topic->contentid;
                     }
                 }
 
@@ -251,7 +250,7 @@ class BlogModule extends Ab_Module {
         }
 
         if (!empty($pa->topicListFilter)) {
-            $pa->topicList = $this->GetManager()->TopicList(array(
+            $pa->topicList = $this->GetManager()->GetApp()->TopicList(array(
                 "limit" => BlogModule::TOPIC_PAGE_LIMIT,
                 "filter" => $pa->topicListFilter,
                 "page" => $pa->page

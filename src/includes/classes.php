@@ -235,7 +235,7 @@ class BlogTopicInfo {
         if ($this->catid == 0){
             return new BlogPersonalCategory($this->user);
         }
-        $cats = BlogManager::$instance->CategoryList();
+        $cats = BlogManager::$instance->GetApp()->CategoryList();
         return $cats->Get($this->catid);
     }
 

@@ -1,6 +1,7 @@
 var Component = new Brick.Component();
 Component.requires = {
     mod: [
+        {name: 'sys', files: ['application.js']},
         {name: 'uprofile', files: ['users.js']},
         {name: 'urating', files: ['vote.js']},
         {name: 'widget', files: ['notice.js', 'lib.js']},
