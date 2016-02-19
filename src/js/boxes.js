@@ -41,7 +41,7 @@ Component.entryPoint = function(NS){
                     urlcat: cat.url(),
                     toptl: cmt.topic.title,
                     urlcmt: cmt.topic.url(),
-                    cmtcnt: cmt.topic.commentCount
+                    cmtcnt: cmt.topic.commentStatistic.get('count'),
                 });
             });
             this.elSetHTML('list', TM.replace('cmtlist', {

@@ -11,9 +11,9 @@ $brick = Brick::$builder->brick;
 $man = BlogModule::$instance->GetManager();
 
 $modUProfile = Abricos::GetModule('uprofile');
-
+return;
 $lst = "";
-$comms = $man->CommentLiveList();
+$comms = $man->GetApp()->CommentLiveList();
 
 if (empty($comms)){
     $brick->content = "";

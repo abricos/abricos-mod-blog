@@ -11,7 +11,7 @@ $brick = Brick::$builder->brick;
 $man = BlogModule::$instance->GetManager();
 
 $lst = "";
-$topics = $man->TopicList(array("limit" => 5));
+$topics = $man->GetApp()->TopicList(array("limit" => 5));
 if (empty($topics)){
     $brick->content = "";
     return;

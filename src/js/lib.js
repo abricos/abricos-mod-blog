@@ -272,10 +272,13 @@ Component.entryPoint = function(NS){
             }, function(d){
                 var topic = null;
                 if (!L.isNull(d) && !L.isNull(d['topic'])){
-                    topic = new NS.Topic(d['topic']);
+                    NS.appInstance.getApp('uprofile').userListByIds([d.topic.user.id], function(err, result){
+                        topic = new NS.Topic(d['topic']);
+                        NS.life(callback, topic);
+                    });
+                } else {
+                    NS.life(callback, topic);
                 }
-
-                NS.life(callback, topic);
             });
         },
         topicPreview: function(sd, callback){
@@ -386,10 +389,18 @@ Component.entryPoint = function(NS){
                 var list = null;
 
                 if (!L.isNull(d) && !L.isNull(d['comments'])){
-                    list = new NS.CommentLiveList(d['comments']);
-                }
+                    var userids = [];
+                    for (var i = 0; i < d.comments.length; i++){
+                        userids[userids.length] = d.comments[i].user.id;
+                    }
 
-                NS.life(callback, list);
+                    NS.appInstance.getApp('uprofile').userListByIds(userids, function(err, result){
+                        list = new NS.CommentLiveList(d['comments']);
+                        NS.life(callback, list);
+                    });
+                } else {
+                    NS.life(callback, list);
+                }
             });
         },
         tagListLoad: function(cfg, callback){

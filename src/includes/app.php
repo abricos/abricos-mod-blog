@@ -908,9 +908,12 @@ class BlogApp extends AbricosApplication {
             array_push($tids, $cmtLive->topicid);
         }
         $topics = array();
+        $topicsById = array();
+
         $rows = BlogTopicQuery::TopicListByIds($this->db, $tids);
         while (($row = $this->db->fetch_array($rows))){
             $topic = new BlogTopicInfo($row);
+            $topicsById[$topic->id] = $topic;
             array_push($topics, new BlogTopicInfo($row));
 
             for ($i = 0; $i < count($list); $i++){
@@ -921,6 +924,17 @@ class BlogApp extends AbricosApplication {
         }
 
         $this->TopicSetTags($topics);
+
+        $statList = $this->CommentApp()->StatisticList('blog', 'topic', $tids);
+        $cnt = $statList->Count();
+        for ($i = 0; $i < $cnt; $i++){
+            $stat = $statList->GetByIndex($i);
+            $topic = $topicsById[$stat->id];
+            if (empty($topic)){
+                continue; // what is it? %)
+            }
+            $topic->commentStatistic = $stat;
+        }
 
         return new BlogCommentLiveList($list);
     }

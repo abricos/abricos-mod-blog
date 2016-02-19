@@ -115,11 +115,7 @@ Component.entryPoint = function(NS){
             this.title = d['tl'];				// заголовок
 
             var userList = NS.appInstance.getApp('uprofile').get('userList');
-            if (!L.isNull(d['user']) && this.id > 0){
-                this.user = userList.updateByData(d['user']);
-            } else {
-                this.user = userList.getById(d['user'].id);
-            }
+            this.user = userList.getById(d['user'].id);
 
             // дата публикации
             this.date = d['dl'] == 0 ? null : new Date(d['dl'] * 1000);
@@ -153,13 +149,12 @@ Component.entryPoint = function(NS){
             return NS.navigator.topic.view(this.id);
         },
         surl: function(){
-
             return '/blog/' + this.category().name + '/' + this.id + '/';
         },
         category: function(){
             var catid = this.catid;
             if (catid == 0){ // персональный блог
-                return new CategoryPerson(this.user.id);
+                return new CategoryPerson(this.user.get('id'));
             } else {
                 return NS.manager.categoryList.get(catid);
             }
@@ -242,12 +237,14 @@ Component.entryPoint = function(NS){
     NS.Category = Category;
 
     var CategoryPerson = function(userid){ // персональный блог
-        // var user = UP.viewer.users.get(userid);
-        // this.user = user;
+        var userList = NS.appInstance.getApp('uprofile').get('userList'),
+            user = userList.getById(userid);
+
+        this.user = user;
         var d = L.merge({
             'id': 0,
-            'tl': LNG.get('cat.my').replace('{v#unm}', user.userName),
-            'nm': user.userName
+            'tl': LNG.get('cat.my').replace('{v#unm}', user.get('viewName')),
+            'nm': user.get('viewName')
         }, d || {});
         CategoryPerson.superclass.constructor.call(this, d);
     };
@@ -342,7 +339,7 @@ Component.entryPoint = function(NS){
             } else {
                 this.topic.update(d['topic']);
             }
-            this.user = NS.appInstance.getApp('uprofile').get('userList').updateByData(d['user']);
+            this.user = NS.appInstance.getApp('uprofile').get('userList').getById(d.user.id);
         }
     });
     NS.CommentLive = CommentLive;
