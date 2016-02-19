@@ -11,55 +11,46 @@ Component.entryPoint = function(NS){
         COMPONENT = this,
         SYS = Brick.mod.sys;
 
-    var L = YAHOO.lang,
-        NSUR = Brick.mod.urating || {},
+    var NSUR = Brick.mod.urating || {},
         UID = Brick.env.user.id,
         LNG = this.language,
         R = NS.roles,
         buildTemplate = this.buildTemplate;
 
-    var CategoryRowWidget = function(container, category){
-        CategoryRowWidget.superclass.constructor.call(this, container, {
-            'buildTemplate': buildTemplate, 'tnames': 'row'
-        }, category);
-    };
-    YAHOO.extend(CategoryRowWidget, Brick.mod.widget.Widget, {
-        init: function(category){
-            this.category = category;
-        },
-        buildTData: function(category){
+
+    NS.CategoryRowWidget = Y.Base.create('categoryRowWidget', SYS.AppWidget, [], {
+        buildTData: function(){
+            var category = this.get('category');
             return {
-                'urlview': category.url(),
-                'rtg': category.rating,
-                'mbrs': category.memberCount,
-                'topics': category.topicCount
+                urlview: category.url(),
+                rtg: category.rating,
+                mbrs: category.memberCount,
+                topics: category.topicCount
             };
         },
-        onLoad: function(category){
-            this.elSetHTML({
-                'tl': category.title
+        onInitAppWidget: function(err, appInstance){
+            var tp = this.template,
+                category = this.get('category');
+
+            tp.setHTML({
+                tl: category.title
             });
         }
+    }, {
+        ATTRS: {
+            component: {value: COMPONENT},
+            templateBlockName: {value: 'row'},
+            category: {}
+        },
     });
-    NS.CategoryRowWidget = CategoryRowWidget;
 
-    var CategoryListWidget = function(container){
-        CategoryListWidget.superclass.constructor.call(this, container, {
-            'buildTemplate': buildTemplate, 'tnames': 'catlist'
-        });
-    };
-    YAHOO.extend(CategoryListWidget, Brick.mod.widget.Widget, {
-        init: function(){
+    NS.CategoryListWidget = Y.Base.create('categoryListWidget', SYS.AppWidget, [], {
+        onInitAppWidget: function(err, appInstance){
             this.wsList = [];
             this.wsMenuItem = 'all'; // использует wspace.js
+            this.renderList();
         },
-        onLoad: function(categoryid){
-            var instance = this;
-            NS.initManager(function(){
-                instance.renderList();
-            });
-        },
-        destroy: function(){
+        destructor: function(){
             this.clearList();
         },
         clearList: function(){
@@ -67,24 +58,33 @@ Component.entryPoint = function(NS){
             for (var i = 0; i < ws.length; i++){
                 ws[i].destroy();
             }
-            this.elSetHTML('list', '');
+            this.template.setHTML('list', '');
         },
         renderList: function(){
             this.clearList();
-            this.elHide('loading');
-            this.elShow('view');
+            var tp = this.template;
 
-            var elList = this.gel('list');
+            tp.hide('loading');
+            tp.show('list');
+
             var ws = this.wsList;
 
             NS.manager.categoryList.foreach(function(category){
-                var div = document.createElement('div');
-                elList.appendChild(div);
-                ws[ws.length] = new NS.CategoryRowWidget(div, category);
+                ws[ws.length] = new NS.CategoryRowWidget({
+                    srcNode: tp.append('list', '<div></div>'),
+                    category: category
+                });
             });
         }
+    }, {
+        ATTRS: {
+            component: {value: COMPONENT},
+            templateBlockName: {value: 'catlist'},
+        },
+        parseURLParam: function(args){
+            return {};
+        }
     });
-    NS.CategoryListWidget = CategoryListWidget;
 
     NS.CategoryViewWidget = Y.Base.create('categoryViewWidget', SYS.AppWidget, [], {
         buildTData: function(){

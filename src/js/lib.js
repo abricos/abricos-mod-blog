@@ -248,21 +248,29 @@ Component.entryPoint = function(NS){
             }, function(d){
                 var rlist = null;
 
-                if (!L.isNull(d) && d['topics'] && L.isArray(d['topics']['list'])){
-                    rlist = new NS.TopicList(d['topics']['list']);
-                    rlist.total = d['topics']['total'] * 1;
-                    rlist.totalNew = d['topics']['totalNew'] * 1;
-
-                    var list = cfg['list'];
-                    if (L.isObject(list)){
-                        rlist.foreach(function(item){
-                            list.add(item);
-                        });
-                        rlist = list;
+                if (!L.isNull(d) && d['topics'] && L.isArray(d.topics.list)){
+                    var userids = [];
+                    for (var i = 0; i < d.topics.list.length; i++){
+                        userids[userids.length] = d.topics.list[i].user.id;
                     }
-                }
+                    NS.appInstance.getApp('uprofile').userListByIds(userids, function(err, result){
+                        rlist = new NS.TopicList(d.topics.list);
+                        rlist.total = d['topics']['total'] * 1;
+                        rlist.totalNew = d['topics']['totalNew'] * 1;
 
-                NS.life(callback, rlist);
+                        var list = cfg['list'];
+                        if (L.isObject(list)){
+                            rlist.foreach(function(item){
+                                list.add(item);
+                            });
+                            rlist = list;
+                        }
+
+                        NS.life(callback, rlist);
+                    });
+                } else {
+                    NS.life(callback, rlist);
+                }
             });
         },
         topicLoad: function(topicid, callback){

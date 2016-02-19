@@ -174,7 +174,7 @@ Component.entryPoint = function(NS){
                 });
             });
         },
-        destroy: function(){
+        destructor: function(){
             if (this.viewWidget){
                 this.viewWidget.destroy();
             }
