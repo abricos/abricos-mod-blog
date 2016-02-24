@@ -281,14 +281,14 @@ Component.entryPoint = function(NS){
 
     var Author = function(d){
         d = L.merge({
-            'avt': '',
-            'fnm': u.firstname,
-            'lnm': u.lastname,
-            'unm': u.name,
+            avt: '',
+            fnm: u.firstname,
+            lnm: u.lastname,
+            unm: u.name,
 
-            'tcnt': 0,// кол-во топиков
+            tcnt: 0,// кол-во топиков
 
-            'rtg': null	// рейтинг
+            rtg: null	// рейтинг
 
         }, d || {});
 
@@ -301,6 +301,8 @@ Component.entryPoint = function(NS){
                 // UP.viewer.users.update([d]);
             }
             // this.user = UP.viewer.users.get(this.id);
+            var userList = NS.appInstance.getApp('uprofile').get('userList');
+            this.user = userList.getById(d.id);
 
             this.topicCount = d['tcnt'] * 1;
             this.rating = d['rtg'];

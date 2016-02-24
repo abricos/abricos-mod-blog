@@ -7,32 +7,24 @@ Component.requires = {
 };
 Component.entryPoint = function(NS){
 
-    var Dom = YAHOO.util.Dom,
-        L = YAHOO.lang,
-        NSUR = Brick.mod.urating || {},
-        UID = Brick.env.user.id,
-        R = NS.roles,
+    var Y = Brick.YUI,
+        COMPONENT = this,
+        SYS = Brick.mod.sys;
+
+    var L = YAHOO.lang,
         buildTemplate = this.buildTemplate;
 
-    var AuthorListWidget = function(container){
-        AuthorListWidget.superclass.constructor.call(this, container, {
-            'buildTemplate': buildTemplate, 'tnames': 'widget'
-        });
-    };
-    YAHOO.extend(AuthorListWidget, Brick.mod.widget.Widget, {
-        init: function(){
+    NS.AuthorListWidget = Y.Base.create('authorListWidget', SYS.AppWidget, [], {
+        onInitAppWidget: function(err, appInstance){
             this.wsList = [];
             this.wsMenuItem = 'all'; // использует wspace.js
-        },
-        onLoad: function(catid){
-            var __self = this;
-            NS.initManager(function(){
-                NS.manager.authorListLoad(function(list){
-                    __self.renderList(list);
-                });
+
+            var instance = this;
+            NS.manager.authorListLoad(function(list){
+                instance.renderList(list);
             });
         },
-        destroy: function(){
+        destructor: function(){
             this.clearList();
         },
         clearList: function(){
@@ -40,61 +32,76 @@ Component.entryPoint = function(NS){
             for (var i = 0; i < ws.length; i++){
                 ws[i].destroy();
             }
-            this.elSetHTML('list', '');
+            this.template.setHTML('list', '');
         },
         renderList: function(list){
             this.clearList();
-            this.elHide('loading');
+
+            this.set('waiting', false);
+
+            var tp = this.template;
 
             if (L.isNull(list)){
-                this.elShow('nullitem');
+                tp.toggleView(true, 'nullitem', 'list');
                 return;
             }
 
-            this.elShow('view');
+            tp.show('list');
 
-            var elList = this.gel('list'), ws = this.wsList;
+            var ws = this.wsList;
 
             list.foreach(function(author){
-                var div = document.createElement('div');
-                elList.appendChild(div);
-                ws[ws.length] = new NS.AuthorRowWidget(div, author);
+                ws[ws.length] = new NS.AuthorRowWidget({
+                    srcNode: tp.append('list', '<div></div>'),
+                    author: author
+                });
             });
         }
-    });
-    NS.AuthorListWidget = AuthorListWidget;
-
-    var AuthorRowWidget = function(container, author){
-        AuthorRowWidget.superclass.constructor.call(this, container, {
-            'buildTemplate': buildTemplate, 'tnames': 'row'
-        }, author);
-    };
-    YAHOO.extend(AuthorRowWidget, Brick.mod.widget.Widget, {
-        buildTData: function(author){
-            var user = author.user;
-            return {
-                'uid': user.id,
-                'avatar': user.avatar90(),
-                'unm': user.getUserName(),
-                'rep': author.reputation,
-                'topics': author.topicCount,
-                'urlview': NS.navigator.author.view(author.id)
-            };
+    }, {
+        ATTRS: {
+            component: {value: COMPONENT},
+            templateBlockName: {value: 'widget'},
+        },
+        parseURLParam: function(args){
+            return {};
         }
     });
-    NS.AuthorRowWidget = AuthorRowWidget;
 
-    var AuthorViewWidget = function(container, authorid){
-        AuthorViewWidget.superclass.constructor.call(this, container, {
-            'buildTemplate': buildTemplate, 'tnames': 'view'
-        }, authorid);
-    };
-    YAHOO.extend(AuthorViewWidget, Brick.mod.widget.Widget, {
-        init: function(authorid){
+    NS.AuthorRowWidget = Y.Base.create('authorRowWidget', SYS.AppWidget, [], {
+        buildTData: function(){
+            var author = this.get('author'),
+                user = author.user;
+
+            return {
+                uid: user.get('id'),
+                avatar: user.get('avatarSrc90'),
+                unm: user.get('viewName'),
+                rep: author.reputation,
+                topics: author.topicCount,
+                urlview: NS.navigator.author.view(author.id)
+            };
+        },
+        onInitAppWidget: function(err, appInstance){
+        }
+    }, {
+        ATTRS: {
+            component: {value: COMPONENT},
+            templateBlockName: {value: 'row'},
+            author: {}
+        },
+    });
+
+    NS.AuthorViewWidget = Y.Base.create('authorViewWidget', SYS.AppWidget, [], {
+        onInitAppWidget: function(err, appInstance){
             this.viewWidget = null;
             this.topicListWidget = null;
+
+            NS.manager.authorLoad(this.get('authorid'), function(author){
+                instance.renderAuthor(author);
+            });
+
         },
-        destroy: function(){
+        destructor: function(){
             if (!L.isNull(this.viewWidget)){
                 this.viewWidget.destroy();
             }
@@ -102,16 +109,11 @@ Component.entryPoint = function(NS){
                 this.topicListWidget.destroy();
             }
         },
-        onLoad: function(authorid){
-            var __self = this;
-            NS.initManager(function(){
-                NS.manager.authorLoad(authorid, function(author){
-                    __self.renderAuthor(author);
-                });
-            });
-        },
         renderAuthor: function(author){
             this.author = author;
+
+            
+
             this.elHide('loading');
 
             if (L.isNull(author)){
@@ -130,6 +132,28 @@ Component.entryPoint = function(NS){
                 });
             }
         }
+    }, {
+        ATTRS: {
+            component: {value: COMPONENT},
+            templateBlockName: {value: 'view'},
+            authorid: {value: 0}
+        },
+        parseURLParam: function(args){
+            return {
+                authorid: args[0] | 0
+            };
+        }
+    });
+
+    var AuthorViewWidget = function(container, authorid){
+        AuthorViewWidget.superclass.constructor.call(this, container, {
+            'buildTemplate': buildTemplate, 'tnames': 'view'
+        }, authorid);
+    };
+    YAHOO.extend(AuthorViewWidget, Brick.mod.widget.Widget, {
+        init: function(authorid){
+        },
+
     });
     NS.AuthorViewWidget = AuthorViewWidget;
 };

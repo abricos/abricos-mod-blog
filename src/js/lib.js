@@ -365,10 +365,17 @@ Component.entryPoint = function(NS){
                 var list = null;
 
                 if (!L.isNull(d) && L.isArray(d['authors'])){
-                    list = new NS.AuthorList(d['authors']);
+                    var userids = [];
+                    for (var i = 0; i < d.authors.length; i++){
+                        userids[userids.length] = d.authors[i].id;
+                    }
+                    NS.appInstance.getApp('uprofile').userListByIds(userids, function(err, result){
+                        list = new NS.AuthorList(d['authors']);
+                        NS.life(callback, list);
+                    });
+                } else {
+                    NS.life(callback, list);
                 }
-
-                NS.life(callback, list);
             });
         },
         authorLoad: function(authorid, callback){

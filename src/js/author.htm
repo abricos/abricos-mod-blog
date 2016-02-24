@@ -1,6 +1,6 @@
 <!--{widget}-->
 <div id="{i#id}" class="authorlist">
-	<div id="{i#loading}" class="loading">
+	<div class="loading" data-wait="show">
 		<img src="/images/loading.gif" /> Идет загрузка данных <br /> Пожалуйста, подождите...
 	</div>
 	
@@ -8,14 +8,16 @@
 		Список не найден, возможно недостаточно прав для его просмотра
 	</div>
 
-	<div id="{i#list}" class="list"></div>
+	<div id="{i#list}" class="list" data-wait="hide"></div>
 </div>
 
 <!--{row}-->
 <div id="{v#id}" class="author aw-uprofile">
 
 	<a href="#" class="avtr tmb tmb90 show-user-profile user-{v#uid}">
-		<span class="tmbpre">{v#avatar}</span>
+		<span class="tmbpre">
+            <img src="{v#avatar}" />
+        </span>
 	</a>
 	
 	<a href="#" class="username show-user-profile user-{v#uid}">{v#unm}</a>

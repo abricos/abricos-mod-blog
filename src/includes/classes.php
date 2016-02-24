@@ -394,7 +394,8 @@ class BlogUser {
     public $lastName;
 
     public function __construct($d){
-        $this->id = intval(intval($d['uid']) > 0 ? $d['uid'] : $d['id']);
+
+        $this->id = intval(isset($d['uid']) ? $d['uid'] : $d['id']);
         $this->userName = strval($d['unm']);
         $this->avatar = strval($d['avt']);
         $this->firstName = strval($d['fnm']);
