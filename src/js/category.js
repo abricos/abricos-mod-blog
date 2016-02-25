@@ -156,29 +156,32 @@ Component.entryPoint = function(NS){
                 tp.toggleView(R.category.isAdmin(category), 'bedit');
             }
         },
-        onClick: function(el, tp){
-            switch (el.id) {
-                case tp['bremove']:
+        onClick: function(e){
+            switch (e.dataClick) {
+                case 'bremove':
                     this.showRemovePanel();
                     return true;
-                case tp['bjoin']:
-                case tp['bleave']:
+                case 'bjoin':
+                case 'bleave':
                     this.memberStatusChange();
                     return true;
             }
         },
         memberStatusChange: function(){
-            var instance = this;
-            this.elHide('jbtnsa');
-            this.elShow('jbloading');
-            NS.manager.categoryJoin(this.category.id, function(){
-                instance.elShow('jbtnsa');
-                instance.elHide('jbloading');
-                instance.renderCategory(instance.category);
+            var instance = this,
+                tp = this.template;
+            
+            tp.hide('jbtnsa');
+            tp.show('jbloading');
+            
+            NS.manager.categoryJoin(this.get('category').id, function(){
+                tp.show('jbtnsa');
+                tp.hide('jbloading');
+                instance.renderCategory(instance.get('category'));
             });
         },
         showRemovePanel: function(){
-            new CategoryRemovePanel(this.category, function(){
+            new CategoryRemovePanel(this.get('category'), function(){
                 NS.navigator.go(NS.navigator.category.list());
             });
         }
@@ -200,7 +203,7 @@ Component.entryPoint = function(NS){
     return;
 
     var CategoryRemovePanel = function(category, callback){
-        this.category = category;
+        this.get('category') = category;
         this.callback = callback;
         CategoryRemovePanel.superclass.constructor.call(this, {fixedcenter: true});
     };
@@ -227,7 +230,7 @@ Component.entryPoint = function(NS){
                 instance = this;
             Dom.setStyle(gel('btns'), 'display', 'none');
             Dom.setStyle(gel('bloading'), 'display', '');
-            NS.manager.categoryRemove(this.category.id, function(){
+            NS.manager.categoryRemove(this.get('category').id, function(){
                 instance.close();
                 NS.life(instance.callback);
             });

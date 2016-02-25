@@ -52,10 +52,11 @@
             </div>
             <div id="{i#jbtns}" class="jbtns hide">
                 <a id="{i#bedit}" href="#" data-url="category.edit({v#id})" class="habtn hide" title="Редактировать">Редактировать</a>
-                <a id="{i#bremove}" href="#" class="habtn warn hide" title="Удалить">Удалить</a>
+                <a id="{i#bremove}" href="#" class="habtn warn hide" title="Удалить"
+                   data-click="bremove">Удалить</a>
 				<span id="{i#jbtnsa}">
-					<a id="{i#bjoin}" href="#" class="habtn" title="Стать читателем блога">Вступить в блог</a>
-					<a id="{i#bleave}" href="#" class="habtn" title="Перестать читать блог">Покинуть блог</a>
+					<a id="{i#bjoin}" data-click="bjoin" href="#" class="habtn" title="Стать читателем блога">Вступить в блог</a>
+					<a id="{i#bleave}" data-click="bleave" href="#" class="habtn" title="Перестать читать блог">Покинуть блог</a>
 				</span>
                 <img id="{i#jbloading}" src="/images/loading.gif" style="display: none"/>
             </div>
