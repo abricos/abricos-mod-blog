@@ -43,7 +43,8 @@ Component.entryPoint = function(NS){
             },
             tag: {
                 view: function(tag){
-                    return WS + 'tag/TagViewWidget/' + tag + '/';
+                    console.log(tag);
+                    return this.getURL('ws') + 'tag/TagViewWidget/' + tag + '/';
                 }
             },
             category: {

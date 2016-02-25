@@ -6,63 +6,51 @@ Component.requires = {
 };
 Component.entryPoint = function(NS){
 
-    var L = YAHOO.lang,
-        E = YAHOO.util.Event,
-        buildTemplate = this.buildTemplate;
+    var Y = Brick.YUI,
+        COMPONENT = this,
+        SYS = Brick.mod.sys;
 
-    var TagViewWidget = function(container, tag){
-        TagViewWidget.superclass.constructor.call(this, container, {
-            'buildTemplate': buildTemplate, 'tnames': 'widget'
-        }, tag);
-    };
-    YAHOO.extend(TagViewWidget, Brick.mod.widget.Widget, {
-        init: function(tag){
-            this.tag = tag;
-            this.topicListWidget = null;
-        },
-        destroy: function(){
-            if (!L.isNull(this.topicListWidget)){
-                this.topicListWidget.destroy();
-            }
-        },
-        onLoad: function(tag){
-            var __self = this;
-            NS.initManager(function(){
-                __self.onLoadManager(tag);
-            });
-        },
-        onLoadManager: function(tag){
-            this.tag = tag;
-            this.elHide('loading');
-            this.elShow('view');
+    NS.TagViewWidget = Y.Base.create('tagViewWidget', SYS.AppWidget, [], {
+        onInitAppWidget: function(err, appInstance){
+            var tp = this.template,
+                tag = this.get('tag');
 
-            this.elSetValue({
-                'tag': tag
+            tp.setValue('tag', tag);
+
+            this.topicListWidget = new NS.TopicListWidget(tp.gel('list'), {
+                'filter': 'tag/' + tag
             });
 
-            if (L.isNull(this.topicListWidget)){
-                this.topicListWidget = new NS.TopicListWidget(this.gel('list'), {
-                    'filter': 'tag/' + tag
-                });
-            }
-
-            var __self = this;
-            E.on(this.gel('tag'), 'keypress', function(e){
+            tp.one('tag').on('keypress', function(e){
                 if (e.keyCode != 13){
                     return false;
                 }
-                __self.tagView();
-                return true;
-            });
+                this.tagView();
+            }, this);
+        },
+        destructor: function(){
+            if (this.topicListWidget){
+                this.topicListWidget.destroy();
+            }
         },
         tagView: function(){
-            var tag = L.trim(this.gel('tag').value);
+            var tag = Y.Lang.trim(this.template.getValue('tag'));
             if (tag.length == 0){
                 return;
             }
             NS.navigator.go(NS.navigator.tag.view(tag));
         }
+    }, {
+        ATTRS: {
+            component: {value: COMPONENT},
+            templateBlockName: {value: 'widget'},
+            tag: {value: ''}
+        },
+        parseURLParam: function(args){
+            return {
+                tag: args[0] || ''
+            };
+        }
     });
-    NS.TagViewWidget = TagViewWidget;
 
 };
