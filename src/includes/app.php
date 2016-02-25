@@ -233,7 +233,7 @@ class BlogApp extends AbricosApplication {
 
         switch ($fType){
             case "draft":
-                $rows = BlogTopicQuery::TopicDraftList($this->db, $this->userid, $page, $limit);
+                $rows = BlogTopicQuery::TopicDraftList($this->db, Abricos::$user->id, $page, $limit);
                 break;
 
             case "author":
@@ -451,7 +451,7 @@ class BlogApp extends AbricosApplication {
 
             if (!$this->IsAdminRole()){
                 // автор ли топика правит его?
-                if ($topic->user->id != $this->userid){
+                if ($topic->user->id != Abricos::$user->id){
                     return null;
                 } // hacker?
             }
@@ -491,13 +491,13 @@ class BlogApp extends AbricosApplication {
 
             // ограничения по количеству
             if ($isNewDraft){ // не более 25 черновиков на профиль
-                $row = BlogTopicQuery::TopicDraftCountByUser($this->db, $this->userid);
+                $row = BlogTopicQuery::TopicDraftCountByUser($this->db, Abricos::$user->id);
                 if (!empty($row) && $row['cnt'] >= 25){
                     $ret->error = 11;
                     return $ret;
                 }
             } else if ($isNewPublic){ // проверки по публикации
-                $row = BlogTopicQuery::TopicPublicCountByUser($this->db, $this->userid);
+                $row = BlogTopicQuery::TopicPublicCountByUser($this->db, Abricos::$user->id);
                 $pubCount = intval($row['cnt']);
 
                 if ($pubCount > 3){ // не более 3 публикаций в день
@@ -575,7 +575,7 @@ class BlogApp extends AbricosApplication {
 
         // все проверки выполнены, добавление/сохранение топика
         if ($d->id == 0){
-            $d->id = BlogTopicQuery::TopicAppend($this->db, $this->userid, $d);
+            $d->id = BlogTopicQuery::TopicAppend($this->db, Abricos::$user->id, $d);
             if ($d->id == 0){
                 $ret->error = 99;
                 return $ret;
@@ -736,14 +736,14 @@ class BlogApp extends AbricosApplication {
                 // категорию создает не админ
                 // значит нужно наложить ограничения
                 // не более 1 категории в день (пока так)
-                $dbCat = BlogTopicQuery::CategoryLastCreated($this->db, $this->userid);
+                $dbCat = BlogTopicQuery::CategoryLastCreated($this->db, Abricos::$user->id);
                 if (!empty($dbCat) && $dbCat['dl'] + 60 * 60 * 24 > TIMENOW){
                     $ret->error = 5;
                     return $ret;
                 }
             }
 
-            $d->id = BlogTopicQuery::CategoryAppend($this->db, $this->userid, $d);
+            $d->id = BlogTopicQuery::CategoryAppend($this->db, Abricos::$user->id, $d);
             if ($d->id == 0){
                 $ret->error = 99;
                 return $ret;
@@ -776,7 +776,7 @@ class BlogApp extends AbricosApplication {
      * Вступить/выйти из блога текущему пользователю
      */
     public function CategoryJoin($catid){
-        if (!$this->IsViewRole() || $this->userid == 0){
+        if (!$this->IsViewRole() || Abricos::$user->id == 0){
             return null;
         }
 
@@ -785,9 +785,9 @@ class BlogApp extends AbricosApplication {
             return null;
         }
 
-        $pubkey = md5(TIMENOW.$catid."+".$this->userid);
+        $pubkey = md5(TIMENOW.$catid."+".Abricos::$user->id);
 
-        BlogTopicQuery::CategoryUserSetMember($this->db, $catid, $this->userid, !$cat->isMemberFlag, $pubkey);
+        BlogTopicQuery::CategoryUserSetMember($this->db, $catid, Abricos::$user->id, !$cat->isMemberFlag, $pubkey);
 
         BlogTopicQuery::CategoryMemberCountUpdate($this->db, $catid);
 
@@ -1043,7 +1043,7 @@ class BlogApp extends AbricosApplication {
             if (empty($topic) || !$topic->IsVotingPeriod()){
                 return 99;
             }
-            if ($topic->user->id == $this->userid){
+            if ($topic->user->id == Abricos::$user->id){
                 return 4;
             }
         }
@@ -1184,7 +1184,7 @@ class BlogApp extends AbricosApplication {
         if ($data->pid > 0){
 
             $parent = CommentQuery::Comment($this->db, $data->pid, $data->cid, true);
-            if ($parent['uid'] != $this->userid){
+            if ($parent['uid'] != Abricos::$user->id){
                 $user = $userManager->User($parent['uid']);
                 $email = $user->email;
                 if (!empty($email)){
@@ -1211,7 +1211,7 @@ class BlogApp extends AbricosApplication {
         }
 
         // уведомление автору
-        if ($topic->user->id == $this->userid){
+        if ($topic->user->id == Abricos::$user->id){
             // свой комментарий в уведомление не нуждается
             return;
         }

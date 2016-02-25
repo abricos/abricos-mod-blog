@@ -93,14 +93,10 @@ Component.entryPoint = function(NS){
         onInitAppWidget: function(err, appInstance){
             this.set('waiting', true);
 
-            var instance = this,
-                categoryid = this.get('categoryid');
+            var categoryid = this.get('categoryid'),
+                category = NS.manager.categoryList.get(categoryid);
 
-            NS.initManager(function(){
-                var category = NS.manager.categoryList.get(categoryid);
-                instance.renderCategory(category);
-            });
-
+            this.renderCategory(category);
         },
         destroy: function(){
             if (this.voteWidget){
@@ -150,7 +146,7 @@ Component.entryPoint = function(NS){
             }
             if (!this.topicListWidget){
                 this.topicListWidget = new NS.TopicListWidget(tp.gel('toplist'), {
-                    'filter': 'category/' + category.id
+                    'filter': 'cat/' + category.id
                 });
             }
             if (UID > 0){

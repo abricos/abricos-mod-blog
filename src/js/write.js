@@ -2,55 +2,64 @@ var Component = new Brick.Component();
 Component.requires = {
     yahoo: ['autocomplete', 'dragdrop'],
     mod: [
-        {name: 'sys', files: ['editor.js']},
+        {name: 'sys', files: ['editor.js', 'panel.js']},
         {name: '{C#MODNAME}', files: ['topic.js']}
     ]
 };
 Component.entryPoint = function(NS){
+
+    var Y = Brick.YUI,
+        COMPONENT = this,
+        SYS = Brick.mod.sys;
+
+    NS.WriteWidget = Y.Base.create('writeWidget', SYS.AppWidget, [], {
+        onInitAppWidget: function(err, appInstance){
+            var tp = this.template,
+                wType = this.get('wType'),
+                p1 = this.get('p1');
+
+            switch (wType) {
+                case 'category':
+                    wType = 'category';
+                    this.widget = new NS.CategoryEditorWidget(tp.gel('widget'), p1);
+                    break;
+                case 'draftlist':
+                    wType = 'draftlist';
+                    this.widget = new NS.TopicListWidget(tp.gel('widget'), {
+                        'filter': 'draft'
+                    });
+                    break;
+                default:
+                    wType = 'topic';
+                    this.widget = new NS.TopicEditorWidget(tp.gel('widget'), p1);
+                    break;
+            }
+        },
+        destructor: function(){
+            if (this.widget){
+                this.widget.destroy();
+            }
+        },
+    }, {
+        ATTRS: {
+            component: {value: COMPONENT},
+            templateBlockName: {value: 'widget'},
+            wType: {value: ''},
+            p1: {value: ''}
+        },
+        parseURLParam: function(args){
+            return {
+                wType: args[0] || '',
+                p1: args[1] || '',
+            };
+        }
+    });
 
     var L = YAHOO.lang,
         R = NS.roles,
         LNG = this.language,
         buildTemplate = this.buildTemplate,
         BW = Brick.mod.widget.Widget;
-
-    var WriteWidget = function(container, wType, p1){
-        WriteWidget.superclass.constructor.call(this, container, {
-            'buildTemplate': buildTemplate, 'tnames': 'widget'
-        }, wType || 'topic', p1);
-    };
-    YAHOO.extend(WriteWidget, BW, {
-        init: function(wType, p1){
-            this.widget = null;
-        },
-        destroy: function(){
-            if (!L.isNull(this.widget)){
-                this.widget.destroy();
-            }
-            WriteWidget.superclass.destroy.call(this);
-        },
-        onLoad: function(wType, p1){
-            switch (wType) {
-                case 'category':
-                    wType = 'category';
-                    this.widget = new NS.CategoryEditorWidget(this.gel('widget'), p1);
-                    break;
-                case 'draftlist':
-                    wType = 'draftlist';
-                    this.widget = new NS.TopicListWidget(this.gel('widget'), {
-                        'filter': 'draft'
-                    });
-                    break;
-                default:
-                    wType = 'topic';
-                    this.widget = new NS.TopicEditorWidget(this.gel('widget'), p1);
-                    break;
-            }
-            this.wType = wType;
-            this.wsMenuItem = wType; // использует wspace.js
-        }
-    });
-    NS.WriteWidget = WriteWidget;
 
     var WriteCategorySelectWidget = function(container, catid){
         WriteCategorySelectWidget.superclass.constructor.call(this, container, {
@@ -100,7 +109,7 @@ Component.entryPoint = function(NS){
             };
         },
         destroy: function(){
-            if (!L.isNull(this.editorWidget)){
+            if (this.editorWidget){
                 this.editorWidget.destroy();
                 this.catSelWidget.destroy();
             }
@@ -132,19 +141,16 @@ Component.entryPoint = function(NS){
                 'tags': topic.tagList.toString()
             });
 
-            var Editor = Brick.widget.Editor;
-            this.editorWidget = new Editor(this.gel('text'), {
-                'toolbar': Editor.TOOLBAR_STANDART,
-                // 'mode': Editor.MODE_VISUAL,
-                'toolbarExpert': false,
-                'separateIntro': true
-            });
-
             var text = topic.intro;
             if (topic.isBody){
                 text += "<cut>" + topic.body;
             }
-            this.editorWidget.setContent(text);
+
+            this.editorWidget = new SYS.Editor({
+                srcNode: this.gel('text'),
+                content: text,
+                separateIntro: true
+            });
 
             if (R['isAdmin']){
                 this.elShow('admindex');
@@ -178,7 +184,7 @@ Component.entryPoint = function(NS){
                 'catid': this.catSelWidget.getValue(),
                 'tl': this.gel('title').value,
                 'tags': NS.TagList.stringToAJAX(stags),
-                'body': this.editorWidget.getContent(),
+                'body': this.editorWidget.get('content'),
                 'idx': this.gel('isindex').checked ? 1 : 0
             };
         },
@@ -191,7 +197,9 @@ Component.entryPoint = function(NS){
             NS.manager.topicPreview(sd, function(topic){
                 __self.elShow('btnsblock');
                 __self.elHide('bloading');
-                new TopicPreviewPanel(topic);
+                new TopicPreviewPanel({
+                    topic: topic
+                });
             });
         },
         saveDraft: function(){
@@ -228,25 +236,29 @@ Component.entryPoint = function(NS){
     });
     NS.TopicEditorWidget = TopicEditorWidget;
 
-    var TopicPreviewPanel = function(topic){
-        this.topic = topic;
-        TopicPreviewPanel.superclass.constructor.call(this);
-    };
-    YAHOO.extend(TopicPreviewPanel, Brick.widget.Dialog, {
-        initTemplate: function(){
-            return buildTemplate(this, 'topicpreview').replace('topicpreview');
+    NS.TopicPreviewPanel = Y.Base.create('topicPreviewPanel', SYS.Dialog, [], {
+        initializer: function(){
+            this.publish('editorSaved');
+            Y.after(this._syncUIGroupEditorDialog, this, 'syncUI');
         },
-        onLoad: function(){
-            var topic = this.topic;
+        _syncUIGroupEditorDialog: function(){
+            var tp = this.template;
+
             var widget = this.viewWidget =
-                new NS.TopicRowWidget(this._TM.getEl('topicpreview.widget'), topic);
+                new NS.TopicRowWidget(tp.gel('widget'), this.get('topic'));
+
             widget.elSetHTML({
                 'body': topic.body
             });
             widget.elHide('readmore');
         }
+    }, {
+        ATTRS: {
+            component: {value: COMPONENT},
+            templateBlockName: {value: 'topicpreview'},
+            topic: {value: 0},
+        }
     });
-    NS.TopicPreviewPanel = TopicPreviewPanel;
 
     var TagsAutocomplete = function(input, container){
         var ds = new YAHOO.util.XHRDataSource('/ajax/blog/js_tags/');
@@ -275,7 +287,7 @@ Component.entryPoint = function(NS){
             };
         },
         destroy: function(){
-            if (!L.isNull(this.editorWidget)){
+            if (this.editorWidget){
                 this.editorWidget.destroy();
             }
             CategoryEditorWidget.superclass.destroy.call(this);
@@ -296,13 +308,11 @@ Component.entryPoint = function(NS){
             this.elHide('loading');
             this.elHide('wrap');
 
-            var Editor = Brick.widget.Editor;
-            this.editorWidget = new Editor(this.gel('text'), {
-                'toolbar': Editor.TOOLBAR_MINIMAL,
-                'toolbarExpert': false,
-                'separateIntro': false
+            this.editorWidget = new SYS.Editor({
+                srcNode: this.gel('text'),
+                content: cat.descript,
+                separateIntro: false
             });
-            this.editorWidget.setContent(cat.descript);
 
             this.elSetValue({
                 'title': cat.title,
@@ -334,7 +344,7 @@ Component.entryPoint = function(NS){
                 'id': this.cat.id,
                 'tl': this.gel('title').value,
                 'nm': this.gel('name').value,
-                'dsc': this.editorWidget.getContent(),
+                'dsc': this.editorWidget.get('content'),
                 'rep': this.gel('rep').value
             };
         },

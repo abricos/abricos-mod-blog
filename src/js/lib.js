@@ -43,16 +43,15 @@ Component.entryPoint = function(NS){
             },
             tag: {
                 view: function(tag){
-                    console.log(tag);
                     return this.getURL('ws') + 'tag/TagViewWidget/' + tag + '/';
                 }
             },
             category: {
                 list: function(){
-                    return WS + 'category/CategoryListWidget/';
+                    return this.getURL('ws') + 'category/CategoryListWidget/';
                 },
                 view: function(catid){
-                    return WS + 'category/CategoryViewWidget/' + catid + '/';
+                    return this.getURL('ws') + 'category/CategoryViewWidget/' + catid + '/';
                 },
                 edit: function(catid){
                     return this.getURL('write.category', catid);
@@ -60,29 +59,29 @@ Component.entryPoint = function(NS){
             },
             author: {
                 list: function(){
-                    return WS + 'author/AuthorListWidget/';
+                    return this.getURL('ws') + 'author/AuthorListWidget/';
                 },
                 view: function(authorid){
-                    return WS + 'author/AuthorViewWidget/' + authorid + '/';
+                    return this.getURL('ws') + 'author/AuthorViewWidget/' + authorid + '/';
                 }
             },
             write: {
                 view: function(){
-                    return WS + 'write/WriteWidget/';
+                    return this.getURL('ws') + 'write/WriteWidget/';
                 },
                 topic: function(id){
                     id = id || 0;
-                    return WS + 'write/WriteWidget/topic/' + (id > 0 ? id + "/" : "");
+                    return this.getURL('write.view') + 'topic/' + (id > 0 ? id + "/" : "");
                 },
                 category: function(id){
-                    return this.getURL('ws') + 'write/WriteWidget/category/' + id | 0 + "/";
+                    return this.getURL('write.view') + 'category/' + (id | 0) + "/";
                 },
                 draftlist: function(){
-                    return WS + 'write/WriteWidget/draftlist/';
+                    return this.getURL('write.view') + 'draftlist/';
                 }
             },
             about: function(){
-                return WS + 'about/AboutWidget/';
+                return this.getURL('ws') + 'about/AboutWidget/';
             },
         }
     });
