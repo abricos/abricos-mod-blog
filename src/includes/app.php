@@ -7,8 +7,6 @@
  * @author Alexander Kuzmin <roosit@abricos.org>
  */
 
-require_once 'classes.php';
-require_once 'dbquery.php';
 
 /**
  * Class BlogApp

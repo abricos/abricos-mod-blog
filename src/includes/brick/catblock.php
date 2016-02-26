@@ -9,9 +9,11 @@
 
 $brick = Brick::$builder->brick;
 $v = &$brick->param->var;
-$man = BlogModule::$instance->GetManager();
 
-$cats = $man->CategoryList();
+/** @var BlogApp $app */
+$app = Abricos::GetApp('blog');
+
+$cats = $app->CategoryList();
 
 if (empty($cats)){
     $brick->content = "";

@@ -10,9 +10,11 @@
 $brick = Brick::$builder->brick;
 $v = &$brick->param->var;
 $p = &$brick->param->param;
-$man = BlogModule::$instance->GetManager();
 
-$tags = $man->TagList(array("limit" => intval($p['limit'])));
+/** @var BlogApp $app */
+$app = Abricos::GetApp('blog');
+
+$tags = $app->TagList(array("limit" => intval($p['limit'])));
 
 if (empty($tags)){
     $brick->content = "";

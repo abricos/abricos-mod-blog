@@ -10,19 +10,22 @@
 $brick = Brick::$builder->brick;
 $man = BlogModule::$instance->GetManager();
 
-$modUProfile = Abricos::GetModule('uprofile');
-return;
-$lst = "";
-$comms = $man->GetApp()->CommentLiveList();
+/** @var BlogApp $app */
+$app = Abricos::GetApp('blog');
+
+$comms = $app->CommentLiveList();
 
 if (empty($comms)){
     $brick->content = "";
     return;
 }
 
+$lst = "";
 $count = $comms->Count();
 for ($i = 0; $i < $count; $i++){
+    /** @var BlogCommentLive $comm */
     $comm = $comms->GetByIndex($i);
+
     $topic = $comm->topic;
     $cat = $topic->Category();
 
@@ -35,7 +38,7 @@ for ($i = 0; $i < $count; $i++){
         "toptl" => $topic->title,
         "urltop" => $topic->URL(),
         "urlcmt" => $topic->URL(),
-        "cmtcnt" => $topic->commentCount
+        "cmtcnt" => $topic->commentStatistic->count
     ));
 }
 

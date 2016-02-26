@@ -203,7 +203,6 @@ Component.entryPoint = function(NS){
     return;
 
     var CategoryRemovePanel = function(category, callback){
-        this.get('category') = category;
         this.callback = callback;
         CategoryRemovePanel.superclass.constructor.call(this, {fixedcenter: true});
     };

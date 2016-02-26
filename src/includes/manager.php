@@ -48,19 +48,6 @@ class BlogManager extends Ab_ModuleManager {
         return $this->IsRoleEnable(BlogAction::VIEW);
     }
 
-    private $_app = null;
-
-    /**
-     * @return BlogApp
-     */
-    public function GetApp(){
-        if (!is_null($this->_app)){
-            return $this->_app;
-        }
-        $this->module->ScriptRequire('includes/app.php');
-        return $this->_app = new BlogApp($this);
-    }
-
     public function AJAX($d){
         return $this->GetApp()->AJAX($d);
     }
