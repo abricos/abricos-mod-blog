@@ -57,6 +57,7 @@ class BlogManager extends Ab_ModuleManager {
         return array(
             array(
                 "name" => "blog",
+                "group" => "social",
                 "title" => $i18n->Translate('bosmenu.blog'),
                 "role" => BlogAction::VIEW,
                 "icon" => "/modules/blog/images/blog-24.png",
