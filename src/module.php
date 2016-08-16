@@ -26,7 +26,7 @@ class BlogModule extends Ab_Module {
 
     private $_manager = null;
 
-    public function BlogModule() {
+    public function __construct(){
         // версия модуля
         $this->version = "0.5.3";
 
@@ -43,8 +43,8 @@ class BlogModule extends Ab_Module {
     /**
      * @return BlogManager
      */
-    public function GetManager() {
-        if (is_null($this->_manager)) {
+    public function GetManager(){
+        if (is_null($this->_manager)){
             require_once 'includes/manager.php';
             $this->_manager = new BlogManager($this);
         }
@@ -53,10 +53,10 @@ class BlogModule extends Ab_Module {
 
     private $_cachepa = null;
 
-    private function PageConvert($p) {
-        if (substr($p, 0, 4) == 'page') {
+    private function PageConvert($p){
+        if (substr($p, 0, 4) == 'page'){
             $c = strlen($p);
-            if ($c <= 4) {
+            if ($c <= 4){
                 return 0;
             }
             return intval(substr($p, 4, $c - 4));
@@ -67,9 +67,9 @@ class BlogModule extends Ab_Module {
     /**
      * @return BlogParserAddress
      */
-    public function ParserAddress() {
+    public function ParserAddress(){
 
-        if (!empty($this->_cachepa)) {
+        if (!empty($this->_cachepa)){
             return $this->_cachepa;
         }
 
@@ -80,8 +80,8 @@ class BlogModule extends Ab_Module {
         $dir = Abricos::$adress->dir;
         $lvl = Abricos::$adress->level;
 
-        for ($i = 1; $i < $lvl; $i++) {
-            if ($this->PageConvert($dir[$i]) > 0) {
+        for ($i = 1; $i < $lvl; $i++){
+            if ($this->PageConvert($dir[$i]) > 0){
                 break;
             }
             $pa->uri .= $dir[$i]."/";
@@ -95,54 +95,54 @@ class BlogModule extends Ab_Module {
 
         $i18n = $this->GetI18n();
 
-        if ($lvl == 1) { //blog/
+        if ($lvl == 1){ //blog/
 
             $pa->type = 'topiclist';
             $pa->topicListFilter = "index";
             $pa->pageTitle = $i18n['pagetitle']['index'];
-        } else if ($d1 == '_unsubscribe') {
+        } else if ($d1 == '_unsubscribe'){
 
             $pa->type = 'unsubscribe';
             $pa->usbUserId = intval($d2);
             $pa->usbKey = $d3;
             $pa->usbCatId = $d4;
 
-        } else if (($page = $this->PageConvert($d1)) > 0) { //blog/pageN/
+        } else if (($page = $this->PageConvert($d1)) > 0){ //blog/pageN/
 
             $pa->type = 'topiclist';
             $pa->topicListFilter = "index";
             $pa->page = $page;
             $pa->pageTitle = str_replace("{v#page}", $page, $i18n['pagetitle']['indexpage']);
 
-        } else if ($d1 == 'new') { //blog/new/...
+        } else if ($d1 == 'new'){ //blog/new/...
 
             $pa->type = 'topiclist';
             $pa->topicListFilter = "index/new";
             $pa->pageTitle = $i18n['pagetitle']['indexnew'];
 
-            if (($page = $this->PageConvert($d2)) > 0) { //blog/new/pageN/
+            if (($page = $this->PageConvert($d2)) > 0){ //blog/new/pageN/
                 $pa->page = $page;
                 $pa->pageTitle = str_replace("{v#page}", $page, $i18n['pagetitle']['indexnewpage']);
             }
 
-        } else if ($d1 == 'pub' || $d1 == 'pers') { //blog/[pub|pers]/...
+        } else if ($d1 == 'pub' || $d1 == 'pers'){ //blog/[pub|pers]/...
 
             $pa->type = 'topiclist';
             $pa->topicListFilter = $d1;
             $pa->pageTitle = $i18n['pagetitle'][$d1 == 'pub' ? 'pub' : 'pers'];
 
-            if ($d2 == 'new') { //blog/[pub|pers]/new/
+            if ($d2 == 'new'){ //blog/[pub|pers]/new/
                 $pa->topicListFilter = $d1."/new";
 
                 $pa->pageTitle = $i18n['pagetitle'][$d1 == 'pub' ? 'pubnew' : 'persnew'];
 
-                if (($page = $this->PageConvert($d3)) > 0) { //blog/[pub|pers]/new/pageN/
+                if (($page = $this->PageConvert($d3)) > 0){ //blog/[pub|pers]/new/pageN/
                     $pa->page = $page;
                     $pa->pageTitle = str_replace("{v#page}", $page,
                         $i18n['pagetitle'][$d1 == 'pub' ? 'pubpagepage' : 'perspagepage']
                     );
                 }
-            } else if (($page = $this->PageConvert($d2)) > 0) { //blog/[pub|pers]/pageN/
+            } else if (($page = $this->PageConvert($d2)) > 0){ //blog/[pub|pers]/pageN/
                 $pa->page = $page;
 
                 $pa->pageTitle = str_replace("{v#page}", $page,
@@ -150,9 +150,9 @@ class BlogModule extends Ab_Module {
                 );
             }
 
-        } else if ($d1 == 'tag') { //blog/[pub|pers]/...
+        } else if ($d1 == 'tag'){ //blog/[pub|pers]/...
 
-            if ($lvl == 2) {
+            if ($lvl == 2){
                 $pa->type = 'taglist';
             } else {
                 $pa->type = 'tagview';
@@ -162,20 +162,20 @@ class BlogModule extends Ab_Module {
                 );
             }
 
-        } else if ($d1 == 'author') {
+        } else if ($d1 == 'author'){
             $page = $this->PageConvert($d3);
 
             $pa->pageTitle = $i18n['pagetitle']['authors'];
 
-            if ($lvl == 2) {//blog/author/
+            if ($lvl == 2){//blog/author/
                 // список авторов
                 $pa->type = 'authorlist';
-            } else if ($lvl == 4 && $page == 0) {//blog/author/%username%/%topicid%/
+            } else if ($lvl == 4 && $page == 0){//blog/author/%username%/%topicid%/
 
                 $topicid = intval($d3);
                 $topic = $man->Topic($topicid);
 
-                if (empty($topic)) {
+                if (empty($topic)){
                     $pa->err404 = true;
                 } else {
                     $pa->type = 'topicview';
@@ -191,7 +191,7 @@ class BlogModule extends Ab_Module {
 
                 $pa->author = $man->GetApp()->AuthorByUserName($username);
 
-                if (empty($pa->author)) {
+                if (empty($pa->author)){
                     $pa->err404 = true;
                 } else {
                     $pa->type = 'authorview';
@@ -202,10 +202,10 @@ class BlogModule extends Ab_Module {
                 }
             }
 
-        } else if (!empty($d1)) { //blog/%category_name%/
+        } else if (!empty($d1)){ //blog/%category_name%/
             $cats = $man->GetApp()->CategoryList();
             $pa->cat = $cats->GetByName($d1);
-            if (!empty($pa->cat)) {
+            if (!empty($pa->cat)){
                 $pa->type = 'catview';
                 $pa->topicListFilter = "cat/".$pa->cat->id;
 
@@ -213,13 +213,13 @@ class BlogModule extends Ab_Module {
                     $i18n['pagetitle']['cat']
                 );
 
-                if ($d2 == 'new') { //blog/%category_name%/new/
+                if ($d2 == 'new'){ //blog/%category_name%/new/
                     $pa->topicListFilter .= "/new";
 
-                    if (($page = $this->PageConvert($d3)) > 0) { //blog/%category_name%/new/pageN/
+                    if (($page = $this->PageConvert($d3)) > 0){ //blog/%category_name%/new/pageN/
                         $pa->page = $page;
                     }
-                } else if (($page = $this->PageConvert($d2)) > 0) { //blog/%category_name%/pageN/
+                } else if (($page = $this->PageConvert($d2)) > 0){ //blog/%category_name%/pageN/
                     $pa->page = $page;
                     $pa->pageTitle = str_replace("{v#name}", $pa->cat->title,
                         $i18n['pagetitle']['catpage']
@@ -227,12 +227,12 @@ class BlogModule extends Ab_Module {
                     $pa->pageTitle = str_replace("{v#page}", $page,
                         $pa->pageTitle
                     );
-                } else if ($lvl > 2) { //blog/%category_name%/%topicid%/
+                } else if ($lvl > 2){ //blog/%category_name%/%topicid%/
 
                     $topicid = intval($d2);
                     $topic = $man->GetApp()->Topic($topicid);
 
-                    if (empty($topic)) {
+                    if (empty($topic)){
                         $pa->err404 = true;
                     } else {
                         $pa->type = 'topicview';
@@ -249,7 +249,7 @@ class BlogModule extends Ab_Module {
             }
         }
 
-        if (!empty($pa->topicListFilter)) {
+        if (!empty($pa->topicListFilter)){
             $pa->topicList = $this->GetManager()->GetApp()->TopicList(array(
                 "limit" => BlogModule::TOPIC_PAGE_LIMIT,
                 "filter" => $pa->topicListFilter,
@@ -257,7 +257,7 @@ class BlogModule extends Ab_Module {
             ));
         }
 
-        if (empty($pa->type) && !$pa->err404) {
+        if (empty($pa->type) && !$pa->err404){
             $pa->type = 'topiclist';
         }
 
@@ -266,24 +266,24 @@ class BlogModule extends Ab_Module {
         return $pa;
     }
 
-    public function GetContentName() {
+    public function GetContentName(){
         $pa = $this->ParserAddress();
-        if ($pa->err404) {
+        if ($pa->err404){
             return '';
         }
 
         return $pa->type;
     }
 
-    public function GetLink() {
+    public function GetLink(){
         return Abricos::$adress->host."/".$this->takelink."/";
     }
 
-    public function RSS_GetItemList($inBosUI = false) {
+    public function RSS_GetItemList($inBosUI = false){
         $ret = array();
 
         $url = Abricos::$adress->host;
-        if ($inBosUI) {
+        if ($inBosUI){
             $url .= "/bos/#app=blog/wspace/ws/topic/TopicViewWidget/";
         } else {
             $url .= "/".$this->takelink."/";
@@ -293,13 +293,13 @@ class BlogModule extends Ab_Module {
 
         $topics = $this->GetManager()->TopicList();
 
-        for ($i = 0; $i < $topics->Count(); $i++) {
+        for ($i = 0; $i < $topics->Count(); $i++){
             $topic = $topics->GetByIndex($i);
             $cat = $topic->Category();
 
             $title = $topic->title." / ".$cat->title;
 
-            if ($inBosUI) {
+            if ($inBosUI){
                 $link = $url.$topic->id."/";
             } else {
                 $link = $url.$cat->name."/".$topic->id."/";
@@ -312,7 +312,7 @@ class BlogModule extends Ab_Module {
         return $ret;
     }
 
-    public function RssMetaLink() {
+    public function RssMetaLink(){
         return Ab_URI::fetch_host()."/rss/blog/";
     }
 
@@ -321,7 +321,7 @@ class BlogModule extends Ab_Module {
      *
      * @return bool
      */
-    public function Bos_IsMenu() {
+    public function Bos_IsMenu(){
         return true;
     }
 
@@ -396,7 +396,7 @@ class BlogAction {
  */
 class BlogPermission extends Ab_UserPermission {
 
-    public function BlogPermission(BlogModule $module) {
+    public function __construct(BlogModule $module){
 
         $defRoles = array(
             new Ab_UserRole(BlogAction::VIEW, Ab_UserGroup::GUEST),
@@ -411,14 +411,14 @@ class BlogPermission extends Ab_UserPermission {
         // Если есть модуль рейтинг пользователя, то разрешить роль
         // пользователю на публикацию топиков
         $modURating = Abricos::GetModule('urating');
-        if (!empty($modURating)) {
+        if (!empty($modURating)){
             $defRoles[] = new Ab_UserRole(BlogAction::WRITE, Ab_UserGroup::REGISTERED);
         }
 
         parent::__construct($module, $defRoles);
     }
 
-    public function GetRoles() {
+    public function GetRoles(){
         return array(
             BlogAction::VIEW => $this->CheckAction(BlogAction::VIEW),
             BlogAction::WRITE => $this->CheckAction(BlogAction::WRITE),
@@ -428,6 +428,3 @@ class BlogPermission extends Ab_UserPermission {
 }
 
 Abricos::ModuleRegister(new BlogModule());
-
-
-?>

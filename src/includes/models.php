@@ -869,6 +869,3 @@ class BlogCommentLiveList {
         return $this->list[$index];
     }
 }
-
-
-?>

@@ -42,5 +42,3 @@ if (empty($lst)){
 $brick->content = Brick::ReplaceVarByData($brick->content, array(
     "rows" => $lst
 ));
-
-?>

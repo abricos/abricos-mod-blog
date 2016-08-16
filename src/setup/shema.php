@@ -442,8 +442,4 @@ if ($updateManager->isUpdate('0.5.3') && !$updateManager->isInstall()){
 		ALTER TABLE ".$pfx."bg_topic
 		DROP contentid
 	");
-
 }
-
-
-?>

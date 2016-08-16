@@ -116,5 +116,3 @@ if (!empty($pa->pageTitle)){
 
 // отправить сообщения рассылки из очереди (подобие крона)
 BlogManager::$instance->GetApp()->SubscribeTopicCheck();
-
-?>

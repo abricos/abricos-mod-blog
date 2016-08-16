@@ -1336,5 +1336,3 @@ class BlogApp extends AbricosApplication {
     }
 
 }
-
-?>

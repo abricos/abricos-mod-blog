@@ -41,5 +41,3 @@ $brick->content = Brick::ReplaceVarByData($brick->content, array(
     'rss' => empty($modRSS) ? "" : $brick->param->var['rss'],
     'rows' => $lst
 ));
-
-?>

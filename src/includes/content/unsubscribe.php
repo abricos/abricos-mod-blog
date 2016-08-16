@@ -42,6 +42,3 @@ if (empty($info)){
         BlogTopicQuery::UnSubscribeCategory(Abricos::$db, $userid, $pubkey);
     }
 }
-
-
-?>

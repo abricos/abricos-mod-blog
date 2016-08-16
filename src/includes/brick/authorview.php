@@ -27,5 +27,3 @@ if (!empty($pa->pageTitle)){
     $meta_title = $pa->pageTitle." / ".SystemModule::$instance->GetPhrases()->Get('site_name');
     Brick::$builder->SetGlobalVar('meta_title', $meta_title);
 }
-
-?>

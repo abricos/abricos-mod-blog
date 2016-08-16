@@ -16,5 +16,3 @@ for ($i = 0; $i < count($tags); $i++){
     print ($tags[$i]."\n");
 }
 exit;
-
-?>

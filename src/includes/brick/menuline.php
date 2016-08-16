@@ -51,5 +51,3 @@ $brick->content = Brick::ReplaceVarByData($brick->content, array(
     "currpub" => $mcurpub,
     "currpers" => $mcurpers
 ));
-
-?>

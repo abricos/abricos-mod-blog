@@ -17,5 +17,3 @@ $f = explode("/", $pa->topicListFilter);
 $brick->content = Brick::ReplaceVarByData($brick->content, array(
     'tag' => $f[1]
 ));
-
-?>

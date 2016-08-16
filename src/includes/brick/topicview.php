@@ -98,5 +98,3 @@ $man->GetApp()->TopicMetaTagBuild($topic);
 
 Brick::$builder->SetGlobalVar('meta_keys', $topic->metakeys);
 Brick::$builder->SetGlobalVar('meta_desc', $topic->metadesc);
-
-?>

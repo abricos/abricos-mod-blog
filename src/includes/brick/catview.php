@@ -52,5 +52,3 @@ $brick->content = Brick::ReplaceVarByData($brick->content, array(
     "f1sel" => !$isNew ? "sel" : "",
     "f2sel" => !$isNew ? "" : "sel"
 ));
-
-?>

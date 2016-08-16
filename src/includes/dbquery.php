@@ -313,7 +313,7 @@ class BlogTopicQuery {
     }
 
     public static function TopicAppend(Ab_Database $db, $userid, $d){
-            $sql = "
+        $sql = "
 			INSERT INTO ".$db->prefix."bg_topic
 			(catid, userid, language, title, name, intro, body, metakeys, metadesc, isdraft, autoindex, pubdate, dateline, upddate) VALUES (
 				".bkint($d->catid).",
@@ -1086,7 +1086,4 @@ class BlogTopicQuery {
         $db->query_write($sql);
         return $db->insert_id();
     }
-
 }
-
-?>
