@@ -101,7 +101,7 @@ Component.entryPoint = function(NS){
         init: function(topicid){
             this.topicid = topicid;
             this.catSelWidget = null;
-            this.editorWidget = null;
+            this.introEditorWidget = null;
         },
         buildTData: function(topicid){
             return {
@@ -109,9 +109,11 @@ Component.entryPoint = function(NS){
             };
         },
         destroy: function(){
-            if (this.editorWidget){
-                this.editorWidget.destroy();
+            if (this.introEditorWidget){
+                this.introEditorWidget.destroy();
+                this.bodyEditorWidget.destroy();
                 this.catSelWidget.destroy();
+                this.tagManager.destroy();
             }
             TopicEditorWidget.superclass.destroy.call(this);
         },
@@ -141,15 +143,14 @@ Component.entryPoint = function(NS){
                 'tags': topic.tagList.toString()
             });
 
-            var text = topic.intro;
-            if (topic.isBody){
-                text += "<cut>" + topic.body;
-            }
+            this.introEditorWidget = new SYS.Editor({
+                srcNode: this.gel('intro'),
+                content: topic.intro
+            });
 
-            this.editorWidget = new SYS.Editor({
-                srcNode: this.gel('text'),
-                content: text,
-                separateIntro: true
+            this.bodyEditorWidget = new SYS.Editor({
+                srcNode: this.gel('body'),
+                content: topic.body
             });
 
             if (R['isAdmin']){
@@ -184,7 +185,8 @@ Component.entryPoint = function(NS){
                 'catid': this.catSelWidget.getValue(),
                 'tl': this.gel('title').value,
                 'tags': NS.TagList.stringToAJAX(stags),
-                'body': this.editorWidget.get('content'),
+                'intro': this.introEditorWidget.get('content'),
+                'body': this.bodyEditorWidget.get('content'),
                 'idx': this.gel('isindex').checked ? 1 : 0
             };
         },

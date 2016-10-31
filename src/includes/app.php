@@ -559,12 +559,8 @@ class BlogApp extends AbricosApplication {
             $d->nm = translateruen($d->tl);
         }
 
+        $d->intro = $utm->Parser($d->intro);
         $d->body = $utm->Parser($d->body);
-
-        $aText = $utm->Cut($d->body);
-
-        $d->intro = $aText[0];
-        $d->body = $aText[1];
 
         // META заголовки
         $d->mtks = implode(", ", $tags); // keywords
@@ -1316,6 +1312,42 @@ class BlogApp extends AbricosApplication {
         Abricos::Notify()->SendMail($email, $subject, $body);
     }
 
+    public function RSS_GetItemList($inBosUI = false){
+        $ret = array();
+
+        $url = Ab_URI::Site();
+        if ($inBosUI){
+            $url .= "/bos/#app=blog/wspace/ws/topic/TopicViewWidget/";
+        } else {
+            $url .= "/blog/";
+        }
+
+        $i18n = $this->manager->module->I18n();
+
+        $topics = $this->TopicList();
+
+        for ($i = 0; $i < $topics->Count(); $i++){
+            $topic = $topics->GetByIndex($i);
+            $cat = $topic->Category();
+
+            $title = $topic->title." / ".$cat->title;
+
+            if ($inBosUI){
+                $link = $url.$topic->id."/";
+            } else {
+                if ($cat instanceof BlogPersonalCategory){
+                    $link = $url.'author/'.$cat->user->userName."/".$topic->id."/";
+                } else {
+                    $link = $url.$cat->name."/".$topic->id."/";
+                }
+            }
+            $item = new RSSItem($title, $link, $topic->intro, $topic->publicDate);
+            $item->modTitle = $i18n->Translate('modtitle');
+            $ret[] = $item;
+        }
+
+        return $ret;
+    }
 
     public function Bos_OnlineData(){
         $ret = $this->TopicListToAJAX(array("limit" => 1));

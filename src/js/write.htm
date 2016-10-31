@@ -33,20 +33,17 @@
 			<div class="dsc">Заголовок должен быть кратким и отражать содержание топика</div>
 
 			<dl>
-				<dt>Текст:</dt>
-				<dd>
-					&nbsp;
-				</dd>
+				<dt>Анотация:</dt>
+				<dd>&nbsp;</dd>
 			</dl>
+            <div id="{i#intro}" data-rows="8"></div>
 
-            <div id="{i#text}" data-rows="25"></div>
+            <dl>
+                <dt>Основной текст (продолжение):</dt>
+                <dd>&nbsp;</dd>
+            </dl>
+            <div id="{i#body}" data-rows="25"></div>
 
-            <div class="dsc">
-				Если текст большой, его необходимо разделить добавив "Разрыв страницы". 
-				Тогда первая часть текста будет отображаться анонсом в списке топиков, а уже 
-				полный (оставшийся) текст будет доступен при просмотре топика 
-			</div>
-		
 			<dl>
 				<dt>Метки:</dt>
 				<dd>&nbsp;</dd>
@@ -63,8 +60,8 @@
 				<input id="{i#isindex}" type="checkbox" />
 				<label for="{i#isindex}">Принудительно вывести на главную</label>
 				<div class="dsc">
-					Если включить эту настройку, то пост сразу попадет на главную 
-					(а так же осуществится рассылка о новом топике подписчикам), 
+					Если включить эту настройку, то пост сразу попадет на главную
+					(а так же осуществится рассылка о новом топике подписчикам),
 					иначе, пост выйдет на главную только по набору необходимого рейтинга
 				</div>
 			</div>
@@ -74,13 +71,13 @@
 			<div class="baction">
 				<div id="{i#btnsblock}">
 					<div class="blft">
-						<input id="{i#bpreview}" value="Предпросмотр" type="button" class="btn" />
-						<input id="{i#bsavedraft}" value="Сохранить в черновиках" type="button" class="btn" />
+						<input id="{i#bpreview}" value="Предпросмотр" type="button" class="btn btn-default" />
+						<input id="{i#bsavedraft}" value="Сохранить в черновиках" type="button" class="btn btn-default" />
 					</div>
 					<div class="brgt">
-						<input id="{i#bcreate}" value="Опубликовать" type="button" class="btn edstnew" />
-						<input id="{i#bsave}" value="Сохранить изменения" type="button" class="btn edstedit" />
-						<input id="{i#bcancel}" value="Отмена" type="button" class="btn" />
+						<input id="{i#bcreate}" value="Опубликовать" type="button" class="btn edstnew btn-default" />
+						<input id="{i#bsave}" value="Сохранить изменения" type="button" class="btn edstedit btn-default" />
+						<input id="{i#bcancel}" value="Отмена" type="button" class="btn btn-default" />
 					</div>
 				</div>
 				<div class="clear"></div>
