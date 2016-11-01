@@ -29,32 +29,4 @@ return array(
         'catpage' => 'Страница {v#page} / {v#name}'
     ),
     'catperson' => 'Блог им. {v#unm}',
-    'brick' => array(
-        'templates' => array(
-            "5" => "Новый топик в блоге «{v#tl}»",
-            "6" => "<p>
-		Пользователь <b>{v#unm}</b> опубликовал в блоге «{v#blog}» новый топик - <a href='{v#tlnk}'>{v#topic}</a>
-	</p>
-	
-	{v#topicintro}
-				
-	<p>
-		<a href='{v#tlnk}'>Читать дальше</a>
-	</p>
-	
-	<p>С наилучшими пожеланиями,<br />
-	 {v#sitename}</p>
-	 
-	 <p style=\"font-size:11px;font-family: tahoma, verdana, arial, sans-serif;color:#999999;\">
-	 	Сообщение было отправлено на ваш {v#email}
-		<br /> 
-		Вы подписаны на рассылку о новых публикациях в блоге «{v#blog}»
-		<br /> 
-		<a href='{v#unlnkall}' style=\"color:#3b5998;text-decoration:none;\">Отписаться от рассылки всех сообщений</a> 
-		<br /> 
-		<a href='{v#unlnkallblog}' style=\"color:#3b5998;text-decoration:none;\">Отписаться от блога «{v#blog}»</a> 
-	</p>
-	 "
-        )
-    )
 );

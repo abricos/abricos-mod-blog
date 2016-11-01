@@ -1186,6 +1186,9 @@ class BlogApp extends AbricosApplication {
         $notifyApp->MailSend($mail);
     }
 
+    /* * * * * * * * * * * * * * * * * * * * * * * * * * * */
+    /*                       Subscribe                     */
+    /* * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
     /**
      * Проверить наличие новых топиков и отправить по ним письма-уведомления
@@ -1231,44 +1234,48 @@ class BlogApp extends AbricosApplication {
         }
     }
 
-    private $_brickTemplates = null;
-
     private function SubscribeTopicSend(BlogTopic $topic, $user){
         $email = $user['eml'];
         if (empty($email)){
             return;
         }
 
-        if (is_null($this->_brickTemplates)){
-            $this->_brickTemplates = Brick::$builder->LoadBrickS('blog', 'templates', null, null);
+        $brick = $this->Cache('brick', 'notifyNewTopic');
+        if (!$brick){
+            $brick = Brick::$builder->LoadBrickS('blog', 'notifyNewTopic');
+            $this->SetCache('brick', 'notifyNewTopic', $brick);
         }
 
-        $brick = Brick::$builder->LoadBrickS('blog', 'templates', null, null);
+        /** @var NotifyApp $notifyApp */
+        $notifyApp = Abricos::GetApp('notify');
 
         $v = $brick->param->var;
-        $host = $_SERVER['HTTP_HOST'] ? $_SERVER['HTTP_HOST'] : $_ENV['HTTP_HOST'];
+        $host = Ab_URI::Site();
 
         $cat = $topic->Category();
 
-        $tLnk = "http://".$host.$topic->URL();
-        $unLnkBlog = "http://".$host."/blog/_unsubscribe/".$user['id']."/".$user['pubkey']."/".$topic->catid."/";
-        $unLnkAll = "http://".$host."/blog/_unsubscribe/".$user['id']."/".$user['pubkey']."/all/";
+        $tLnk = $host.$topic->URL();
+        $unLnkBlog = $host."/blog/_unsubscribe/".$user['id']."/".$user['pubkey']."/".$topic->catid."/";
+        $unLnkAll = $host."/blog/_unsubscribe/".$user['id']."/".$user['pubkey']."/all/";
 
-        $subject = Brick::ReplaceVarByData($v['topicnewsubj'], array(
-            "tl" => $cat->title
-        ));
-        $body = Brick::ReplaceVarByData($v['topicnew'], array(
-            "email" => $email,
-            "blog" => $cat->title,
-            "topic" => $topic->title,
-            "unm" => $topic->user->GetUserName(),
-            "tlnk" => $tLnk,
-            "unlnkall" => $unLnkAll,
-            "unlnkallblog" => $unLnkBlog,
-            "sitename" => SystemModule::$instance->GetPhrases()->Get('site_name'),
-            "topicintro" => $topic->intro
-        ));
-        Abricos::Notify()->SendMail($email, $subject, $body);
+        $mail = $notifyApp->MailByFields(
+            $email,
+            Brick::ReplaceVarByData($v['subject'], array(
+                "title" => $topic->title
+            )),
+            Brick::ReplaceVarByData($brick->content, array(
+                "email" => $email,
+                "unm" => $topic->user->GetUserName(),
+                "blog" => $cat->title,
+                "topic" => $topic->title,
+                "tlnk" => $tLnk,
+                "unlnkall" => $unLnkAll,
+                "unlnkallblog" => $unLnkBlog,
+                "sitename" => SystemModule::$instance->GetPhrases()->Get('site_name'),
+                "topicintro" => $topic->intro
+            ))
+        );
+        $notifyApp->MailSend($mail);
     }
 
     /* * * * * * * * * * * * * * * * * * * * * * * * * * * */
