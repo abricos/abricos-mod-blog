@@ -197,7 +197,7 @@ class BlogTopicInfo {
         $this->isDraft = isset($d['dft']) && intval($d['dft']) > 0;
         $this->isIndex = isset($d['idx']) && intval($d['idx']) > 0;
         $this->isAutoIndex = isset($d['aidx']) && intval($d['aidx']) > 0;
-        $this->publicDate = isset($d['dl']) && intval($d['dl']);
+        $this->publicDate = isset($d['dl']) ? intval($d['dl']) : 0;
 
         $this->title = strval($d['tl']);
         $this->intro = strval($d['intro']);
