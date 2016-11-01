@@ -113,7 +113,7 @@ Component.entryPoint = function(NS){
                 this.introEditorWidget.destroy();
                 this.bodyEditorWidget.destroy();
                 this.catSelWidget.destroy();
-                this.tagManager.destroy();
+                this.tagManager = null;
             }
             TopicEditorWidget.superclass.destroy.call(this);
         },
@@ -181,17 +181,18 @@ Component.entryPoint = function(NS){
             var stags = this.gel('tags').value;
 
             return {
-                'id': this.topic.id,
-                'catid': this.catSelWidget.getValue(),
-                'tl': this.gel('title').value,
-                'tags': NS.TagList.stringToAJAX(stags),
-                'intro': this.introEditorWidget.get('content'),
-                'body': this.bodyEditorWidget.get('content'),
-                'idx': this.gel('isindex').checked ? 1 : 0
+                id: this.topic.id,
+                catid: this.catSelWidget.getValue(),
+                tl: this.gel('title').value,
+                tags: NS.TagList.stringToAJAX(stags),
+                intro: this.introEditorWidget.get('content'),
+                body: this.bodyEditorWidget.get('content'),
+                idx: this.gel('isindex').checked ? 1 : 0
             };
         },
         showPreview: function(){
-            var __self = this, sd = this.getSaveData();
+            var __self = this,
+                sd = this.getSaveData();
 
             this.elHide('btnsblock');
             this.elShow('bloading');
@@ -199,7 +200,7 @@ Component.entryPoint = function(NS){
             NS.manager.topicPreview(sd, function(topic){
                 __self.elShow('btnsblock');
                 __self.elHide('bloading');
-                new TopicPreviewPanel({
+                new NS.TopicPreviewPanel({
                     topic: topic
                 });
             });
@@ -240,17 +241,17 @@ Component.entryPoint = function(NS){
 
     NS.TopicPreviewPanel = Y.Base.create('topicPreviewPanel', SYS.Dialog, [], {
         initializer: function(){
-            this.publish('editorSaved');
             Y.after(this._syncUIGroupEditorDialog, this, 'syncUI');
         },
         _syncUIGroupEditorDialog: function(){
-            var tp = this.template;
+            var tp = this.template,
+                topic = this.get('topic');
 
             var widget = this.viewWidget =
-                new NS.TopicRowWidget(tp.gel('widget'), this.get('topic'));
+                new NS.TopicRowWidget(tp.gel('widget'), topic);
 
             widget.elSetHTML({
-                'body': topic.body
+                body: topic.body
             });
             widget.elHide('readmore');
         }

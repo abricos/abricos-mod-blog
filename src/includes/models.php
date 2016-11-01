@@ -190,22 +190,20 @@ class BlogTopicInfo {
     private $contentid;
 
     public function __construct($d){
-        $this->id = intval($d['id']);
+        $this->id = isset($d['id']) ? intval($d['id']) : 0;
         $this->catid = intval($d['catid']);
 
         $this->user = new BlogUser($d);
-        $this->isDraft = intval($d['dft']) > 0;
-        $this->isIndex = intval($d['idx']) > 0;
-        $this->isAutoIndex = intval($d['aidx']) > 0;
-        $this->publicDate = intval($d['dl']);
-        // $this->commentCount = intval($d['cmt']);
+        $this->isDraft = isset($d['dft']) && intval($d['dft']) > 0;
+        $this->isIndex = isset($d['idx']) && intval($d['idx']) > 0;
+        $this->isAutoIndex = isset($d['aidx']) && intval($d['aidx']) > 0;
+        $this->publicDate = isset($d['dl']) && intval($d['dl']);
 
         $this->title = strval($d['tl']);
         $this->intro = strval($d['intro']);
         $this->bodyLength = intval($d['bdlen']);
-        // $this->contentid = intval($d['ctid']);
 
-        $this->voteCount = intval($d['vcnt']);
+        $this->voteCount = isset($d['vcnt']) ? intval($d['vcnt']) : 0;
         $this->voteMy = isset($d['vmy']) ? intval($d['vmy']) : "";
 
         if ($this->user->id == Abricos::$user->id){
@@ -213,7 +211,7 @@ class BlogTopicInfo {
         }
 
         if (!is_null($this->voteMy) || !$this->IsVotingPeriod()){
-            $this->rating = intval($d['rtg']);
+            $this->rating = isset($d['rtg']) ? intval($d['rtg']) : 0;
 
             // показать значение, значит запретить голосовать
             if (is_null($this->voteMy)){
@@ -231,8 +229,10 @@ class BlogTopicInfo {
         if (!empty($this->_commentOwner)){
             return $this->_commentOwner;
         }
+        /** @var CommentApp $commentApp */
+        $commentApp = Abricos::GetApp('comment');
 
-        return $this->_commentOwner = BlogManager::$instance->GetApp()->CommentApp()->InstanceClass('Owner', array(
+        return $this->_commentOwner = $commentApp->InstanceClass('Owner', array(
             "module" => "blog",
             "type" => "topic",
             "ownerid" => $this->id
@@ -309,8 +309,8 @@ class BlogTopic extends BlogTopicInfo {
     public function __construct($d){
         parent::__construct($d);
         $this->body = strval($d['bd']);
-        $this->metakeys = strval($d['mtks']);
-        $this->metadesc = strval($d['mtdsc']);
+        $this->metakeys = isset($d['mtks']) ? strval($d['mtks']) : '';
+        $this->metadesc = isset($d['mtdsc']) ? strval($d['mtdsc']) : '';
     }
 
     public function ToAJAX(){
@@ -394,12 +394,11 @@ class BlogUser {
     public $lastName;
 
     public function __construct($d){
-
         $this->id = intval(isset($d['uid']) ? $d['uid'] : $d['id']);
         $this->userName = strval($d['unm']);
-        $this->avatar = strval($d['avt']);
-        $this->firstName = strval($d['fnm']);
-        $this->lastName = strval($d['lnm']);
+        $this->avatar = isset($d['avt']) ? strval($d['avt']) : '';
+        $this->firstName = isset($d['fnm']) ? strval($d['fnm']) : '';
+        $this->lastName = isset($d['lnm']) ? strval($d['lnm']) : '';
     }
 
     public function ToAJAX(){

@@ -1,75 +1,36 @@
-/* * * * write.css begin * * * */
-/* * * * Общие * * * */
-.aw-blog .write select.catlist {
-  width: 250px;
-  padding: 3px;
-}
+.aw-blog {
 
-.aw-blog .write input {
-  padding: 3px;
-}
+  /* * * * Topic * * * */
+  .topicEditor {
+    &.edstedit .edstnew,
+    &.edstnew .edstedit {
+      display: none;
+    }
+  }
 
-.aw-blog .write .baction .blft {
-  float: left;
-}
+  /* * * * Preview * * * */
+  .preview {
+    min-width: 764px;
+    width: 764px;
+    min-height: 500px;
+  }
 
-.aw-blog .write .baction .brgt {
-  float: right;
-}
+  .preview .topicmanbtns {
+    display: none;
+  }
 
-.aw-blog .write .tagsdiv {
-  height: 28px;
-}
+  /* * * * Category * * * */
+  .cateditor .edstedit .edstnew,
+  .cateditor .edstnew .edstedit {
+    display: none;
+  }
 
-/* * * * Topic * * * */
-.aw-blog .topiceditor .edstedit .edstnew,
-.aw-blog .topiceditor .edstnew .edstedit {
-  display: none;
-}
+  .cateditor input.fldtitle {
+    width: 670px;
+  }
 
-.aw-blog .topiceditor input.fldtitle,
-.aw-blog .topiceditor input.fldtags {
-  width: 670px;
+  .cateditor textarea.fldtext {
+    width: 670px;
+    height: 250px;
+  }
 }
-
-.aw-blog .topiceditor textarea.fldtext {
-  width: 670px;
-  height: 350px;
-}
-
-.aw-blog .topiceditor .chkindex {
-  margin-top: 10px;
-}
-
-.aw-blog .topiceditor .chkindex label {
-  vertical-align: top;
-  margin-left: 5px;
-}
-
-/* * * * Preview * * * */
-.aw-blog .preview {
-  min-width: 764px;
-  width: 764px;
-  min-height: 500px;
-}
-
-.aw-blog .preview .topicmanbtns {
-  display: none;
-}
-
-/* * * * Category * * * */
-.aw-blog .cateditor .edstedit .edstnew,
-.aw-blog .cateditor .edstnew .edstedit {
-  display: none;
-}
-
-.aw-blog .cateditor input.fldtitle {
-  width: 670px;
-}
-
-.aw-blog .cateditor textarea.fldtext {
-  width: 670px;
-  height: 250px;
-}
-
-/* * * * write.css end * * * */

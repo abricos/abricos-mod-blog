@@ -289,8 +289,6 @@ class BlogModule extends Ab_Module {
     public function Bos_IsMenu(){
         return true;
     }
-
-
 }
 
 class BlogParserAddress {

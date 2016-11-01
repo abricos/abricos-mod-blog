@@ -35,45 +35,6 @@ class BlogApp extends AbricosApplication {
         return $this->manager->IsViewRole();
     }
 
-    private $_commentApp = null;
-
-    /**
-     * @return CommentApp
-     */
-    public function CommentApp(){
-        if (!is_null($this->_commentApp)){
-            return $this->_commentApp;
-        }
-        $module = Abricos::GetModule('comment');
-        return $this->_commentApp = $module->GetManager()->GetApp();
-    }
-
-    private $_uprofileApp = null;
-
-    /**
-     * @return UProfileApp
-     */
-    public function UProfileApp(){
-        if (!is_null($this->_uprofileApp)){
-            return $this->_uprofileApp;
-        }
-        $module = Abricos::GetModule('uprofile');
-        return $this->_uprofileApp = $module->GetManager()->GetApp();
-    }
-
-    private $_notifyApp = null;
-
-    /**
-     * @return NotifyApp
-     */
-    public function NotifyApp(){
-        if (!is_null($this->_notifyApp)){
-            return $this->_notifyApp;
-        }
-        $module = Abricos::GetModule('notify');
-        return $this->_notifyApp = $module->GetManager()->GetApp();
-    }
-
     public function ResponseToJSON($d){
         switch ($d->do){
             case "topic":
@@ -103,7 +64,6 @@ class BlogApp extends AbricosApplication {
         }
         return null;
     }
-
 
     public function ParamToObject($o){
         if (is_array($o)){
@@ -286,7 +246,10 @@ class BlogApp extends AbricosApplication {
 
         $list = new BlogTopicList($topics, $total, $totalNew);
 
-        $statList = $this->CommentApp()->StatisticList('blog', 'topic', $topicids);
+        /** @var CommentApp $commentApp */
+        $commentApp = Abricos::GetApp('comment');
+
+        $statList = $commentApp->StatisticList('blog', 'topic', $topicids);
         $cnt = $statList->Count();
         for ($i = 0; $i < $cnt; $i++){
             $stat = $statList->GetByIndex($i);
@@ -322,7 +285,10 @@ class BlogApp extends AbricosApplication {
         }
         $topic = new BlogTopic($row);
 
-        $topic->commentStatistic = $this->CommentApp()->Statistic($topic->GetCommentOwner());
+        /** @var CommentApp $commentApp */
+        $commentApp = Abricos::GetApp('comment');
+
+        $topic->commentStatistic = $commentApp->Statistic($topic->GetCommentOwner());
 
         $this->TopicSetTags(array($topic));
 
@@ -352,12 +318,8 @@ class BlogApp extends AbricosApplication {
         $utmf = Abricos::TextParser(true);
 
         $d->tl = $utmf->Parser($d->tl);
+        $d->intro = $utm->Parser($d->intro);
         $d->body = $utm->Parser($d->body);
-
-        $aText = $utm->Cut($d->body);
-
-        $d->intro = $aText[0];
-        $d->body = $aText[1];
 
         $topic = new BlogTopic(array(
             "catid" => $d->catid,
@@ -365,8 +327,8 @@ class BlogApp extends AbricosApplication {
             "intro" => $d->intro,
             "bd" => $d->body,
             "bdlen" => strlen($d->body),
-            "uid" => $this->user->id,
-            "unm" => $this->user->info['username']
+            "uid" => Abricos::$user->id,
+            "unm" => Abricos::$user->username
         ));
 
         // список тегов. не более 25
@@ -486,7 +448,6 @@ class BlogApp extends AbricosApplication {
         }
 
         if (!$this->IsAdminRole()){
-
             // ограничения по количеству
             if ($isNewDraft){ // не более 25 черновиков на профиль
                 $row = BlogTopicQuery::TopicDraftCountByUser($this->db, Abricos::$user->id);
@@ -587,7 +548,6 @@ class BlogApp extends AbricosApplication {
         $ret->topicid = $d->id;
 
         if ($this->IsAdminRole()){
-
             $topic = $this->Topic($d->id);
 
             $isIndex = $d->idx > 0;
@@ -919,7 +879,10 @@ class BlogApp extends AbricosApplication {
 
         $this->TopicSetTags($topics);
 
-        $statList = $this->CommentApp()->StatisticList('blog', 'topic', $tids);
+        /** @var CommentApp $commentApp */
+        $commentApp = Abricos::GetApp('comment');
+
+        $statList = $commentApp->StatisticList('blog', 'topic', $tids);
         $cnt = $statList->Count();
         for ($i = 0; $i < $cnt; $i++){
             $stat = $statList->GetByIndex($i);
@@ -1117,91 +1080,78 @@ class BlogApp extends AbricosApplication {
         return $ret;
     }
 
+    /* * * * * * * * * * * * * * * * * * * * * * * * * * * */
+    /*                     Comments                        */
+    /* * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
     public function Comment_IsWrite($type, $ownerid){
-        if (!$this->IsWriteRole()){
-            return false;
-        }
-        if ($type !== 'topic'){
+        if (!$this->IsWriteRole() || $type !== 'topic'){
             return false;
         }
 
         $topic = $this->Topic($ownerid);
-        if (empty($topic)){
-            return false;
-        }
-
-        return true;
+        return !empty($topic);
     }
 
     public function Comment_IsList($type, $ownerid){
-        if (!$this->IsViewRole()){
-            return false;
-        }
-
-        if ($type !== 'topic'){
+        if (!$this->IsViewRole() || $type !== 'topic'){
             return false;
         }
 
         $topic = $this->Topic($ownerid);
-        if (empty($topic)){
-            return false;
-        }
-
-        return true;
+        return !empty($topic);
     }
 
     /**
-     * Отправить уведомление о новом комментарии.
-     *
-     * @param object $data
+     * @param string $type
+     * @param Comment $comment
+     * @param Comment $parentComment
      */
-    public function Comment_SendNotify($data){
-        // данные по комментарию:
-        // $data->id	- идентификатор комментария
-        // $data->pid	- идентификатор родительского комментария
-        // $data->uid	- пользователь оставивший комментарий
-        // $data->bd	- текст комментария
-        // $data->cid	- идентификатор контента
-
-        $topic = $this->Topic(0, $data->cid);
+    public function Comment_SendNotify($type, $ownerid, $comment, $parentComment){
+        $topic = $this->Topic($ownerid);
         if (empty($topic)){
             return;
         }
 
-        $brick = Brick::$builder->LoadBrickS('blog', 'templates', null, null);
-        $host = $_SERVER['HTTP_HOST'] ? $_SERVER['HTTP_HOST'] : $_ENV['HTTP_HOST'];
-        $tpLink = "http://".$host.$topic->URL();
+        $emails = array();
 
-        $userManager = UserModule::$instance->GetManager();
+        /** @var NotifyApp $notifyApp */
+        $notifyApp = Abricos::GetApp('notify');
+
+        /** @var UProfileApp $uprofileApp */
+        $uprofileApp = Abricos::GetApp('uprofile');
+
+        $host = Ab_URI::Site();
+        $tpLink = $host.$topic->URL();
 
         // уведомление "комментарий на комментарий"
-        if ($data->pid > 0){
+        if (!empty($parentComment) && $parentComment->userid != Abricos::$user->id){
 
-            $parent = CommentQuery::Comment($this->db, $data->pid, $data->cid, true);
-            if ($parent['uid'] != Abricos::$user->id){
-                $user = $userManager->User($parent['uid']);
-                $email = $user->email;
-                if (!empty($email)){
-                    $subject = Brick::ReplaceVarByData($brick->param->var['cmtemlsubject'], array(
-                        "tl" => $topic->title
-                    ));
-                    $body = Brick::ReplaceVarByData($brick->param->var['cmtemlbody'], array(
+            $brick = Brick::$builder->LoadBrickS('blog', 'notifyCommentAnswer', null, null);
+            $v = $brick->param->var;
+
+            $email = $parentComment->user->email;
+            if (!empty($email)){
+                $emails[$email] = true;
+
+                $mail = $notifyApp->MailByFields(
+                    $email,
+                    Brick::ReplaceVarByData($v['subject'], array(
+                        "title" => $topic->title
+                    )),
+                    Brick::ReplaceVarByData($brick->content, array(
+                        "sitename" => SystemModule::$instance->GetPhrases()->Get('site_name'),
                         "email" => $email,
+                        "unm" => $comment->user->GetViewName(),
+                        "title" => $topic->title,
                         "tpclnk" => $tpLink,
-                        "tl" => $topic->title,
-                        "unm" => Abricos::$user->FullName(),
-                        "cmt1" => $parent['bd'],
-                        "cmt2" => $data->bd,
-                        "sitename" => SystemModule::$instance->GetPhrases()->Get('site_name')
-                    ));
-                    Abricos::Notify()->SendMail($email, $subject, $body);
-                }
+                        "parentComment" => $parentComment->body." ",
+                        "comment" => $comment->body." ",
+                    ))
+                );
+                $notifyApp->MailSend($mail);
             }
 
-            if ($parent['uid'] == $topic->user->id){
-                // автору уже ушло уведомление, второе слать не имеет смысла
-                return;
-            }
         }
 
         // уведомление автору
@@ -1209,22 +1159,31 @@ class BlogApp extends AbricosApplication {
             // свой комментарий в уведомление не нуждается
             return;
         }
-        $autor = $userManager->User($topic->user->id);
-        $email = $autor->email;
-        if (!empty($email)){
-            $subject = Brick::ReplaceVarByData($brick->param->var['cmtemlautorsubject'], array(
-                "tl" => $topic->title
-            ));
-            $body = Brick::ReplaceVarByData($brick->param->var['cmtemlautorbody'], array(
-                "email" => $email,
-                "tpclnk" => $tpLink,
-                "tl" => $topic->title,
-                "unm" => Abricos::$user->FullName(),
-                "cmt" => $data->bd,
-                "sitename" => SystemModule::$instance->GetPhrases()->Get('site_name')
-            ));
-            Abricos::Notify()->SendMail($email, $subject, $body);
+
+        $author = $uprofileApp->User($topic->user->id);
+        $email = $author->email;
+        if (empty($email) || isset($emails[$email])){
+            return;
         }
+
+        $brick = Brick::$builder->LoadBrickS('blog', 'notifyComment', null, null);
+        $v = $brick->param->var;
+
+        $mail = $notifyApp->MailByFields(
+            $email,
+            Brick::ReplaceVarByData($v['subject'], array(
+                "title" => $topic->title
+            )),
+            Brick::ReplaceVarByData($brick->content, array(
+                "sitename" => SystemModule::$instance->GetPhrases()->Get('site_name'),
+                "email" => $email,
+                "unm" => $comment->user->GetViewName(),
+                "title" => $topic->title,
+                "tpclnk" => $tpLink,
+                "comment" => $comment->body." ",
+            ))
+        );
+        $notifyApp->MailSend($mail);
     }
 
 
@@ -1312,6 +1271,10 @@ class BlogApp extends AbricosApplication {
         Abricos::Notify()->SendMail($email, $subject, $body);
     }
 
+    /* * * * * * * * * * * * * * * * * * * * * * * * * * * */
+    /*                         RSS                         */
+    /* * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
     public function RSS_GetItemList($inBosUI = false){
         $ret = array();
 
@@ -1348,6 +1311,10 @@ class BlogApp extends AbricosApplication {
 
         return $ret;
     }
+
+    /* * * * * * * * * * * * * * * * * * * * * * * * * * * */
+    /*                       BosUI                         */
+    /* * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
     public function Bos_OnlineData(){
         $ret = $this->TopicListToAJAX(array("limit" => 1));
