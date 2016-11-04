@@ -7,7 +7,6 @@
  * @author Alexander Kuzmin <roosit@abricos.org>
  */
 
-
 /**
  * Class BlogApp
  *
@@ -289,6 +288,13 @@ class BlogApp extends AbricosApplication {
         $commentApp = Abricos::GetApp('comment');
 
         $topic->commentStatistic = $commentApp->Statistic($topic->GetCommentOwner());
+
+        /** @var URatingApp $uratingApp */
+        $uratingApp = Abricos::GetApp('urating');
+        if (!empty($uratingApp)){
+            $topic->voting = $uratingApp->Voting('blog', 'topic', $topicid);
+            $topic->voting->ownerDate = $topic->publicDate;
+        }
 
         $this->TopicSetTags(array($topic));
 

@@ -29,8 +29,10 @@ if (!empty($modSocialist)){
 
 $count = $topics->Count();
 
-if (BlogManager::$isURating){
-    Abricos::GetModule('urating')->GetManager();
+/** @var URatingApp $uratingApp */
+$uratingApp = Abricos::GetApp('urating');
+
+if (!empty($uratingApp)){
     $voteBuilder = new URatingBuilder("blog", "topic", "topic.vote.error");
 }
 

@@ -61,25 +61,6 @@ class BlogTopicQuery {
 		";
     }
 
-    private static function TopicRatingSQLExt(Ab_Database $db){
-        $ret = new stdClass();
-        $ret->fld = "";
-        $ret->tbl = "";
-        $userid = Abricos::$user->id;
-        if (BlogManager::$isURating && $userid > 0){
-            $ret->fld .= "
-				,IF(ISNULL(vt.userid), null, IF(vt.voteup>0, 1, IF(vt.votedown>0, -1, 0))) as vmy
-			";
-            $ret->tbl .= "
-				LEFT JOIN ".$db->prefix."urating_vote vt
-					ON vt.module='blog' AND vt.elementtype='topic'
-					AND vt.elementid=t.topicid
-					AND vt.userid=".bkint($userid)."
-			";
-        }
-        return $ret;
-    }
-
     /**
      * Количество черновиков в профиле пользователя
      *
@@ -119,10 +100,6 @@ class BlogTopicQuery {
      * @param integer $topicid
      */
     public static function TopicById(Ab_Database $db, $topicid){
-        $urt = BlogTopicQuery::TopicRatingSQLExt($db);
-
-        $where = "t.topicid = ".bkint($topicid)."";
-
         $userid = Abricos::$user->id;
         $sql = "
 			SELECT
@@ -130,22 +107,18 @@ class BlogTopicQuery {
 				t.body as bd,
 				t.metakeys as mtks,
 				t.metadesc as mtdsc
-				".$urt->fld."
 			FROM ".$db->prefix."bg_topic t
 			LEFT JOIN ".$db->prefix."bg_cat cat ON t.catid = cat.catid
 			INNER JOIN ".$db->prefix."user u ON t.userid = u.userid
-			".$urt->tbl."
-			WHERE ".$where." AND t.deldate=0 AND (cat.deldate=0 OR t.catid=0)
+			WHERE t.topicid = ".bkint($topicid)." AND t.deldate=0 AND (cat.deldate=0 OR t.catid=0)
 				AND (t.isdraft=0 OR (t.isdraft=1 AND t.userid=".bkint($userid)."))
 			LIMIT 1
 		";
         return $db->query_first($sql);
     }
 
-
     public static function TopicList(Ab_Database $db, $page = 1, $limit = 10, $fType = 'index', $fPrm = '', $isCount = false){
         $from = $limit * (max($page, 1) - 1);
-        $urt = BlogTopicQuery::TopicRatingSQLExt($db);
 
         $newPeriod = TIMENOW - 60 * 60 * 24;
 
@@ -182,17 +155,12 @@ class BlogTopicQuery {
             }
 
         } else if ($fType == 'tag'){
-            $urt->tbl .= "
-				INNER JOIN ".$db->prefix."bg_toptag tt ON t.topicid=tt.topicid 
-				INNER JOIN ".$db->prefix."bg_tag tg ON tg.tagid=tt.tagid
-			";
             $filter = " AND tg.title='".bkstr($fPrm)."'";
         }
         $filter .= $filterRating;
 
         $fld = "
 			".BlogTopicQuery::TopicFields($db)."
-			".$urt->fld."
 		";
         $limit = "LIMIT ".$from.",".bkint($limit)."";
 
@@ -216,7 +184,6 @@ class BlogTopicQuery {
 			FROM ".$db->prefix."bg_topic t
 			LEFT JOIN ".$db->prefix."bg_cat cat ON t.catid = cat.catid
 			INNER JOIN ".$db->prefix."user u ON t.userid = u.userid
-			".$urt->tbl."
 			WHERE t.deldate=0 AND t.isdraft=0 AND t.language='".bkstr(Abricos::$LNG)."'
 				".$dmfilter."
 				".$filter."
@@ -241,16 +208,13 @@ class BlogTopicQuery {
      */
     public static function TopicDraftList(Ab_Database $db, $userid, $page = 1, $limit = 10){
         $from = $limit * (max($page, 1) - 1);
-        $urt = BlogTopicQuery::TopicRatingSQLExt($db);
 
         $sql = "
 			SELECT
 				".BlogTopicQuery::TopicFields($db)."
-				".$urt->fld."
 			FROM ".$db->prefix."bg_topic t
 			LEFT JOIN ".$db->prefix."bg_cat cat ON t.catid = cat.catid
 			INNER JOIN ".$db->prefix."user u ON t.userid = u.userid
-			".$urt->tbl."
 			WHERE t.userid=".bkint($userid)." AND t.isdraft=1 
 				AND t.deldate=0  AND (cat.deldate=0 OR t.catid=0) 
 				AND t.language='".bkstr(Abricos::$LNG)."'
@@ -270,16 +234,13 @@ class BlogTopicQuery {
      */
     public static function TopicListByAuthor(Ab_Database $db, $userid, $page = 1, $limit = 10){
         $from = $limit * (max($page, 1) - 1);
-        $urt = BlogTopicQuery::TopicRatingSQLExt($db);
 
         $sql = "
 			SELECT
 				".BlogTopicQuery::TopicFields($db)."
-				".$urt->fld."
 			FROM ".$db->prefix."bg_topic t
 			LEFT JOIN ".$db->prefix."bg_cat cat ON t.catid = cat.catid
 			INNER JOIN ".$db->prefix."user u ON t.userid = u.userid
-			".$urt->tbl."
 			WHERE t.userid=".bkint($userid)." AND t.isdraft=0
 				AND t.deldate=0  AND (cat.deldate=0 OR t.catid=0)
 				AND t.language='".bkstr(Abricos::$LNG)."'
@@ -298,15 +259,12 @@ class BlogTopicQuery {
         if (count($ids) == 0){
             return null;
         }
-        $urt = BlogTopicQuery::TopicRatingSQLExt($db);
 
         $sql = "
 			SELECT
 				".BlogTopicQuery::TopicFields($db)."
-				".$urt->fld."
 			FROM ".$db->prefix."bg_topic t
 			INNER JOIN ".$db->prefix."user u ON t.userid = u.userid
-			".$urt->tbl."
 			WHERE ".implode(" OR ", $ids)."
 		";
         return $db->query_read($sql);

@@ -1,11 +1,14 @@
 <?php
-
 /**
  * @package Abricos
  * @subpackage Blog
  * @copyright 2008-2015 Alexander Kuzmin
  * @license http://opensource.org/licenses/mit-license.php MIT License
  * @author Alexander Kuzmin <roosit@abricos.org>
+ */
+
+/**
+ * Class BlogConfig
  */
 class BlogConfig {
 
@@ -153,41 +156,14 @@ class BlogTopicInfo {
     public $tags = array();
 
     /**
-     * Рейтинг топика
-     *
-     * @var integer
-     */
-    public $rating;
-
-    /**
-     * Количество голосов за рейтинг
-     *
-     * @var integer
-     */
-    public $voteCount;
-
-    /**
-     * Голос текущего пользователя
-     * null - нет голоса, -1 - ПРОТИВ, 1 - ЗА, 0 - Воздержался
-     *
-     * @var integer
-     */
-    public $voteMy;
-
-    /**
      * @var CommentStatistic
      */
     public $commentStatistic;
 
     /**
-     * @deprecated
+     * @var URatingVoting
      */
-    private $commentCount;
-
-    /**
-     * @deprecated
-     */
-    private $contentid;
+    public $voting;
 
     public function __construct($d){
         $this->id = isset($d['id']) ? intval($d['id']) : 0;
@@ -203,13 +179,7 @@ class BlogTopicInfo {
         $this->intro = strval($d['intro']);
         $this->bodyLength = intval($d['bdlen']);
 
-        $this->voteCount = isset($d['vcnt']) ? intval($d['vcnt']) : 0;
-        $this->voteMy = isset($d['vmy']) ? intval($d['vmy']) : "";
-
-        if ($this->user->id == Abricos::$user->id){
-            $this->voteMy = 0;
-        }
-
+        /*
         if (!is_null($this->voteMy) || !$this->IsVotingPeriod()){
             $this->rating = isset($d['rtg']) ? intval($d['rtg']) : 0;
 
@@ -221,6 +191,7 @@ class BlogTopicInfo {
             // голосовать еще можно
             $this->rating = null;
         }
+        /**/
     }
 
     private $_commentOwner;
@@ -284,8 +255,12 @@ class BlogTopicInfo {
         $ret->vcnt = $this->voteCount;
         $ret->vmy = $this->voteMy;
 
-        if ($this->commentStatistic){
+        if (!empty($this->commentStatistic)){
             $ret->commentStatistic = $this->commentStatistic->ToJSON();
+        }
+
+        if (!empty($this->voting)){
+            $ret->voting = $this->voting->ToJSON();
         }
 
         $ret->tags = array();

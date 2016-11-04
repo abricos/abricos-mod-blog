@@ -25,15 +25,11 @@ $cat = $topic->Category();
 
 $vote = "";
 $voteJSMan = "";
-if (BlogManager::$isURating){
-    Abricos::GetModule('urating')->GetManager();
-    $voteBuilder = new URatingBuilder("blog", "topic", "topic.vote.error");
-    $vote = $voteBuilder->BuildVote(array(
-        "elid" => $topic->id,
-        "vote" => $topic->voteMy,
-        "value" => $topic->rating
-    ));
-    $voteJSMan = $voteBuilder->BuildJSMan();
+
+/** @var URatingApp $uratingApp */
+$uratingApp = Abricos::GetApp('urating');
+if (!empty($uratingApp)){
+    $vote = $uratingApp->VotingHTML($topic->voting);
 }
 
 $modSocialist = Abricos::GetModule('socialist');
