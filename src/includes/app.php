@@ -15,11 +15,13 @@
 class BlogApp extends AbricosApplication {
 
     protected function GetClasses(){
-        return array();
+        return array(
+            'Config' => 'BlogConfig'
+        );
     }
 
     protected function GetStructures(){
-        return '';
+        return 'Config';
     }
 
     public function IsAdminRole(){
@@ -36,6 +38,11 @@ class BlogApp extends AbricosApplication {
 
     public function ResponseToJSON($d){
         switch ($d->do){
+            case "config":
+                return $this->ConfigToJSON();
+            case "configSave":
+                return $this->ConfigSaveToJSON($d->data);
+
             case "topic":
                 return $this->TopicToAJAX($d->topicid);
             case "topicpreview":
@@ -64,6 +71,79 @@ class BlogApp extends AbricosApplication {
         return null;
     }
 
+    /*********************************************************/
+    /*                           Config                      */
+    /*********************************************************/
+
+    public function ConfigToJSON(){
+        return $this->ResultToJSON('config', $this->Config());
+    }
+
+    /**
+     * @return BlogConfig
+     */
+    public function Config(){
+        if ($this->CacheExists('Config')){
+            return $this->Cache('Config');
+        }
+        if (!$this->IsViewRole()){
+            return AbricosResponse::ERR_FORBIDDEN;
+        }
+
+        $d = array();
+        $phrases = Abricos::GetModule('blog')->GetPhrases();
+        for ($i = 0; $i < $phrases->Count(); $i++){
+            $ph = $phrases->GetByIndex($i);
+            $d[$ph->id] = $ph->value;
+        }
+
+        $d['subscribeSendLimit'] = isset($d['subscribeSendLimit'])
+            ? $d['subscribeSendLimit'] : 25;
+
+        $d['topicIndexRating'] = isset($d['topicIndexRating'])
+            ? $d['topicIndexRating'] : 5;
+
+        $d['categoryCreateRating'] = isset($d['categoryCreateRating'])
+            ? $d['categoryCreateRating'] : 5;
+
+        /** @var BlogConfig $config */
+        $config = $this->InstanceClass('Config', $d);
+
+        $this->SetCache('Config', $config);
+
+        return $config;
+    }
+
+    public function ConfigSaveToJSON($d){
+        $this->ConfigSave($d);
+        return $this->ConfigToJSON();
+    }
+
+    public function ConfigSave($d){
+        if (!$this->IsAdminRole()){
+            return AbricosResponse::ERR_FORBIDDEN;
+        }
+
+        $phs = Abricos::GetModule('blog')->GetPhrases();
+
+        if (isset($d->subscribeSendLimit)){
+            $phs->Set('subscribeSendLimit', $d->subscribeSendLimit);
+        }
+        if (isset($d->topicIndexRating)){
+            $phs->Set('topicIndexRating', $d->topicIndexRating);
+        }
+        if (isset($d->categoryCreateRating)){
+            $phs->Set('categoryCreateRating', $d->categoryCreateRating);
+        }
+        Abricos::$phrases->Save();
+        $this->CacheClear();
+    }
+
+
+    /*********************************************************/
+    /*                       Old Function                    */
+    /*********************************************************/
+
     public function ParamToObject($o){
         if (is_array($o)){
             $ret = new stdClass();
@@ -75,20 +155,6 @@ class BlogApp extends AbricosApplication {
             return new stdClass();
         }
         return $o;
-    }
-
-    private $_config;
-
-    /**
-     * @return BlogConfig
-     */
-    public function Config(){
-        if (!empty($this->_config)){
-            return $this->_config;
-        }
-        return $this->_config = new BlogConfig(isset(Abricos::$config['module']['blog'])
-            ? Abricos::$config['module']['blog']
-            : array());
     }
 
     /**

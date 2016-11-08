@@ -12,7 +12,14 @@ Component.entryPoint = function(NS){
         isView: 10
     });
 
-    var SYS = Brick.mod.sys;
+    var Y = Brick.YUI,
+        SYS = Brick.mod.sys;
+
+    NS.Config = Y.Base.create('config', SYS.AppModel, [], {
+        structureName: 'Config'
+    });
+
+    //////////////////// old functions /////////////////////
 
     var L = YAHOO.lang,
         R = NS.roles;

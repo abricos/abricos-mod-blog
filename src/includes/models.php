@@ -9,69 +9,15 @@
 
 /**
  * Class BlogConfig
+ *
+ * @property int $subscribeSendLimit Количество отправляемых писем за один раз
+ * @property int $topicIndexRating Рейтинг топика для выхода на главную
+ * @property int $categoryCreateRating Рейтинг пользователя необходимый для создания категории
  */
-class BlogConfig {
-
-    /**
-     * @var BlogConfig
-     */
-    public static $instance;
-
-    /**
-     * Фильтр по имени домена (если несколько, через запятую)
-     *
-     * @var string
-     */
-    public $domainFilter = "";
-
-    /**
-     * Количество отправляемых писем за один раз
-     *
-     * @var integer
-     */
-    public $subscribeSendLimit = 25;
-
-
-    /**
-     * Рейтинг топика для выхода на главную
-     *
-     * @var integer
-     */
-    public $topicIndexRating = 5;
-
-
-    /**
-     * Рейтинг пользователя необходимый для создания категории
-     *
-     * @var integer
-     */
-    public $categoryCreateRating = 5;
-
-    public function __construct($cfg){
-        BlogConfig::$instance = $this;
-
-        if (empty($cfg)){
-            $cfg = array();
-        }
-
-        if (isset($cfg['subscribeSendLimit'])){
-            $this->subscribeSendLimit = intval($cfg['subscribeSendLimit']);
-        }
-
-        if (isset($cfg['topicIndexRating'])){
-            $this->topicIndexRating = intval($cfg['topicIndexRating']);
-        }
-
-        if (isset($cfg['domainFilter'])){
-            $this->domainFilter = trim($cfg['domainFilter']);
-        }
-
-        if (isset($cfg['categoryCreateRating'])){
-            $this->categoryCreateRating = intval($cfg['categoryCreateRating']);
-        }
-    }
+class BlogConfig extends AbricosModel {
+    protected $_structModule = 'blog';
+    protected $_structName = 'Config';
 }
-
 
 /**
  * Информация о топике (записе в блоге)
@@ -253,9 +199,11 @@ class BlogTopicInfo {
 
         $ret->dl = $this->publicDate;
 
+        /*
         $ret->rtg = $this->rating;
         $ret->vcnt = $this->voteCount;
         $ret->vmy = $this->voteMy;
+        /**/
 
         if (!empty($this->commentStatistic)){
             $ret->commentStatistic = $this->commentStatistic->ToJSON();

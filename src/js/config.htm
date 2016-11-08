@@ -1,0 +1,57 @@
+<!--{widget}-->
+<div class="config panel panel-default">
+    <div class="panel-heading text-center">
+        <h3 class="panel-title pull-left">Настройки</h3>
+
+        <img data-wait="show" src="/images/loading.gif"/>
+
+        <div class="clearfix"></div>
+    </div>
+    <div class="panel-body">
+        <div class="form-horizontal">
+
+            <div class="form-group">
+                <label class="col-md-3 control-label">Рейтинг для главной</label>
+                <div class="col-md-9">
+                    <input id="{i#topicIndexRating}" type="text" class="form-control" data-wait="disable">
+                    <div class="help-block">
+                        Рейтинг топика для выхода на главную
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-md-3 control-label">Новый блог</label>
+                <div class="col-md-9">
+                    <input id="{i#categoryCreateRating}" type="text" class="form-control" data-wait="disable">
+                    <div class="help-block">
+                        Рейтинг пользователя необходимый для создания нового блога
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-md-3 control-label">Лимит уведомлений</label>
+                <div class="col-md-9">
+                    <input id="{i#subscribeSendLimit}" type="text" class="form-control" data-wait="disable">
+                    <div class="help-block">
+                        Количество отправляемых писем за один запрос
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel-footer text-center">
+            <span data-wait="show">
+                <img src="/images/loading.gif"/>
+            </span>
+
+        <div class="pull-right">
+            <button data-click="this:save"
+                    type="button" class="btn btn-default" data-wait="disable">
+                Сохранить
+            </button>
+        </div>
+        <div class="clearfix"></div>
+    </div>
+</div>

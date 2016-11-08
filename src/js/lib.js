@@ -25,14 +25,28 @@ Component.entryPoint = function(NS){
             comment: {},
             notify: {}
         },
-        ATTRS: {},
-        REQS: {},
+        ATTRS: {
+            isLoadAppStructure: {value: true},
+            Config: {value: NS.Config},
+        },
+        REQS: {
+            config: {
+                attribute: true,
+                type: 'model:Config'
+            },
+            configSave: {
+                args: ['data']
+            }
+        },
         URLS: {
             ws: "#app={C#MODNAMEURI}/wspace/ws/",
+            config: function(){
+                return this.getURL('ws')+'config/ConfigWidget/';
+            },
             topic: {
                 list: function(){
                     return this.getURL('ws');
-                    return urlJoinArgs(WS + 'topic/TopicHomeListWidget/', arguments);
+                    // return urlJoinArgs(WS + 'topic/TopicHomeListWidget/', arguments);
                 },
                 view: function(topicid){
                     return WS + 'topic/TopicViewWidget/' + topicid + '/';

@@ -1,0 +1,19 @@
+{
+  "version": "0.1.0",
+  "type": "model",
+  "fields": {
+    "subscribeSendLimit": {
+      "rolefn": "IsAdminRole",
+      "type": "int",
+      "default": 25
+    },
+    "topicIndexRating": {
+      "type": "int",
+      "default": 5
+    },
+    "categoryCreateRating": {
+      "type": "int",
+      "default": 5
+    }
+  }
+}
