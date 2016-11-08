@@ -8,10 +8,13 @@
  */
 
 $brick = Brick::$builder->brick;
-$man = BlogModule::$instance->GetManager();
+
+/** @var BlogApp $app */
+$app = Abricos::GetApp('blog');
 
 $lst = "";
-$topics = $man->GetApp()->TopicList(array("limit" => 5));
+$topics = $app->TopicList(array("limit" => 5));
+
 if (empty($topics)){
     $brick->content = "";
     return;

@@ -224,7 +224,9 @@ class BlogTopicInfo {
         if ($this->catid == 0){
             return new BlogPersonalCategory($this->user);
         }
-        $cats = BlogManager::$instance->GetApp()->CategoryList();
+        /** @var BlogApp $app */
+        $app = Abricos::GetApp('blog');
+        $cats = $app->CategoryList();
         return $cats->Get($this->catid);
     }
 

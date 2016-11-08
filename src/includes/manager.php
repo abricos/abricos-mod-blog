@@ -65,4 +65,14 @@ class BlogManager extends Ab_ModuleManager {
             )
         );
     }
+
+    public function URating_GetTypes(){
+        return 'blog,topic,comment';
+    }
+
+    public function URating_GetDefaultConfig($type){
+        return array(
+            'votingPeriod' => 60 * 60 * 24 * 31
+        );
+    }
 }

@@ -12,8 +12,7 @@ Abricos::GetModule('comment');
 /**
  * Модуль "Блог"
  *
- * @package Abricos
- * @subpackage Blog
+ * @method BlogManager GetManager()
  */
 class BlogModule extends Ab_Module {
 
@@ -23,8 +22,6 @@ class BlogModule extends Ab_Module {
      * @var BlogModule
      */
     public static $instance = null;
-
-    private $_manager = null;
 
     public function __construct(){
         // версия модуля
@@ -38,17 +35,6 @@ class BlogModule extends Ab_Module {
         $this->permission = new BlogPermission($this);
 
         BlogModule::$instance = $this;
-    }
-
-    /**
-     * @return BlogManager
-     */
-    public function GetManager(){
-        if (is_null($this->_manager)){
-            require_once 'includes/manager.php';
-            $this->_manager = new BlogManager($this);
-        }
-        return $this->_manager;
     }
 
     private $_cachepa = null;
@@ -287,6 +273,10 @@ class BlogModule extends Ab_Module {
      * @return bool
      */
     public function Bos_IsMenu(){
+        return true;
+    }
+
+    public function URating_IsVoting(){
         return true;
     }
 }

@@ -10,9 +10,10 @@
 $brick = Brick::$builder->brick;
 $v = &$brick->param->var;
 
+/** @var BlogApp $app */
+$app = Abricos::GetApp('blog');
 
-$man = BlogModule::$instance->GetManager();
-$cats = $man->GetApp()->CategoryList();
+$cats = $app->CategoryList();
 
 $pa = BlogModule::$instance->ParserAddress();
 
@@ -32,22 +33,14 @@ $count = $topics->Count();
 /** @var URatingApp $uratingApp */
 $uratingApp = Abricos::GetApp('urating');
 
-if (!empty($uratingApp)){
-    $voteBuilder = new URatingBuilder("blog", "topic", "topic.vote.error");
-}
-
 for ($i = 0; $i < $count; $i++){
 
     $topic = $topics->GetByIndex($i);
     $cat = $topic->Category();
 
     $vote = "";
-    if (BlogManager::$isURating){
-        $vote = $voteBuilder->BuildVote(array(
-            "elid" => $topic->id,
-            "vote" => $topic->voteMy,
-            "value" => $topic->rating
-        ));
+    if (!empty($uratingApp)){
+        $vote = $uratingApp->VotingHTML($topic->voting);
     }
     $soclinetpl = "";
     if (!empty($modSocialist)){
@@ -92,14 +85,8 @@ for ($i = 0; $i < $count; $i++){
     ));
 }
 
-$voteJSMan = "";
-if (BlogManager::$isURating){
-    $voteJSMan = $voteBuilder->BuildJSMan();
-}
-
 $brick->content = Brick::ReplaceVarByData($brick->content, array(
     'rows' => $lst,
-    'votejsman' => $voteJSMan
 ));
 
 Brick::$builder->LoadBrickS('sitemap', 'paginator', $brick, array(

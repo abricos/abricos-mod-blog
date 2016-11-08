@@ -454,28 +454,7 @@ class BlogTopicQuery {
         return $db->query_read($sql);
     }
 
-    private static function CategoryRatingSQLExt(Ab_Database $db){
-        $ret = new stdClass();
-        $ret->fld = "";
-        $ret->tbl = "";
-        $userid = Abricos::$user->id;
-        if (BlogManager::$isURating && $userid > 0){
-            $ret->fld .= "
-				,IF(ISNULL(vt.userid), null, IF(vt.voteup>0, 1, IF(vt.votedown>0, -1, 0))) as vmy
-			";
-            $ret->tbl .= "
-				LEFT JOIN ".$db->prefix."urating_vote vt 
-					ON vt.module='blog' AND vt.elementtype='cat' 
-					AND vt.elementid=cat.catid 
-					AND vt.userid=".bkint($userid)."
-			";
-        }
-        return $ret;
-    }
-
     public static function CategoryList(Ab_Database $db){
-        $urt = BlogTopicQuery::CategoryRatingSQLExt($db);
-
         $dmfilter = "";
         $dmfa = BlogTopicQuery::DomainFilterSQLExt();
         if (!empty($dmfa)){
@@ -500,12 +479,10 @@ class BlogTopicQuery {
 				IF(ISNULL(cur.userid), 0, cur.isadmin) as adm,
 				IF(ISNULL(cur.userid), 0, cur.ismoder) as mdr,
 				IF(ISNULL(cur.userid), 0, cur.ismember) as mbr
-				".$urt->fld."
 				
 			FROM ".$db->prefix."bg_cat cat
 			LEFT JOIN ".$db->prefix."bg_catuserrole cur ON cat.catid=cur.catid 
 				AND cur.userid=".bkint(Abricos::$user->id)."
-			".$urt->tbl."
 			WHERE cat.language='".bkstr(Abricos::$LNG)."' AND cat.deldate=0
 				".$dmfilter."
 			ORDER BY rtg DESC, tcnt DESC, tl
@@ -514,8 +491,6 @@ class BlogTopicQuery {
     }
 
     public static function Category(Ab_Database $db, $catid){
-        $urt = BlogTopicQuery::CategoryRatingSQLExt($db);
-
         $sql = "
 			SELECT
 				cat.catid as id,
@@ -533,12 +508,9 @@ class BlogTopicQuery {
 				IF(ISNULL(cur.userid), 0, cur.ismoder) as mdr,
 				IF(ISNULL(cur.userid), 0, cur.ismember) as mbr
 				
-				".$urt->fld."
-			
 			FROM ".$db->prefix."bg_cat cat
 			LEFT JOIN ".$db->prefix."bg_catuserrole cur ON cat.catid=cur.catid
 				AND cur.userid=".bkint(Abricos::$user->id)."
-			".$urt->tbl."
 			WHERE cat.catid=".bkint($catid)." AND cat.deldate=0
 			LIMIT 1
 		";

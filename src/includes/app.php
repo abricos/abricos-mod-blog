@@ -259,6 +259,20 @@ class BlogApp extends AbricosApplication {
             $topic->commentStatistic = $stat;
         }
 
+        /** @var URatingApp $uratingApp */
+        $uratingApp = Abricos::GetApp('urating');
+        if (!empty($uratingApp)){
+            $votingList = $uratingApp->VotingList('blog', 'topic', $topicids);
+
+            $count = $list->Count();
+            for ($i = 0; $i < $count; $i++){
+                $topic = $list->GetByIndex($i);
+
+                $topic->voting = $votingList->GetByOwnerId($topic->id);
+                $topic->voting->ownerDate = $topic->publicDate;
+            }
+        }
+
         return $list;
     }
 
@@ -597,18 +611,16 @@ class BlogApp extends AbricosApplication {
         BlogTopicQuery::TopicMetaTagUpdate($this->db, $topic->id, $topic->metakeys, $topic->metadesc);
     }
 
-    private $_categoryListCache = null;
-
     /**
      * @return BlogCategoryList
      */
     public function CategoryList(){
-        if (!$this->IsViewRole()){
-            return null;
+        if ($this->CacheExists('CategoryList')){
+            return $this->Cache('CategoryList');
         }
 
-        if (!empty($this->_categoryListCache)){
-            return $this->_categoryListCache;
+        if (!$this->IsViewRole()){
+            return null;
         }
 
         $cats = array();
@@ -616,9 +628,11 @@ class BlogApp extends AbricosApplication {
         while (($row = $this->db->fetch_array($rows))){
             array_push($cats, new BlogCategory($row));
         }
+        $list = new BlogCategoryList($cats);
 
-        $this->_categoryListCache = new BlogCategoryList($cats);
-        return $this->_categoryListCache;
+        $this->SetCache('CategoryList', $list);
+
+        return $list;
     }
 
     public function Category($catid){
