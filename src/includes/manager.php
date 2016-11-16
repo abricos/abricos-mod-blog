@@ -19,15 +19,15 @@ class BlogManager extends Ab_ModuleManager {
      */
     public static $instance = null;
 
-    public static $isURating = false;
+    /**
+     * @deprecated
+     */
+    private static $isURating = false;
 
     public function __construct($module){
         parent::__construct($module);
 
         BlogManager::$instance = $this;
-
-        $modURating = Abricos::GetModule("urating");
-        BlogManager::$isURating = !empty($modURating);
     }
 
     public function IsAdminRole(){
@@ -72,7 +72,8 @@ class BlogManager extends Ab_ModuleManager {
 
     public function URating_GetDefaultConfig($type){
         return array(
-            'votingPeriod' => 60 * 60 * 24 * 31
+            'votingPeriod' => 60 * 60 * 24 * 31,
+            'minUserReputation' => 0
         );
     }
 }

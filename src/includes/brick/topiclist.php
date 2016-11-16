@@ -78,10 +78,10 @@ for ($i = 0; $i < $count; $i++){
         "readmore" => $topic->bodyLength == 0 ? "" : Brick::ReplaceVarByData($v['readmore'], array(
             "urltop" => $topic->URL()
         )),
-        "urlusr" => $topic->user->URL(),
+        "userURL" => $topic->user->URL(),
         "uid" => $topic->user->id,
-        "unm" => $topic->user->GetUserName(),
-        "avatar" => $topic->user->Avatar24()
+        "unm" => $topic->user->GetViewName(),
+        "avatar" => $topic->user->GetAvatar24()
     ));
 }
 

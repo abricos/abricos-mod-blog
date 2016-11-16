@@ -157,13 +157,6 @@ class BlogApp extends AbricosApplication {
         return $o;
     }
 
-    /**
-     * @return URatingManager
-     */
-    public function GetURatingManager(){
-        return Abricos::GetModule('urating')->GetManager();
-    }
-
     public function ToArray($rows, &$ids1 = "", $fnids1 = 'uid', &$ids2 = "", $fnids2 = '', &$ids3 = "", $fnids3 = ''){
         $ret = array();
         while (($row = $this->db->fetch_array($rows))){
@@ -300,16 +293,41 @@ class BlogApp extends AbricosApplication {
 
         $topics = array();
         $topicids = array();
+        $userids = array();
 
         while (($row = $this->db->fetch_array($rows))){
             $topic = new BlogTopicInfo($row);
             array_push($topics, $topic);
             $topicids[] = $topic->id;
+            $userids[] = $topic->userid;
         }
 
         $this->TopicSetTags($topics);
 
         $list = new BlogTopicList($topics, $total, $totalNew);
+
+        /** @var UProfileApp $uprofileApp */
+        $uprofileApp = Abricos::GetApp('uprofile');
+        $userList = $uprofileApp->UserListByIds($userids);
+
+        /** @var URatingApp $uratingApp */
+        $uratingApp = Abricos::GetApp('urating');
+        $votingList = null;
+        if (!empty($uratingApp)){
+            $votingList = $uratingApp->VotingList('blog', 'topic', $topicids);
+        }
+
+        $count = $list->Count();
+        for ($i = 0; $i < $count; $i++){
+            $topic = $list->GetByIndex($i);
+
+            $topic->user = $userList->Get($topic->userid);
+
+            if (!empty($votingList)){
+                $topic->voting = $votingList->GetByOwnerId($topic->id);
+                $topic->voting->ownerDate = $topic->publicDate;
+            }
+        }
 
         /** @var CommentApp $commentApp */
         $commentApp = Abricos::GetApp('comment');
@@ -323,20 +341,6 @@ class BlogApp extends AbricosApplication {
                 continue; // what is it? %)
             }
             $topic->commentStatistic = $stat;
-        }
-
-        /** @var URatingApp $uratingApp */
-        $uratingApp = Abricos::GetApp('urating');
-        if (!empty($uratingApp)){
-            $votingList = $uratingApp->VotingList('blog', 'topic', $topicids);
-
-            $count = $list->Count();
-            for ($i = 0; $i < $count; $i++){
-                $topic = $list->GetByIndex($i);
-
-                $topic->voting = $votingList->GetByOwnerId($topic->id);
-                $topic->voting->ownerDate = $topic->publicDate;
-            }
         }
 
         return $list;
@@ -363,6 +367,11 @@ class BlogApp extends AbricosApplication {
             return null;
         }
         $topic = new BlogTopic($row);
+
+        /** @var UProfileApp $uprofileApp */
+        $uprofileApp = Abricos::GetApp('uprofile');
+
+        $topic->user = $uprofileApp->User($topic->userid);
 
         /** @var CommentApp $commentApp */
         $commentApp = Abricos::GetApp('comment');
@@ -949,18 +958,30 @@ class BlogApp extends AbricosApplication {
         }
         $topics = array();
         $topicsById = array();
+        $userids = array();
 
         $rows = BlogTopicQuery::TopicListByIds($this->db, $tids);
         while (($row = $this->db->fetch_array($rows))){
             $topic = new BlogTopicInfo($row);
             $topicsById[$topic->id] = $topic;
-            array_push($topics, new BlogTopicInfo($row));
+            $topics[] = $topic;
+            $userids[] = $topic->userid;
 
             for ($i = 0; $i < count($list); $i++){
                 if ($list[$i]->topicid == $topic->id){
                     $list[$i]->topic = $topic;
                 }
             }
+        }
+
+        /** @var UProfileApp $uprofileApp */
+        $uprofileApp = Abricos::GetApp('uprofile');
+        $userList = $uprofileApp->UserListByIds($userids);
+
+        $count = count($topics);
+        for ($i = 0; $i < $count; $i++){
+            $topic = $topics[$i];
+            $topic->user = $userList->Get($topic->userid);
         }
 
         $this->TopicSetTags($topics);
@@ -973,6 +994,7 @@ class BlogApp extends AbricosApplication {
         for ($i = 0; $i < $cnt; $i++){
             $stat = $statList->GetByIndex($i);
             $topic = $topicsById[$stat->id];
+
             if (empty($topic)){
                 continue; // what is it? %)
             }
@@ -1041,58 +1063,46 @@ class BlogApp extends AbricosApplication {
         return $ret;
     }
 
+    /* * * * * * * * * * * * * * * * * * * * * * * * * * * */
+    /*                      URating                        */
+    /* * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
     /**
-     * Можно ли проголосовать текущему пользователю за категорию/топик
-     *
-     * Метод вызывается из модуля URating
-     *
-     * Возвращает код ошибки:
-     *  0 - все нормально, голосовать можно,
-     *  2 - голосовать можно только с положительным рейтингом,
-     *  3 - недостаточно голосов (закончились голоса),
-     *  4 - нальзя голосовать за свой топик
-     *
-     *
-     * @param URatingUserReputation $uRep
-     * @param string $act
-     * @param integer $userid
-     * @param string $eltype
+     * @param URatingOwner $owner
+     * @param URatingVoting $voting
      */
-    public function URating_IsElementVoting(URatingUserReputation $uRep, $act, $elid, $eltype){
-        $man = URatingManager::$instance;
-        if (!($eltype == 'cat' || $eltype == 'topic')){
-            return null;
-        }
-
+    public function URating_IsToVote($owner, $voting){
         if ($this->IsAdminRole()){ // админу можно голосовать всегда
-            return 0;
+            return true;
         }
 
-        if ($uRep->reputation < 1){ // голосовать можно только с положительным рейтингом
-            return 2;
-        }
+        if ($owner->type === 'blog'){
 
-        $votes = $man->UserVoteCountByDay();
-
-        // кол-во голосов равно кол-ву репутации умноженной на 2
-        $voteRepCount = intval($votes['blog']);
-        if ($uRep->reputation * 2 <= $voteRepCount){
-            return 3;
-        }
-
-        // можно ли еще ставить голосо за топик?
-        if ($eltype == 'topic'){
-            $topic = $this->Topic($elid);
-            if (empty($topic) || !$topic->IsVotingPeriod()){
-                return 99;
+        } else if ($owner->type === 'topic'){
+            $topic = $this->Topic($owner->ownerid);
+            if (empty($topic)){
+                return false;
             }
-            if ($topic->user->id == Abricos::$user->id){
-                return 4;
-            }
+        } else if ($owner->type === 'comment'){
         }
+        return false;
+    }
 
+    /**
+     * @param URatingOwner $owner
+     */
+    public function URating_GetOwnerDate($owner){
+        if ($owner->type === 'blog'){
+
+        } else if ($owner->type === 'topic'){
+            $topic = $this->Topic($owner->ownerid);
+            return !empty($topic) ? $topic->publicDate : 0;
+        } else if ($owner->type === 'comment'){
+        }
         return 0;
     }
+
+
 
     /**
      * Можно ли проголосовать текущему пользователю за комментарий
@@ -1107,7 +1117,7 @@ class BlogApp extends AbricosApplication {
      * @param unknown_type $act
      * @param unknown_type $commentid
      * @param unknown_type $contentid
-     */
+     *//*
     public function Comment_IsVoting(URatingUserReputation $uRep, $act, $commentid, $contentid){
 
         $topic = $this->Topic(0, $contentid);
@@ -1120,7 +1130,7 @@ class BlogApp extends AbricosApplication {
         }
 
         return 0;
-    }
+    }/**/
 
 
     /**
@@ -1131,7 +1141,7 @@ class BlogApp extends AbricosApplication {
      * @param string $eltype
      * @param integer $elid
      * @param array $vote
-     */
+     *//*
     public function URating_OnElementVoting($eltype, $elid, $info){
 
         if ($eltype == 'cat'){
@@ -1145,7 +1155,7 @@ class BlogApp extends AbricosApplication {
             $isIndex = $rating >= $this->Config()->topicIndexRating;
             BlogTopicQuery::TopicIndexUpdateByRating($this->db, $topicid, $isIndex);
         }
-    }
+    }/**/
 
     /**
      * Расчет рейтинга пользователя
@@ -1156,7 +1166,7 @@ class BlogApp extends AbricosApplication {
      * -10 - за каждый отрицательный голос в репутацию
      *
      * @param integer $userid
-     */
+     *//*
     public function URating_UserCalculate($userid){
 
         // $rep = $this->UserReputation($userid);
@@ -1164,7 +1174,7 @@ class BlogApp extends AbricosApplication {
         $ret = new stdClass();
         // $ret->skill = $rep->reputation * 10;
         return $ret;
-    }
+    }/**/
 
     /* * * * * * * * * * * * * * * * * * * * * * * * * * * */
     /*                     Comments                        */

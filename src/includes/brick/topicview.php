@@ -67,10 +67,10 @@ $brick->content = Brick::ReplaceVarByData($brick->content, array(
 
     "voting" => $vote,
 
-    "urlusr" => $topic->user->URL(),
+    "userURL" => $topic->user->URL(),
     "uid" => $topic->user->id,
-    "unm" => $topic->user->GetUserName(),
-    "avatar" => $topic->user->Avatar24(),
+    "unm" => $topic->user->username,
+    "avatar" => $topic->user->GetAvatar24(),
 
     "intro" => $topic->intro,
     "body" => $topic->body,

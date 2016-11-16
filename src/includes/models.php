@@ -32,9 +32,14 @@ class BlogTopicInfo {
     public $id;
 
     /**
+     * @var int
+     */
+    public $userid;
+
+    /**
      * Автор
      *
-     * @var BlogUser
+     * @var UProfileUser
      */
     public $user;
 
@@ -114,8 +119,8 @@ class BlogTopicInfo {
     public function __construct($d){
         $this->id = isset($d['id']) ? intval($d['id']) : 0;
         $this->catid = intval($d['catid']);
+        $this->userid = intval($d['uid']);
 
-        $this->user = new BlogUser($d);
         $this->isDraft = isset($d['dft']) && intval($d['dft']) > 0;
         $this->isIndex = isset($d['idx']) && intval($d['idx']) > 0;
         $this->isAutoIndex = isset($d['aidx']) && intval($d['aidx']) > 0;
@@ -124,20 +129,6 @@ class BlogTopicInfo {
         $this->title = strval($d['tl']);
         $this->intro = strval($d['intro']);
         $this->bodyLength = intval($d['bdlen']);
-
-        /*
-        if (!is_null($this->voteMy) || !$this->IsVotingPeriod()){
-            $this->rating = isset($d['rtg']) ? intval($d['rtg']) : 0;
-
-            // показать значение, значит запретить голосовать
-            if (is_null($this->voteMy)){
-                $this->voteMy = 0;
-            }
-        } else {
-            // голосовать еще можно
-            $this->rating = null;
-        }
-        /**/
     }
 
     private $_commentOwner;
@@ -154,13 +145,6 @@ class BlogTopicInfo {
             "type" => "topic",
             "ownerid" => $this->id
         ));
-    }
-
-    /**
-     * Можно ли еще голосовать за топик
-     */
-    public function IsVotingPeriod(){
-        return $this->publicDate > TIMENOW - 60 * 60 * 24 * 31;
     }
 
     /**
@@ -369,22 +353,26 @@ class BlogUser {
 
 class BlogAuthor extends BlogUser {
 
+    /**
+     * @deprecated
+     */
+    private $reputation;
+
+    /**
+     * @deprecated
+     */
+    private $rating;
+
     public $topicCount;
-    public $reputation;
-    public $rating;
 
     public function __construct($d){
         parent::__construct($d);
         $this->topicCount = $d['tcnt'] * 1;
-        $this->reputation = $d['rep'] * 1;
-        $this->rating = $d['rtg'] * 1;
     }
 
     public function ToAJAX(){
         $ret = parent::ToAJAX();
         $ret->tcnt = $this->topicCount;
-        $ret->rep = $this->reputation;
-        $ret->rtg = $this->rating;
         return $ret;
     }
 }
@@ -651,20 +639,20 @@ class BlogPersonalCategory {
     public $title;
 
     /**
-     * @var BlogUser
+     * @var UProfileUser
      */
     public $user;
 
-    public function __construct(BlogUser $user){
+    public function __construct(UProfileUser $user){
         $this->user = $user;
-        $i18n = BlogModule::$instance->GetI18n();
+        $i18n = Abricos::GetModule('blog')->I18n();
 
         $this->title =
-            str_replace("{v#unm}", $user->userName, $i18n['catperson']);
+            str_replace("{v#unm}", $user->username, $i18n->Translate('catperson'));
     }
 
     public function URL(){
-        return "/blog/author/".$this->user->userName."/";
+        return "/blog/author/".$this->user->username."/";
     }
 }
 

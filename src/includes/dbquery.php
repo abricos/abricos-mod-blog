@@ -123,9 +123,11 @@ class BlogTopicQuery {
         $newPeriod = TIMENOW - 60 * 60 * 24;
 
         $filterRating = "";
+        /*
         if (BlogManager::$isURating){
             $filterRating = " AND (t.rating >= 5 OR t.isindex=1)";
         }
+        /**/
 
         $filter = '';
         if ($fType == "index"){ // главная
@@ -710,27 +712,7 @@ class BlogTopicQuery {
         return $db->query_read($sql);
     }
 
-    public static function AuthorRatingSQLExt(Ab_Database $db){
-        $urt = new stdClass();
-        $urt->fld = "";
-        $urt->tbl = "";
-        $userid = Abricos::$user->id;
-        if (BlogManager::$isURating && $userid > 0){
-            $urt->fld .= "
-				,IF(ISNULL(urt.reputation), 0, urt.reputation) as rep,
-				IF(ISNULL(urt.skill), 0, urt.skill) as rtg
-				";
-            $urt->tbl .= "
-				LEFT JOIN ".$db->prefix."urating_user urt ON t.userid=urt.userid
-			";
-        }
-
-        return $urt;
-    }
-
     public static function Author(Ab_Database $db, $authorid){
-        $urt = BlogTopicQuery::AuthorRatingSQLExt($db);
-
         $sql = "
 			SELECT
 				t.userid as id,
@@ -739,10 +721,8 @@ class BlogTopicQuery {
 				u.firstname as fnm,
 				u.lastname as lnm,
 				count(t.topicid) as tcnt
-				".$urt->fld."
 			FROM ".$db->prefix."bg_topic t
 			INNER JOIN ".$db->prefix."user u ON t.userid=u.userid
-			".$urt->tbl."
 			WHERE t.isdraft=0 AND t.deldate=0 AND t.userid=".bkint($authorid)."
 			GROUP BY t.userid
 			LIMIT 1
@@ -751,8 +731,6 @@ class BlogTopicQuery {
     }
 
     public static function AuthorByUserName(Ab_Database $db, $username){
-        $urt = BlogTopicQuery::AuthorRatingSQLExt($db);
-
         $sql = "
 			SELECT
 				t.userid as id,
@@ -761,10 +739,8 @@ class BlogTopicQuery {
 				u.firstname as fnm,
 				u.lastname as lnm,
 				count(t.topicid) as tcnt
-				".$urt->fld."
 			FROM ".$db->prefix."bg_topic t
 			INNER JOIN ".$db->prefix."user u ON t.userid=u.userid
-			".$urt->tbl."
 			WHERE t.isdraft=0 AND t.deldate=0 AND u.username='".bkstr($username)."'
 			GROUP BY t.userid
 			LIMIT 1
@@ -773,8 +749,6 @@ class BlogTopicQuery {
     }
 
     public static function AuthorList(Ab_Database $db, $page, $limit){
-        $urt = BlogTopicQuery::AuthorRatingSQLExt($db);
-
         $sql = "
 			SELECT
 				t.userid as id,
@@ -783,10 +757,8 @@ class BlogTopicQuery {
 				u.firstname as fnm,
 				u.lastname as lnm,
 				count(t.topicid) as tcnt
-				".$urt->fld."
 			FROM ".$db->prefix."bg_topic t
 			INNER JOIN ".$db->prefix."user u ON t.userid=u.userid
-			".$urt->tbl."
 			WHERE t.isdraft=0 AND t.deldate=0
 			GROUP BY t.userid
 			ORDER BY tcnt DESC

@@ -35,12 +35,12 @@
 			<div class="tpinbox">
 				<div class="topicvote">{v#voting}</div>
 				<div class="user">
-					<a href="#" class="avtr tmb tmb24 show-user-profile user-{v#uid}">
+					<a href="{v#userURL}" class="avtr tmb tmb24">
 						<span class="tmbpre">
-							{v#avatar}
+							<img src="{v#avatar}" />
 						</span>
 					</a>
-					<a title="автор текста" class="unm show-user-profile user-{v#uid}" href="#">{v#unm}</a>
+					<a title="автор текста" class="unm" href="{v#userURL}">{v#unm}</a>
 				</div>
 				<div class="date">{v#date}</div>
 				<div class="socialist">{v#socialist}</div>
@@ -51,8 +51,4 @@
 		
 </div></div>
 
-{v#votejsman}
-
 [mod]comment:tree[/mod]
-
-
