@@ -58,24 +58,10 @@ Component.entryPoint = function(NS){
             };
         },
         onLoad: function(topic, cfg){
-            if (NSUR.VotingWidget){
-                this.voteWidget = new NSUR.VotingWidget(this.gel('topicvote'), {
-                    'modname': '{C#MODNAME}',
-                    'elementType': 'topic',
-                    'elementId': topic.id,
-                    'value': topic.rating,
-                    'vote': topic.voteMy,
-                    'onVotingError': function(error, merror){
-                        var s = 'ERROR';
-                        if (merror > 0){
-                            s = LNG.get('topic.vote.error.m.' + merror);
-                        } else if (error == 1){
-                            s = LNG.get('topic.vote.error.' + error);
-                        } else {
-                            return;
-                        }
-                        Brick.mod.widget.notice.show(s);
-                    }
+            if (topic.voting){
+                this.votingWidget = new NSUR.VotingWidget({
+                    boundingBox: this.gel('topicvote'),
+                    voting: topic.voting
                 });
                 this.elShow('topicvote');
             }
@@ -89,7 +75,6 @@ Component.entryPoint = function(NS){
         }
     });
     NS.TopicInfoLineWidget = TopicInfoLineWidget;
-
 
     var TagListWidget = function(container, list){
         TagListWidget.superclass.constructor.call(this, container, {

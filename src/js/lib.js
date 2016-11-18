@@ -22,6 +22,7 @@ Component.entryPoint = function(NS){
     }, [], {
         APPS: {
             uprofile: {},
+            urating: {},
             comment: {},
             notify: {}
         },
@@ -106,10 +107,6 @@ Component.entryPoint = function(NS){
     var L = YAHOO.lang,
         R = NS.roles;
 
-    var LNG = this.language;
-    var UID = Brick.env.user.id;
-
-
     var buildTemplate = this.buildTemplate;
     buildTemplate({}, '');
 
@@ -123,8 +120,6 @@ Component.entryPoint = function(NS){
     };
     NS.Item = SYS.Item;
     NS.ItemList = SYS.ItemList;
-
-    NS.isURating = !!Brick.mod.urating.VotingWidget;
 
     var WS = "#app={C#MODNAMEURI}/wspace/ws/";
 

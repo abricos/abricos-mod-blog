@@ -67,12 +67,21 @@ class BlogManager extends Ab_ModuleManager {
     }
 
     public function URating_GetTypes(){
-        return 'blog,topic,comment';
+        return 'blog,topic,topic-comment';
     }
 
     public function URating_GetDefaultConfig($type){
+        $votingPeriod = 60 * 60 * 24 * 31;
+
+        if ($type === 'topic-comment'){
+            return array(
+                'votingPeriod' => $votingPeriod,
+                'minUserReputation' => 0,
+                'showResult' => true
+            );
+        }
         return array(
-            'votingPeriod' => 60 * 60 * 24 * 31,
+            'votingPeriod' => $votingPeriod,
             'minUserReputation' => 0
         );
     }

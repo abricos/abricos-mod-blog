@@ -91,11 +91,6 @@ Component.entryPoint = function(NS){
             'bdlen': 0,
             'intro': '',
             'tags': [],
-
-            'rtg': null,	// рейтинг
-            'vcnt': 0,	// кол-во голосов
-            'vmy': null	// мой голос
-
         }, d || {});
 
         var u = Brick.env.user;
@@ -138,12 +133,15 @@ Component.entryPoint = function(NS){
 
             this.catid = d['catid'] * 1;
 
-            this.rating = d['rtg'];
-            this.voteCount = d['vcnt'] * 1;
-            this.voteMy = d['vmy'];
+            this.voting = null;
+            if (d.voting){
+                var uratingApp = NS.appInstance.getApp('urating'),
+                    Voting = uratingApp.get('Voting');
 
-            // this.commentCount = d['cmt'] * 1;
-            // this.contentid = d['ctid'] * 1;
+                this.voting = new Voting(Y.merge({
+                    appInstance: uratingApp
+                }, d.voting || {}));
+            }
 
             var commentApp = NS.appInstance.getApp('comment'),
                 CommentStatistic = commentApp.get('Statistic');

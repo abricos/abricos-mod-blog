@@ -325,7 +325,8 @@ class BlogApp extends AbricosApplication {
 
             if (!empty($votingList)){
                 $topic->voting = $votingList->GetByOwnerId($topic->id);
-                $topic->voting->ownerDate = $topic->publicDate;
+                $topic->voting->ownerDate = intval($topic->publicDate);
+                $topic->voting->userid = intval($topic->userid);
             }
         }
 
@@ -382,7 +383,8 @@ class BlogApp extends AbricosApplication {
         $uratingApp = Abricos::GetApp('urating');
         if (!empty($uratingApp)){
             $topic->voting = $uratingApp->Voting('blog', 'topic', $topicid);
-            $topic->voting->ownerDate = $topic->publicDate;
+            $topic->voting->ownerDate = intval($topic->publicDate);
+            $topic->voting->userid = intval($topic->userid);
         }
 
         $this->TopicSetTags(array($topic));
@@ -560,7 +562,7 @@ class BlogApp extends AbricosApplication {
                 }
 
                 // ограничения по репутации
-                if (BlogManager::$isURating){ // работает система репутации пользователя
+                if (false /*BlogManager::$isURating*/){ // работает система репутации пользователя
 
                     $urep = $this->GetURatingManager()->UserReputation();
 
@@ -769,7 +771,7 @@ class BlogApp extends AbricosApplication {
 
         if (!$this->IsAdminRole()){
 
-            if (BlogManager::$isURating){ // работает система репутации пользователя
+            if (false /*BlogManager::$isURating/**/){ // работает система репутации пользователя
                 $rep = $this->GetURatingManager()->UserReputation();
                 if ($rep->reputation < BlogConfig::$instance->categoryCreateRating){ // для создании/редактировании категории необходима репутация >= 5
                     $ret->error = 10;
@@ -1076,14 +1078,30 @@ class BlogApp extends AbricosApplication {
             return true;
         }
 
-        if ($owner->type === 'blog'){
+        $type = $owner->type;
+        $ownerid = $owner->ownerid;
 
-        } else if ($owner->type === 'topic'){
-            $topic = $this->Topic($owner->ownerid);
+        if ($type === 'topic-comment'){
+            /** @var CommentApp $commentApp */
+            $commentApp = Abricos::GetApp('comment');
+            $topicid = $commentApp->OwnerIdByCommentId('blog', 'topic', $ownerid);
+            if (empty($topicid)){
+                return false;
+            }
+            $type = 'topic';
+            $ownerid = $topicid;
+        }
+
+        if ($type === 'topic'){
+            $topic = $this->Topic($ownerid);
             if (empty($topic)){
                 return false;
             }
-        } else if ($owner->type === 'comment'){
+            return true;
+        }
+
+        if ($owner->type === 'blog'){
+
         }
         return false;
     }
