@@ -558,26 +558,24 @@ class BlogCategory {
     public $isMemberFlag;
 
     /**
-     * Рейтинг категории
-     *
-     * @var integer
+     * @deprecated
      */
     public $rating;
 
     /**
-     * Количество голосов за рейтинг
-     *
-     * @var integer
+     * @deprecated
      */
     public $voteCount;
 
     /**
-     * Голос текущего пользователя
-     * null - нет голоса, -1 - ПРОТИВ, 1 - ЗА, 0 - Воздержался
-     *
-     * @var integer
+     * @deprecated
      */
     public $voteMy;
+
+    /**
+     * @var URatingVoting
+     */
+    public $voting;
 
     public function __construct($d){
         $this->id = intval($d['id']);
@@ -591,10 +589,6 @@ class BlogCategory {
         $this->isAdminFlag = intval($d['adm']) > 0;
         $this->isModerFlag = intval($d['mdr']) > 0;
         $this->isMemberFlag = intval($d['mbr']) > 0;
-
-        $this->rating = intval($d['rtg']);
-        $this->voteCount = intval($d['vcnt']);
-        $this->voteMy = isset($d['vmy']) ? intval($d['vmy']) : 0;
     }
 
     public function ToAJAX(){
@@ -612,9 +606,9 @@ class BlogCategory {
         $ret->mdr = $this->isModerFlag ? 1 : 0;
         $ret->mbr = $this->isMemberFlag ? 1 : 0;
 
-        $ret->rtg = $this->rating;
-        $ret->vcnt = $this->voteCount;
-        $ret->vmy = $this->voteMy;
+        if (!empty($this->voting)){
+            $ret->voting = $this->voting->ToJSON();
+        }
         return $ret;
     }
 
@@ -706,7 +700,7 @@ class BlogCategoryList {
         $ret = new stdClass();
         $ret->categories = array();
         for ($i = 0; $i < count($this->list); $i++){
-            array_push($ret->categories, $this->list[$i]->ToAJAX());
+            $ret->categories[] = $this->list[$i]->ToAJAX();
         }
         return $ret;
     }

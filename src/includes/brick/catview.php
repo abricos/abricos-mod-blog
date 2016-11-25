@@ -7,36 +7,33 @@
  * @author Alexander Kuzmin <roosit@abricos.org>
  */
 
+$dir = Abricos::$adress->dir;
+
 $brick = Brick::$builder->brick;
 $v = &$brick->param->var;
 
-$man = BlogModule::$instance->GetManager();
-$pa = BlogModule::$instance->ParserAddress();
+/** @var BlogModule $module */
+$module = Abricos::GetModule('blog');
+
+$pa = $module->ParserAddress();
 $f = explode("/", $pa->topicListFilter);
 
 $isNew = isset($f[2]) && $f[2] == 'new';
 
-$cats = $man->CategoryList();
+/** @var BlogApp $app */
+$app = Abricos::GetApp('blog');
 
-if (BlogManager::$isURating){
-    Abricos::GetModule('urating')->GetManager();
-}
+$cats = $app->CategoryList();
 
-$dir = Abricos::$adress->dir;
 
 $cat = $cats->GetByName($dir[1]);
 
 $vote = "";
-$voteJSMan = "";
-if (BlogManager::$isURating){
-    Abricos::GetModule('urating')->GetManager();
-    $voteBuilder = new URatingBuilder("blog", "cat", "cat.vote.error");
-    $vote = $voteBuilder->BuildVote(array(
-        "elid" => $cat->id,
-        "vote" => $cat->voteMy,
-        "value" => $cat->rating
-    ));
-    $voteJSMan = $voteBuilder->BuildJSMan();
+
+/** @var URatingApp $uratingApp */
+$uratingApp = Abricos::GetApp('urating');
+if (!empty($uratingApp) && !empty($cat->voting)){
+    $vote = $uratingApp->VotingHTML($cat->voting);
 }
 
 $topics = $pa->topicList;
@@ -45,7 +42,6 @@ $brick->content = Brick::ReplaceVarByData($brick->content, array(
     'tl' => $cat->title,
     "catname" => $cat->name,
     "voting" => $vote,
-    'votejsman' => $voteJSMan,
     'mbrs' => $cat->memberCount,
     'topics' => $cat->topicCount,
     "newcnt" => $topics->totalNew > 0 ? "+".$topics->totalNew : "",

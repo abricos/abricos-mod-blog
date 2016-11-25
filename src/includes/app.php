@@ -701,11 +701,26 @@ class BlogApp extends AbricosApplication {
         }
 
         $cats = array();
+        $catids = array();
         $rows = BlogTopicQuery::CategoryList($this->db);
         while (($row = $this->db->fetch_array($rows))){
-            array_push($cats, new BlogCategory($row));
+            $category = new BlogCategory($row);
+            $catids[] = $category->id;
+            array_push($cats, $category);
         }
         $list = new BlogCategoryList($cats);
+
+        /** @var URatingApp $uratingApp */
+        $uratingApp = Abricos::GetApp('urating');
+        if (!empty($uratingApp)){
+            $votingList = $uratingApp->VotingList('blog', 'blog', $catids);
+
+            $count = $list->Count();
+            for ($i = 0; $i < $count; $i++){
+                $category = $list->GetByIndex($i);
+                $category->voting = $votingList->GetByOwnerId($category->id);
+            }
+        }
 
         $this->SetCache('CategoryList', $list);
 

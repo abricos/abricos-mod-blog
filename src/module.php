@@ -19,7 +19,7 @@ class BlogModule extends Ab_Module {
     const TOPIC_PAGE_LIMIT = 10;
 
     /**
-     * @var BlogModule
+     * @deprecated
      */
     public static $instance = null;
 

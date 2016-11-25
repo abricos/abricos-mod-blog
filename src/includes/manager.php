@@ -71,6 +71,14 @@ class BlogManager extends Ab_ModuleManager {
     }
 
     public function URating_GetDefaultConfig($type){
+        if ($type === 'blog'){
+            return array(
+                'votingPeriod' => 0,
+                'showResult' => true,
+                'disableVotingAbstain' => true
+            );
+        }
+
         $votingPeriod = 60 * 60 * 24 * 31;
 
         if ($type === 'topic-comment'){
