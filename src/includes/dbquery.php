@@ -487,7 +487,7 @@ class BlogTopicQuery {
 				AND cur.userid=".bkint(Abricos::$user->id)."
 			WHERE cat.language='".bkstr(Abricos::$LNG)."' AND cat.deldate=0
 				".$dmfilter."
-			ORDER BY rtg DESC, tcnt DESC, tl
+			ORDER BY tcnt DESC, tl
 		";
         return $db->query_read($sql);
     }

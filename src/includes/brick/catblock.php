@@ -29,7 +29,7 @@ for ($i = 0; $i < $count; $i++){
     $lst .= Brick::ReplaceVarByData($v['row'], array(
         "cattl" => $cat->title,
         "urlcat" => $cat->URL(),
-        "rtg" => $cat->rating
+        "topicCount" => $cat->topicCount
     ));
 }
 

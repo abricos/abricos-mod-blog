@@ -190,18 +190,33 @@ Component.entryPoint = function(NS){
             }
 
             var tp = this.template,
-                lst = "", limit = 10, i = 0;
+                arr = [],
+                lst = "",
+                limit = 10;
 
             list.foreach(function(cat){
-                if (i++ >= limit){
-                    return true;
+                arr[arr.length] = cat;
+            });
+
+            arr = arr.sort(function(item1, item2){
+                if (item1.topicCount < item2.topicCount){
+                    return 1;
                 }
+                if (item1.topicCount > item2.topicCount){
+                    return -1;
+                }
+                return 0;
+            });
+
+            for (var i = 0, cat; i < limit; i++){
+                cat = arr[i];
                 lst += tp.replace('catrow', {
                     cattl: cat.title,
                     urlcat: cat.url(),
-                    rtg: cat.rating
+                    topicCount: cat.topicCount
                 });
-            });
+            }
+
             tp.setHTML('list', tp.replace('catlist', {
                 rows: lst
             }));

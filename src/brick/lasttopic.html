@@ -3,11 +3,11 @@
 [mcss=blog]blog.css[/mcss]
 
 [bkvar=row]
-	<div class="item">
+	<li class="list-group-item">
 		<a href="{v#urlcat}" class="category">{v#cattl}</a>
 		&nbsp;→&nbsp; 
 		<a href="{v#urltop}" class="topic">{v#toptl}</a>
-	</div>
+	</li>
 [/bkvar]
 
 [bkvar=rss]
@@ -21,7 +21,7 @@
 [/bkvar]
 
 [*]-->
-<div class="aw-blog blogLastTopicList panel panel-default">
+<div class="aw-blog lastTopicBox panel panel-default">
     <div class="panel-heading">
         <h3 class="panel-title pull-left">
             <a href="/blog/" title="Записи в блоге">Записи в блоге</a>
@@ -29,7 +29,5 @@
         {v#rss}
         <div class="clearfix"></div>
     </div>
-    <div class="panel-body">
-        {v#rows}
-    </div>
+    <div class="list-group">{v#rows}</div>
 </div>

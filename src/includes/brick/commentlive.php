@@ -8,7 +8,6 @@
  */
 
 $brick = Brick::$builder->brick;
-$man = BlogModule::$instance->GetManager();
 
 /** @var BlogApp $app */
 $app = Abricos::GetApp('blog');
@@ -32,7 +31,7 @@ for ($i = 0; $i < $count; $i++){
     $lst .= Brick::ReplaceVarByData($brick->param->var['row'], array(
         "urlusr" => $topic->user->URL(),
         "uid" => $topic->user->id,
-        "login" => $topic->user->userName,
+        "username" => $topic->user->username,
         "cattl" => $cat->title,
         "urlcat" => $cat->URL(),
         "toptl" => $topic->title,

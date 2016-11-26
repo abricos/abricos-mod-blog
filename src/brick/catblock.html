@@ -4,21 +4,18 @@
 [mcss=blog]blog.css[/mcss]
 
 [bkvar=row]
-	<li>
-		<a href="{v#urlcat}" class="category">{v#cattl}</a>
-		<span title="Рейтинг">{v#rtg}</span>
-	</li>
+<a href="{v#urlcat}" class="list-group-item">
+    <span class="badge" title="Количество записей в блоге">{v#topicCount}</span>
+    {v#cattl}
+</a>
 [/bkvar]
 
 [*]-->
-<div class="aw-blog box" id="aw-blog-brick-catblock">
-	<div class="catlistbox blockbox">
-		<div class="boxtl">
-			<a href="/blog/" title="Популярные блоги">Блоги</a>
-		</div>
-		
-		<div class="list">
-			<ul>{v#rows}</ul>
-		</div>
-	</div>
+<div class="aw-blog categoryListBox panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">
+            Популярные блоги
+        </h3>
+    </div>
+    <div class="list-group">{v#rows}</div>
 </div>

@@ -3,20 +3,20 @@
 [mcss=blog]blog.css[/mcss]
 
 [bkvar=row]
-	<li>
-		<a href="{v#urlusr}" class="user show-user-profile user-{v#uid}" title="{v#unm}">{v#login}</a><a href="{v#urlcat}" class="category">{v#cattl}</a>&nbsp;→&nbsp;<a href="{v#urlcmt}" class="topic">{v#toptl}</a><a href="{v#urlcmt}#comments" class="comments">({v#cmtcnt})</a>
-	</li>
+<li class="list-group-item">
+    <a href="{v#urlcmt}#comments" class="badge">{v#cmtcnt}</a>
+
+    <a href="{v#urlusr}" class="user" title="{v#unm}">{v#username}</a>
+    <a href="{v#urlcat}" class="category">{v#cattl}</a>
+    <span>→</span>
+    <a href="{v#urlcmt}" class="topic">{v#toptl}</a>
+</li>
 [/bkvar]
 
 [*]-->
-<div class="aw-blog box" id="aw-blog-brick-commentlive">
-	<div class="commentlivebox blockbox">
-		<div class="boxtl">
-			<a href="/blog/" title="Весь эфир">Прямой эфир</a>
-		</div>
-		
-		<div class="list">
-			<ul>{v#rows}</ul>
-		</div>
-	</div>
+<div class="aw-blog commentLiveBox panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">Прямой эфир</h3>
+    </div>
+    <div class="list-group">{v#rows}</div>
 </div>

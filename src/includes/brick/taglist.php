@@ -52,10 +52,10 @@ for ($i = 0; $i < $count; $i++){
     $sz = intval($n1 / $n2);
 
     $lst .= Brick::ReplaceVarByData($v['row'], array(
-        "tagtl" => $tag->title,
-        "urltag" => $tag->URL(),
-        "sz" => $sz
-    ));
+            "tagtl" => $tag->title,
+            "urltag" => $tag->URL(),
+            "sz" => $sz
+        )).' ';
 }
 
 if (empty($lst)){

@@ -1,25 +1,20 @@
 <!--[*]
-[mcss=blog]blog.css[/mcss]
-
 [script]brick/taglist.php[/script]
+
+[mcss=blog]blog.css[/mcss]
 
 [p=limit]35[/p]
 
 [bkvar=row]
-	<li>
-		<a href="{v#urltag}" class="tag sz-{v#sz}">{v#tagtl}</a>
-	</li>
+    <a href="{v#urltag}" class="tag sz{v#sz}">{v#tagtl}</a>
 [/bkvar]
 
 [*]-->
-<div class="aw-blog box" id="aw-blog-brick-tagblock">
-	<div class="taglistbox blockbox">
-		<div class="boxtl">
-			<a href="/blog/tag/">Теги</a>
-		</div>
-	
-		<div class="list">
-			<ul id="{i#list}">{v#rows}</ul>
-		</div>
-	</div>
+<div class="aw-blog tagListBox panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">
+            <a href="/blog/tag/">Теги</a>
+        </h3>
+    </div>
+    <div class="panel-body text-center">{v#rows}</div>
 </div>
