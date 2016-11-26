@@ -219,8 +219,8 @@ Component.entryPoint = function(NS){
             data = data || {};
 
             Brick.ajax('{C#MODNAME}', {
-                'data': data,
-                'event': function(request){
+                data: data,
+                event: function(request){
                     NS.life(callback, request.data);
                 }
             });
@@ -449,7 +449,7 @@ Component.entryPoint = function(NS){
     NS.manager = null;
 
     NS.initManager = function(callback){
-        if (L.isNull(NS.manager)){
+        if (!NS.manager){
             NS.manager = new Manager(callback);
         } else {
             NS.life(callback, NS.manager);

@@ -1,82 +1,89 @@
-<!--{comments}-->
-<div id="{i#id}" class="commentlivebox blockbox">
-	<div class="boxtl">
-		<a href="#" title="Весь эфир">Прямой эфир</a>
-	</div>
-	
-	<img id="{i#loading}" class="bloading" src="/images/loading.gif" />
-
-	<div id="{i#list}" class="list"></div>
-</div>
-
-<!--{cmtlist}-->
-<ul id="{i#list}">{v#rows}</ul>
-
-<!--{cmtrow}-->
-<li>
-	<a href="#" class="user show-user-profile user-{v#uid}" title="{v#unm}">{v#login}</a>
-	<a href="{v#urlcat}" class="category">{v#cattl}</a>
-	&nbsp;→&nbsp; 
-	<a href="{v#urlcmt}" class="topic">{v#toptl}</a>
-	<a href="{v#urlcmt}" class="comments">({v#cmtcnt})</a>
-</li>
-
 <!--{topics}-->
-<div id="{i#id}" class="topiclistbox blockbox">
-	<div class="boxtl">
-		<a href="#" title="Записи в блоге">Записи в блоге</a>
-	</div>
-	
-	<img id="{i#loading}" class="bloading" src="/images/loading.gif" />
+<div class="aw-blog lastTopicBox panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title pull-left">
+            <a href="/blog/" title="Записи в блоге">Записи в блоге</a>
+        </h3>
 
-	<div id="{i#list}" class="list"></div>
+        <img src="/images/loading.gif" class="pull-right" data-wait="show"/>
+
+        <div class="clearfix"></div>
+    </div>
+    <div id="{i#list}" class="list-group"></div>
 </div>
 
-<!--{toplist}-->
-<ul id="{i#list}">{v#rows}</ul>
+<!--{toplist}-->{v#rows}
 
 <!--{toprow}-->
-<li>
-	<a href="{v#urlcat}" class="category">{v#cattl}</a>
-	&nbsp;→&nbsp; 
-	<a href="{v#urltop}" class="topic">{v#toptl}</a>
+<li class="list-group-item">
+    <a href="{v#urlcat}" class="category">{v#cattl}</a>
+    &nbsp;→&nbsp;
+    <a href="{v#urltop}" class="topic">{v#toptl}</a>
+</li>
+
+<!--{comments}-->
+<div class="aw-blog commentLiveBox panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title pull-left">
+            Прямой эфир
+        </h3>
+
+        <img src="/images/loading.gif" class="pull-right" data-wait="show"/>
+
+        <div class="clearfix"></div>
+    </div>
+    <div class="list-group" id="{i#list}"></div>
+</div>
+
+<!--{cmtlist}-->{v#rows}
+
+<!--{cmtrow}-->
+<li class="list-group-item">
+    <a href="{v#urlcmt}" class="badge">{v#cmtcnt}</a>
+
+    <a href="#" class="user" title="{v#unm}">{v#login}</a>
+    <a href="{v#urlcat}" class="category">{v#cattl}</a>
+    <span>→</span>
+    <a href="{v#urlcmt}" class="topic">{v#toptl}</a>
 </li>
 
 <!--{tags}-->
-<div id="{i#id}" class="taglistbox blockbox">
-	<div class="boxtl">
-		<a href="#">Теги</a>
-	</div>
-	
-	<img id="{i#loading}" class="bloading" src="/images/loading.gif" />
+<div class="aw-blog tagListBox panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title pull-left">
+            Теги
+        </h3>
 
-	<div id="{i#list}" class="list"></div>
+        <img src="/images/loading.gif" class="pull-right" data-wait="show"/>
+
+        <div class="clearfix"></div>
+    </div>
+    <div id="{i#list}" class="panel-body text-center"></div>
 </div>
 
-<!--{taglist}-->
-<ul id="{i#list}">{v#rows}</ul>
+<!--{taglist}-->{v#rows}
 
 <!--{tagrow}-->
-<li>
-	<a href="{v#urltag}" class="tag sz-{v#sz}">{v#tagtl}</a>
-</li>
+<a href="{v#urltag}" class="tag sz{v#sz}">{v#tagtl}</a>
 
 <!--{cats}-->
-<div id="{i#id}" class="catlistbox blockbox">
-	<div class="boxtl">
-		<a href="#" title="Популярные блоги">Блоги</a>
-	</div>
-	
-	<img id="{i#loading}" class="bloading" src="/images/loading.gif" />
+<div class="aw-blog categoryListBox panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title pull-left">
+            Популярные блоги
+        </h3>
 
-	<div id="{i#list}" class="list"></div>
+        <img src="/images/loading.gif" class="pull-right" data-wait="show"/>
+
+        <div class="clearfix"></div>
+    </div>
+    <div id="{i#list}" class="list-group"></div>
 </div>
 
-<!--{catlist}-->
-<ul id="{i#list}">{v#rows}</ul>
+<!--{catlist}-->{v#rows}
 
 <!--{catrow}-->
-<li>
-	<a href="{v#urlcat}" class="category">{v#cattl}</a>
-	<span>{v#rtg}</span>
-</li>
+<a href="{v#urlcat}" class="list-group-item">
+    <span class="badge">{v#rtg}</span>
+    {v#cattl}
+</a>

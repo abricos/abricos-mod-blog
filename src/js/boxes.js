@@ -6,34 +6,84 @@ Component.requires = {
 };
 Component.entryPoint = function(NS){
 
-    var L = YAHOO.lang;
+    var Y = Brick.YUI,
+        COMPONENT = this,
+        SYS = Brick.mod.sys;
 
-    var buildTemplate = this.buildTemplate;
-
-    var CommentLiveBoxWidget = function(container){
-        CommentLiveBoxWidget.superclass.constructor.call(this, container, {
-            'buildTemplate': buildTemplate, 'tnames': 'comments,cmtlist,cmtrow'
-        });
+    var OldManagerWidgetExt = function(){
     };
-    YAHOO.extend(CommentLiveBoxWidget, Brick.mod.widget.Widget, {
-        onLoad: function(){
-            var __self = this;
+    OldManagerWidgetExt.prototype = {
+        onInitAppWidget: function(err, appInstance){
+            var instance = this;
             NS.initManager(function(){
-                NS.manager.commentLiveListLoad({'limit': 10}, function(list){
-                    __self.renderList(list);
-                });
+                instance.onInitOldManager.call(instance, NS.manager);
+            });
+        },
+        onInitOldManager: function(manager){
+        }
+    };
+
+    NS.TopicListBoxWidget = Y.Base.create('TopicListBoxWidget', SYS.AppWidget, [
+        OldManagerWidgetExt
+    ], {
+        onInitOldManager: function(manager){
+            this.set('waiting', true);
+            var instance = this;
+            manager.topicListLoad({limit: 5}, function(list){
+                instance.renderList.call(instance, list);
             });
         },
         renderList: function(list){
-            this.elHide('loading');
-            if (L.isNull(list)){
+            this.set('waiting', false);
+            if (!list){
                 return;
             }
-            var lst = "", TM = this._TM;
+            var tp = this.template,
+                lst = "";
+
+            list.foreach(function(topic){
+                var cat = topic.category();
+                lst += tp.replace('toprow', {
+                    cattl: cat.title,
+                    urlcat: cat.url(),
+                    toptl: topic.title,
+                    urltop: topic.url()
+                });
+            });
+            tp.setHTML('list', tp.replace('toplist', {
+                rows: lst
+            }));
+        }
+    }, {
+        ATTRS: {
+            component: {value: COMPONENT},
+            templateBlockName: {value: 'topics,toplist,toprow'},
+        },
+    });
+
+    NS.CommentLiveBoxWidget = Y.Base.create('CommentLiveBoxWidget', SYS.AppWidget, [
+        OldManagerWidgetExt
+    ], {
+        onInitOldManager: function(manager){
+            this.set('waiting', true);
+            var instance = this;
+            manager.commentLiveListLoad({limit: 10}, function(list){
+                instance.renderList.call(instance, list);
+            });
+        },
+        renderList: function(list){
+            this.set('waiting', false);
+            if (!list){
+                return;
+            }
+            var tp = this.template,
+                lst = "";
+
             list.foreach(function(cmt){
                 var cat = cmt.topic.category(),
                     user = cmt.user;
-                lst += TM.replace('cmtrow', {
+
+                lst += tp.replace('cmtrow', {
                     uid: user.get('id'),
                     login: user.get('username'),
                     unm: user.get('viewName'),
@@ -44,70 +94,37 @@ Component.entryPoint = function(NS){
                     cmtcnt: cmt.topic.commentStatistic.get('count'),
                 });
             });
-            this.elSetHTML('list', TM.replace('cmtlist', {
-                'rows': lst
+            tp.setHTML('list', tp.replace('cmtlist', {
+                rows: lst
             }));
         }
+    }, {
+        ATTRS: {
+            component: {value: COMPONENT},
+            templateBlockName: {value: 'comments,cmtlist,cmtrow'},
+        },
     });
-    NS.CommentLiveBoxWidget = CommentLiveBoxWidget;
 
-    var TopicListBoxWidget = function(container){
-        TopicListBoxWidget.superclass.constructor.call(this, container, {
-            'buildTemplate': buildTemplate, 'tnames': 'topics,toplist,toprow'
-        });
-    };
-    YAHOO.extend(TopicListBoxWidget, Brick.mod.widget.Widget, {
-        onLoad: function(){
-            var __self = this;
-            NS.initManager(function(){
-                NS.manager.topicListLoad({'limit': 5}, function(list){
-                    __self.renderList(list);
-                });
+    NS.TagListBoxWidget = Y.Base.create('TagListBoxWidget', SYS.AppWidget, [
+        OldManagerWidgetExt
+    ], {
+        onInitOldManager: function(manager){
+            this.set('waiting', true);
+            var instance = this;
+            manager.tagListLoad({limit: 35}, function(list){
+                instance.renderList.call(instance, list);
             });
         },
         renderList: function(list){
-            this.elHide('loading');
-            if (L.isNull(list)){
-                return;
-            }
-            var lst = "", TM = this._TM;
-            list.foreach(function(topic){
-                var cat = topic.category();
-                lst += TM.replace('toprow', {
-                    'cattl': cat.title,
-                    'urlcat': cat.url(),
-                    'toptl': topic.title,
-                    'urltop': topic.url()
-                });
-            });
-            this.elSetHTML('list', TM.replace('toplist', {
-                'rows': lst
-            }));
-        }
-    });
-    NS.TopicListBoxWidget = TopicListBoxWidget;
-
-    var TagListBoxWidget = function(container){
-        TagListBoxWidget.superclass.constructor.call(this, container, {
-            'buildTemplate': buildTemplate, 'tnames': 'tags,taglist,tagrow'
-        });
-    };
-    YAHOO.extend(TagListBoxWidget, Brick.mod.widget.Widget, {
-        onLoad: function(){
-            var __self = this;
-            NS.initManager(function(){
-                NS.manager.tagListLoad({'limit': 35}, function(list){
-                    __self.renderList(list);
-                });
-            });
-        },
-        renderList: function(list){
-            this.elHide('loading');
-            if (L.isNull(list)){
+            this.set('waiting', false);
+            if (!list){
                 return;
             }
 
-            var arr = [], min = 999999, max = 0;
+            var arr = [],
+                min = 999999,
+                max = 0;
+
             list.foreach(function(tag){
                 arr[arr.length] = tag;
                 min = Math.min(min, tag.topicCount);
@@ -131,64 +148,68 @@ Component.entryPoint = function(NS){
             var g1 = Math.log(min + 1),
                 g2 = Math.log(max + 1);
 
-            var lst = "", TM = this._TM;
+            var lst = "",
+                tp = this.template,
+                tag, cnt, n1, n2, v;
+
             for (var i = 0; i < arr.length; i++){
-                var tag = arr[i], cnt = tag.topicCount;
+                tag = arr[i];
+                cnt = tag.topicCount;
+                n1 = (fmin + Math.log(cnt + 1) - g1) * fmax;
+                n2 = g2 - g1;
+                v = Math.ceil(n1 / n2);
 
-                var n1 = (fmin + Math.log(cnt + 1) - g1) * fmax,
-                    n2 = g2 - g1,
-                    v = Math.ceil(n1 / n2);
-
-                lst += TM.replace('tagrow', {
-                    'tagtl': tag.title,
-                    'urltag': tag.url(),
-                    'sz': v
-                });
+                lst += tp.replace('tagrow', {
+                        tagtl: tag.title,
+                        urltag: tag.url(),
+                        sz: v
+                    }) + ' ';
             }
-            this.elSetHTML('list', TM.replace('taglist', {
-                'rows': lst
+            tp.setHTML('list', tp.replace('taglist', {
+                rows: lst
             }));
         }
-    });
-    NS.TagListBoxWidget = TagListBoxWidget;
-
-    var CategoryListBoxWidget = function(container){
-        CategoryListBoxWidget.superclass.constructor.call(this, container, {
-            'buildTemplate': buildTemplate, 'tnames': 'cats,catlist,catrow'
-        });
-    };
-    YAHOO.extend(CategoryListBoxWidget, Brick.mod.widget.Widget, {
-        onLoad: function(){
-            var __self = this;
-            NS.initManager(function(){
-                __self.renderList();
-            });
+    }, {
+        ATTRS: {
+            component: {value: COMPONENT},
+            templateBlockName: {value: 'tags,taglist,tagrow'},
         },
-        renderList: function(){
-            var list = NS.manager.categoryList;
+    });
 
-            this.elHide('loading');
-            if (L.isNull(list)){
+    NS.CategoryListBoxWidget = Y.Base.create('CategoryListBoxWidget', SYS.AppWidget, [
+        OldManagerWidgetExt
+    ], {
+        onInitOldManager: function(manager){
+            this.set('waiting', true);
+            this.renderList(manager.categoryList);
+        },
+        renderList: function(list){
+            this.set('waiting', false);
+            if (!list){
                 return;
             }
 
-            var lst = "", TM = this._TM, limit = 10, i = 0;
-            list.foreach(function(cat){
+            var tp = this.template,
+                lst = "", limit = 10, i = 0;
 
+            list.foreach(function(cat){
                 if (i++ >= limit){
                     return true;
                 }
-                lst += TM.replace('catrow', {
-                    'cattl': cat.title,
-                    'urlcat': cat.url(),
-                    'rtg': cat.rating
+                lst += tp.replace('catrow', {
+                    cattl: cat.title,
+                    urlcat: cat.url(),
+                    rtg: cat.rating
                 });
             });
-            this.elSetHTML('list', TM.replace('catlist', {
-                'rows': lst
+            tp.setHTML('list', tp.replace('catlist', {
+                rows: lst
             }));
         }
+    }, {
+        ATTRS: {
+            component: {value: COMPONENT},
+            templateBlockName: {value: 'cats,catlist,catrow'},
+        },
     });
-    NS.CategoryListBoxWidget = CategoryListBoxWidget;
-
 };

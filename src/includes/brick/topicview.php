@@ -10,10 +10,13 @@
 $brick = Brick::$builder->brick;
 $v = &$brick->param->var;
 
-$man = BlogModule::$instance->GetManager();
-// $cats = $man->CategoryList();
+/** @var BlogModule $blogModule */
+$blogModule = Abricos::GetModule('blog');
 
-$pa = BlogModule::$instance->ParserAddress();
+/** @var BlogApp $blogApp */
+$blogApp = Abricos::GetApp('blog');
+
+$pa = $blogModule->ParserAddress();
 
 if (empty($pa->topic)){
     $brick->content = "";
@@ -24,7 +27,6 @@ $topic = $pa->topic;
 $cat = $topic->Category();
 
 $vote = "";
-$voteJSMan = "";
 
 /** @var URatingApp $uratingApp */
 $uratingApp = Abricos::GetApp('urating');
@@ -52,7 +54,6 @@ for ($ti = 0; $ti < count($topic->tags); $ti++){
     )));
 }
 
-
 $brick->content = Brick::ReplaceVarByData($brick->content, array(
     "cattl" => $cat->title,
     "urlcat" => $cat->URL(),
@@ -73,8 +74,7 @@ $brick->content = Brick::ReplaceVarByData($brick->content, array(
     "avatar" => $topic->user->GetAvatar24(),
 
     "intro" => $topic->intro,
-    "body" => $topic->body,
-    'votejsman' => $voteJSMan
+    "body" => $topic->body
 ));
 
 Brick::$builder->LoadBrickS('comment', 'tree', $brick, array(
@@ -90,7 +90,7 @@ $meta_title = $topic->title." / ".$cat->title." / ".SystemModule::$instance->Get
 
 Brick::$builder->SetGlobalVar('meta_title', $meta_title);
 
-$man->GetApp()->TopicMetaTagBuild($topic);
+$blogApp->TopicMetaTagBuild($topic);
 
 Brick::$builder->SetGlobalVar('meta_keys', $topic->metakeys);
 Brick::$builder->SetGlobalVar('meta_desc', $topic->metadesc);

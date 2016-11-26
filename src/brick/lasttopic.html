@@ -3,30 +3,33 @@
 [mcss=blog]blog.css[/mcss]
 
 [bkvar=row]
-	<li>
+	<div class="item">
 		<a href="{v#urlcat}" class="category">{v#cattl}</a>
 		&nbsp;→&nbsp; 
 		<a href="{v#urltop}" class="topic">{v#toptl}</a>
-	</li>
+	</div>
 [/bkvar]
 
 [bkvar=rss]
+<div class="pull-right">
 	<span class="rssicon">
 		<a href='/rss/blog/' title='RSS лента записей в блоге'>
 			<img src='/modules/rss/images/rss-icon-16px-op50.gif' />
 		</a>
 	</span>
+</div>
 [/bkvar]
 
 [*]-->
-<div class="aw-blog box" id="aw-blog-brick-lasttopic">
-	<div class="topiclistbox blockbox">
-		<div class="boxtl">
-			<a href="/blog/" title="Записи в блоге">Записи в блоге {v#rss}</a>
-		</div>
-		
-		<div class="list">
-			<ul>{v#rows}</ul>
-		</div>
-	</div>
+<div class="aw-blog blogLastTopicList panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title pull-left">
+            <a href="/blog/" title="Записи в блоге">Записи в блоге</a>
+        </h3>
+        {v#rss}
+        <div class="clearfix"></div>
+    </div>
+    <div class="panel-body">
+        {v#rows}
+    </div>
 </div>
