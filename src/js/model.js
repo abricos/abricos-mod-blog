@@ -207,10 +207,6 @@ Component.entryPoint = function(NS){
             'tcnt': 0,// кол-во топиков
             'mcnt': 0,// кол-во подписчиков
 
-            'rtg': 0, // рейтинг
-            'vcnt': 0,// кол-во голосов
-            'vmy': null,// мой голос
-
             'adm': 0, // текущий пользователь админ?
             'mdr': 0, // текущий пользователь модератор?
             'mbr': 0  // текущий пользователь участник?
@@ -227,9 +223,15 @@ Component.entryPoint = function(NS){
             this.memberCount = d['mcnt'] * 1;
             this.isPrivate = d['prv'] > 0;
 
-            this.rating = d['rtg'] * 1;
-            this.voteCount = d['vcnt'] * 1;
-            this.voteMy = d['vmy'];
+            this.voting = null;
+            if (d.voting){
+                var uratingApp = NS.appInstance.getApp('urating'),
+                    Voting = uratingApp.get('Voting');
+
+                this.voting = new Voting(Y.merge({
+                    appInstance: uratingApp
+                }, d.voting || {}));
+            }
 
             this.isAdmin = d['adm'] > 0;
             this.isModer = d['mdr'] > 0;

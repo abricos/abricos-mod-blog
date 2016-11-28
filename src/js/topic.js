@@ -15,7 +15,6 @@ Component.entryPoint = function(NS){
 
     var L = YAHOO.lang,
         buildTemplate = this.buildTemplate,
-        NSUR = Brick.mod.urating || {},
         NSSC = Brick.mod.socialist || {},
         LNG = this.language,
         R = NS.roles;
@@ -57,9 +56,17 @@ Component.entryPoint = function(NS){
                 cmt: commentStat.get('count')
             };
         },
+        destructor: function(){
+            if (this.votingWidget){
+                this.votingWidget.destroy();
+            }
+            if (this.socLineWidget){
+                this.socLineWidget.destroy();
+            }
+        },
         onLoad: function(topic, cfg){
             if (topic.voting){
-                this.votingWidget = new NSUR.VotingWidget({
+                this.votingWidget = new Brick.mod.urating.VotingWidget({
                     boundingBox: this.gel('topicvote'),
                     voting: topic.voting
                 });

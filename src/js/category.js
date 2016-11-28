@@ -11,12 +11,6 @@ Component.entryPoint = function(NS){
         COMPONENT = this,
         SYS = Brick.mod.sys;
 
-    var NSUR = Brick.mod.urating || {},
-        UID = Brick.env.user.id,
-        LNG = this.language,
-        R = NS.roles,
-        buildTemplate = this.buildTemplate;
-
 
     NS.CategoryRowWidget = Y.Base.create('categoryRowWidget', SYS.AppWidget, [], {
         buildTData: function(){
@@ -104,8 +98,8 @@ Component.entryPoint = function(NS){
             this.renderCategory(category);
         },
         destructor: function(){
-            if (this.voteWidget){
-                this.voteWidget.destroy();
+            if (this.votingWidget){
+                this.votingWidget.destroy();
             }
             if (this.topicListWidget){
                 this.topicListWidget.destroy();
@@ -128,41 +122,25 @@ Component.entryPoint = function(NS){
                 'topics': category.topicCount
             });
 
-            if (NSUR.VotingWidget && Y.Lang.isNull(this.voteWidget)){
-                this.voteWidget = new NSUR.VotingWidget(this.gel('rating'), {
-                    'modname': '{C#MODNAME}',
-                    'elementType': 'category',
-                    'elementId': category.id,
-                    'value': category.rating,
-                    'vote': category.voteMy,
-                    'hideButtons': UID == 0,
-                    'onVotingError': function(error, merror){
-                        var s = 'ERROR';
-                        if (merror > 0){
-                            s = LNG.get('category.vote.error.m.' + merror);
-                        } else if (error == 1){
-                            s = LNG.get('category.vote.error.' + error);
-                        } else {
-                            return;
-                        }
-                        Brick.mod.widget.notice.show(s);
-                    }
+            if (category.voting){
+                tp.show('voting');
+                this.votingWidget = new Brick.mod.urating.VotingWidget({
+                    boundingBox: tp.one('voting'),
+                    voting: category.voting
                 });
             }
+
             if (!this.topicListWidget){
                 this.topicListWidget = new NS.TopicListWidget(tp.gel('toplist'), {
                     'filter': 'cat/' + category.id
                 });
             }
 
-            tp.toggleView(UID > 0, 'subscribeButtons');
+            tp.toggleView(Brick.env.user.id > 0, 'subscribeButtons');
             tp.toggleView(category.isMember, 'unsubscribeButton', 'subscribeButton');
         },
         onClick: function(e){
             switch (e.dataClick) {
-                case 'bremove':
-                    this.showRemovePanel();
-                    return true;
                 case 'bjoin':
                 case 'bleave':
                     this.memberStatusChange();
@@ -181,11 +159,6 @@ Component.entryPoint = function(NS){
                 tp.hide('jbloading');
                 instance.renderCategory(instance.get('category'));
             });
-        },
-        showRemovePanel: function(){
-            new CategoryRemovePanel(this.get('category'), function(){
-                NS.navigator.go(NS.navigator.category.list());
-            });
         }
     }, {
         ATTRS: {
@@ -200,44 +173,4 @@ Component.entryPoint = function(NS){
             };
         }
     });
-
-
-    return;
-
-    var CategoryRemovePanel = function(category, callback){
-        this.callback = callback;
-        CategoryRemovePanel.superclass.constructor.call(this, {fixedcenter: true});
-    };
-    YAHOO.extend(CategoryRemovePanel, Brick.widget.Dialog, {
-        initTemplate: function(){
-            return buildTemplate(this, 'removepanel').replace('removepanel');
-        },
-        onClick: function(el){
-            var tp = this._TId['removepanel'];
-            switch (el.id) {
-                case tp['bcancel']:
-                    this.close();
-                    return true;
-                case tp['bremove']:
-                    this.remove();
-                    return true;
-            }
-            return false;
-        },
-        remove: function(){
-            var TM = this._TM, gel = function(n){
-                    return TM.getEl('removepanel.' + n);
-                },
-                instance = this;
-            Dom.setStyle(gel('btns'), 'display', 'none');
-            Dom.setStyle(gel('bloading'), 'display', '');
-            NS.manager.categoryRemove(this.get('category').id, function(){
-                instance.close();
-                NS.life(instance.callback);
-            });
-        }
-    });
-    NS.CategoryRemovePanel = CategoryRemovePanel;
-    /**/
-
 };

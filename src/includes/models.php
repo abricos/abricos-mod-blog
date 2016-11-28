@@ -617,7 +617,8 @@ class BlogCategory {
     }
 
     public function IsAdmin(){
-        if (BlogManager::$instance->IsAdminRole()){
+        $app = Abricos::GetApp('blog');
+        if ($app->IsAdminRole()){
             return true;
         }
         return $this->isAdminFlag;

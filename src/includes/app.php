@@ -1116,7 +1116,8 @@ class BlogApp extends AbricosApplication {
         }
 
         if ($owner->type === 'blog'){
-
+            $category = $this->Category($ownerid);
+            return !empty($category);
         }
         return false;
     }
@@ -1126,7 +1127,6 @@ class BlogApp extends AbricosApplication {
      */
     public function URating_GetOwnerDate($owner){
         if ($owner->type === 'blog'){
-
         } else if ($owner->type === 'topic'){
             $topic = $this->Topic($owner->ownerid);
             return !empty($topic) ? $topic->publicDate : 0;
@@ -1134,36 +1134,6 @@ class BlogApp extends AbricosApplication {
         }
         return 0;
     }
-
-
-
-    /**
-     * Можно ли проголосовать текущему пользователю за комментарий
-     *
-     * Метод вызывается из модуля Comment
-     *
-     * Возвращает код ошибки:
-     *  0 - все нормально, голосовать можно,
-     *  5 - закончился период для голосования
-     *
-     * @param URatingUserReputation $uRep
-     * @param unknown_type $act
-     * @param unknown_type $commentid
-     * @param unknown_type $contentid
-     *//*
-    public function Comment_IsVoting(URatingUserReputation $uRep, $act, $commentid, $contentid){
-
-        $topic = $this->Topic(0, $contentid);
-        if (empty($topic)){
-            return 99;
-        }
-
-        if (!$topic->IsVotingPeriod()){
-            return 5;
-        }
-
-        return 0;
-    }/**/
 
 
     /**
