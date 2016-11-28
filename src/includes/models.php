@@ -32,6 +32,8 @@ class BlogTopicInfo {
     public $id;
 
     /**
+     * Author ID
+     *
      * @var int
      */
     public $userid;
@@ -170,24 +172,22 @@ class BlogTopicInfo {
         $ret->id = $this->id;
         $ret->catid = $this->catid;
         $ret->tl = $this->title;
-        $ret->user = $this->user->ToAJAX();
+
+        $ret->userid = $this->userid;
         $ret->intro = $this->intro;
         $ret->bdlen = $this->bodyLength;
 
         $ret->dft = $this->isDraft ? 1 : 0;
         $ret->idx = $this->isIndex ? 1 : 0;
 
-        if (BlogManager::$instance->IsAdminRole()){
+        /** @var BlogApp $app */
+        $app = Abricos::GetApp('blog');
+
+        if ($app->IsAdminRole()){
             $ret->aidx = $this->isAutoIndex ? 1 : 0;
         }
 
         $ret->dl = $this->publicDate;
-
-        /*
-        $ret->rtg = $this->rating;
-        $ret->vcnt = $this->voteCount;
-        $ret->vmy = $this->voteMy;
-        /**/
 
         if (!empty($this->commentStatistic)){
             $ret->commentStatistic = $this->commentStatistic->ToJSON();

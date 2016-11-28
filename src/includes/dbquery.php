@@ -593,12 +593,12 @@ class BlogTopicQuery {
     public static function CategoryTopicCountUpdate(Ab_Database $db, $catid = 0){
         $sql = "
 			UPDATE ".$db->prefix."bg_cat cat
-			SET cat.topiccount = (
+			SET cat.topiccount = IFNULL((
 				SELECT count(*) as cnt
 				FROM ".$db->prefix."bg_topic t
 				WHERE cat.catid=t.catid AND t.deldate=0 AND t.isdraft=0 
 				GROUP BY t.catid
-			)
+			), 0)
 		";
         if ($catid > 0){
             $sql .= "

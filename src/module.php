@@ -87,6 +87,7 @@ class BlogModule extends Ab_Module {
             $pa->type = 'topiclist';
             $pa->topicListFilter = "index";
             $pa->pageTitle = $i18n->Translate('pagetitle.index');
+
         } else if ($d1 == '_unsubscribe'){
 
             $pa->type = 'unsubscribe';

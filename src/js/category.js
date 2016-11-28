@@ -47,7 +47,6 @@ Component.entryPoint = function(NS){
     NS.CategoryListWidget = Y.Base.create('categoryListWidget', SYS.AppWidget, [], {
         onInitAppWidget: function(err, appInstance){
             this.wsList = [];
-            this.wsMenuItem = 'all'; // использует wspace.js
             this.renderList();
         },
         destructor: function(){
@@ -88,7 +87,13 @@ Component.entryPoint = function(NS){
 
     NS.CategoryViewWidget = Y.Base.create('categoryViewWidget', SYS.AppWidget, [], {
         buildTData: function(){
-            return {id: this.get('categoryid')}
+            var categoryid = this.get('categoryid'),
+                category = NS.manager.categoryList.get(categoryid);
+
+            return {
+                id: categoryid,
+                title: category.title
+            }
         },
         onInitAppWidget: function(err, appInstance){
             this.set('waiting', true);
@@ -98,7 +103,7 @@ Component.entryPoint = function(NS){
 
             this.renderCategory(category);
         },
-        destroy: function(){
+        destructor: function(){
             if (this.voteWidget){
                 this.voteWidget.destroy();
             }
@@ -149,12 +154,9 @@ Component.entryPoint = function(NS){
                     'filter': 'cat/' + category.id
                 });
             }
-            if (UID > 0){
-                tp.show('jbtns');
-                tp.toggleView(category.isMember, 'bleave', 'bjoin');
-                tp.toggleView(R.isAdmin, 'bremove');
-                tp.toggleView(R.category.isAdmin(category), 'bedit');
-            }
+
+            tp.toggleView(UID > 0, 'subscribeButtons');
+            tp.toggleView(category.isMember, 'unsubscribeButton', 'subscribeButton');
         },
         onClick: function(e){
             switch (e.dataClick) {
@@ -170,10 +172,10 @@ Component.entryPoint = function(NS){
         memberStatusChange: function(){
             var instance = this,
                 tp = this.template;
-            
+
             tp.hide('jbtnsa');
             tp.show('jbloading');
-            
+
             NS.manager.categoryJoin(this.get('category').id, function(){
                 tp.show('jbtnsa');
                 tp.hide('jbloading');

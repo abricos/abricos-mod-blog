@@ -29,42 +29,83 @@
 </div>
 
 <!--{catview}-->
-<div class="catview">
+<div class="aw-blog categoryView panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title pull-left">
+            {v#title}
+        </h3>
 
-    <div class="loading" data-wait="show">
-        <img src="/images/loading.gif"/> Идет загрузка данных <br/> Пожалуйста, подождите...
+        <img src="/images/loading.gif" class="pull-right" data-wait="show"/>
+
+        <div class="btn-toolbar pull-right">
+            <a data-trigger="blog:roles" data-code="isAdmin"
+               data-url="category.edit({v#id})"
+               class="btn btn-default btn-xs hide"
+               title="Редактировать блог">
+                <i class="fa fa-pencil-square-o"></i>
+            </a>
+            <a data-trigger="blog:roles" data-code="isAdmin"
+               data-url="category.remove({v#id})"
+               class="btn btn-default btn-xs hide"
+               title="Удалить блог">
+                <i class="fa fa-trash-o"></i>
+            </a>
+        </div>
+
+        <div class="clearfix"></div>
     </div>
 
-    <div id="{i#nullitem}" class="nullitem hide">
-        Блог не найден или недостаточно прав для его просмотра
-    </div>
-
-    <div id="{i#view}" data-wait="hide">
-
-        <div id="{i#rating}" class="catrtg"></div>
-        <h2 id="{i#tl}" class="cattl"></h2>
-
-        <div id="{i#info}" class="catinfo">
-            <div class="stat">
-                <a href="#">читателей: <span id="{i#mbrs}"></span></a>
+    <div id="{i#infoPanel}" class="list-group infoPanel">
+        <li class="list-group-item">
+            <div class="statistics pull-left">
+                <span>читателей: <span id="{i#mbrs}"></span></span>
                 ,&nbsp;
-                <a href="#">топиков: <span id="{i#topics}"></span></a>
+                <span>топиков: <span id="{i#topics}"></span></span>
             </div>
-            <div id="{i#jbtns}" class="jbtns hide">
-                <a id="{i#bedit}" href="#" data-url="category.edit({v#id})" class="habtn hide" title="Редактировать">Редактировать</a>
-                <a id="{i#bremove}" href="#" class="habtn warn hide" title="Удалить"
-                   data-click="bremove">Удалить</a>
-				<span id="{i#jbtnsa}">
-					<a id="{i#bjoin}" data-click="bjoin" href="#" class="habtn" title="Стать читателем блога">Вступить в блог</a>
-					<a id="{i#bleave}" data-click="bleave" href="#" class="habtn" title="Перестать читать блог">Покинуть блог</a>
-				</span>
+            <div id="{i#subscribeButtons}" class="pull-right hide">
+                <button id="{i#subscribeButton}"
+                        class="btn btn-default btn-xs"
+                        data-click="subscribe"
+                        title="Подписаться на новые записи в блоге">
+                    <i class="fa fa-sign-in"></i>
+                    Подписаться
+                </button>
+                <button id="{i#unsubscribeButton}"
+                        class="btn btn-default btn-xs"
+                        data-click="subscribe"
+                        title="Отписаться от новых записей в блоге">
+                    <i class="fa fa-sign-out"></i>
+                    Отписаться
+                </button>
+            </div>
+            <div class="clearfix"></div>
+        </li>
+    </div>
+
+
+    <div id="{i#body}" class="panel-body">
+
+        <div id="{i#view}" data-wait="hide">
+
+            <div id="{i#rating}" class="catrtg"></div>
+
+            <div id="{i#info}" class="catinfo">
                 <img id="{i#jbloading}" src="/images/loading.gif" style="display: none"/>
             </div>
         </div>
 
         <div id="{i#toplist}"></div>
     </div>
+
 </div>
+
+<div id="{i#notFound}" class="notFound hide">
+    <p>
+        Блог не найден или недостаточно прав для его просмотра
+    </p>
+</div>
+</div>
+
 
 <!--{removepanel}-->
 <div class='hd'>Удаление блога</div>
@@ -79,7 +120,7 @@
 				<input id="{i#bremove}" value="Удалить" type="button"/>
 				<input id="{i#bcancel}" value="Отмена" type="button"/>
 			</span>
-			<span id="{i#bloading}" style="display: none">
+            <span id="{i#bloading}" style="display: none">
 				<img src="/images/loading.gif"/> Удаление...
 			</span>
         </div>

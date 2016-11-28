@@ -117,7 +117,7 @@ Component.entryPoint = function(NS){
             this.title = d['tl'];				// заголовок
 
             var userList = NS.appInstance.getApp('uprofile').get('userList');
-            this.user = userList.getById(d['user'].id);
+            this.user = userList.getById(d.userid);
 
             // дата публикации
             this.date = d['dl'] == 0 ? null : new Date(d['dl'] * 1000);

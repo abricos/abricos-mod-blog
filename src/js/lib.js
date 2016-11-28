@@ -257,15 +257,15 @@ Component.entryPoint = function(NS){
             }, function(d){
                 var rlist = null;
 
-                if (!L.isNull(d) && d['topics'] && L.isArray(d.topics.list)){
+                if (d && d.topics && L.isArray(d.topics.list)){
                     var userids = [];
                     for (var i = 0; i < d.topics.list.length; i++){
-                        userids[userids.length] = d.topics.list[i].user.id;
+                        userids[userids.length] = d.topics.list[i].userid;
                     }
                     NS.appInstance.getApp('uprofile').userListByIds(userids, function(err, result){
                         rlist = new NS.TopicList(d.topics.list);
-                        rlist.total = d['topics']['total'] * 1;
-                        rlist.totalNew = d['topics']['totalNew'] * 1;
+                        rlist.total = d.topics['total'] * 1;
+                        rlist.totalNew = d.topics['totalNew'] * 1;
 
                         var list = cfg['list'];
                         if (L.isObject(list)){

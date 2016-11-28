@@ -15,7 +15,7 @@
 class BlogManager extends Ab_ModuleManager {
 
     /**
-     * @var BlogManager
+     * @deprecated
      */
     public static $instance = null;
 

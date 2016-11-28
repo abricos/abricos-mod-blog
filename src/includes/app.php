@@ -1435,7 +1435,7 @@ class BlogApp extends AbricosApplication {
                 $link = $url.$topic->id."/";
             } else {
                 if ($cat instanceof BlogPersonalCategory){
-                    $link = $url.'author/'.$cat->user->userName."/".$topic->id."/";
+                    $link = $url.'author/'.$cat->user->username."/".$topic->id."/";
                 } else {
                     $link = $url.$cat->name."/".$topic->id."/";
                 }
