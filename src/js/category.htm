@@ -1,31 +1,32 @@
 <!--{catlist}-->
-<div id="{i#id}" class="catlist">
-    <div class="cathead">
-        <div class="hrtg">Рейтинг</div>
-        <div class="htl">Название</div>
+<div class="aw-blog categoryList panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title pull-left">
+            Список блогов
+        </h3>
+
+        <img src="/images/loading.gif" class="pull-right" data-wait="show"/>
+
+        <div class="clearfix"></div>
     </div>
 
-    <div id="{i#loading}" class="loading">
-        <img src="/images/loading.gif"/> Идет загрузка данных <br/> Пожалуйста, подождите...
-    </div>
-
-    <div id="{i#list}" class="list"></div>
+    <div id="{i#list}" class="list-group"></div>
 </div>
 
 <!--{row}-->
-<div id="{v#id}" class="catrow">
-    <div class="rtg">{v#rtg}</div>
-    <div id="{i#info}" class="catinfo">
-        <div id="{i#tlcont}" class="title">
-            <a id="{i#tl}" href="{v#urlview}" class="cattl"></a>
-        </div>
-        <div class="clear"></div>
-        <div class="stat">
-            <span>читателей: {v#mbrs}</span>
-            ,&nbsp;
-            <span>топиков: {v#topics}</span>
-        </div>
-    </div>
+<div class="categoryRow">
+    <div id="{i#voting}" class="pull-right hide"></div>
+
+    <h4 class="list-group-item-heading">
+        <a href="{v#urlview}">
+            {v#title}
+        </a>
+    </h4>
+    <p class="list-group-item-text">
+        <span>читателей: {v#mbrs}</span>
+        ,&nbsp;
+        <span>топиков: {v#topics}</span>
+    </p>
 </div>
 
 <!--{catview}-->
@@ -84,28 +85,15 @@
         </li>
     </div>
 
-
     <div id="{i#body}" class="panel-body">
-
-        <div id="{i#view}" data-wait="hide">
-
-            <div id="{i#rating}" class="catrtg"></div>
-
-            <div id="{i#info}" class="catinfo">
-                <img id="{i#jbloading}" src="/images/loading.gif" style="display: none"/>
-            </div>
-        </div>
-
         <div id="{i#toplist}"></div>
     </div>
 
-</div>
-
-<div id="{i#notFound}" class="notFound hide">
-    <p>
-        Блог не найден или недостаточно прав для его просмотра
-    </p>
-</div>
+    <div id="{i#notFound}" class="notFound hide">
+        <p>
+            Блог не найден или недостаточно прав для его просмотра
+        </p>
+    </div>
 </div>
 
 

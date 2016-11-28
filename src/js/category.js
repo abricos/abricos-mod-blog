@@ -16,8 +16,8 @@ Component.entryPoint = function(NS){
         buildTData: function(){
             var category = this.get('category');
             return {
+                title: category.title,
                 urlview: category.url(),
-                rtg: category.rating,
                 mbrs: category.memberCount,
                 topics: category.topicCount
             };
@@ -26,9 +26,13 @@ Component.entryPoint = function(NS){
             var tp = this.template,
                 category = this.get('category');
 
-            tp.setHTML({
-                tl: category.title
-            });
+            if (category.voting){
+                tp.show('voting');
+                this.votingWidget = new Brick.mod.urating.VotingWidget({
+                    boundingBox: tp.one('voting'),
+                    voting: category.voting
+                });
+            }
         }
     }, {
         ATTRS: {
@@ -40,31 +44,26 @@ Component.entryPoint = function(NS){
 
     NS.CategoryListWidget = Y.Base.create('categoryListWidget', SYS.AppWidget, [], {
         onInitAppWidget: function(err, appInstance){
-            this.wsList = [];
             this.renderList();
         },
         destructor: function(){
             this.clearList();
         },
         clearList: function(){
-            var ws = this.wsList;
+            var ws = this.wsList || [];
             for (var i = 0; i < ws.length; i++){
                 ws[i].destroy();
             }
             this.template.setHTML('list', '');
+            return this.wsList = [];
         },
         renderList: function(){
-            this.clearList();
-            var tp = this.template;
-
-            tp.hide('loading');
-            tp.show('list');
-
-            var ws = this.wsList;
+            var tp = this.template,
+                ws = this.clearList();
 
             NS.manager.categoryList.foreach(function(category){
                 ws[ws.length] = new NS.CategoryRowWidget({
-                    srcNode: tp.append('list', '<div></div>'),
+                    boundingBox: tp.append('list', '<div class="list-group-item"></div>'),
                     category: category
                 });
             });
