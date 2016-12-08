@@ -1,70 +1,54 @@
 <!--[*]
-[script]brick/menuline.php[/script]
+[script]brick/menuLine.php[/script]
 
 [mcss=blog]blog.css[/mcss]
 
 [bkvar=submenuindexwr]
-	<li class="rg">
+	<li class="pull-right">
 		<a href="/bos/#app=blog/wspace/ws/write/WriteWidget/topic/">Написать</a>
 	</li>
 [/bkvar]
 
 [bkvar=submenuindex]
-	<ul class="submenu">
-		{v#liwr}
+	<ul class="nav nav-pills">
 		<li class="{v#f1sel}">
 			<a href="/blog/">Интересные</a>
 		</li>
 		<li class="{v#f2sel}">
 			<a href="/blog/new/">Новые</a><a href="/blog/new/" class="new">{v#newcnt}</a>
 		</li>
-		<li class="clear">&nbsp;</li>
+        {v#liwr}
 	</ul>
 [/bkvar]
 
 [bkvar=submenupub]
-	<ul class="submenu">
+	<ul class="nav nav-pills">
 		<li class="{v#f1sel}">
 			<a href="/blog/pub/">Интересные</a>
 		</li>
 		<li class="{v#f2sel}">
 			<a href="/blog/pub/new/">Новые</a><a href="/blog/pub/new/" class="new">{v#newcnt}</a>
 		</li>
-		<li class="clear">&nbsp;</li>
 	</ul>
 [/bkvar]
 
 [bkvar=submenupers]
-	<ul class="submenu">
+	<ul class="nav nav-pills">
 		<li class="{v#f1sel}">
 			<a href="/blog/pers/">Хорошие</a>
 		</li>
 		<li class="{v#f2sel}">
 			<a href="/blog/pers/new/">Новые</a><a href="/blog/pers/new/" class="new">{v#newcnt}</a>
 		</li>
-		<li class="clear">&nbsp;</li>
 	</ul>
 [/bkvar]
 
 [*]-->
-<div class="aw-blog">
-	<div class="gbmenu">
-		<div class="gbitems" >
-			<a class="gbitem {v#curr}" href="/blog/" >Все</a>
-			<a class="gbitem {v#currpub}" href="/blog/pub/">Коллективные</a>
-			<a class="gbitem {v#currpers}" href="/blog/pers/">Персональные</a>
-		</div>
-		
-		<br class="clear" />
-		<div class="line"></div>
-	</div>
-	
-	<div class="homelist">
-	
-		{v#submenu}
-		
-		<div class="clear"></div>
-		
-		<div id="{i#list}"></div>
-	</div>
+<div class="blogMenuLine">
+    <ul class="nav nav-tabs">
+        <li class="{v#curr}"><a href="/blog/">Все</a></li>
+        <li class="{v#currpub}"><a href="/blog/pub/">Коллективные</a></li>
+        <li class="{v#currpers}"><a href="/blog/pers/">Персональные</a></li>
+    </ul>
+    {v#submenu}
 </div>

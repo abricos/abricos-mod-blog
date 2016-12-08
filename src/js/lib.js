@@ -42,12 +42,26 @@ Component.entryPoint = function(NS){
         URLS: {
             ws: "#app={C#MODNAMEURI}/wspace/ws/",
             config: function(){
-                return this.getURL('ws')+'config/ConfigWidget/';
+                return this.getURL('ws') + 'config/ConfigWidget/';
             },
             topic: {
                 list: function(){
-                    return this.getURL('ws');
-                    // return urlJoinArgs(WS + 'topic/TopicHomeListWidget/', arguments);
+                    return this.getURL('ws') + 'topicList/TopicHomeListWidget/';
+                },
+                listNew: function(){
+                    return this.getURL('topic.list') + 'new/';
+                },
+                listPub: function(){
+                    return this.getURL('topic.list') + 'pub/';
+                },
+                listPubNew: function(){
+                    return this.getURL('topic.listPub') + 'new/';
+                },
+                listPers: function(){
+                    return this.getURL('topic.list') + 'pers/';
+                },
+                listPersNew: function(){
+                    return this.getURL('topic.listPers') + 'new/';
                 },
                 view: function(topicid){
                     return WS + 'topic/TopicViewWidget/' + topicid + '/';

@@ -11,14 +11,9 @@ Component.entryPoint = function(NS){
         COMPONENT = this,
         SYS = Brick.mod.sys;
 
-    var L = YAHOO.lang,
-        buildTemplate = this.buildTemplate;
-
     NS.AuthorListWidget = Y.Base.create('authorListWidget', SYS.AppWidget, [], {
         onInitAppWidget: function(err, appInstance){
-            this.wsList = [];
-            this.wsMenuItem = 'all'; // использует wspace.js
-
+            this.set('waiting', true);
             var instance = this;
             NS.manager.authorListLoad(function(list){
                 instance.renderList(list);
@@ -28,31 +23,25 @@ Component.entryPoint = function(NS){
             this.clearList();
         },
         clearList: function(){
-            var ws = this.wsList;
+            var ws = this.wsList || [];
             for (var i = 0; i < ws.length; i++){
                 ws[i].destroy();
             }
             this.template.setHTML('list', '');
+            return this.wsList = [];
         },
         renderList: function(list){
-            this.clearList();
-
             this.set('waiting', false);
 
-            var tp = this.template;
-
-            if (L.isNull(list)){
-                tp.toggleView(true, 'nullitem', 'list');
+            if (list){
                 return;
             }
 
-            tp.show('list');
-
-            var ws = this.wsList;
-
+            var tp = this.template,
+                ws = this.clearList();
             list.foreach(function(author){
                 ws[ws.length] = new NS.AuthorRowWidget({
-                    srcNode: tp.append('list', '<div></div>'),
+                    srcNode: tp.append('list', '<div class="list-group-item"></div>'),
                     author: author
                 });
             });
@@ -102,31 +91,29 @@ Component.entryPoint = function(NS){
 
         },
         destructor: function(){
-            if (!L.isNull(this.viewWidget)){
+            if (this.viewWidget){
                 this.viewWidget.destroy();
             }
-            if (!L.isNull(this.topicListWidget)){
+            if (this.topicListWidget){
                 this.topicListWidget.destroy();
             }
         },
         renderAuthor: function(author){
             this.author = author;
 
-            
-
             this.elHide('loading');
 
-            if (L.isNull(author)){
+            if (!author){
                 this.elShow('nullitem');
                 return;
             }
             this.elShow('view');
 
-            if (L.isNull(this.viewWidget)){
+            if (!this.viewWidget){
                 this.viewWidget = new NS.AuthorRowWidget(this.gel('author'), author);
             }
 
-            if (L.isNull(this.topicListWidget)){
+            if (!this.topicListWidget){
                 this.topicListWidget = new NS.TopicListWidget(this.gel('toplist'), {
                     'filter': 'author/' + author.id
                 });
@@ -145,15 +132,4 @@ Component.entryPoint = function(NS){
         }
     });
 
-    var AuthorViewWidget = function(container, authorid){
-        AuthorViewWidget.superclass.constructor.call(this, container, {
-            'buildTemplate': buildTemplate, 'tnames': 'view'
-        }, authorid);
-    };
-    YAHOO.extend(AuthorViewWidget, Brick.mod.widget.Widget, {
-        init: function(authorid){
-        },
-
-    });
-    NS.AuthorViewWidget = AuthorViewWidget;
 };

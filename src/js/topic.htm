@@ -1,62 +1,3 @@
-<!--{homelist}-->
-<div class="homelist">
-
-	<div class="loading" data-wait="show">
-		<img src="/images/loading.gif" /> Идет загрузка данных <br /> Пожалуйста, подождите...
-	</div>
-
-	<div id="{i#view}" class="hide">
-	
-		<ul id="{i#sm}" class="submenu" style="display: none">
-			<li id="{i#smi}">
-				<a href="{v#url}">Интересные</a>
-			</li>
-			<li id="{i#sminew}">
-				<a href="{v#urlnew}">Новые</a>
-				<a href="{v#urlnew}" class="new" id="{i#sminewb}"></a>
-			</li>
-			<li class="clear">&nbsp;</li>
-		</ul>
-
-		<ul id="{i#smpub}" class="submenu" style="display: none">
-			<li id="{i#smipub}">
-				<a href="{v#urlpub}" >Интересные</a>
-			</li>
-			<li id="{i#smipubnew}">
-				<a href="{v#urlpubnew}">Новые</a>
-				<a href="{v#urlpubnew}" id="{i#smipubnewb}" class="new"></a>
-			</li>
-			<li class="clear">&nbsp;</li>
-		</ul>
-	
-		<ul id="{i#smpers}" class="submenu" style="display: none">
-			<li id="{i#smipers}">
-				<a href="{v#urlpers}">Хорошие</a>
-			</li>
-			<li id="{i#smipersnew}">
-				<a href="{v#urlpersnew}">Новые</a>
-				<a href="{v#urlpersnew}" id="{i#smipersnewb}" class="new"></a>
-			</li>
-			<li class="clear">&nbsp;</li>
-		</ul>
-	
-		<div class="clear"></div>
-		
-		<div id="{i#list}"></div>
-	</div>
-</div>
-
-<!--{topiclist}-->
-<div class="topiclist">
-
-	<div id="{i#loading}" class="loading">
-		<img src="/images/loading.gif" /> Идет загрузка данных <br /> Пожалуйста, подождите...
-	</div>
-
-	<div id="{i#list}"></div>
-	<div id="{i#next}"></div>
-</div>
-
 <!--{topicview}-->
 <div id="{i#id}" class="topicview">
 
@@ -72,11 +13,15 @@
 </div>
 
 <!--{row}-->
-<div id="{i#id}" class="topic">
+<div class="topic">
 	<div id="{i#tlcont}" class="title">
-		<a id="{i#cattl}" href="{v#urlcat}" class="cattl"></a>
+		<a data-url="category.view({v#catid})" class="cattl">
+            {v#catTitle}
+        </a>
 		&nbsp;→&nbsp;
-		<a id="{i#tl}" href="{v#urlview}" class="toptl"></a>
+		<a data-url="topic.view({v#id})" class="toptl">
+            {v#title}
+        </a>
 	</div>
 	
 	<div id="{i#man}"></div>

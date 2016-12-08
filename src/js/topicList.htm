@@ -1,0 +1,69 @@
+<!--{widget}-->
+<div class="homeList">
+
+    <div id="{i#menuLine}"></div>
+
+    <div class="loading" data-wait="show">
+        <img src="/images/loading.gif"/> Идет загрузка данных <br/> Пожалуйста, подождите...
+    </div>
+
+    <div id="{i#view}">
+
+        <div id="{i#list}"></div>
+    </div>
+</div>
+
+<!--{menuLine}-->
+<div class="blogMenuLine">
+    <ul class="nav nav-tabs">
+        <li class="{v#curr}">
+            <a data-url="topic.list">Все</a>
+        </li>
+        <li class="{v#currpub}">
+            <a data-url="topic.listPub">Коллективные</a>
+        </li>
+        <li class="{v#currpers}">
+            <a data-url="topic.listPers">Персональные</a>
+        </li>
+    </ul>
+    {v#submenu}
+</div>
+
+<!--{submenuindex}-->
+<ul class="nav nav-pills">
+    <li class="{v#f1sel}">
+        <a href="/blog/">Интересные</a>
+    </li>
+    <li class="{v#f2sel}">
+        <a href="/blog/new/">
+            Новые <span class="badge">{v#newcnt}</span>
+        </a>
+    </li>
+</ul>
+
+<!--{submenupub}-->
+<ul class="nav nav-pills">
+    <li class="{v#f1sel}">
+        <a href="/blog/pub/">Интересные</a>
+    </li>
+    <li class="{v#f2sel}">
+        <a href="/blog/pub/new/">Новые</a><a href="/blog/pub/new/" class="new">{v#newcnt}</a>
+    </li>
+</ul>
+
+<!--{submenupers}-->
+<ul class="nav nav-pills">
+    <li class="{v#f1sel}">
+        <a href="/blog/pers/">Хорошие</a>
+    </li>
+    <li class="{v#f2sel}">
+        <a href="/blog/pers/new/">Новые</a><a href="/blog/pers/new/" class="new">{v#newcnt}</a>
+    </li>
+    <li class="clear">&nbsp;</li>
+</ul>
+
+<!--{topicList}-->
+<div class="topicList">
+    <div id="{i#list}"></div>
+    <div id="{i#next}"></div>
+</div>

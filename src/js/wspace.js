@@ -44,7 +44,7 @@ Component.entryPoint = function(NS){
             templateBlockName: {value: 'widget'},
             defaultPage: {
                 value: {
-                    component: 'topic',
+                    component: 'topicList',
                     widget: 'TopicHomeListWidget'
                 }
             }
