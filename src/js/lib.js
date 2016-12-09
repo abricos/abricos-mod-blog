@@ -64,10 +64,10 @@ Component.entryPoint = function(NS){
                     return this.getURL('topic.listPers') + 'new/';
                 },
                 view: function(topicid){
-                    return WS + 'topic/TopicViewWidget/' + topicid + '/';
+                    return this.getURL('ws') + 'topic/TopicViewWidget/' + topicid + '/';
                 },
                 edit: function(topicid){
-                    return NS.navigator.write.topic(topicid);
+                    return this.getURL('ws') + 'write/WriteWidget/topic/' + topicid + '/';
                 }
             },
             tag: {
@@ -125,7 +125,7 @@ Component.entryPoint = function(NS){
     buildTemplate({}, '');
 
     NS.lif = function(f){
-        return L.isFunction(f) ? f : function(){
+        return Y.Lang.isFunction(f) ? f : function(){
         };
     };
     NS.life = function(f, p1, p2, p3, p4, p5, p6, p7){
@@ -240,7 +240,7 @@ Component.entryPoint = function(NS){
             });
         },
         _updateCategoryList: function(d){
-            if (L.isNull(d) || !L.isArray(d['categories'])){
+            if (!d || !Y.Lang.isArray(d['categories'])){
                 return;
             }
             this.categoryList.clear(d['categories']);
@@ -271,7 +271,7 @@ Component.entryPoint = function(NS){
             }, function(d){
                 var rlist = null;
 
-                if (d && d.topics && L.isArray(d.topics.list)){
+                if (d && d.topics && Y.Lang.isArray(d.topics.list)){
                     var userids = [];
                     for (var i = 0; i < d.topics.list.length; i++){
                         userids[userids.length] = d.topics.list[i].userid;
@@ -299,12 +299,12 @@ Component.entryPoint = function(NS){
         topicLoad: function(topicid, callback){
             this.ajax({
                 'do': 'topic',
-                'topicid': topicid
+                topicid: topicid
             }, function(d){
                 var topic = null;
-                if (!L.isNull(d) && !L.isNull(d['topic'])){
-                    NS.appInstance.getApp('uprofile').userListByIds([d.topic.user.id], function(err, result){
-                        topic = new NS.Topic(d['topic']);
+                if (d && d.topic){
+                    NS.appInstance.getApp('uprofile').userListByIds([d.topic.userid], function(err, result){
+                        topic = new NS.Topic(d.topic);
                         NS.life(callback, topic);
                     });
                 } else {
@@ -318,8 +318,8 @@ Component.entryPoint = function(NS){
                 'savedata': sd
             }, function(d){
                 var topic = null;
-                if (!L.isNull(d) && !L.isNull(d['topic'])){
-                    topic = new NS.Topic(d['topic']);
+                if (d && !Y.Lang.isNull(d.topic)){
+                    topic = new NS.Topic(d.topic);
                 }
                 NS.life(callback, topic);
             });
@@ -331,7 +331,7 @@ Component.entryPoint = function(NS){
             }, function(d){
                 var topicid = null, error = null;
 
-                if (!L.isNull(d) && !L.isNull(d['error'])){
+                if (d && !Y.Lang.isNull(d['error'])){
                     topicid = d['topicid'];
                     error = d['error'];
                 }
@@ -345,7 +345,7 @@ Component.entryPoint = function(NS){
             this.ajax(sd, function(d){
                 var catid = null, error = null;
 
-                if (!L.isNull(d) && !L.isNull(d['error'])){
+                if (d && !Y.Lang.isNull(d['error'])){
                     catid = d['catid'];
                     error = d['error'];
                     __self._updateCategoryList(d);
@@ -360,7 +360,7 @@ Component.entryPoint = function(NS){
                 'do': 'categoryjoin',
                 'catid': cat.id
             }, function(d){
-                if (!L.isNull(d) && !L.isNull(d['category'])){
+                if (d && !Y.Lang.isNull(d['category'])){
                     cat.update(d['category']);
                 }
                 NS.life(callback);
@@ -387,7 +387,7 @@ Component.entryPoint = function(NS){
             this.ajax(cfg, function(d){
                 var list = null;
 
-                if (!L.isNull(d) && L.isArray(d['authors'])){
+                if (d && Y.Lang.isArray(d['authors'])){
                     var userids = [];
                     for (var i = 0; i < d.authors.length; i++){
                         userids[userids.length] = d.authors[i].id;
@@ -408,7 +408,7 @@ Component.entryPoint = function(NS){
             }, function(d){
                 var author = null;
 
-                if (!L.isNull(d) && !L.isNull(d['author'])){
+                if (d && !Y.Lang.isNull(d['author'])){
                     author = new NS.Author(d['author']);
                 }
 
@@ -426,7 +426,7 @@ Component.entryPoint = function(NS){
             }, function(d){
                 var list = null;
 
-                if (!L.isNull(d) && !L.isNull(d['comments'])){
+                if (d && !Y.Lang.isNull(d['comments'])){
                     var userids = [];
                     for (var i = 0; i < d.comments.length; i++){
                         userids[userids.length] = d.comments[i].user.id;
@@ -452,7 +452,7 @@ Component.entryPoint = function(NS){
             }, function(d){
                 var list = null;
 
-                if (!L.isNull(d) && !L.isNull(d['tags'])){
+                if (d && !Y.Lang.isNull(d['tags'])){
                     list = new NS.TagList(d['tags']);
                 }
 

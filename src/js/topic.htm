@@ -15,16 +15,25 @@
 <!--{row}-->
 <div class="topic panel panel-default">
     <div class="panel-heading">
-        <div class="panel-title">
-            <a data-url="category.view({v#catid})" class="cattl">
-                {v#catTitle}
-            </a>
-            &nbsp;→&nbsp;
-            <a data-url="topic.view({v#id})" class="toptl">
-                {v#title}
-            </a>
+        <div class="row">
+            <div class="col-sm-11">
+                <div class="panel-title">
+                    <a data-url="category.view({v#catid})" class="cattl">
+                        {v#catTitle}
+                    </a>
+                    &nbsp;→&nbsp;
+                    <a data-url="topic.view({v#id})" class="toptl">
+                        {v#title}
+                    </a>
+                </div>
+            </div>
+            <div class="col-sm-1 text-right">
+                <a id="{i#editButton}" data-url="topic.edit({v#id})"
+                   title="Редактировать">
+                    <i class="fa fa-pencil-square-o"></i>
+                </a>
+            </div>
         </div>
-        <div id="{i#man}"></div>
     </div>
 
     <div class="panel-body">
@@ -38,6 +47,8 @@
         <div id="{i#taglist}"></div>
 
         <div id="{i#info}"></div>
+
+        <div id="{i#comments}"></div>
     </div>
 </div>
 
@@ -54,11 +65,6 @@
 
 <!--{tagrowcm}-->
 <li>,</li>
-
-<!--{manbtns}-->
-<div id="{i#manbtns}" class="topicmanbtns">
-    <a href="{v#urledit}" class="habtn">Редактировать</a>
-</div>
 
 <!--{info}-->
 <div id="{i#id}" class="topicinfo">

@@ -15,6 +15,7 @@ Component.entryPoint = function(NS){
     var Y = Brick.YUI,
         SYS = Brick.mod.sys;
 
+
     NS.Config = Y.Base.create('config', SYS.AppModel, [], {
         structureName: 'Config'
     });
@@ -25,7 +26,6 @@ Component.entryPoint = function(NS){
         R = NS.roles;
 
     var LNG = this.language;
-    var UID = Brick.env.user.id;
 
     var Tag = function(d){
         d = L.merge({
@@ -157,12 +157,15 @@ Component.entryPoint = function(NS){
             return '/blog/' + this.category().name + '/' + this.id + '/';
         },
         category: function(){
-            var catid = this.catid;
+            var catid = this.catid | 0;
             if (catid == 0){ // персональный блог
                 return new CategoryPerson(this.user.get('id'));
             } else {
                 return NS.manager.categoryList.get(catid);
             }
+        },
+        isEdit: function(){
+            return this.user.id == UID || R.isAdmin;
         }
     });
     NS.TopicInfo = TopicInfo;

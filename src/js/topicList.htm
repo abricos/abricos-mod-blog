@@ -28,10 +28,10 @@
 <!--{submenuindex}-->
 <ul class="nav nav-pills">
     <li class="{v#f1sel}">
-        <a href="/blog/">Интересные</a>
+        <a data-url="topic.list">Интересные</a>
     </li>
     <li class="{v#f2sel}">
-        <a href="/blog/new/">
+        <a data-url="topic.listNew">
             Новые <span class="badge">{v#newcnt}</span>
         </a>
     </li>
@@ -40,20 +40,24 @@
 <!--{submenupub}-->
 <ul class="nav nav-pills">
     <li class="{v#f1sel}">
-        <a href="/blog/pub/">Интересные</a>
+        <a data-url="topic.listPub">Интересные</a>
     </li>
     <li class="{v#f2sel}">
-        <a href="/blog/pub/new/">Новые</a><a href="/blog/pub/new/" class="new">{v#newcnt}</a>
+        <a data-url="topic.listPubNew">
+            Новые <span class="badge">{v#newcnt}</span>
+        </a>
     </li>
 </ul>
 
 <!--{submenupers}-->
 <ul class="nav nav-pills">
     <li class="{v#f1sel}">
-        <a href="/blog/pers/">Хорошие</a>
+        <a data-url="topic.listPers">Хорошие</a>
     </li>
     <li class="{v#f2sel}">
-        <a href="/blog/pers/new/">Новые</a><a href="/blog/pers/new/" class="new">{v#newcnt}</a>
+        <a data-url="topic.listPersNew">
+            Новые <span class="badge">{v#newcnt}</span>
+        </a>
     </li>
     <li class="clear">&nbsp;</li>
 </ul>

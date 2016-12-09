@@ -19,23 +19,6 @@ Component.entryPoint = function(NS){
         LNG = this.language,
         R = NS.roles;
 
-    var TopicManagerWidget = function(container, topic){
-        TopicManagerWidget.superclass.constructor.call(this, container, {
-            'buildTemplate': buildTemplate, 'tnames': 'manbtns'
-        }, topic);
-    };
-    YAHOO.extend(TopicManagerWidget, Brick.mod.widget.Widget, {
-        init: function(topic){
-            this.topic = topic;
-        },
-        buildTData: function(topic){
-            return {
-                'urledit': NS.navigator.topic.edit(topic.id)
-            };
-        }
-    });
-    NS.TopicManagerWidget = TopicManagerWidget;
-
     NS.TopicInfoLineWidget = Y.Base.create('TopicInfoLineWidget', SYS.AppWidget, [
         SYS.ContainerWidgetExt
     ], {
@@ -130,9 +113,7 @@ Component.entryPoint = function(NS){
                 intro: topic.intro
             });
 
-            if (R.topic.isManager(topic)){
-                this.manWidget = new NS.TopicManagerWidget(tp.gel('man'), topic);
-            }
+            tp.toggleView(topic.isEdit, 'editButton');
             tp.toggleView(topic.isBody, 'readmore');
         },
     }, {
@@ -167,14 +148,17 @@ Component.entryPoint = function(NS){
 
             tp.toggleView(!topic, 'nullitem', 'view');
 
-            var widget = this.viewWidget = new NS.TopicRowWidget(tp.gel('view'), topic);
-            widget.elSetHTML({
+            var widget = this.viewWidget = new NS.TopicRowWidget({
+                srcNode: tp.gel('view'),
+                topic: topic
+            });
+            widget.template.setHTML({
                 body: topic.body
             });
-            widget.elHide('readmore');
+            widget.template.hide('readmore');
 
             this._commentsWidget = new Brick.mod.comment.CommentTreeWidget({
-                srcNode: widget.gel('comments'),
+                srcNode: widget.template.one('comments'),
                 commentOwner: {
                     module: 'blog',
                     type: 'topic',

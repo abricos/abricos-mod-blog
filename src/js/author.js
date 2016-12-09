@@ -33,15 +33,16 @@ Component.entryPoint = function(NS){
         renderList: function(list){
             this.set('waiting', false);
 
-            if (list){
+            if (!list){
                 return;
             }
 
             var tp = this.template,
                 ws = this.clearList();
+
             list.foreach(function(author){
                 ws[ws.length] = new NS.AuthorRowWidget({
-                    srcNode: tp.append('list', '<div class="list-group-item"></div>'),
+                    boundingBox: tp.append('list', '<div class="list-group-item"></div>'),
                     author: author
                 });
             });
@@ -62,12 +63,10 @@ Component.entryPoint = function(NS){
                 user = author.user;
 
             return {
-                uid: user.get('id'),
+                userid: user.get('id'),
                 avatar: user.get('avatarSrc90'),
-                unm: user.get('viewName'),
-                rep: author.reputation,
-                topics: author.topicCount,
-                urlview: NS.navigator.author.view(author.id)
+                viewName: user.get('viewName'),
+                topics: author.topicCount
             };
         },
         onInitAppWidget: function(err, appInstance){

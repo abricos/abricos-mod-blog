@@ -2,7 +2,7 @@ var Component = new Brick.Component();
 Component.requires = {
     mod: [
         {name: 'urating', files: ['vote.js']},
-        {name: '{C#MODNAME}', files: ['topic.js']}
+        {name: '{C#MODNAME}', files: ['topicList.js']}
     ]
 };
 Component.entryPoint = function(NS){
@@ -128,8 +128,11 @@ Component.entryPoint = function(NS){
             }
 
             if (!this.topicListWidget){
-                this.topicListWidget = new NS.TopicListWidget(tp.gel('toplist'), {
-                    'filter': 'cat/' + category.id
+                this.topicListWidget = new NS.TopicListWidget({
+                    srcNode: tp.gel('toplist'),
+                    config: {
+                        filter: 'cat/' + category.id
+                    }
                 });
             }
 
