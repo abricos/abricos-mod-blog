@@ -1,79 +1,73 @@
 var Component = new Brick.Component();
 Component.requires = {
     mod: [
-        // {name: '{C#MODNAME}', files: ['topic.js']}
+        {name: '{C#MODNAME}', files: ['lib.js']}
     ]
 };
 Component.entryPoint = function(NS){
 
-    var L = YAHOO.lang,
-        E = YAHOO.util.Event,
-        buildTemplate = this.buildTemplate;
+    var Y = Brick.YUI,
+        COMPONENT = this,
+        SYS = Brick.mod.sys;
 
-    var NextWidget = function(container, cfg){
-        cfg = L.merge({
-            'page': 1,
-            'loaded': 0,
-            'total': 0,
-            'limit': 10,
-            'nextCallback': null
-        }, cfg || {});
-
-        NextWidget.superclass.constructor.call(this, container, {
-            'buildTemplate': buildTemplate, 'tnames': 'next'
-        }, cfg);
-    };
-    YAHOO.extend(NextWidget, Brick.mod.widget.Widget, {
-        init: function(cfg){
-            this.cfg = cfg;
+    NS.NextWidget = Y.Base.create('NextWidget', SYS.AppWidget, [], {
+        onInitAppWidget: function(err, appInstance){
             this._isProcess = false;
+            this.renderButtons();
         },
-        onClick: function(el){
-            this.nextLoad();
-            return true;
-        },
-        render: function(){
-            var cfg = this.cfg,
-                loaded = cfg['loaded'] * 1,
-                total = cfg['total'] * 1,
-                limit = cfg['limit'] * 1;
+        renderButtons: function(){
+            var tp = this.template,
+                loaded = this.get('loaded') | 0,
+                total = this.get('total') | 0,
+                limit = this.get('limit') | 0;
 
             limit = Math.max(Math.min(limit, total - loaded), 0);
 
-            this.elSetVisible('id', loaded < total);
-
-            this.elSetHTML({
-                'limit': limit,
-                'total': total - loaded
-            });
+            tp.setHTML('button', tp.replace('nextText', {
+                limit: limit,
+                total: total - loaded
+            }));
+            tp.toggleView(loaded < total, 'button');
         },
         nextLoad: function(){
-            var __self = this, cfg = this.cfg;
-
             if (this._isProcess){
                 return;
             }
-            if (!L.isFunction(cfg['nextCallback'])){
+
+            var nextCallback = this.get('nextCallback');
+            if (!Y.Lang.isFunction(nextCallback)){
                 return;
             }
 
             this._isProcess = true;
+            this.set('waiting', true);
+            this.set('page', this.get('page') + 1);
 
-            this.elHideShow('info', 'loading');
-            var page = cfg['page'] = cfg['page'] + 1;
 
-            cfg['nextCallback'](page, function(nCfg){
-                __self.onLoaded(nCfg);
+            var instance = this;
+
+            nextCallback.call(this, this.get('page'), function(nCfg){
+                instance.onLoaded(nCfg);
             });
         },
         onLoaded: function(nCfg){
             this._isProcess = false;
-            this.cfg = L.merge(this.cfg, nCfg || {});
+            this.set('waiting', false);
 
-            this.render();
-            this.elShowHide('info', 'loading');
+            this.set('loaded', nCfg.loaded);
+            this.set('total', nCfg.total);
+
+            this.renderButtons();
+        }
+    }, {
+        ATTRS: {
+            component: {value: COMPONENT},
+            templateBlockName: {value: 'next,nextText'},
+            page: {value: 1},
+            loaded: {value: 0},
+            total: {value: 0},
+            limit: {value: 10},
+            nextCallback: {value: null}
         }
     });
-    NS.NextWidget = NextWidget;
-
 };

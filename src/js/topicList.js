@@ -10,8 +10,6 @@ Component.entryPoint = function(NS){
         COMPONENT = this,
         SYS = Brick.mod.sys;
 
-    var L = YAHOO.lang;
-
     NS.TopicHomeListWidget = Y.Base.create('TopicHomeListWidget', SYS.AppWidget, [
         SYS.ContainerWidgetExt
     ], {
@@ -22,7 +20,7 @@ Component.entryPoint = function(NS){
                 instance = this;
 
             this.addWidget('topicList', new NS.TopicListWidget({
-                srcNode: tp.one('list'),
+                srcNode: tp.one('listWidget'),
                 config: {filter: p1 + '/' + p2},
                 onLoadCallback: function(list){
                     instance.onLoadTopics(list);
@@ -85,7 +83,9 @@ Component.entryPoint = function(NS){
         }
     });
 
-    NS.TopicListWidget = Y.Base.create('TopicListWidget', SYS.AppWidget, [], {
+    NS.TopicListWidget = Y.Base.create('TopicListWidget', SYS.AppWidget, [
+        SYS.ContainerWidgetExt
+    ], {
         onInitAppWidget: function(err, appInstance){
             this.catid = 0;
             this.wsList = [];
@@ -102,9 +102,6 @@ Component.entryPoint = function(NS){
         },
         destructor: function(){
             this.clearList();
-            if (!L.isNull(this.next)){
-                this.next.destroy();
-            }
         },
         clearList: function(){
             var tp = this.template,
@@ -126,23 +123,27 @@ Component.entryPoint = function(NS){
                 return;
             }
 
-            var instance = this, cfg = this.cfg;
-            this.next = new NS.NextWidget(this.gel('next'), {
-                'limit': list.limit,
-                'loaded': list.count(),
-                'total': list.total,
-                'nextCallback': function(page, callback){
-                    cfg['page'] = page;
-                    cfg['list'] = list;
+            var tp = this.template,
+                instance = this,
+                cfg = {};
+
+            this.addWidget('nextButtons', new NS.NextWidget({
+                srcNode: tp.one('next'),
+                limit: list.limit,
+                loaded: list.count(),
+                total: list.total,
+                nextCallback: function(page, callback){
+                    cfg.page = page;
+                    cfg.list = list;
                     NS.manager.topicListLoad(cfg, function(nlist){
-                        NS.life(callback, {
-                            'loaded': nlist.count(),
-                            'total': nlist.total,
+                        callback.call(instance, {
+                            loaded: nlist.count(),
+                            total: nlist.total
                         });
                         instance.renderList(nlist);
                     });
                 }
-            });
+            }));
         },
         renderList: function(list, isClear){
             this.set('waiting', false);

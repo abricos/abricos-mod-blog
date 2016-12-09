@@ -1,83 +1,82 @@
 <!--{topicview}-->
 <div id="{i#id}" class="topicview">
 
-	<div class="loading" data-wait="show">
-		<img src="/images/loading.gif" /> Идет загрузка данных <br /> Пожалуйста, подождите...
-	</div>
+    <div class="loading" data-wait="show">
+        <img src="/images/loading.gif"/> Идет загрузка данных <br/> Пожалуйста, подождите...
+    </div>
 
     <div id="{i#view}" data-wait="hide"></div>
 
     <div id="{i#nullitem}" class="nullitem hide">
-		Запись в блоге не найдена или недостаточно прав для ее просмотра
-	</div>
+        Запись в блоге не найдена или недостаточно прав для ее просмотра
+    </div>
 </div>
 
 <!--{row}-->
-<div class="topic">
-	<div id="{i#tlcont}" class="title">
-		<a data-url="category.view({v#catid})" class="cattl">
-            {v#catTitle}
-        </a>
-		&nbsp;→&nbsp;
-		<a data-url="topic.view({v#id})" class="toptl">
-            {v#title}
-        </a>
-	</div>
-	
-	<div id="{i#man}"></div>
+<div class="topic panel panel-default">
+    <div class="panel-heading">
+        <div class="panel-title">
+            <a data-url="category.view({v#catid})" class="cattl">
+                {v#catTitle}
+            </a>
+            &nbsp;→&nbsp;
+            <a data-url="topic.view({v#id})" class="toptl">
+                {v#title}
+            </a>
+        </div>
+        <div id="{i#man}"></div>
+    </div>
 
-	<div class="aw-page-content">
-		<div id="{i#intro}" class="intro"></div>
-		<div id="{i#body}" class="body"></div>
-	</div>
-	
-	<div id="{i#readmore}" class="readmore">
-		<a id="{i#bfull}" href="{v#urlview}">Читать дальше → </a>
-	</div>
+    <div class="panel-body">
+        <div id="{i#intro}"></div>
+        <div id="{i#body}"></div>
 
-	<div id="{i#taglist}"></div>
-	
-	<div id="{i#info}"></div>
-	
-	<div id="{i#comments}"></div>
+        <div id="{i#readmore}" class="readmore">
+            <a id="{i#bfull}" href="{v#urlview}">Читать дальше → </a>
+        </div>
+
+        <div id="{i#taglist}"></div>
+
+        <div id="{i#info}"></div>
+    </div>
 </div>
 
 <!--{taglist}-->
 <div id="{i#id}" class="taglist">
-	<ul id="{i#list}"></ul>
-	<div class="clear"></div>
+    <ul id="{i#list}"></ul>
+    <div class="clear"></div>
 </div>
 
 <!--{tagrow}-->
 <li>
-	<a href="{v#url}">{v#tl}</a>
+    <a href="{v#url}">{v#tl}</a>
 </li>
 
 <!--{tagrowcm}-->
-<li>, </li>
+<li>,</li>
 
 <!--{manbtns}-->
 <div id="{i#manbtns}" class="topicmanbtns">
-	<a href="{v#urledit}" class="habtn">Редактировать</a>
+    <a href="{v#urledit}" class="habtn">Редактировать</a>
 </div>
 
 <!--{info}-->
 <div id="{i#id}" class="topicinfo">
-	<div class="tpinbox">
-		<div id="{i#topicvote}" class="topicvote" style="display: none"></div>
-		<div class="user">
-			<a href="#" class="avtr tmb tmb24 show-user-profile user-{v#uid}">
+    <div class="tpinbox">
+        <div id="{i#topicvote}" class="topicvote" style="display: none"></div>
+        <div class="user">
+            <a href="#" class="avtr tmb tmb24 show-user-profile user-{v#uid}">
 				<span class="tmbpre">
-					<img src="{v#avatar}" />
+					<img src="{v#avatar}"/>
 				</span>
-			</a>
-			<a title="автор текста" class="unm show-user-profile user-{v#uid}" href="#">{v#unm}</a>
-		</div>
-		<div class="date">{v#date}</div>
-		<div class="comments" >
-			<a href="#" title="Читать комментарии">комментарии ({v#cmt})</a>
-		</div>
-		<div id="{i#socialist}" class="socialist" style="display: none"></div>
-	</div>
-	<div class="clear"></div>
+            </a>
+            <a title="автор текста" class="unm show-user-profile user-{v#uid}" href="#">{v#unm}</a>
+        </div>
+        <div class="date">{v#date}</div>
+        <div class="comments">
+            <a href="#" title="Читать комментарии">комментарии ({v#cmt})</a>
+        </div>
+        <div id="{i#socialist}" class="socialist" style="display: none"></div>
+    </div>
+    <div class="clear"></div>
 </div>
