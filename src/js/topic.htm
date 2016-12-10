@@ -29,6 +29,7 @@
             </div>
             <div class="col-sm-1 text-right">
                 <a id="{i#editButton}" data-url="topic.edit({v#id})"
+                   class="hide"
                    title="Редактировать">
                     <i class="fa fa-pencil-square-o"></i>
                 </a>
@@ -40,49 +41,52 @@
         <div id="{i#intro}"></div>
         <div id="{i#body}"></div>
 
-        <div id="{i#readmore}" class="readmore">
-            <a id="{i#bfull}" href="{v#urlview}">Читать дальше → </a>
-        </div>
+        <p id="{i#readmore}" class="readMore hide">
+            <a data-url="topic.view({v#id})">Читать дальше → </a>
+        </p>
 
         <div id="{i#taglist}"></div>
-
-        <div id="{i#info}"></div>
-
-        <div id="{i#comments}"></div>
     </div>
+
+    <div id="{i#info}" class="list-group"></div>
+
+    <div id="{i#comments}" class="panel-body hide"></div>
 </div>
 
-<!--{taglist}-->
-<div id="{i#id}" class="taglist">
-    <ul id="{i#list}"></ul>
-    <div class="clear"></div>
+<!--{tagList}-->
+<div class="tagList">
+    <div class="pull-left">
+        <i class="fa fa-tags"></i>
+    </div>
+    <div id="{i#tags}" class="pull-left"></div>
+    <div class="clearfix"></div>
 </div>
 
-<!--{tagrow}-->
-<li>
-    <a href="{v#url}">{v#tl}</a>
-</li>
+<!--{tagRow}-->
+<a href="{v#url}">{v#tl}</a>
 
-<!--{tagrowcm}-->
-<li>,</li>
+<!--{tagRowDelim}-->,
 
 <!--{info}-->
-<div id="{i#id}" class="topicinfo">
-    <div class="tpinbox">
-        <div id="{i#topicvote}" class="topicvote" style="display: none"></div>
-        <div class="user">
-            <a href="#" class="avtr tmb tmb24 show-user-profile user-{v#uid}">
-				<span class="tmbpre">
-					<img src="{v#avatar}"/>
-				</span>
+<div class="info list-group-item">
+    <ul class="list-inline">
+        <li id="{i#votingBlock}" class="hide">
+            <div id="{i#voting}"></div>
+        </li>
+        <li>
+            <a data-url="author.view({v#userid})">
+                <img class="img-rounded" src="{v#avatar}"/>
+                {v#userViewName}
             </a>
-            <a title="автор текста" class="unm show-user-profile user-{v#uid}" href="#">{v#unm}</a>
-        </div>
-        <div class="date">{v#date}</div>
-        <div class="comments">
-            <a href="#" title="Читать комментарии">комментарии ({v#cmt})</a>
-        </div>
-        <div id="{i#socialist}" class="socialist" style="display: none"></div>
-    </div>
-    <div class="clear"></div>
+        </li>
+        <li class="date">
+            {v#date}
+        </li>
+        <li>
+            <i class="fa fa-comments-o" aria-hidden="true"></i> {v#cmt}</a>
+        </li>
+        <li id="{i#socialistBlock}" class="hide">
+            <div id="{i#socialist}"></div>
+        </li>
+    </ul>
 </div>

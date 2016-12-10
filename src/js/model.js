@@ -13,7 +13,8 @@ Component.entryPoint = function(NS){
     });
 
     var Y = Brick.YUI,
-        SYS = Brick.mod.sys;
+        SYS = Brick.mod.sys,
+        UID = Brick.env.user.id | 0;
 
 
     NS.Config = Y.Base.create('config', SYS.AppModel, [], {

@@ -1,66 +1,16 @@
-.aw-blog {
-  /* * * * Список * * * */
-  .homelist {
-    .submenu {
-      padding: 8px 0 19px 15px;
-      ul {
-        list-style: none;
-      }
-
-      li {
-        float: left;
-        margin-right: 18px;
-        padding: 3px 5px;
-        list-style: none;
-      }
-      li.sel {
-        border: 1px solid #E5E5E5;
-        border-radius: 5px;
-        cursor: default;
-      }
-      li.sel a {
-        text-decoration: none;
-        color: #7B848D;
-      }
-      a.new {
-        text-decoration: none;
-        margin-left: 5px;
-      }
-      li.rg {
-        float: right;
-      }
+.aw-blog .topic {
+  .tagList {
+    color: #999999;
+    a {
+      color: #999999;
+      margin-left: 5px;
+      white-space: nowrap;
     }
   }
+  
+}
 
-  /* * * * Топик * * * */
-  .topiclist .topic {
-    margin-bottom: 35px;
-  }
-  .topic .intro,
-  .topic .body {
-    margin-top: 10px;
-    font-family: Verdana, Tahoma, sans-serif;
-    line-height: 20px;
-    font-size: 13px;
-  }
-  .topic .title a {
-    color: #6A7398;
-    font-family: Verdana, Tahoma, sans-serif;
-    font-size: 18px;
-    font-size-adjust: none;
-    font-style: normal;
-    font-variant: normal;
-    font-weight: normal;
-    line-height: 118%;
-  }
-  .topic .title a.toptl {
-    color: #999999;
-  }
-
-  .topic .topicinfo,
-  .topic .taglist {
-    margin-top: 15px;
-  }
+.aw-blog {
 
   /* * * Информационный блок топика * * */
   .topicinfo {
@@ -108,26 +58,5 @@
   .topicinfo .comments a {
     background: url("/modules/blog/images/balloon-left.gif") no-repeat scroll 0 50%;
     padding-left: 20px;
-  }
-
-  /* * * Список тегов * * */
-  .taglist ul {
-    background: url("/modules/blog/images/tag.gif") no-repeat scroll 0 50% #FFFFFF;
-    list-style: none outside none;
-    padding: 0.2em 0 0.1em 20px;
-    display: block;
-    min-height: 14px;
-  }
-  .taglist li {
-    display: inline;
-    font-size: 0.83em;
-  }
-  .taglist a {
-    color: #666666;
-  }
-
-  /* * * Управление топиком * * */
-  .topic .topicmanbtns {
-    text-align: right;
   }
 }

@@ -13,11 +13,8 @@ Component.entryPoint = function(NS){
         COMPONENT = this,
         SYS = Brick.mod.sys;
 
-    var L = YAHOO.lang,
-        buildTemplate = this.buildTemplate,
-        NSSC = Brick.mod.socialist || {},
-        LNG = this.language,
-        R = NS.roles;
+    var NSSC = Brick.mod.socialist || {},
+        LNG = this.language;
 
     NS.TopicInfoLineWidget = Y.Base.create('TopicInfoLineWidget', SYS.AppWidget, [
         SYS.ContainerWidgetExt
@@ -28,9 +25,9 @@ Component.entryPoint = function(NS){
                 commentStat = topic.commentStatistic;
             return {
                 date: !topic.date ? LNG.get('topic.draft') : Brick.dateExt.convert(topic.date),
-                uid: user.get('id'),
+                userid: user.get('id'),
                 avatar: user.get('avatarSrc24'),
-                unm: user.get('viewName'),
+                userViewName: user.get('viewName'),
                 cmt: commentStat.get('count')
             };
         },
@@ -40,17 +37,17 @@ Component.entryPoint = function(NS){
 
             if (topic.voting){
                 this.addWidget('voting', new Brick.mod.urating.VotingWidget({
-                    boundingBox: this.gel('topicvote'),
+                    boundingBox: this.gel('voting'),
                     voting: topic.voting
                 }));
-                tp.show('topicvote');
+                tp.show('votingBlock');
             }
             if (NSSC.LineWidget){
                 this.addWidget('socialist', new NSSC.LineWidget(this.gel('socialist'), {
                     'url': topic.surl(),
                     'title': topic.title
                 }));
-                tp.show('socialist');
+                tp.show('socialistBlock');
             }
         },
     }, {
@@ -67,18 +64,18 @@ Component.entryPoint = function(NS){
                 alst = [];
 
             this.get('tagList').foreach(function(tag){
-                alst[alst.length] = tp.replace('tagrow', {
+                alst[alst.length] = tp.replace('tagRow', {
                     tl: tag.title,
                     url: tag.url()
                 });
             });
 
-            tp.setHTML('list', alst.join(tp.replace('tagrowcm')));
+            tp.setHTML('tags', alst.join(tp.replace('tagRowDelim')));
         },
     }, {
         ATTRS: {
             component: {value: COMPONENT},
-            templateBlockName: {value: 'taglist,tagrow,tagrowcm'},
+            templateBlockName: {value: 'tagList,tagRow,tagRowDelim'},
             tagList: {value: null}
         },
     });
@@ -105,7 +102,7 @@ Component.entryPoint = function(NS){
                 tagList: topic.tagList
             }));
             this.addWidget('info', new NS.TopicInfoLineWidget({
-                srcNode: tp.one('info'),
+                boundingBox: tp.one('info'),
                 topic: topic
             }));
 
@@ -113,7 +110,7 @@ Component.entryPoint = function(NS){
                 intro: topic.intro
             });
 
-            tp.toggleView(topic.isEdit, 'editButton');
+            tp.toggleView(topic.isEdit(), 'editButton');
             tp.toggleView(topic.isBody, 'readmore');
         },
     }, {
@@ -180,30 +177,4 @@ Component.entryPoint = function(NS){
             };
         }
     });
-
-
-    // TODO: remove old functions
-    return; /////////////////////////////////////////////////
-
-    var TopicHomeListWidget = function(container, f1, f2){
-        if (f1 == 'new'){
-            f1 = '';
-            f2 = 'new';
-        }
-        var cfg = {'f1': f1 || '', 'f2': f2 || ''};
-
-        TopicHomeListWidget.superclass.constructor.call(this, container, {
-            'buildTemplate': buildTemplate, 'tnames': ''
-        }, cfg);
-    };
-    YAHOO.extend(TopicHomeListWidget, Brick.mod.widget.Widget, {
-        init: function(cfg){
-            this.cfg = cfg;
-
-            // использует wspace.js
-            this.wsMenuItem = cfg['f1'] == '' ? 'all' : cfg['f1'];
-        },
-    });
-    NS.TopicHomeListWidget = TopicHomeListWidget;
-
 };
