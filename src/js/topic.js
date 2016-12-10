@@ -13,7 +13,7 @@ Component.entryPoint = function(NS){
         COMPONENT = this,
         SYS = Brick.mod.sys;
 
-    var NSSC = Brick.mod.socialist || {},
+    var SOCIALIST = Brick.mod.socialist || {},
         LNG = this.language;
 
     NS.TopicInfoLineWidget = Y.Base.create('TopicInfoLineWidget', SYS.AppWidget, [
@@ -42,10 +42,11 @@ Component.entryPoint = function(NS){
                 }));
                 tp.show('votingBlock');
             }
-            if (NSSC.LineWidget){
-                this.addWidget('socialist', new NSSC.LineWidget(this.gel('socialist'), {
-                    'url': topic.surl(),
-                    'title': topic.title
+            if (SOCIALIST.LineWidget){
+                this.addWidget('socialist', new SOCIALIST.LineWidget({
+                    srcNode: tp.one('socialist'),
+                    itemURL: topic.surl(),
+                    itemTitle: topic.title
                 }));
                 tp.show('socialistBlock');
             }
@@ -121,17 +122,17 @@ Component.entryPoint = function(NS){
         },
     });
 
-    NS.TopicViewWidget = Y.Base.create('topicViewWidget', SYS.AppWidget, [], {
+    NS.TopicViewWidget = Y.Base.create('topicViewWidget', SYS.AppWidget, [
+        SYS.ContainerWidgetExt
+    ], {
         onInitAppWidget: function(err, appInstance){
             this.set('waiting', true);
 
             var instance = this,
                 topicid = this.get('topicid');
 
-            NS.initManager(function(){
-                NS.manager.topicLoad(topicid, function(topic){
-                    instance._renderTopic(topic);
-                });
+            NS.manager.topicLoad(topicid, function(topic){
+                instance._renderTopic(topic);
             });
         },
         destructor: function(){
@@ -141,14 +142,19 @@ Component.entryPoint = function(NS){
         },
         _renderTopic: function(topic){
             this.set('waiting', false);
+
             var tp = this.template;
 
-            tp.toggleView(!topic, 'nullitem', 'view');
+            if (!topic){
+                tp.show('nullItem');
+                return;
+            }
 
-            var widget = this.viewWidget = new NS.TopicRowWidget({
+            var widget = this.addWidget('view', new NS.TopicRowWidget({
                 srcNode: tp.gel('view'),
                 topic: topic
-            });
+            }));
+
             widget.template.setHTML({
                 body: topic.body
             });
@@ -163,11 +169,12 @@ Component.entryPoint = function(NS){
                 },
                 readOnly: !NS.roles.isWrite
             });
+            widget.template.show('commentsBlock');
         }
     }, {
         ATTRS: {
             component: {value: COMPONENT},
-            templateBlockName: {value: 'topicview'},
+            templateBlockName: {value: 'widget'},
             topicid: {},
             topic: {}
         },

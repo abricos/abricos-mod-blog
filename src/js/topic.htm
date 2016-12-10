@@ -1,15 +1,14 @@
-<!--{topicview}-->
-<div id="{i#id}" class="topicview">
-
+<!--{widget}-->
+<div class="topicView">
     <div class="loading" data-wait="show">
         <img src="/images/loading.gif"/> Идет загрузка данных <br/> Пожалуйста, подождите...
     </div>
 
-    <div id="{i#view}" data-wait="hide"></div>
-
-    <div id="{i#nullitem}" class="nullitem hide">
+    <div id="{i#nullItem}" class="nullItem hide">
         Запись в блоге не найдена или недостаточно прав для ее просмотра
     </div>
+
+    <div id="{i#view}" data-wait="hide"></div>
 </div>
 
 <!--{row}-->
@@ -38,8 +37,8 @@
     </div>
 
     <div class="panel-body">
-        <div id="{i#intro}"></div>
-        <div id="{i#body}"></div>
+        <div id="{i#intro}" class="text-justify"></div>
+        <div id="{i#body}" class="text-justify"></div>
 
         <p id="{i#readmore}" class="readMore hide">
             <a data-url="topic.view({v#id})">Читать дальше → </a>
@@ -50,7 +49,9 @@
 
     <div id="{i#info}" class="list-group"></div>
 
-    <div id="{i#comments}" class="panel-body hide"></div>
+    <div id="{i#commentsBlock}" class="panel-body hide">
+        <div id="{i#comments}"></div>
+    </div>
 </div>
 
 <!--{tagList}-->
@@ -82,11 +83,11 @@
         <li class="date">
             {v#date}
         </li>
-        <li>
-            <i class="fa fa-comments-o" aria-hidden="true"></i> {v#cmt}</a>
-        </li>
         <li id="{i#socialistBlock}" class="hide">
             <div id="{i#socialist}"></div>
+        </li>
+        <li title="Количество комментариев" class="pull-right">
+            <i class="fa fa-comments-o"></i> {v#cmt}</a>
         </li>
     </ul>
 </div>
