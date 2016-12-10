@@ -64,7 +64,7 @@ Component.entryPoint = function(NS){
                     return this.getURL('ws') + 'topic/TopicViewWidget/' + topicid + '/';
                 },
                 edit: function(topicid){
-                    return this.getURL('ws') + 'write/WriteWidget/topic/' + topicid + '/';
+                    return this.getURL('ws') + 'topicEditor/TopicEditorWidget/' + ( topicid | 0) + '/';
                 }
             },
             tag: {
@@ -80,7 +80,7 @@ Component.entryPoint = function(NS){
                     return this.getURL('ws') + 'category/CategoryViewWidget/' + catid + '/';
                 },
                 edit: function(catid){
-                    return this.getURL('write.category', catid);
+                    return this.getURL('ws') + 'categoryEditor/CategoryEditorWidget/' + (catid | 0) + '/';
                 }
             },
             author: {

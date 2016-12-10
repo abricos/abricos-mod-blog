@@ -1,0 +1,93 @@
+<!--{widget}-->
+<div class="categoryEditor panel panel-default">
+    <div class="panel-heading text-center">
+        <h3 class="panel-title pull-left">
+            <span data-isedit="hide">Создание блога</span>
+            <span data-isedit="show">Редактирование блога</span>
+        </h3>
+
+        <img data-wait="show" src="/images/loading.gif"/>
+
+        <div class="clearfix"></div>
+    </div>
+    <div class="panel-body">
+        <div class="form-horizontal">
+            <div class="form-group">
+                <label class="col-sm-2 control-label">
+                    Название
+                </label>
+                <div class="col-sm-10">
+                    <input id="{i#title}" type="text" class="form-control"/>
+                    <div class="help-block">
+                        Название должно быть кратким и отражать содержание
+                    </div>
+                </div>
+            </div>
+            <div id="{i#nameBlock}" class="form-group">
+                <label class="col-sm-2 control-label">
+                    Имя
+                </label>
+                <div class="col-sm-10">
+                    <input id="{i#name}" type="text" class="form-control"/>
+                    <div class="help-block">
+                        Имя используется в формировании URL (допустимы символы [a-z],[0-9],[_-])
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label">
+                Описание блога
+            </label>
+            <div id="{i#descript}" data-rows="8"></div>
+        </div>
+
+        <div id="{i#repblock}" class="form-horizontal hide">
+            <div class="form-group">
+                <label class="col-sm-3 control-label">
+                    Ограничение по репутации
+                </label>
+                <div class="col-sm-9">
+                    <input id="{i#rep}" type="text" class="form-control"/>
+                    <div class="help-block">
+                        Необходимое количество репутации, чтобы написать в этот блог
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="group">
+            <div class="baction">
+				<span id="{i#btnsblock}">
+				</span>
+                <span id="{i#bloading}" style="display: none">
+					<img src="/images/loading.gif" class="ldg"/> Сохранение...
+				</span>
+            </div>
+        </div>
+    </div>
+    <div class="panel-footer text-center">
+        <img data-wait="show" src="/images/loading.gif"/>
+
+        <div class="btn-toolbar pull-right">
+            <button data-isedit="hide"
+                    data-click="this:save"
+                    data-wait="disable"
+                    type="button" class="btn btn-default">
+                Создать
+            </button>
+            <button data-isedit="show"
+                    data-click="this:save"
+                    data-wait="disable"
+                    type="button" class="btn btn-default">
+                Сохранить изменения
+            </button>
+            <button data-click="this:cancel"
+                    type="button" class="btn btn-default">
+                Отмена
+            </button>
+        </div>
+        <div class="clearfix"></div>
+    </div>
+</div>

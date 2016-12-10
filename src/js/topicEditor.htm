@@ -1,0 +1,121 @@
+<!--{widget}-->
+<div class="topicEditor panel panel-default">
+    <div class="panel-heading text-center">
+        <h3 class="panel-title pull-left">
+            <span data-isedit="hide">Создание топика</span>
+            <span data-isedit="show">Редактирование топика</span>
+        </h3>
+
+        <img data-wait="show" src="/images/loading.gif"/>
+
+        <div class="clearfix"></div>
+    </div>
+    <div class="panel-body">
+        <div class="form-horizontal">
+            <div class="form-group">
+                <label class="col-sm-3 control-label">
+                    Блог
+                </label>
+                <div class="col-sm-9">
+                    <div id="{i#catsel}"></div>
+                    <div class="help-block">
+                        Если необходимого блога нет всписке, то необходимо на него подписаться
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">
+                    Заголовок
+                </label>
+                <div class="col-sm-9">
+                    <input id="{i#title}" type="text" class="form-control"/>
+                    <div class="help-block">
+                        Заголовок должен быть кратким и отражать содержание топика
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label">
+                Анотация
+            </label>
+            <div id="{i#intro}" data-rows="8"></div>
+        </div>
+        <div class="form-group">
+            <label class="control-label">
+                Основной текст (продолжение)
+            </label>
+            <div id="{i#body}" data-rows="25"></div>
+        </div>
+
+        <div class="form-horizontal">
+            <div class="form-group">
+                <label class="col-sm-3 control-label">
+                    Метки
+                </label>
+                <div class="col-sm-9">
+                    <input id="{i#tags}" type="text" class="form-control"/>
+                    <div id="{i#tagscont}" style="position: relative;"></div>
+                    <div class="tagsdiv"></div>
+                    <div class="help-block">Метки необходимо разделять запятой</div>
+                </div>
+            </div>
+        </div>
+        <div id="{i#admindex}" style="display: none" class="checkbox">
+            <label>
+                <input id="{i#isindex}" type="checkbox"/>
+                Принудительно вывести на главную
+            </label>
+            <div class="help-block">
+                Если включить эту настройку, то пост сразу попадет на главную
+                (а так же осуществится рассылка о новом топике подписчикам),
+                иначе, пост выйдет на главную только по набору необходимого рейтинга
+            </div>
+        </div>
+    </div>
+    <div class="panel-footer text-center">
+        <img data-wait="show" src="/images/loading.gif"/>
+
+        <div class="btn-toolbar pull-left">
+            <button data-click="this:showPreview"
+                    data-wait="disable" type="button"
+                    class="btn btn-default">
+                Предпросмотр
+            </button>
+            <button data-click="this:saveDraft"
+                    data-wait="disable" type="button"
+                    class="btn btn-default">
+                Сохранить в черновиках
+            </button>
+        </div>
+        <div class="btn-toolbar pull-right">
+            <button data-isedit="hide"
+                    data-click="this:save"
+                    data-wait="disable"
+                    type="button" class="btn btn-default">
+                Опубликовать
+            </button>
+            <button data-isedit="show"
+                    data-click="this:save"
+                    data-wait="disable"
+                    type="button" class="btn btn-default">
+                Сохранить изменения
+            </button>
+            <button data-click="this:cancel"
+                    data-wait="disable"
+                    type="button" class="btn btn-default">
+                Отмена
+            </button>
+        </div>
+        <div class="clearfix"></div>
+    </div>
+</div>
+
+<!--{topicpreview}-->
+<div class='hd'>Предварительный просмотр топика</div>
+<div class='bd aw-blog'>
+    <div class="preview">
+        <div id="{i#widget}"></div>
+    </div>
+</div>

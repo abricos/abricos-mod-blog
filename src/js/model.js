@@ -387,7 +387,7 @@ Component.entryPoint = function(NS){
             return cat.isAdmin;
         },
         isMember: function(cat){ // Участник категории
-            if (L.isNull(cat = this.get(cat))){
+            if (!(cat = this.get(cat))){
                 return false;
             }
 
