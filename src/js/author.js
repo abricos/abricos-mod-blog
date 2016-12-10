@@ -2,7 +2,7 @@ var Component = new Brick.Component();
 Component.requires = {
     mod: [
         {name: 'urating', files: ['vote.js']},
-        {name: '{C#MODNAME}', files: ['topic.js']}
+        {name: '{C#MODNAME}', files: ['topicList.js']}
     ]
 };
 Component.entryPoint = function(NS){
@@ -79,44 +79,36 @@ Component.entryPoint = function(NS){
         },
     });
 
-    NS.AuthorViewWidget = Y.Base.create('authorViewWidget', SYS.AppWidget, [], {
+    NS.AuthorViewWidget = Y.Base.create('authorViewWidget', SYS.AppWidget, [
+        SYS.ContainerWidgetExt
+    ], {
         onInitAppWidget: function(err, appInstance){
-            this.viewWidget = null;
-            this.topicListWidget = null;
-
+            this.set('waiting', true);
+            var instance = this;
             NS.manager.authorLoad(this.get('authorid'), function(author){
                 instance.renderAuthor(author);
             });
-
-        },
-        destructor: function(){
-            if (this.viewWidget){
-                this.viewWidget.destroy();
-            }
-            if (this.topicListWidget){
-                this.topicListWidget.destroy();
-            }
         },
         renderAuthor: function(author){
-            this.author = author;
-
-            this.elHide('loading');
+            this.set('waiting', false);
 
             if (!author){
-                this.elShow('nullitem');
                 return;
             }
-            this.elShow('view');
 
-            if (!this.viewWidget){
-                this.viewWidget = new NS.AuthorRowWidget(this.gel('author'), author);
-            }
+            var tp = this.template;
 
-            if (!this.topicListWidget){
-                this.topicListWidget = new NS.TopicListWidget(this.gel('toplist'), {
-                    'filter': 'author/' + author.id
-                });
-            }
+            this.addWidget('author', new NS.AuthorRowWidget({
+                srcNode: tp.one('author'),
+                author: author
+            }));
+
+            this.addWidget('topicList', new NS.TopicListWidget({
+                srcNode: tp.one('topicList'),
+                config: {
+                    filter: 'author/' + author.id
+                }
+            }));
         }
     }, {
         ATTRS: {

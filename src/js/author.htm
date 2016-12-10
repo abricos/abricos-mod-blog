@@ -1,5 +1,5 @@
 <!--{widget}-->
-<div class="aw-blog authorList panel panel-default">
+<div class="authorList panel panel-default">
     <div class="panel-heading">
         <h3 class="panel-title pull-left">
             Список авторов
@@ -22,27 +22,26 @@
         <h3>
             <a data-url="uprofile:profile.view({v#userid})">{v#viewName}</a>
         </h3>
-        <a href="{v#urlview}">Записей: {v#topics}</a>
+        <a data-url="author.view({v#userid})">Записей: {v#topics}</a>
     </div>
     <div class="clear"></div>
 </div>
 
-
 <!--{view}-->
-<div id="{i#id}" class="authorview">
+<div class="aw-blog authorView panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title pull-left">
+            Автор
+        </h3>
+        <img src="/images/loading.gif" class="pull-right" data-wait="show"/>
 
-    <div id="{i#loading}" class="loading">
-        <img src="/images/loading.gif"/> Идет загрузка данных <br/> Пожалуйста, подождите...
+        <div class="clearfix"></div>
     </div>
 
-    <div id="{i#nullitem}" class="nullitem" style="display: none">
-        Блог не найден или недостаточно прав для его просмотра
-    </div>
-
-    <div id="{i#view}" style="display: none">
-
+    <div class="panel-body">
         <div id="{i#author}"></div>
-
-        <div id="{i#toplist}"></div>
+    </div>
+    <div class="panel-body">
+        <div id="{i#topicList}"></div>
     </div>
 </div>
