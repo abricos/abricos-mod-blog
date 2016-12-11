@@ -13,10 +13,9 @@
 class BlogTopicQuery {
 
     public static function DomainFilterSQLExt(){
-        $dmfilter = "AND (cat.deldate=0 OR t.catid=0)";
-
         /** @var BlogConfig $config */
         $config = Abricos::GetModule('blog')->GetManager()->GetApp()->Config();
+
         $cfgDF = $config->domainFilter;
         if (!empty($cfgDF)){
             $arr = explode(",", $cfgDF);
@@ -121,13 +120,9 @@ class BlogTopicQuery {
         $from = $limit * (max($page, 1) - 1);
 
         $newPeriod = TIMENOW - 60 * 60 * 24;
+        $innerTable = "";
 
         $filterRating = "";
-        /*
-        if (BlogManager::$isURating){
-            $filterRating = " AND (t.rating >= 5 OR t.isindex=1)";
-        }
-        /**/
 
         $filter = '';
         if ($fType == "index"){ // главная
@@ -157,6 +152,10 @@ class BlogTopicQuery {
             }
 
         } else if ($fType == 'tag'){
+            $innerTable .= "
+				INNER JOIN ".$db->prefix."bg_toptag tt ON t.topicid=tt.topicid 
+				INNER JOIN ".$db->prefix."bg_tag tg ON tg.tagid=tt.tagid
+			";
             $filter = " AND tg.title='".bkstr($fPrm)."'";
         }
         $filter .= $filterRating;
@@ -186,6 +185,7 @@ class BlogTopicQuery {
 			FROM ".$db->prefix."bg_topic t
 			LEFT JOIN ".$db->prefix."bg_cat cat ON t.catid = cat.catid
 			INNER JOIN ".$db->prefix."user u ON t.userid = u.userid
+			".$innerTable."
 			WHERE t.deldate=0 AND t.isdraft=0 AND t.language='".bkstr(Abricos::$LNG)."'
 				".$dmfilter."
 				".$filter."

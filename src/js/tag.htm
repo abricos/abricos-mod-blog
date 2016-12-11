@@ -1,6 +1,21 @@
 <!--{widget}-->
-<div id="{i#id}" class="tagview">
-    <input id="{i#tag}" class="taginput" type="text" onfocus="this.select();"/>
+<div class="tagView panel panel-default">
+    <div class="panel-heading">
+        <div class="input-group input-group-sm">
+            <span class="input-group-addon" id="sizing-addon1">
+                Тег
+            </span>
+            <input id="{i#tag}" class="form-control" type="text" onfocus="this.select();"/>
+            <span class="input-group-btn">
+                <button data-click="this:tagView"
+                        class="btn btn-default" type="button">
+                    Показать
+                </button>
+            </span>
+        </div>
+    </div>
 
-    <div id="{i#list}"></div>
+    <div class="panel-body">
+        <div id="{i#topicList}"></div>
+    </div>
 </div>

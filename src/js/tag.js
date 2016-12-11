@@ -1,7 +1,7 @@
 var Component = new Brick.Component();
 Component.requires = {
     mod: [
-        {name: '{C#MODNAME}', files: ['topic.js']}
+        {name: '{C#MODNAME}', files: ['topicList.js']}
     ]
 };
 Component.entryPoint = function(NS){
@@ -10,16 +10,21 @@ Component.entryPoint = function(NS){
         COMPONENT = this,
         SYS = Brick.mod.sys;
 
-    NS.TagViewWidget = Y.Base.create('tagViewWidget', SYS.AppWidget, [], {
+    NS.TagViewWidget = Y.Base.create('tagViewWidget', SYS.AppWidget, [
+        SYS.ContainerWidgetExt
+    ], {
         onInitAppWidget: function(err, appInstance){
             var tp = this.template,
                 tag = this.get('tag');
 
             tp.setValue('tag', tag);
 
-            this.topicListWidget = new NS.TopicListWidget(tp.gel('list'), {
-                'filter': 'tag/' + tag
-            });
+            this.addWidget('topicList', new NS.TopicListWidget({
+                srcNode: tp.one('topicList'),
+                config: {
+                    filter: 'tag/' + tag
+                }
+            }));
 
             tp.one('tag').on('keypress', function(e){
                 if (e.keyCode != 13){
@@ -28,17 +33,12 @@ Component.entryPoint = function(NS){
                 this.tagView();
             }, this);
         },
-        destructor: function(){
-            if (this.topicListWidget){
-                this.topicListWidget.destroy();
-            }
-        },
         tagView: function(){
             var tag = Y.Lang.trim(this.template.getValue('tag'));
             if (tag.length == 0){
                 return;
             }
-            NS.navigator.go(NS.navigator.tag.view(tag));
+            this.go('tag.view', tag);
         }
     }, {
         ATTRS: {
@@ -52,5 +52,4 @@ Component.entryPoint = function(NS){
             };
         }
     });
-
 };

@@ -97,6 +97,7 @@ Component.entryPoint = function(NS){
             tp.setHTML('list', tp.replace('cmtlist', {
                 rows: lst
             }));
+            this.appURLUpdate();
         }
     }, {
         ATTRS: {
