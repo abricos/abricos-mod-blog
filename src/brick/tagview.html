@@ -3,17 +3,18 @@
 
 [mcss=blog]blog.css[/mcss]
 
-[mod=blog]topiclist[/mod]
+[mod=blog]topicList[/mod]
 
 [*]-->
-<div class="aw-blog">
-
-	<div class="tagview">
-		<h2 class="tagtl">{v#tag}</h2>
-		
-		<input class="taginput" type="text" onfocus="this.select();" value="{v#tag}" style="display:none"/>
-	</div>
-	
+<div class="tagView panel panel-default">
+    <div class="panel-heading">
+        <div class="input-group input-group-sm">
+            <span class="input-group-addon" id="sizing-addon1">
+                Тег
+            </span>
+            <input value="{v#tag}" class="form-control" type="text" onfocus="this.select();"/>
+        </div>
+    </div>
 </div>
 
-[mod]blog:topiclist[/mod]
+[mod]blog:topicList[/mod]

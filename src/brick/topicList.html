@@ -4,66 +4,66 @@
 [mcss=blog]blog.css[/mcss]
 
 [bkvar=readmore]
-	<div class="readmore">
+    <p class="readMore">
 		<a href="{v#urltop}">Читать дальше → </a>
-	</div>
+    </p>
 [/bkvar]
 
 [bkvar=tagrow]
-	<li><a href="{v#url}">{v#tl}</a></li>
+	<a href="{v#url}">{v#tl}</a>
 [/bkvar]
 
-[bkvar=tagdel]
-	<li>, </li>
-[/bkvar]
+[bkvar=tagdel],[/bkvar]
 
 [bkvar=row]
-	<div class="topic">
-		<div class="title">
-			<a href="{v#urlcat}" class="cattl">{v#cattl}</a>
-			&nbsp;→&nbsp;
-			<a href="{v#urltop}" class="toptl">{v#toptl}</a>
-		</div>
-		
-		<div class="aw-page-content">
-			<div class="intro">{v#intro}</div>
-		</div>
-		
+<div class="topic panel panel-default">
+    <div class="panel-heading">
+        <div class="row">
+            <div class="col-sm-11">
+                <div class="panel-title">
+                    <a href="{v#urlcat}" class="cattl">{v#cattl}</a>
+                    &nbsp;→&nbsp;
+                    <a href="{v#urltop}" class="toptl">{v#toptl}</a>
+                </div>
+            </div>
+            <div class="col-sm-1 text-right">
+            </div>
+        </div>
+    </div>
+    <div class="panel-body">
+        <div class="text-justify">{v#intro}</div>
 		{v#readmore}
-	
-		<div class="taglist">
-			<ul>{v#taglist}</ul>
-			<div class="clear"></div>
-		</div>
-		
-		<div class="topicinfo">
-			<div class="tpinbox">
-				<div class="topicvote">{v#voting}</div>
-				<div class="user">
-					<a href="{v#userURL}" class="avtr tmb tmb24">
-						<span class="tmbpre">
-							<img src="{v#avatar}" />
-						</span>
-					</a>
-					<a title="автор текста" class="unm"
-					    href="{v#userURL}">{v#unm}</a>
-				</div>
-				<div class="date">{v#date}</div>
-				<div class="comments" >
-					<a href="{v#urltop}" title="Читать комментарии">({v#cmtcnt})</a>
-				</div>
-				<div class="socialist">{v#socialist}</div>
-			</div>
-			<div class="clear"></div>
-		</div>
-	</div>
+		<div class="tagList">
+            <div class="pull-left">
+                <i class="fa fa-tags"></i>
+            </div>
+            <div class="pull-left">{v#taglist}</div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+    <div class="list-group">
+        <div class="info list-group-item">
+            <ul class="list-inline">
+                <li>{v#voting}</li>
+                <li>
+                    <a href="{v#userURL}">
+                        <img class="img-rounded" src="{v#avatar}"/>
+                        {v#userViewName}
+                    </a>
+                </li>
+                <li class="date">{v#date}</li>
+                <li>{v#socialist}</li>
+                <li title="Количество комментариев" class="pull-right">
+                    <i class="fa fa-comments-o"></i> {v#cmtcnt}</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
 [/bkvar]
 
 [*]-->
-<div class="aw-blog">
-	<div class="topiclist">
-		{v#rows}
-	</div>
+<div class="topicList">
+    {v#rows}
+    [mod]sitemap:paginator[/mod]
 </div>
-
-[mod]sitemap:paginator[/mod]

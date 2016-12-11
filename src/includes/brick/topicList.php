@@ -80,7 +80,7 @@ for ($i = 0; $i < $count; $i++){
         )),
         "userURL" => $topic->user->URL(),
         "uid" => $topic->user->id,
-        "unm" => $topic->user->GetViewName(),
+        "userViewName" => $topic->user->GetViewName(),
         "avatar" => $topic->user->GetAvatar24()
     ));
 }

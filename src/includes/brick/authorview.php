@@ -10,17 +10,26 @@
 $brick = Brick::$builder->brick;
 $v = &$brick->param->var;
 
-$man = BlogModule::$instance->GetManager();
-$pa = BlogModule::$instance->ParserAddress();
+/** @var BlogModule $module */
+$module = Abricos::GetModule('blog');
+$pa = $module->ParserAddress();
 
 $author = $pa->author;
 
+/** @var UProfileApp $uprofileApp */
+$uprofileApp = Abricos::GetApp('uprofile');
+$user = $uprofileApp->User($author->id);
+if (AbricosResponse::IsError($user)){
+    $brick->content = '';
+    return;
+}
+
 $brick->content = Brick::ReplaceVarByData($brick->content, array(
-    'uid' => $author->id,
-    'unm' => $author->GetUserName(),
-    'urlusr' => $author->URL(),
+    'uid' => $user->id,
+    'viewName' => $user->GetViewName(),
+    'profileURL'=>$user->URL(),
     'topics' => $author->topicCount,
-    'avatar' => $author->Avatar90()
+    'avatar' => $user->GetAvatar90()
 ));
 
 if (!empty($pa->pageTitle)){

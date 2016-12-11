@@ -118,9 +118,6 @@ Component.entryPoint = function(NS){
     var L = YAHOO.lang,
         R = NS.roles;
 
-    var buildTemplate = this.buildTemplate;
-    buildTemplate({}, '');
-
     NS.lif = function(f){
         return Y.Lang.isFunction(f) ? f : function(){
         };

@@ -70,7 +70,7 @@ $brick->content = Brick::ReplaceVarByData($brick->content, array(
 
     "userURL" => $topic->user->URL(),
     "uid" => $topic->user->id,
-    "unm" => $topic->user->username,
+    "userViewName" => $topic->user->GetViewName(),
     "avatar" => $topic->user->GetAvatar24(),
 
     "intro" => $topic->intro,

@@ -3,24 +3,32 @@
 
 [mcss=blog]blog.css[/mcss]
 
-[mod=blog]topiclist[/mod]
+[mod=blog]topicList[/mod]
 
 [*]-->
-<div class="aw-blog"><div class="authorview">
-	<div class="author aw-uprofile">
+<div class="authorView panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">
+            Автор
+        </h3>
+    </div>
 
-		<a href="{v#urlusr}" class="avtr tmb tmb90 show-user-profile user-{v#uid}">
-			<span class="tmbpre">{v#avatar}</span>
-		</a>
-		
-		<a href="{v#urlusr}" class="username show-user-profile user-{v#uid}">{v#unm}</a>
-		
-		<div class="stat">
-			<span>топиков: {v#topics}</span>
-		</div>
-		<div class="clear"></div>
-	</div>
-	
-	[mod]blog:topiclist[/mod]
-	
-</div></div>
+    <div class="panel-body author">
+        <div class="pull-left">
+            <img src="{v#avatar}" class="avatar img-rounded"/>
+        </div>
+        <div class="pull-left">
+            <h3>
+                <a href="{v#profileURL}">{v#viewName}</a>
+            </h3>
+            <p>
+                Записей: {v#topics}
+            </p>
+        </div>
+        <div class="clear"></div>
+
+    </div>
+    <div class="panel-body">
+        [mod]blog:topicList[/mod]
+    </div>
+</div>
