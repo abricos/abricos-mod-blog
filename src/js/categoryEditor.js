@@ -80,12 +80,12 @@ Component.entryPoint = function(NS){
             NS.manager.categorySave(sd, function(catid, error){
                 instance.set('waiting', false);
 
-                if (!error || catid == 0){
-                    error = !error ? 'null' : error;
+                if (error > 0 || catid == 0){
+                    error = error > 0 ? error : 'null';
                     var sError = LNG.get('write.category.error.' + error);
                     Brick.mod.widget.notice.show(sError);
                 } else {
-                    this.go('category.view', catid);
+                    instance.go('category.view', catid);
                 }
             });
         }

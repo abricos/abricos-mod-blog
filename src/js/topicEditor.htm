@@ -62,7 +62,7 @@
                 </div>
             </div>
         </div>
-        <div id="{i#admindex}" style="display: none" class="checkbox">
+        <div id="{i#isindexBlock}" class="checkbox hide">
             <label>
                 <input id="{i#isindex}" type="checkbox"/>
                 Принудительно вывести на главную
@@ -119,3 +119,16 @@
         <div id="{i#widget}"></div>
     </div>
 </div>
+
+<!--{catsel}-->
+<select id="{i#id}" class="form-control">
+    {v#rows}
+</select>
+
+<!--{catselrow}-->
+<option value="{v#id}">{v#tl}</option>
+
+<!--{catselmyrow}-->
+<option value="0">Мой персональный блог</option>
+
+

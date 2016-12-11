@@ -17,7 +17,7 @@
             </li>
             <li data-trigger="blog:roles"
                 data-code="isAdmin"
-                    class="hide">
+                class="hide">
                 <a href="#" data-url="config">Настройки</a>
             </li>
         </ul>
@@ -34,16 +34,15 @@
         </ul>
     </nav>
 
-    <div data-wait="show" class="text-center">
-        <img src="/images/loading.gif"/>
-
-        <p>Идет загрузка данных</p>
-
-        <p>Пожалуйста, подождите...</p>
-    </div>
-
     <div class="row">
         <div class="col-sm-8">
+            <div data-wait="show" class="text-center">
+                <img src="/images/loading.gif"/>
+
+                <p>Идет загрузка данных</p>
+
+                <p>Пожалуйста, подождите...</p>
+            </div>
             <div class="app-workspace-page" data-wait="hide"></div>
         </div>
         <div class="col-sm-4">
@@ -53,5 +52,4 @@
             <div id="{i#categoryList}"></div>
         </div>
     </div>
-
 </div>

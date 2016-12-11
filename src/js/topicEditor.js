@@ -1,8 +1,8 @@
 var Component = new Brick.Component();
 Component.requires = {
     mod: [
-        {name: 'sys', files: ['editor.js']},
-        {name: '{C#MODNAME}', files: ['write.js', 'topic.js']}
+        {name: 'sys', files: ['editor.js', 'panel.js']},
+        {name: '{C#MODNAME}', files: ['topic.js']}
     ]
 };
 Component.entryPoint = function(NS){
@@ -60,7 +60,7 @@ Component.entryPoint = function(NS){
             }));
 
             if (R.isAdmin){
-                tp.show('admindex');
+                tp.show('isindexBlock');
                 tp.setValue('isindex', (topic.isIndex && !topic.isAutoIndex));
             }
         },
@@ -106,8 +106,8 @@ Component.entryPoint = function(NS){
             NS.manager.topicSave(sd, function(topicid, error){
                 instance.set('waiting', false);
 
-                if (!error || topicid == 0){
-                    error = !error ? 'null' : error;
+                if (error > 0 || topicid == 0){
+                    error = error > 0 ? error : 'null';
                     var sError = LNG.get('write.topic.error.' + error);
                     Brick.mod.widget.notice.show(sError);
                 } else {
@@ -164,5 +164,39 @@ Component.entryPoint = function(NS){
             templateBlockName: {value: 'topicpreview'},
             topic: {value: 0},
         }
+    });
+
+    NS.WriteCategorySelectWidget = Y.Base.create('WriteCategorySelectWidget', SYS.AppWidget, [], {
+        buildTData: function(){
+            var tp = this.template,
+                catid = this.get('catid'),
+                lst = tp.replace('catselmyrow');
+
+            NS.manager.categoryList.foreach(function(cat){
+                if (!R.category.isMember(cat)){
+                    return;
+                }
+                lst += tp.replace('catselrow', {
+                    id: cat.id,
+                    tl: cat.title
+                });
+            });
+            return {rows: lst};
+        },
+        onInitAppWidget: function(err, appInstance){
+            this.setValue(this.get('catid'));
+        },
+        getValue: function(){
+            return this.template.getValue('id');
+        },
+        setValue: function(value){
+            this.template.setValue('id', value);
+        }
+    }, {
+        ATTRS: {
+            component: {value: COMPONENT},
+            templateBlockName: {value: 'catsel,catselrow,catselmyrow'},
+            catid: {value: 0}
+        },
     });
 };
