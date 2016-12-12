@@ -193,7 +193,7 @@ Component.entryPoint = function(NS){
             var tp = this.template,
                 arr = [],
                 lst = "",
-                limit = 10;
+                limit = Math.min(list.count(), 10);
 
             list.foreach(function(cat){
                 arr[arr.length] = cat;

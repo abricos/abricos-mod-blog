@@ -61,10 +61,13 @@ Component.entryPoint = function(NS){
                     return this.getURL('topic.listPers') + 'new/';
                 },
                 view: function(topicid){
-                    return this.getURL('ws') + 'topic/TopicViewWidget/' + topicid + '/';
+                    return this.getURL('ws') + 'topic/TopicViewWidget/' + (topicid | 0) + '/';
+                },
+                create: function(catid){
+                    return this.getURL('ws') + 'topicEditor/TopicEditorWidget/0/' + (catid | 0) + '/';
                 },
                 edit: function(topicid){
-                    return this.getURL('ws') + 'topicEditor/TopicEditorWidget/' + ( topicid | 0) + '/';
+                    return this.getURL('ws') + 'topicEditor/TopicEditorWidget/' + (topicid | 0) + '/';
                 }
             },
             tag: {

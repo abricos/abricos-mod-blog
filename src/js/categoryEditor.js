@@ -50,7 +50,7 @@ Component.entryPoint = function(NS){
                 rep: cat.reputation
             });
 
-            tp.toggleView(NS.isURating, 'repblock');
+            tp.toggleView(Brick.mod.urating, 'repblock');
             tp.toggleView(R.isAdmin, 'nameBlock');
         },
         toJSON: function(){

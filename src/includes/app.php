@@ -857,7 +857,6 @@ class BlogApp extends AbricosApplication {
 
         BlogTopicQuery::CategoryMemberCountUpdate($this->db, $catid);
 
-        // повторно запросить категорию
         $cat = $this->Category($catid);
 
         $ret = new stdClass();

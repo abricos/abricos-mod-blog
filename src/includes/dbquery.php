@@ -506,9 +506,9 @@ class BlogTopicQuery {
 				cat.topiccount as tcnt,
 				cat.membercount as mcnt,
 				
-				IF(ISNULL(cur.userid), 0, cur.isadmin) as adm,
-				IF(ISNULL(cur.userid), 0, cur.ismoder) as mdr,
-				IF(ISNULL(cur.userid), 0, cur.ismember) as mbr
+				IFNULL(cur.isadmin, 0) as adm,
+				IFNULL(cur.ismoder, 0) as mdr,
+				IFNULL(cur.ismember, 0) as mbr
 				
 			FROM ".$db->prefix."bg_cat cat
 			LEFT JOIN ".$db->prefix."bg_catuserrole cur ON cat.catid=cur.catid
@@ -611,12 +611,12 @@ class BlogTopicQuery {
     public static function CategoryMemberCountUpdate(Ab_Database $db, $catid = 0){
         $sql = "
 			UPDATE ".$db->prefix."bg_cat cat
-			SET cat.membercount = (
+			SET cat.membercount = IFNULL((
 				SELECT count(*) as cnt
 				FROM ".$db->prefix."bg_catuserrole ur
 				WHERE cat.catid=ur.catid AND ur.ismember=1
 				GROUP BY ur.catid
-			)
+			), 0)
 		";
         if ($catid > 0){
             $sql .= "

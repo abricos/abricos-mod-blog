@@ -1,4 +1,4 @@
-<!--{catlist}-->
+<!--{categoryList}-->
 <div class="categoryList panel panel-default">
     <div class="panel-heading">
         <h3 class="panel-title pull-left">
@@ -29,31 +29,16 @@
     </p>
 </div>
 
-<!--{catview}-->
+<!--{categoryView}-->
 <div class="categoryView panel panel-default">
-    <div class="panel-heading">
+    <div class="panel-heading text-center">
         <h3 class="panel-title pull-left">
             {v#title}
         </h3>
 
-        <img src="/images/loading.gif" class="pull-right" data-wait="show"/>
+        <img src="/images/loading.gif" data-wait="show"/>
 
         <div id="{i#voting}" class="pull-right hide"></div>
-
-        <div class="btn-toolbar pull-right">
-            <a data-trigger="blog:roles" data-code="isAdmin"
-               data-url="category.edit({v#id})"
-               class="btn btn-default btn-xs hide"
-               title="Редактировать блог">
-                <i class="fa fa-pencil-square-o"></i>
-            </a>
-            <a data-trigger="blog:roles" data-code="isAdmin"
-               data-url="category.remove({v#id})"
-               class="btn btn-default btn-xs hide"
-               title="Удалить блог">
-                <i class="fa fa-trash-o"></i>
-            </a>
-        </div>
 
         <div class="clearfix"></div>
     </div>
@@ -65,21 +50,52 @@
                 ,&nbsp;
                 <span>топиков: <span id="{i#topics}"></span></span>
             </div>
-            <div id="{i#subscribeButtons}" class="pull-right hide">
-                <button id="{i#subscribeButton}"
-                        class="btn btn-default btn-xs"
-                        data-click="subscribe"
-                        title="Подписаться на новые записи в блоге">
-                    <i class="fa fa-sign-in"></i>
-                    Подписаться
-                </button>
-                <button id="{i#unsubscribeButton}"
-                        class="btn btn-default btn-xs"
-                        data-click="subscribe"
-                        title="Отписаться от новых записей в блоге">
-                    <i class="fa fa-sign-out"></i>
-                    Отписаться
-                </button>
+
+            <div class="btn-toolbar pull-right">
+                <div class="btn-group">
+                    <a data-trigger="blog:roles" data-code="isWrite"
+                       data-url="topic.create({v#id})"
+                       class="btn btn-default btn-xs hide"
+                       title="Написать в этот блог">
+                        <i class="fa fa-plus-circle" aria-hidden="true"></i>
+                        Написать
+                    </a>
+                </div>
+
+                <div class="btn-group">
+                    <button id="{i#subscribeButton}"
+                            class="btn btn-default btn-xs"
+                            data-click="this:subscribe"
+                            data-wait="disable"
+                            title="Подписаться на новые записи в блоге">
+                        <i class="fa fa-sign-in"></i>
+                        Вступить в блог
+                    </button>
+                    <button id="{i#unsubscribeButton}"
+                            class="btn btn-default btn-xs"
+                            data-click="this:subscribe"
+                            data-wait="disable"
+                            title="Отписаться от новых записей в блоге">
+                        <i class="fa fa-sign-out"></i>
+                        Покинуть блог
+                    </button>
+                </div>
+
+                <div id="{i#subscribeButtons}" class="btn-group">
+                    <a data-trigger="blog:roles" data-code="isAdmin"
+                       data-url="category.edit({v#id})"
+                       class="btn btn-default btn-xs hide"
+                       title="Редактировать блог">
+                        <i class="fa fa-pencil-square-o"></i>
+                    </a>
+                    <a data-trigger="blog:roles" data-code="isAdmin"
+                       data-url="category.remove({v#id})"
+                       class="btn btn-default btn-xs hide"
+                       title="Удалить блог">
+                        <i class="fa fa-trash-o"></i>
+                    </a>
+                </div>
+
             </div>
             <div class="clearfix"></div>
         </li>

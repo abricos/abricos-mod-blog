@@ -69,7 +69,7 @@ Component.entryPoint = function(NS){
     }, {
         ATTRS: {
             component: {value: COMPONENT},
-            templateBlockName: {value: 'catlist'},
+            templateBlockName: {value: 'categoryList'},
         },
         parseURLParam: function(args){
             return {};
@@ -147,23 +147,19 @@ Component.entryPoint = function(NS){
                     return true;
             }
         },
-        memberStatusChange: function(){
-            var instance = this,
-                tp = this.template;
+        subscribe: function(){
+            this.set('waiting', true);
 
-            tp.hide('jbtnsa');
-            tp.show('jbloading');
-
+            var instance = this;
             NS.manager.categoryJoin(this.get('category').id, function(){
-                tp.show('jbtnsa');
-                tp.hide('jbloading');
+                instance.set('waiting', false);
                 instance.renderCategory(instance.get('category'));
             });
         }
     }, {
         ATTRS: {
             component: {value: COMPONENT},
-            templateBlockName: {value: 'catview'},
+            templateBlockName: {value: 'categoryView'},
             categoryid: {},
             category: {}
         },
