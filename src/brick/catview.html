@@ -1,47 +1,28 @@
 <!--[*]
-[script]brick/catview.php[/script]
+[script]brick/categoryView.php[/script]
 
-[mcss=blog]blog.css[/mcss]
-
-[mod=blog]topiclist[/mod]
-
+[mod=blog]topicList[/mod]
 [*]-->
-<div class="aw-blog">
-	<div class="catview">
-	
-		<div class="catrtg">{v#voting}</div>
-		<h2 class="cattl">{v#tl}</h2>
-		
-		<div class="catinfo">
-			<div class="stat">
-				<span>читателей: <span>{v#mbrs}</span></span>,&nbsp;<span>топиков: <span>{v#topics}</span></span>
-			</div>
-			<div id="{i#jbtns}" class="jbtns" style="display: none">
-				<a id="{i#bedit}" href="{v#urledit}" class="habtn" title="Редактировать" style="display: none">Редактировать</a>
-				<a id="{i#bremove}" href="{v#urlremove}" class="habtn warn" title="Удалить" style="display: none">Удалить</a>
-				<span id="{i#jbtnsa}">
-					<a id="{i#bjoin}" href="#" class="habtn" title="Стать читателем блога">Вступить в блог</a>
-					<a id="{i#bleave}" href="#" class="habtn" title="Перестать читать блог">Покинуть блог</a>
-				</span>
-				<img id="{i#jbloading}" src="/images/loading.gif" style="display: none" />
-			</div>
-		</div>
-		
-	<div class="homelist">
-		<ul class="submenu">
-			<li class="{v#f1sel}">
-				<a href="/blog/{v#catname}/">Интересные</a>
-			</li>
-			<li class="{v#f2sel}">
-				<a href="/blog/{v#catname}/new/">Новые</a><a href="/blog/{v#catname}/new/" class="new">{v#newcnt}</a>
-			</li>
-			<li class="clear">&nbsp;</li>
-		</ul>
-		<div class="clear"></div>
-	</div>
+<div class="categoryView panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title pull-left">
+            {v#title}
+        </h3>
 
-		
-	</div>
+        <div class="pull-right">{v#voting}</div>
+
+        <div class="clearfix"></div>
+    </div>
+
+    <div class="list-group infoPanel">
+        <div class="list-group-item">
+            <div class="statistics pull-left">
+                <span>читателей: {v#mbrs}</span>,&nbsp;
+                <span>топиков: {v#topics}</span>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
 </div>
 
-[mod]blog:topiclist[/mod]
+[mod]blog:topicList[/mod]
