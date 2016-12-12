@@ -1417,27 +1417,4 @@ class BlogApp extends AbricosApplication {
 
         return $ret;
     }
-
-    /* * * * * * * * * * * * * * * * * * * * * * * * * * * */
-    /*                       BosUI                         */
-    /* * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-    public function Bos_OnlineData(){
-        $ret = $this->TopicListToAJAX(array("limit" => 1));
-        return $ret->topics->total;
-    }
-
-    public function Bos_MenuData(){
-        $i18n = $this->module->I18n();
-        return array(
-            array(
-                "name" => "blog",
-                "title" => $i18n->Translate('bosmenu.blog'),
-                "role" => BlogAction::VIEW,
-                "icon" => "/modules/blog/images/blog-24.png",
-                "url" => "blog/wspace/ws"
-            )
-        );
-    }
-
 }
