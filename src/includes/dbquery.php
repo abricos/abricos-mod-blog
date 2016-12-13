@@ -46,7 +46,6 @@ class BlogTopicQuery {
 			length(t.body) as bdlen,
 			
 			t.rating as rtg,
-			t.votecount as vcnt,
 			
 			t.userid as uid,
 			u.username as unm,
@@ -329,21 +328,6 @@ class BlogTopicQuery {
         $db->query_write($sql);
     }
 
-    public static function TopicRatingUpdate(Ab_Database $db, $topicid, $votecount, $voteup, $votedown){
-        $sql = "
-			UPDATE ".$db->prefix."bg_topic
-			SET
-				rating=".bkint($voteup - $votedown).",
-				voteup=".bkint($voteup).",
-				votedown=".bkint($votedown).",
-				votecount=".bkint($votecount).",
-				votedate=".TIMENOW."
-			WHERE topicid=".bkint($topicid)."
-			LIMIT 1
-		";
-        $db->query_write($sql);
-    }
-
     /**
      * Автоматическое обновление статуса вывода на главной согласно рейтинку
      *
@@ -471,15 +455,10 @@ class BlogTopicQuery {
 				cat.descript as dsc,
 				cat.isprivate prv,
 				
-				cat.rating as rtg,
-				cat.votecount as vcnt,
-				
 				cat.reputation as rep,
 				cat.topiccount as tcnt,
 				cat.membercount as mcnt,
 				
-				IF(ISNULL(cur.userid), 0, cur.isadmin) as adm,
-				IF(ISNULL(cur.userid), 0, cur.ismoder) as mdr,
 				IF(ISNULL(cur.userid), 0, cur.ismember) as mbr
 				
 			FROM ".$db->prefix."bg_cat cat
@@ -500,14 +479,10 @@ class BlogTopicQuery {
 				cat.title as tl,
 				cat.descript as dsc,
 				cat.isprivate prv,
-				cat.rating as rtg,
-				cat.votecount as vcnt,
 				cat.reputation as rep,
 				cat.topiccount as tcnt,
 				cat.membercount as mcnt,
 				
-				IFNULL(cur.isadmin, 0) as adm,
-				IFNULL(cur.ismoder, 0) as mdr,
 				IFNULL(cur.ismember, 0) as mbr
 				
 			FROM ".$db->prefix."bg_cat cat
@@ -575,21 +550,6 @@ class BlogTopicQuery {
         $db->query_write($sql);
     }
 
-    public static function CategoryRatingUpdate(Ab_Database $db, $catid, $votecount, $voteup, $votedown){
-        $sql = "
-			UPDATE ".$db->prefix."bg_cat
-			SET
-				rating=".bkint($voteup - $votedown).",
-				voteup=".bkint($voteup).",
-				votedown=".bkint($votedown).",
-				votecount=".bkint($votecount).",
-				votedate=".TIMENOW."
-			WHERE catid=".bkint($catid)."
-			LIMIT 1
-		";
-        $db->query_write($sql);
-    }
-
     public static function CategoryTopicCountUpdate(Ab_Database $db, $catid = 0){
         $sql = "
 			UPDATE ".$db->prefix."bg_cat cat
@@ -629,30 +589,12 @@ class BlogTopicQuery {
     public static function CategoryUser(Ab_Database $db, $catid, $userid){
         $sql = "
 			SELECT
-				isadmin as adm,
-				ismoder as mdr,
 				ismember as mbr
 			FROM ".$db->prefix."bg_catuserrole
 			WHERE catid=".bkint($catid)." AND userid=".bkint($userid)."
 			LIMIT 1
 		";
         return $db->query_first($sql);
-    }
-
-    public static function CategoryUserSetAdmin(Ab_Database $db, $catid, $userid, $isAdmin = false){
-        $sql = "
-			INSERT INTO ".$db->prefix."bg_catuserrole
-			(catid, userid, isadmin, dateline, upddate) VALUES(
-				".bkint($catid).",
-				".bkint($userid).",
-				".($isAdmin ? 1 : 0).",
-				".TIMENOW.",
-				".TIMENOW."
-			) ON DUPLICATE KEY UPDATE
-				isadmin=".($isAdmin ? 1 : 0).",
-				upddate=".TIMENOW."
-		";
-        $db->query_write($sql);
     }
 
     public static function CategoryUserSetMember(Ab_Database $db, $catid, $userid, $isMember, $pubkey){

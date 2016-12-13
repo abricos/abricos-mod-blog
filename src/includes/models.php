@@ -586,8 +586,6 @@ class BlogCategory {
         $this->memberCount = intval($d['mcnt']);
         $this->reputation = intval($d['rep']);
         $this->isPrivate = intval($d['prv']) > 0;
-        $this->isAdminFlag = intval($d['adm']) > 0;
-        $this->isModerFlag = intval($d['mdr']) > 0;
         $this->isMemberFlag = intval($d['mbr']) > 0;
     }
 
@@ -602,8 +600,6 @@ class BlogCategory {
         $ret->rep = $this->reputation;
         $ret->prv = $this->isPrivate ? 1 : 0;
 
-        $ret->adm = $this->isAdminFlag ? 1 : 0;
-        $ret->mdr = $this->isModerFlag ? 1 : 0;
         $ret->mbr = $this->isMemberFlag ? 1 : 0;
 
         if (!empty($this->voting)){
