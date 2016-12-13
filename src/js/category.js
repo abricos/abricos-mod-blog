@@ -14,6 +14,7 @@ Component.entryPoint = function(NS){
         buildTData: function(){
             var category = this.get('category');
             return {
+                id: category.id,
                 title: category.title,
                 urlview: category.url(),
                 mbrs: category.memberCount,
@@ -76,76 +77,62 @@ Component.entryPoint = function(NS){
         }
     });
 
-    NS.CategoryViewWidget = Y.Base.create('categoryViewWidget', SYS.AppWidget, [], {
+    NS.CategoryViewWidget = Y.Base.create('categoryViewWidget', SYS.AppWidget, [
+        SYS.ContainerWidgetExt
+    ], {
         buildTData: function(){
-            var categoryid = this.get('categoryid'),
-                category = NS.manager.categoryList.get(categoryid);
-
             return {
-                id: categoryid,
-                title: category.title
+                id: this.get('categoryid')
             }
         },
         onInitAppWidget: function(err, appInstance){
-            this.set('waiting', true);
-
-            var categoryid = this.get('categoryid'),
+            var tp = this.template,
+                categoryid = this.get('categoryid'),
                 category = NS.manager.categoryList.get(categoryid);
+
+            if (!category){
+                return tp.show('notFoundBlock');
+            }
+
+            tp.setHTML({
+                title: category.title
+            });
+
+            tp.show('headingBlock,topicListBlock,infoBlock');
+
+            if (category.voting){
+                tp.show('voting');
+                this.addWidget('voting', new Brick.mod.urating.VotingWidget({
+                    boundingBox: tp.one('voting'),
+                    voting: category.voting
+                }));
+            }
+
+            this.addWidget('topicList', new NS.TopicListWidget({
+                srcNode: tp.gel('toplist'),
+                config: {
+                    filter: 'cat/' + category.id
+                }
+            }));
 
             this.renderCategory(category);
         },
-        destructor: function(){
-            if (this.votingWidget){
-                this.votingWidget.destroy();
-            }
-            if (this.topicListWidget){
-                this.topicListWidget.destroy();
-            }
-        },
         renderCategory: function(category){
             this.set('waiting', false);
-            this.set('category', category);
-
-            var tp = this.template;
-
-            tp.toggleView(!category, 'nullitem', 'view');
 
             if (!category){
                 return;
             }
+
+            var tp = this.template;
+
             tp.setHTML({
-                'tl': category.title,
                 'mbrs': category.memberCount,
                 'topics': category.topicCount
             });
 
-            if (category.voting){
-                tp.show('voting');
-                this.votingWidget = new Brick.mod.urating.VotingWidget({
-                    boundingBox: tp.one('voting'),
-                    voting: category.voting
-                });
-            }
-
-            if (!this.topicListWidget){
-                this.topicListWidget = new NS.TopicListWidget({
-                    srcNode: tp.gel('toplist'),
-                    config: {
-                        filter: 'cat/' + category.id
-                    }
-                });
-            }
-
             tp.toggleView(Brick.env.user.id > 0, 'subscribeButtons');
             tp.toggleView(category.isMember, 'unsubscribeButton', 'subscribeButton');
-        },
-        onClick: function(e){
-            switch (e.dataClick) {
-                case 'bjoin':
-                case 'bleave':
-                    this.memberStatusChange();
-                    return true;
-            }
         },
         subscribe: function(){
             this.set('waiting', true);

@@ -784,7 +784,14 @@ class BlogApp extends AbricosApplication {
         $d->rep = isset($d->rep) ? intval($d->rep) : 0;
         $d->prv = isset($d->prv) ? intval($d->prv) : 0;
 
+        /** @var URatingApp $uratingApp */
+        $uratingApp = Abricos::GetApp('urating');
+
         if (!$this->IsAdminRole()){
+
+            /** @var UProfileApp $uprofileApp */
+            $uprofileApp = Abricos::GetApp('uprofile');
+            $profile = $uprofileApp->Profile(Abricos::$user->id);
 
             if (false /*BlogManager::$isURating/**/){ // работает система репутации пользователя
                 $rep = $this->GetURatingManager()->UserReputation();

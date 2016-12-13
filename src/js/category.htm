@@ -31,9 +31,9 @@
 
 <!--{categoryView}-->
 <div class="categoryView panel panel-default">
-    <div class="panel-heading text-center">
+    <div id="{i#headingBlock}" class="panel-heading text-center hide">
         <h3 class="panel-title pull-left">
-            {v#title}
+            <span id="{i#title}"></span>
         </h3>
 
         <img src="/images/loading.gif" data-wait="show"/>
@@ -43,8 +43,8 @@
         <div class="clearfix"></div>
     </div>
 
-    <div id="{i#infoPanel}" class="list-group infoPanel">
-        <li class="list-group-item">
+    <div class="list-group infoPanel">
+        <div id="{i#infoBlock}" class="list-group-item hide">
             <div class="statistics pull-left">
                 <span>читателей: <span id="{i#mbrs}"></span></span>
                 ,&nbsp;
@@ -95,20 +95,18 @@
                         <i class="fa fa-trash-o"></i>
                     </a>
                 </div>
-
             </div>
             <div class="clearfix"></div>
-        </li>
-    </div>
-
-    <div id="{i#body}" class="panel-body">
-        <div id="{i#toplist}"></div>
-    </div>
-
-    <div id="{i#notFound}" class="notFound hide">
-        <p>
-            Блог не найден или недостаточно прав для его просмотра
-        </p>
+        </div>
+        <div id="{i#topicListBlock}" class="list-group-item hide">
+            <div id="{i#toplist}"></div>
+        </div>
+        <div id="{i#notFoundBlock}" class="list-group-item hide">
+            <p>
+                Блог не найден или недостаточно прав для
+                его просмотра
+            </p>
+        </div>
     </div>
 </div>
 
