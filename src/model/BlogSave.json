@@ -1,0 +1,37 @@
+{
+  "type": "response",
+  "version": "0.1.0",
+  "vars": {
+    "blogid": {
+      "type": "int"
+    },
+    "type": {
+      "type": "string",
+      "parse": "full"
+    },
+    "title": {
+      "type": "string",
+      "parse": "full"
+    },
+    "slug": {
+      "type": "string",
+      "parse": "full"
+    },
+    "descript": {
+      "type": "string",
+      "parse": "standard"
+    },
+    "newTopicUserRep": {
+      "type": "int"
+    }
+  },
+  "codes": {
+    "OK": 1,
+    "EMPTY_TITLE": 2
+  },
+  "fields": {
+    "blog": {
+      "type": "model:Blog"
+    }
+  }
+}

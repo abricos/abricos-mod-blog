@@ -1,0 +1,44 @@
+{
+  "version": "0.1.0",
+  "fields": {
+    "id": {
+      "type": "int",
+      "dbField": "blogid"
+    },
+    "userid": {
+      "type": "int"
+    },
+    "type": {
+      "type": "string",
+      "default": "public",
+      "valid": "public,personal",
+      "notNULL": true,
+      "dbField": "blogType"
+    },
+    "title": {
+      "type": "string"
+    },
+    "slug": {
+      "type": "string"
+    },
+    "descript": {
+      "type": "string"
+    },
+    "newTopicUserRep": {
+      "type": "int"
+    },
+    "topicCount": {
+      "type": "int"
+    },
+    "memberCount": {
+      "type": "int"
+    },
+    "dateline": {
+      "type": "int"
+    },
+    "upddate": {
+      "rolefn": "IsAdminRole",
+      "type": "date"
+    }
+  }
+}

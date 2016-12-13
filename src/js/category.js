@@ -10,26 +10,27 @@ Component.entryPoint = function(NS){
         COMPONENT = this,
         SYS = Brick.mod.sys;
 
-    NS.CategoryRowWidget = Y.Base.create('categoryRowWidget', SYS.AppWidget, [], {
+    NS.BlogRowWidget = Y.Base.create('BlogRowWidget', SYS.AppWidget, [], {
         buildTData: function(){
-            var category = this.get('category');
+            var blog = this.get('blog');
             return {
-                id: category.id,
-                title: category.title,
-                urlview: category.url(),
-                mbrs: category.memberCount,
-                topics: category.topicCount
+                id: blog.get('id'),
+                title: blog.get('title'),
+                // urlview: category.url(),
+                mbrs: blog.get('memberCount'),
+                topics: blog.get('topicCount')
             };
         },
         onInitAppWidget: function(err, appInstance){
             var tp = this.template,
-                category = this.get('category');
+                blog = this.get('blog'),
+                voting = blog.get('voting');
 
-            if (category.voting){
+            if (voting){
                 tp.show('voting');
                 this.votingWidget = new Brick.mod.urating.VotingWidget({
                     boundingBox: tp.one('voting'),
-                    voting: category.voting
+                    voting: voting
                 });
             }
         }
@@ -37,13 +38,18 @@ Component.entryPoint = function(NS){
         ATTRS: {
             component: {value: COMPONENT},
             templateBlockName: {value: 'row'},
-            category: {}
+            blog: {}
         },
     });
 
     NS.CategoryListWidget = Y.Base.create('categoryListWidget', SYS.AppWidget, [], {
         onInitAppWidget: function(err, appInstance){
-            this.renderList();
+            appInstance.blogList(function(err, result){
+                if (err){
+                    return;
+                }
+                this.renderList();
+            }, this);
         },
         destructor: function(){
             this.clearList();
@@ -58,19 +64,20 @@ Component.entryPoint = function(NS){
         },
         renderList: function(){
             var tp = this.template,
-                ws = this.clearList();
+                ws = this.clearList(),
+                appInstance = this.get('appInstance');
 
-            NS.manager.categoryList.foreach(function(category){
-                ws[ws.length] = new NS.CategoryRowWidget({
+            appInstance.get('blogList').each(function(blog){
+                ws[ws.length] = new NS.BlogRowWidget({
                     boundingBox: tp.append('list', '<div class="list-group-item"></div>'),
-                    category: category
+                    blog: blog
                 });
-            });
+            }, this);
         }
     }, {
         ATTRS: {
             component: {value: COMPONENT},
-            templateBlockName: {value: 'categoryList'},
+            templateBlockName: {value: 'blogList'},
         },
         parseURLParam: function(args){
             return {};

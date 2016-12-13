@@ -16,12 +16,15 @@ class BlogApp extends AbricosApplication {
 
     protected function GetClasses(){
         return array(
-            'Config' => 'BlogConfig'
+            'Blog' => 'Blog',
+            'BlogList' => 'BlogList',
+            'BlogSave' => 'BlogSave',
+            'Config' => 'BlogConfig',
         );
     }
 
     protected function GetStructures(){
-        return 'Config';
+        return 'Blog,Config';
     }
 
     public function IsAdminRole(){
@@ -38,10 +41,19 @@ class BlogApp extends AbricosApplication {
 
     public function ResponseToJSON($d){
         switch ($d->do){
+            case "blog":
+                return $this->BlogToJSON($d->blogid);
+            case "blogList":
+                return $this->BlogListToJSON();
+            case "blogSave":
+                return $this->BlogSaveToJSON($d->data);
+
             case "config":
                 return $this->ConfigToJSON();
             case "configSave":
                 return $this->ConfigSaveToJSON($d->data);
+
+            //////////////// old functions /////////////
 
             case "topic":
                 return $this->TopicToAJAX($d->topicid);
@@ -69,6 +81,32 @@ class BlogApp extends AbricosApplication {
                 return $this->TagListToAJAX($d);
         }
         return null;
+    }
+
+    public function BlogListToJSON(){
+        $res = $this->BlogList();
+        return $this->ResultToJSON('blogList', $res);
+    }
+
+    public function BlogList(){
+        if ($this->CacheExists('BlogList')){
+            return $this->Cache('BlogList');
+        }
+
+        if (!$this->IsViewRole()){
+            return AbricosResponse::ERR_FORBIDDEN;
+        }
+
+        /** @var BlogList $list */
+        $list = $this->InstanceClass('BlogList');
+        $rows = BlogQuery::BlogList($this->db);
+        while(($d = $this->db->fetch_array($rows))){
+            $list->Add($this->InstanceClass('Blog', $d));
+        }
+
+        $this->SetCache('BlogList', $list);
+
+        return $list;
     }
 
     /*********************************************************/

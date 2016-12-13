@@ -8,7 +8,25 @@
  */
 
 /**
+ * Class BlogQuery
+ */
+class BlogQuery {
+
+    public static function BlogList(Ab_Database $db){
+        $sql = "
+			SELECT *
+			FROM ".$db->prefix."blog
+			WHERE deldate=0
+			ORDER BY topicCount DESC
+		";
+        return $db->query_read($sql);
+    }
+}
+
+/**
  * Class BlogTopicQuery
+ *
+ * @deprecated
  */
 class BlogTopicQuery {
 

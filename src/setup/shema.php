@@ -27,7 +27,7 @@ if ($updateManager->isUpdate('0.6.0')){
 
             title VARCHAR(250) NOT NULL DEFAULT '' COMMENT 'Заголовок',
 			slug VARCHAR(150) NOT NULL DEFAULT '' COMMENT 'Имя для URL',
-			descript TEXT NOT NULL COMMENT 'Описание',
+			descript TEXT COMMENT 'Описание',
 			
 			newTopicUserRep INT(7) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Ограничение по репутация пользователя для создания топика',
 			
@@ -168,11 +168,30 @@ if ($updateManager->isUpdate('0.6.0') && !$updateManager->isInstall()){
             dateline, upddate, pubdate, deldate
 		)
 		SELECT 
-		    topicid, catid, userid, intro, body, metadesk, metakeys,
+		    topicid, catid, userid, intro, body, metadesc, metakeys,
 		    isdraft, isindex, autoindex, 
             viewcount, scblastuserid, scbcomplete,
             dateline, upddate, pubdate, deldate
 		FROM ".$pfx."bg_topic
+    ");
+
+    $db->query_write("
+		INSERT INTO ".$pfx."blog (
+		    userid, slug, dateline, upddate, blogType
+		)
+		SELECT 
+		    DISTINCT t.userid, u.username, MIN(t.dateline), MIN(t.dateline), 'personal'  
+		FROM ".$pfx."blog_topic t
+		INNER JOIN ".$pfx."user u ON t.userid=u.userid
+		WHERE t.blogid=0
+		GROUP BY t.userid
+    ");
+
+    $db->query_write("
+		UPDATE ".$pfx."blog_topic t
+		INNER JOIN ".$pfx."blog b ON b.userid=t.userid AND b.blogType='personal'
+		SET t.blogid=b.blogid
+		WHERE t.blogid=0
     ");
 
     $db->query_write("
@@ -181,7 +200,7 @@ if ($updateManager->isUpdate('0.6.0') && !$updateManager->isInstall()){
 		)
 		SELECT 
 		    tagid, title, `name`, topiccount
-		FROM ".$pfx."bg_topic
+		FROM ".$pfx."bg_tag
     ");
 
     $db->query_write("
