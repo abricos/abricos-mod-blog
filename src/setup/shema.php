@@ -177,10 +177,12 @@ if ($updateManager->isUpdate('0.6.0') && !$updateManager->isInstall()){
 
     $db->query_write("
 		INSERT INTO ".$pfx."blog (
-		    userid, slug, dateline, upddate, blogType
+		    userid, title, slug, 
+		    dateline, upddate, blogType
 		)
 		SELECT 
-		    DISTINCT t.userid, u.username, MIN(t.dateline), MIN(t.dateline), 'personal'  
+		    t.userid, CONCAT('Блог им.', u.username), u.username, 
+		    MIN(t.dateline), MIN(t.dateline), 'personal'  
 		FROM ".$pfx."blog_topic t
 		INNER JOIN ".$pfx."user u ON t.userid=u.userid
 		WHERE t.blogid=0

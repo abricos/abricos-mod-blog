@@ -34,8 +34,8 @@ Component.entryPoint = function(NS){
                 srcNode: tp.one('topicList')
             }));
 
-            this.addWidget('categoryList', new NS.CategoryListBoxWidget({
-                srcNode: tp.one('categoryList')
+            this.addWidget('blogList', new NS.CategoryListBoxWidget({
+                srcNode: tp.one('blogList')
             }));
         }
     }, {

@@ -16,6 +16,7 @@ Component.entryPoint = function(NS){
     };
 
     NS.ATTRIBUTE = {
+        number: number,
         blogid: number,
     };
 };

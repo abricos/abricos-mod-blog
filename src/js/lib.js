@@ -19,16 +19,21 @@ Component.entryPoint = function(NS){
         APPS: {
             uprofile: {},
             urating: {},
-            comment: {},
-            notify: {}
+            comment: {}
         },
         ATTRS: {
             isLoadAppStructure: {value: true},
             Blog: {value: NS.Blog},
             BlogList: {value: NS.BlogList},
+            BlogUserRole: {value: NS.BlogUserRole},
+            BlogUserRoleList: {value: NS.BlogUserRoleList},
             Config: {value: NS.Config},
         },
         REQS: {
+            blog: {
+                args: ['blogid'],
+                type: "model:Blog"
+            },
             blogList: {
                 attribute: true,
                 type: "modelList:BlogList"
@@ -43,8 +48,16 @@ Component.entryPoint = function(NS){
         },
         URLS: {
             ws: "#app={C#MODNAMEURI}/wspace/ws/",
-            config: function(){
-                return this.getURL('ws') + 'config/ConfigWidget/';
+            blog: {
+                list: function(){
+                    return this.getURL('ws') + 'blogList/BlogListWidget/';
+                },
+                view: function(blogid){
+                    return this.getURL('ws') + 'blogViewer/BlogViewerWidget/' + (blogid | 0) + '/';
+                },
+                edit: function(blogid){
+                    return this.getURL('ws') + 'blogEditor/BlogEditorWidget/' + (blogid | 0) + '/';
+                }
             },
             topic: {
                 list: function(){
@@ -80,17 +93,6 @@ Component.entryPoint = function(NS){
                     return this.getURL('ws') + 'tag/TagViewWidget/' + tag + '/';
                 }
             },
-            category: {
-                list: function(){
-                    return this.getURL('ws') + 'category/CategoryListWidget/';
-                },
-                view: function(catid){
-                    return this.getURL('ws') + 'category/CategoryViewWidget/' + catid + '/';
-                },
-                edit: function(catid){
-                    return this.getURL('ws') + 'categoryEditor/CategoryEditorWidget/' + (catid | 0) + '/';
-                }
-            },
             author: {
                 list: function(){
                     return this.getURL('ws') + 'author/AuthorListWidget/';
@@ -114,8 +116,8 @@ Component.entryPoint = function(NS){
                     return this.getURL('write.view') + 'draftlist/';
                 }
             },
-            about: function(){
-                return this.getURL('ws') + 'about/AboutWidget/';
+            config: function(){
+                return this.getURL('ws') + 'config/ConfigWidget/';
             },
         }
     });

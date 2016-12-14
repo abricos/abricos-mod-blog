@@ -1,0 +1,30 @@
+<!--{blogList}-->
+<div class="blogList panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title pull-left">
+            Блоги
+        </h3>
+
+        <img src="/images/loading.gif" class="pull-right" data-wait="show"/>
+
+        <div class="clearfix"></div>
+    </div>
+
+    <div id="{i#list}" class="list-group"></div>
+</div>
+
+<!--{row}-->
+<div class="blogRow">
+    <div id="{i#voting}" class="pull-right hide"></div>
+
+    <h4 class="list-group-item-heading">
+        <a data-url="blog.view({v#id})">
+            {v#title}
+        </a>
+    </h4>
+    <p class="list-group-item-text">
+        <span>читателей: {v#mbrs}</span>
+        ,&nbsp;
+        <a data-url="blog.view({v#id})">топиков: {v#topics}</a>
+    </p>
+</div>

@@ -33,6 +33,12 @@
     "memberCount": {
       "type": "int"
     },
+    "userRole": {
+      "type": "model:BlogUserRole"
+    },
+    "voting": {
+      "type": "model:urating:Voting"
+    },
     "dateline": {
       "type": "int"
     },

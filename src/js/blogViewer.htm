@@ -1,0 +1,83 @@
+<!--{widget}-->
+<div class="blogViewer">
+    <div id="{i#notFoundBlock}" class="list-group-item hide">
+        <p>
+            Блог не найден или недостаточно прав для
+            его просмотра
+        </p>
+    </div>
+
+    <div class="panel panel-default">
+        <div id="{i#headingBlock}" class="panel-heading text-center hide">
+            <h3 class="panel-title pull-left">
+                <span id="{i#title}"></span>
+            </h3>
+
+            <img src="/images/loading.gif" data-wait="show"/>
+
+            <div id="{i#voting}" class="pull-right hide"></div>
+
+            <div class="clearfix"></div>
+        </div>
+
+        <div class="list-group infoPanel">
+            <div id="{i#infoBlock}" class="list-group-item hide">
+                <div class="statistics pull-left">
+                    <span>читателей: <span id="{i#mbrs}"></span></span>
+                    ,&nbsp;
+                    <span>топиков: <span id="{i#topics}"></span></span>
+                </div>
+
+                <div class="btn-toolbar pull-right">
+                    <div class="btn-group">
+                        <a data-trigger="blog:roles" data-code="isWrite"
+                           data-url="topic.create({v#id})"
+                           class="btn btn-default btn-xs hide"
+                           title="Написать в этот блог">
+                            <i class="fa fa-plus-circle" aria-hidden="true"></i>
+                            Написать
+                        </a>
+                    </div>
+
+                    <div class="btn-group">
+                        <button id="{i#subscribeButton}"
+                                class="btn btn-default btn-xs"
+                                data-click="this:subscribe"
+                                data-wait="disable"
+                                title="Подписаться на новые записи в блоге">
+                            <i class="fa fa-sign-in"></i>
+                            Вступить в блог
+                        </button>
+                        <button id="{i#unsubscribeButton}"
+                                class="btn btn-default btn-xs"
+                                data-click="this:subscribe"
+                                data-wait="disable"
+                                title="Отписаться от новых записей в блоге">
+                            <i class="fa fa-sign-out"></i>
+                            Покинуть блог
+                        </button>
+                    </div>
+
+                    <div id="{i#subscribeButtons}" class="btn-group">
+                        <a data-trigger="blog:roles" data-code="isAdmin"
+                           data-url="blog.edit({v#id})"
+                           class="btn btn-default btn-xs hide"
+                           title="Редактировать блог">
+                            <i class="fa fa-pencil-square-o"></i>
+                        </a>
+                        <a data-trigger="blog:roles" data-code="isAdmin"
+                           data-url="blog.remove({v#id})"
+                           class="btn btn-default btn-xs hide"
+                           title="Удалить блог">
+                            <i class="fa fa-trash-o"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+    </div>
+    <div id="{i#topicListBlock}" class="hide">
+        <div id="{i#toplist}"></div>
+    </div>
+</div>

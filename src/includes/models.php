@@ -20,6 +20,8 @@ require_once 'old_models.php';
  * @property int $newTopicUserRep
  * @property int $topicCount
  * @property int $memberCount
+ * @property BlogUserRole $userRole
+ * @property URatingVoting $voting
  * @property int $dateline
  * @property int $upddate
  */
@@ -74,4 +76,49 @@ class BlogSave extends AbricosResponse {
 
     protected $_structModule = 'blog';
     protected $_structName = 'BlogSave';
+}
+
+/**
+ * Class BlogUserRole
+ *
+ * @property int $blogid
+ * @property int $userid
+ * @property bool $isMember
+ * @property bool $deliveryOff
+ * @property string $pubKey
+ */
+class BlogUserRole extends AbricosModel {
+    protected $_structModule = 'blog';
+    protected $_structName = 'BlogUserRole';
+}
+
+/**
+ * Class BlogUserRoleList
+ *
+ * @method BlogUserRole Get(int $id)
+ * @method BlogUserRole GetByIndex(int $index)
+ */
+class BlogUserRoleList extends AbricosModelList {
+
+    private $_mapByBlogId = array();
+
+    /**
+     * @param BlogUserRole $item
+     */
+    public function Add($item){
+        parent::Add($item);
+
+        $this->_mapByBlogId[$item->blogid] = $item;
+    }
+
+    /**
+     * @param int $blogid
+     * @return BlogUserRole|null
+     */
+    public function GetByBlogId($blogid){
+        if (!isset($this->_mapByBlogId[$blogid])){
+            return null;
+        }
+        return $this->_mapByBlogId[$blogid];
+    }
 }

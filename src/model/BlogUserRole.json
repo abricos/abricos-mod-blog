@@ -1,0 +1,25 @@
+{
+  "version": "0.1.0",
+  "fields": {
+    "id": {
+      "type": "int",
+      "dbField": "userRoleId"
+    },
+    "blogid": {
+      "type": "int"
+    },
+    "userid": {
+      "type": "int"
+    },
+    "isMember": {
+      "type": "bool"
+    },
+    "deliveryOff": {
+      "type": "bool"
+    },
+    "pubKey": {
+      "rolefn": "IsAdminRole",
+      "type": "string"
+    }
+  }
+}
