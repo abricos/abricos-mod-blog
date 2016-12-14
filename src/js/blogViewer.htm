@@ -1,6 +1,6 @@
 <!--{widget}-->
 <div class="blogViewer">
-    <div id="{i#notFoundBlock}" class="list-group-item hide">
+    <div id="{i#notFoundBlock}" class="hide">
         <p>
             Блог не найден или недостаточно прав для
             его просмотра
@@ -39,18 +39,18 @@
                         </a>
                     </div>
 
-                    <div class="btn-group">
-                        <button id="{i#subscribeButton}"
-                                class="btn btn-default btn-xs"
-                                data-click="this:subscribe"
+                    <div id="{i#subscribeButtons}" class="btn-group hide">
+                        <button id="{i#blogJoinButton}"
+                                class="btn btn-default btn-xs hide"
+                                data-click="this:blogJoin"
                                 data-wait="disable"
                                 title="Подписаться на новые записи в блоге">
                             <i class="fa fa-sign-in"></i>
                             Вступить в блог
                         </button>
-                        <button id="{i#unsubscribeButton}"
-                                class="btn btn-default btn-xs"
-                                data-click="this:subscribe"
+                        <button id="{i#blogLeaveButton}"
+                                class="btn btn-default btn-xs hide"
+                                data-click="this:blogLeave"
                                 data-wait="disable"
                                 title="Отписаться от новых записей в блоге">
                             <i class="fa fa-sign-out"></i>
@@ -58,7 +58,7 @@
                         </button>
                     </div>
 
-                    <div id="{i#subscribeButtons}" class="btn-group">
+                    <div class="btn-group">
                         <a data-trigger="blog:roles" data-code="isAdmin"
                            data-url="blog.edit({v#id})"
                            class="btn btn-default btn-xs hide"

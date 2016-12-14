@@ -193,13 +193,40 @@ class BlogApp extends AbricosApplication {
     /*                      Blog Subscribe                   */
     /*********************************************************/
 
-    public function BlogJoinToJSON($blogid){
-        $res = $this->BlogJoin($blogid);
-        return $this->ResultToJSON('blog', $res);
+    private function BlogJoinLeaveUpdate($blogid, $isJoin){
+        if (!$this->IsViewRole()
+            || Abricos::$user->id === 0
+        ){
+            return AbricosResponse::ERR_FORBIDDEN;
+        }
+
+        $blog = $this->Blog($blogid);
+        if (AbricosResponse::IsError($blog)){
+            return $blog;
+        }
+
+        $userRole = $blog->userRole;
+        if (empty($userRole->pubKey)){
+            $userRole->pubKey = md5(TIMENOW.$blogid.$userRole->userid);
+        }
+        $userRole->isMember = $isJoin;
+
+        BlogQuery::BlogJoinLeaveUpdate($this->db, $userRole);
+
+        $this->CacheClear();
+
+        $blog = $this->Blog($blogid);
+        return $blog->userRole;
     }
 
-    public function BlogJoin($blogid){
+    public function BlogJoinToJSON($blogid){
+        $res = $this->BlogJoinLeaveUpdate($blogid, true);
+        return $this->ResultToJSON('blogJoin', $res);
+    }
 
+    public function BlogLeaveToJSON($blogid){
+        $res = $this->BlogJoinLeaveUpdate($blogid, false);
+        return $this->ResultToJSON('blogL', $res);
     }
 
 

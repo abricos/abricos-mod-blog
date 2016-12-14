@@ -38,6 +38,14 @@ Component.entryPoint = function(NS){
                 attribute: true,
                 type: "modelList:BlogList"
             },
+            blogJoin: {
+                args: ['blogid'],
+                type: "model:BlogUserRole"
+            },
+            blogLeave: {
+                args: ['blogid'],
+                type: "model:BlogUserRole"
+            },
             config: {
                 attribute: true,
                 type: 'model:Config'

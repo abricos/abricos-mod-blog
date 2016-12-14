@@ -59,7 +59,8 @@ Component.entryPoint = function(NS){
             this.set('waiting', false);
 
             var tp = this.template,
-                blog = this.get('blog');
+                blog = this.get('blog'),
+                userRole = blog.get('userRole');
 
             tp.setHTML({
                 title: blog.get('title'),
@@ -68,17 +69,20 @@ Component.entryPoint = function(NS){
             });
 
             tp.toggleView(Brick.env.user.id > 0, 'subscribeButtons');
-            tp.toggleView(blog.isMember, 'unsubscribeButton', 'subscribeButton');
+            tp.toggleView(!userRole.get('isMember'), 'blogJoinButton', 'blogLeaveButton');
         },
-        subscribe: function(){
-            this.set('waiting', true);
-
-            var instance = this;
-            NS.manager.blogJoin(this.get('blog').id, function(){
-                instance.set('waiting', false);
-                instance.renderBlog(instance.get('blog'));
-            });
-        }
+        blogJoin: function(){
+            var blog = this.get('blog');
+            blog.get('userRole').set('isMember', true);
+            this.get('appInstance').blogJoin(blog.get('id'));
+            this.renderBlog();
+        },
+        blogLeave: function(){
+            var blog = this.get('blog');
+            blog.get('userRole').set('isMember', false);
+            this.get('appInstance').blogLeave(blog.get('id'));
+            this.renderBlog();
+        },
     }, {
         ATTRS: {
             component: {value: COMPONENT},
