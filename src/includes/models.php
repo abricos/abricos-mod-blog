@@ -68,7 +68,7 @@ interface BlogSaveVars {
  * Class BlogSave
  *
  * @property BlogSaveVars $vars
- * @property Blog $blog
+ * @property int $blogid
  */
 class BlogSave extends AbricosResponse {
     const CODE_OK = 1;

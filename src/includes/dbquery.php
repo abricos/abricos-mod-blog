@@ -34,6 +34,50 @@ class BlogQuery {
         return $db->query_read($sql);
     }
 
+    /**
+     * @param Ab_Database $db
+     * @param BlogSave $blogSave
+     * @return int
+     */
+    public static function BlogAppend(Ab_Database $db, $blogSave){
+        $vars = $blogSave->vars;
+        $sql = "
+			INSERT INTO ".$db->prefix."blog
+			(userid, blogType, title, slug, descript, newTopicUserRep, dateline, upddate) VALUES (
+				".bkint(Abricos::$user->id).",
+				'".bkstr($vars->type)."',
+				'".bkstr($vars->title)."',
+				'".bkstr($vars->slug)."',
+				'".bkstr($vars->descript)."',
+				".bkint($vars->newTopicUserRep).",
+				".TIMENOW.",
+				".TIMENOW."
+			)
+		";
+        $db->query_write($sql);
+        return $db->insert_id();
+    }
+
+    /**
+     * @param Ab_Database $db
+     * @param BlogSave $blogSave
+     */
+    public static function BlogUpdate(Ab_Database $db, $blogSave){
+        $vars = $blogSave->vars;
+        $sql = "
+			UPDATE ".$db->prefix."blog
+			SET
+			    title='".bkstr($vars->title)."', 
+			    slug='".bkstr($vars->slug)."',
+			    descript='".bkstr($vars->descript)."', 
+			    newTopicUserRep=".bkint($vars->newTopicUserRep).", 
+			    upddate=".intval(TIMENOW)."
+			WHERE blogid=".bkint($vars->blogid)."
+			LIMIT 1
+		";
+        $db->query_write($sql);
+    }
+
     public static function BlogUserRole(Ab_Database $db, $blogid, $userid = 0){
         if ($userid === 0){
             $userid = Abricos::$user->id;
@@ -102,4 +146,23 @@ class BlogQuery {
         ";
         $db->query_write($sql);
     }
+
+    public static function BlogMemberCountUpdate(Ab_Database $db, $blogid = 0){
+        $sql = "
+			UPDATE ".$db->prefix."blog b
+			SET b.memberCount = IFNULL((
+				SELECT count(*)
+				FROM ".$db->prefix."blog_userRole ur
+				WHERE b.blogid=ur.blogid AND ur.isMember
+				GROUP BY ur.blogid
+			), 0)
+		";
+        if ($blogid > 0){
+            $sql .= "
+				WHERE b.blogid=".bkint($blogid)."
+			";
+        }
+        $db->query_write($sql);
+    }
+
 }

@@ -14,59 +14,72 @@ Component.entryPoint = function(NS){
     var R = NS.roles,
         LNG = this.language;
 
-    NS.CategoryEditorWidget = Y.Base.create('CategoryEditorWidget', SYS.AppWidget, [
+    NS.BlogEditorWidget = Y.Base.create('BlogEditorWidget', SYS.AppWidget, [
         SYS.ContainerWidgetExt,
         SYS.WidgetEditorStatus
     ], {
+        buildTData: function(){
+            return {
+                id: this.get('blogid')
+            }
+        },
         onInitAppWidget: function(err, appInstance){
             this.set('waiting', true);
 
-            var catid = this.get('catid'),
-                instance = this;
+            var tp = this.template,
+                blogid = this.get('blogid');
 
-            NS.initManager(function(){
-                if (catid == 0){
-                    instance.onLoadManager(new NS.Category());
-                } else {
-                    var cat = NS.manager.categoryList.get(catid);
-                    instance.onLoadManager(cat);
-                }
-            });
+            if (blogid > 0){
+                appInstance.blog(blogid, function(err, result){
+                    if (err){
+                        return tp.show('notFoundBlock');
+                    }
+                    this.set('blog', result.blog);
+                    this._onLoadBlog();
+                }, this);
+            } else {
+                appInstance.appStructure(function(){
+                    this.set('blog', new NS.Blog({
+                        appInstance: appInstance
+                    }));
+                    this._onLoadBlog();
+                }, this);
+            }
         },
-        onLoadManager: function(cat){
-            this.set('cat', cat);
+        _onLoadBlog: function(){
             this.set('waiting', false);
 
-            var tp = this.template;
+            var tp = this.template,
+                blog = this.get('blog');
 
             this.addWidget('descriptEditor', new SYS.Editor({
                 srcNode: tp.one('descript'),
-                content: cat.descript
+                content: blog.get('descript')
             }));
 
             tp.setValue({
-                title: cat.title,
-                name: cat.name,
-                rep: cat.reputation
+                title: blog.get('title'),
+                slug: blog.get('slug'),
+                newTopicUserRep: blog.get('newTopicUserRep')
             });
 
-            tp.toggleView(Brick.mod.urating, 'repblock');
-            tp.toggleView(R.isAdmin, 'nameBlock');
+            tp.toggleView(Brick.mod.urating, 'newTopicUserRepBlock');
+            tp.toggleView(R.isAdmin, 'slugBlock');
         },
         toJSON: function(){
             var tp = this.template;
             return {
-                id: this.get('cat').id,
-                tl: tp.getValue('title'),
-                'nm': tp.getValue('name'),
-                'dsc': this.getWidget('descriptEditor').get('content'),
-                'rep': tp.getValue('rep')
+                blogid: this.get('blogid'),
+                title: tp.getValue('title'),
+                slug: tp.getValue('slug'),
+                descript: this.getWidget('descriptEditor').get('content'),
+                newTopicUserRep: tp.getValue('newTopicUserRep')
             };
         },
         cancel: function(){
-            var catid = this.get('catid');
-            if (catid > 0){
-                this.go('category.view', catid);
+            var blogid = this.get('blogid');
+            if (blogid > 0){
+                this.go('category.view', blogid);
             } else {
                 this.go('ws');
             }
@@ -74,36 +87,30 @@ Component.entryPoint = function(NS){
         save: function(){
             this.set('waiting', true);
 
-            var instance = this,
-                sd = this.toJSON();
+            var data = this.toJSON();
 
-            NS.manager.categorySave(sd, function(catid, error){
-                instance.set('waiting', false);
-
-                if (error > 0 || catid == 0){
-                    error = error > 0 ? error : 'null';
-                    var sError = LNG.get('write.category.error.' + error);
-                    Brick.mod.widget.notice.show(sError);
-                } else {
-                    instance.go('category.view', catid);
+            this.get('appInstance').blogSave(data, function(err, result){
+                if (err){
+                    return;
                 }
-            });
+                this.go('blog.view', result.blogSave.blogid);
+            }, this);
         }
     }, {
         ATTRS: {
             component: {value: COMPONENT},
             templateBlockName: {value: 'widget'},
-            catid: {value: 0},
-            cat: {},
+            blogid: NS.ATTRIBUTE.number,
+            blog: {value: null},
             isEdit: {
                 getter: function(){
-                    return (this.get('catid') | 0) > 0;
+                    return this.get('blogid') > 0;
                 }
             }
         },
         parseURLParam: function(args){
             return {
-                catid: args[0] | 0
+                blogid: args[0] | 0
             }
         }
     });

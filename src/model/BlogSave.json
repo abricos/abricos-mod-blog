@@ -30,6 +30,9 @@
     "EMPTY_TITLE": 2
   },
   "fields": {
+    "blogid": {
+      "type": "int"
+    },
     "blog": {
       "type": "model:Blog"
     }

@@ -189,6 +189,53 @@ class BlogApp extends AbricosApplication {
         return $list;
     }
 
+    public function BlogSaveToJSON($d){
+        $res = $this->BlogSave($d);
+        if (AbricosResponse::IsError($res)){
+            return $res;
+        }
+        return $this->ImplodeJSON(array(
+            $this->ResultToJSON('blogSave', $res),
+            $this->BlogToJSON($res->blogid)
+        ));
+    }
+
+    /**
+     * @param mixed $d
+     * @return BlogSave
+     */
+    public function BlogSave($d){
+        /** @var BlogSave $ret */
+        $ret = $this->InstanceClass('BlogSave', $d);
+        if (!$this->IsAdminRole()){
+            return $ret->SetError(AbricosResponse::ERR_FORBIDDEN);
+        }
+
+        $vars = $ret->vars;
+        if (empty($vars->title)){
+            return $ret->SetError(
+                AbricosResponse::ERR_BAD_REQUEST,
+                BlogSave::CODE_EMPTY_TITLE
+            );
+        }
+
+        $vars->type = 'public';
+
+        if (empty($vars->slug)){
+            $vars->slug = translateruen($vars->title);
+        }
+
+        if ($vars->blogid === 0){
+            $ret->blogid = BlogQuery::BlogAppend($this->db, $ret);
+
+            $this->BlogJoinLeaveUpdate($ret->blogid, $ret->blogid);
+        } else {
+            BlogQuery::BlogUpdate($this->db, $ret);
+        }
+        $this->CacheClear();
+        return $ret;
+    }
+
     /*********************************************************/
     /*                      Blog Subscribe                   */
     /*********************************************************/
@@ -212,11 +259,18 @@ class BlogApp extends AbricosApplication {
         $userRole->isMember = $isJoin;
 
         BlogQuery::BlogJoinLeaveUpdate($this->db, $userRole);
+        BlogQuery::BlogMemberCountUpdate($this->db, $blogid);
 
         $this->CacheClear();
 
         $blog = $this->Blog($blogid);
-        return $blog->userRole;
+
+        $ret = new stdClass();
+        $ret->blogid = $blogid;
+        $ret->isMember = $isJoin;
+        $ret->memberCount = $blog->memberCount;
+
+        return $ret;
     }
 
     public function BlogJoinToJSON($blogid){
@@ -226,7 +280,7 @@ class BlogApp extends AbricosApplication {
 
     public function BlogLeaveToJSON($blogid){
         $res = $this->BlogJoinLeaveUpdate($blogid, false);
-        return $this->ResultToJSON('blogL', $res);
+        return $this->ResultToJSON('blogLeave', $res);
     }
 
 

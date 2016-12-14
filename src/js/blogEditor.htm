@@ -1,5 +1,5 @@
 <!--{widget}-->
-<div class="categoryEditor panel panel-default">
+<div class="blogEditor panel panel-default">
     <div class="panel-heading text-center">
         <h3 class="panel-title pull-left">
             <span data-isedit="hide">Создание блога</span>
@@ -23,12 +23,12 @@
                     </div>
                 </div>
             </div>
-            <div id="{i#nameBlock}" class="form-group">
+            <div id="{i#slugBlock}" class="form-group">
                 <label class="col-sm-2 control-label">
-                    Имя
+                    Имя (slug)
                 </label>
                 <div class="col-sm-10">
-                    <input id="{i#name}" type="text" class="form-control"/>
+                    <input id="{i#slug}" type="text" class="form-control"/>
                     <div class="help-block">
                         Имя используется в формировании URL (допустимы символы [a-z],[0-9],[_-])
                     </div>
@@ -43,13 +43,13 @@
             <div id="{i#descript}" data-rows="8"></div>
         </div>
 
-        <div id="{i#repblock}" class="form-horizontal hide">
+        <div id="{i#newTopicUserRepBlock}" class="form-horizontal hide">
             <div class="form-group">
                 <label class="col-sm-4 control-label">
                     Ограничение по репутации
                 </label>
                 <div class="col-sm-8">
-                    <input id="{i#rep}" type="text" class="form-control"/>
+                    <input id="{i#newTopicUserRep}" type="text" class="form-control"/>
                     <div class="help-block">
                         Необходимое количество репутации, чтобы написать в этот блог
                     </div>

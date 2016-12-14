@@ -71,17 +71,26 @@ Component.entryPoint = function(NS){
             tp.toggleView(Brick.env.user.id > 0, 'subscribeButtons');
             tp.toggleView(!userRole.get('isMember'), 'blogJoinButton', 'blogLeaveButton');
         },
+        _onBlogJoinLeave: function(err, result){
+            if (err){
+                return;
+            }
+            var r = result.blogJoin || result.blogLeave,
+                blog = this.get('blog');
+
+            blog.set('memberCount', r.memberCount);
+
+            this.renderBlog();
+        },
         blogJoin: function(){
             var blog = this.get('blog');
             blog.get('userRole').set('isMember', true);
-            this.get('appInstance').blogJoin(blog.get('id'));
-            this.renderBlog();
+            this.get('appInstance').blogJoin(blog.get('id'), this._onBlogJoinLeave, this);
         },
         blogLeave: function(){
             var blog = this.get('blog');
             blog.get('userRole').set('isMember', false);
-            this.get('appInstance').blogLeave(blog.get('id'));
-            this.renderBlog();
+            this.get('appInstance').blogLeave(blog.get('id'), this._onBlogJoinLeave, this);
         },
     }, {
         ATTRS: {

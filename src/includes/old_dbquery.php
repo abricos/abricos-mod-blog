@@ -517,41 +517,6 @@ class BlogTopicQuery {
         return $db->query_first($sql);
     }
 
-    public static function CategoryAppend(Ab_Database $db, $userid, $d){
-        $sql = "
-			INSERT INTO ".$db->prefix."bg_cat
-			(userid, domain, language, title, name, descript, isprivate, reputation, dateline, upddate) VALUES (
-				".bkint($userid).",
-				'".bkstr(Abricos::$DOMAIN)."',
-				'".bkstr(Abricos::$LNG)."',
-				'".bkstr($d->tl)."',
-				'".bkstr($d->nm)."',
-				'".bkstr($d->dsc)."',
-				".($d->prv > 0 ? 1 : 0).",
-				".bkint($d->rep).",
-				".TIMENOW.",
-				".TIMENOW."
-			)
-		";
-        $db->query_write($sql);
-        return $db->insert_id();
-    }
-
-    public static function CategoryUpdate(Ab_Database $db, $catid, $d){
-        $sql = "
-			UPDATE ".$db->prefix."bg_cat
-			SET 
-				title='".bkstr($d->tl)."',
-				name='".bkstr($d->nm)."',
-				descript='".bkstr($d->dsc)."',
-				isprivate=".($d->prv > 0 ? 1 : 0).",
-				reputation=".bkint($d->rep).",
-				upddate=".TIMENOW."
-			WHERE catid=".bkint($catid)."
-			LIMIT 1
-		";
-        $db->query_write($sql);
-    }
 
     public static function CategoryTopicCountUpdate(Ab_Database $db, $catid = 0){
         $sql = "
