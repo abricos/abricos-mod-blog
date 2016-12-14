@@ -1,0 +1,60 @@
+{
+  "version": "0.1.0",
+  "fields": {
+    "id": {
+      "type": "int",
+      "dbField": "topicid"
+    },
+    "blogid": {
+      "type": "int"
+    },
+    "userid": {
+      "type": "int"
+    },
+    "title": {
+      "type": "string"
+    },
+    "intro": {
+      "type": "string"
+    },
+    "body": {
+      "type": "string"
+    },
+    "metaDesc": {
+      "type": "string"
+    },
+    "metaKeys": {
+      "type": "string"
+    },
+    "isDraft": {
+      "type": "bool"
+    },
+    "isIndex": {
+      "type": "bool"
+    },
+    "autoIndex": {
+      "type": "bool"
+    },
+    "pubdate": {
+      "type": "date"
+    },
+    "views": {
+      "type": "int"
+    },
+    "deliveryUserId": {
+      "rolefn": "IsAdminRole",
+      "type": "int"
+    },
+    "deliveryCompleted": {
+      "rolefn": "IsAdminRole",
+      "type": "bool"
+    },
+    "dateline": {
+      "type": "int"
+    },
+    "upddate": {
+      "rolefn": "IsAdminRole",
+      "type": "date"
+    }
+  }
+}

@@ -54,6 +54,7 @@ if ($updateManager->isUpdate('0.6.0')){
 			blogid INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT '',
 			userid INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT '',
 			
+            title VARCHAR(250) NOT NULL DEFAULT '' COMMENT 'Заголовок',
 			intro TEXT NOT NULL,
             body TEXT NOT NULL COMMENT 'Запись топика',
             
@@ -63,6 +64,7 @@ if ($updateManager->isUpdate('0.6.0')){
 			isDraft TINYINT(1) NOT NULL DEFAULT 0 COMMENT '1 - черновик',
 			isIndex TINYINT(1) NOT NULL DEFAULT 0 COMMENT '1 - топик был выведен на главную',
 			autoIndex TINYINT(1) NOT NULL DEFAULT 0 COMMENT '1 - принудительно вывести на главную',
+			pubdate INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Дата публикации',
 
 			views INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Кол-во просмотров',
             
@@ -71,7 +73,6 @@ if ($updateManager->isUpdate('0.6.0')){
 
 			dateline INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Дата создания',
 			upddate INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Дата обновления',
-			pubdate INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Дата публикации',
 			deldate INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Дата удаления',
 			
 			PRIMARY KEY (topicid),
@@ -162,13 +163,13 @@ if ($updateManager->isUpdate('0.6.0') && !$updateManager->isInstall()){
 
     $db->query_write("
 		INSERT INTO ".$pfx."blog_topic (
-		    topicid, blogid, userid, intro, body, metaDesc, metaKeys, 
+		    topicid, blogid, userid, title, intro, body, metaDesc, metaKeys, 
 		    isDraft, isIndex, autoIndex, 
 		    views, deliveryUserId, deliveryCompleted,
             dateline, upddate, pubdate, deldate
 		)
 		SELECT 
-		    topicid, catid, userid, intro, body, metadesc, metakeys,
+		    topicid, catid, userid, title, intro, body, metadesc, metakeys,
 		    isdraft, isindex, autoindex, 
             viewcount, scblastuserid, scbcomplete,
             dateline, upddate, pubdate, deldate

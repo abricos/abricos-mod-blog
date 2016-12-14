@@ -2,27 +2,29 @@
   "type": "response",
   "version": "0.1.0",
   "vars": {
-    "blogid": {
+    "topicid": {
       "type": "int"
     },
-    "type": {
-      "type": "string",
-      "parse": "full"
+    "blogid": {
+      "type": "int"
     },
     "title": {
       "type": "string",
       "parse": "full"
     },
-    "slug": {
-      "type": "string",
-      "parse": "full"
-    },
-    "descript": {
+    "intro": {
       "type": "string",
       "parse": "standard"
     },
-    "newTopicUserRep": {
-      "type": "int"
+    "body": {
+      "type": "string",
+      "parse": "standard"
+    },
+    "isDraft": {
+      "type": "bool"
+    },
+    "autoIndex": {
+      "type": "bool"
     }
   },
   "codes": {
@@ -30,7 +32,7 @@
     "EMPTY_TITLE": 2
   },
   "fields": {
-    "blogid": {
+    "topicid": {
       "type": "int"
     }
   }
