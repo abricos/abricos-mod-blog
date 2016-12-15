@@ -15,31 +15,6 @@
  */
 class BlogTopicQuery {
 
-    public static function DomainFilterSQLExt(){
-        /** @var BlogConfig $config */
-        $config = Abricos::GetModule('blog')->GetManager()->GetApp()->Config();
-
-        $cfgDF = $config->domainFilter;
-        if (!empty($cfgDF)){
-            $arr = explode(",", $cfgDF);
-            $ca = array();
-            $ta = array();
-
-            for ($i = 0; $i < count($arr); $i++){
-                array_push($ca, "cat.domain='".trim($arr[$i])."'");
-                array_push($ta, "t.domain='".trim($arr[$i])."'");
-            }
-
-            if (count($ta) > 0){
-                return array(
-                    "cat" => $ca,
-                    "t" => $ta
-                );
-            }
-        }
-        return null;
-    }
-
     private static function TopicFields(Ab_Database $db){
         return "
 			t.topicid as id,
@@ -111,95 +86,12 @@ class BlogTopicQuery {
 			FROM ".$db->prefix."bg_topic t
 			LEFT JOIN ".$db->prefix."bg_cat cat ON t.catid = cat.catid
 			INNER JOIN ".$db->prefix."user u ON t.userid = u.userid
-			WHERE t.topicid = ".bkint($topicid)." AND t.deldate=0 AND (cat.deldate=0 OR t.catid=0)
+			WHERE t.topicid = ".bkint($topicid)." AND t.deldate=0 
+			    AND (cat.deldate=0 OR t.catid=0)
 				AND (t.isdraft=0 OR (t.isdraft=1 AND t.userid=".bkint($userid)."))
 			LIMIT 1
 		";
         return $db->query_first($sql);
-    }
-
-    public static function TopicList(Ab_Database $db, $page = 1, $limit = 10, $fType = 'index', $fPrm = '', $isCount = false){
-        $from = $limit * (max($page, 1) - 1);
-
-        $newPeriod = TIMENOW - 60 * 60 * 24;
-        $innerTable = "";
-
-        $filterRating = "";
-
-        $filter = '';
-        if ($fType == "index"){ // главная
-            if ($fPrm == "new"){
-                $filter = " AND t.pubdate>".$newPeriod;
-                $filterRating = "";
-            }
-        } else if ($fType == 'pub'){        // коллективные
-            $filter = " AND t.catid>0";
-            if ($fPrm == 'new'){
-                $filter .= " AND t.pubdate>".$newPeriod;
-                $filterRating = "";
-            }
-        } else if ($fType == 'pers'){        // персональные
-            $filter = " AND t.catid=0";
-            if ($fPrm == 'new'){
-                $filter .= " AND t.pubdate>".$newPeriod;
-                $filterRating = "";
-            }
-        } else if ($fType == 'cat'){
-            $fa = explode("/", $fPrm);
-            $filter = " AND t.catid=".bkint($fa[0]);
-
-            if (isset($fa[1]) && $fa[1] == 'new'){
-                $filter .= " AND t.pubdate>".$newPeriod;
-                $filterRating = "";
-            }
-
-        } else if ($fType == 'tag'){
-            $innerTable .= "
-				INNER JOIN ".$db->prefix."bg_toptag tt ON t.topicid=tt.topicid 
-				INNER JOIN ".$db->prefix."bg_tag tg ON tg.tagid=tt.tagid
-			";
-            $filter = " AND tg.title='".bkstr($fPrm)."'";
-        }
-        $filter .= $filterRating;
-
-        $fld = "
-			".BlogTopicQuery::TopicFields($db)."
-		";
-        $limit = "LIMIT ".$from.",".bkint($limit)."";
-
-        if ($isCount){
-            $fld = "count(t.topicid) as cnt";
-            $limit = "LIMIT 1";
-        }
-
-        $dmfilter = "AND (cat.deldate=0 OR t.catid=0)";
-        $dmfa = BlogTopicQuery::DomainFilterSQLExt();
-        if (!empty($dmfa)){
-            $dmfilter = " AND (
-				(cat.deldate=0 AND (".implode(" OR ", $dmfa['cat']).")) 
-				OR 
-				(t.catid=0 AND (".implode(" OR ", $dmfa['t'])."))
-			)";
-        }
-
-        $sql = "
-			SELECT ".$fld."
-			FROM ".$db->prefix."bg_topic t
-			LEFT JOIN ".$db->prefix."bg_cat cat ON t.catid = cat.catid
-			INNER JOIN ".$db->prefix."user u ON t.userid = u.userid
-			".$innerTable."
-			WHERE t.deldate=0 AND t.isdraft=0 AND t.language='".bkstr(Abricos::$LNG)."'
-				".$dmfilter."
-				".$filter."
-			ORDER BY t.pubdate DESC
-			".$limit."
-		";
-
-        if ($isCount){
-            $row = $db->query_first($sql);
-            return intval($row['cnt']);
-        }
-        return $db->query_read($sql);
     }
 
     /**
@@ -678,7 +570,6 @@ class BlogTopicQuery {
 
     public static function CommentLiveList(Ab_Database $db, $page, $limit){
         $dmfilter = "";
-        $dmfa = BlogTopicQuery::DomainFilterSQLExt();
         if (!empty($dmfa)){
             $dmfilter = " AND (".implode(" OR ", $dmfa['cat']).")";
         }

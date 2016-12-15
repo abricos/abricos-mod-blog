@@ -16,7 +16,7 @@ class BlogQuery {
 
     public static function Blog(Ab_Database $db, $blogid){
         $sql = "
-			SELECT *
+			SELECT *, 0 as isEasyData
 			FROM ".$db->prefix."blog
 			WHERE blogid=".intval($blogid)." AND deldate=0
 			LIMIT 1
@@ -26,7 +26,15 @@ class BlogQuery {
 
     public static function BlogList(Ab_Database $db){
         $sql = "
-			SELECT *
+			SELECT 
+			    blogid,
+			    userid,
+			    blogType,
+			    title,
+			    slug,
+			    topicCount,
+			    memberCount,
+			    1 as isEasyData
 			FROM ".$db->prefix."blog
 			WHERE deldate=0
 			ORDER BY topicCount DESC
@@ -164,5 +172,128 @@ class BlogQuery {
         }
         $db->query_write($sql);
     }
+
+    /*********************************************************/
+    /*                         Topic                         */
+    /*********************************************************/
+
+    public static function Topic(Ab_Database $db, $topicid){
+        $sql = "
+			SELECT t.*
+			FROM ".$db->prefix."blog_topic t
+			INNER JOIN ".$db->prefix."blog b ON b.blogid=t.blogid AND b.deldate=0
+			WHERE t.topicid=".intval($topicid)." AND t.deldate=0
+                AND (
+                    t.isDraft=0
+                    OR (t.isDraft=1 AND t.userid=".intval(Abricos::$user->id).")
+                )
+			LIMIT 1
+		";
+        return $db->query_first($sql);
+    }
+
+    public static function TopicList(Ab_Database $db, BlogTopicListOptions $options, $isCount = false){
+        $vars = $options->vars;
+        $newPeriod = TIMENOW - 60 * 60 * 24;
+
+        $innerTable = "";
+        $where = '';
+        switch ($vars->type){
+            case 'index':
+                break;
+            case 'public':
+                $where = " AND b.blogType='public'";
+                break;
+            case 'personal':
+                $where = " AND b.blogType='personal'";
+                break;
+        }
+        if ($vars->blogid > 0){
+            $where .= " AND t.blogid=".intval($vars->blogid);
+        }
+        if ($vars->userid > 0){
+            $where .= " AND t.userid=".intval($vars->userid);
+        }
+        if (!empty($vars->tag)){
+            $innerTable .= "
+                INNER JOIN ".$db->prefix."blog_tagInTopic tt ON t.topicid=tt.topicid 
+                INNER JOIN ".$db->prefix."blog_tag tg ON tg.tagid=tt.tagid
+            ";
+            $where = " AND tg.title='".bkstr($vars->tag)."'";
+        }
+        if ($vars->onlyNew){
+            $where .= " AND t.pubdate>".$newPeriod;
+        }
+
+        $from = $vars->limit * ($vars->page - 1);
+        $limit = "LIMIT ".$from.",".bkint($vars->limit)."";
+
+        $fields = "t.*";
+        if ($isCount){
+            $fields = "count(t.topicid) as cnt";
+            $limit = "LIMIT 1";
+        }
+
+        $sql = "
+			SELECT ".$fields."
+			FROM ".$db->prefix."blog_topic t
+			INNER JOIN ".$db->prefix."blog b ON b.blogid=t.blogid AND b.deldate=0
+			".$innerTable."
+			WHERE t.deldate=0 AND t.isDraft=0
+			    ".$where."
+			ORDER BY t.pubdate DESC
+			".$limit."
+		";
+
+        if ($isCount){
+            $row = $db->query_first($sql);
+            return intval($row['topicCount']);
+        }
+
+        return $db->query_read($sql);
+    }
+
+    public static function TagInTopicList(Ab_Database $db, $topicids){
+        $count = count($topicids);
+        if ($count === 0){
+            return null;
+        }
+        $wha = array();
+        for ($i = 0; $i < $count; $i++){
+            $wha[] = "topicid=".bkint($topicids[$i]);
+        }
+
+        $sql = "
+			SELECT *
+			FROM ".$db->prefix."blog_tagInTopic
+			WHERE ".implode(" OR ", $wha)."
+			ORDER BY topicid
+		";
+        return $db->query_read($sql);
+    }
+
+    public static function TagList(Ab_Database $db, $topicids){
+        if (is_integer($topicids)){
+            $topicids = array($topicids);
+        }
+        $count = count($topicids);
+        if ($count === 0){
+            return null;
+        }
+        $wha = array();
+        for ($i = 0; $i < $count; $i++){
+            $wha[] = "ti.topicid=".bkint($topicids[$i]);
+        }
+
+        $sql = "
+			SELECT DISTINCT t.*
+			FROM ".$db->prefix."blog_tagInTopic ti
+			INNER JOIN ".$db->prefix."blog_tag t ON t.tagid=ti.tagid
+			WHERE ".implode(" OR ", $wha)."
+			ORDER BY topicid
+		";
+        return $db->query_read($sql);
+    }
+
 
 }

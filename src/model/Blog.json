@@ -45,6 +45,9 @@
     "upddate": {
       "rolefn": "IsAdminRole",
       "type": "date"
+    },
+    "isEasyData": {
+      "type": "bool"
     }
   }
 }

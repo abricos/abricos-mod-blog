@@ -32,6 +32,14 @@ Component.entryPoint = function(NS){
         appItem: NS.BlogUserRole
     });
 
+    NS.Topic = Y.Base.create('topic', SYS.AppModel, [], {
+        structureName: 'Topic'
+    });
+
+    NS.TopicList = Y.Base.create('topicList', SYS.AppModelList, [], {
+        appItem: NS.Topic
+    });
+
     NS.Config = Y.Base.create('config', SYS.AppModel, [], {
         structureName: 'Config'
     });

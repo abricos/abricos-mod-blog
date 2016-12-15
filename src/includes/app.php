@@ -21,12 +21,20 @@ class BlogApp extends AbricosApplication {
             'BlogSave' => 'BlogSave',
             'BlogUserRole' => 'BlogUserRole',
             'BlogUserRoleList' => 'BlogUserRoleList',
+            'Topic' => 'BlogTopic',
+            'TopicList' => 'BlogTopicList',
+            'TopicSave' => 'BlogTopicSave',
+            'TopicListOptions' => 'BlogTopicListOptions',
+            'Tag' => 'BlogTag',
+            'TagList' => 'BlogTagList',
+            'TagInTopic' => 'BlogTagInTopic',
+            'TagInTopicList' => 'BlogTagInTopicList',
             'Config' => 'BlogConfig',
         );
     }
 
     protected function GetStructures(){
-        return 'Blog,BlogUserRole,Config';
+        return 'Blog,BlogUserRole,Topic,Tag,TagInTopicConfig';
     }
 
     public function ResponseToJSON($d){
@@ -43,6 +51,13 @@ class BlogApp extends AbricosApplication {
             case "blogLeave":
                 return $this->BlogLeaveToJSON($d->blogid);
 
+            case "topic":
+                return $this->TopicToJSON($d->topicid);
+            case "topicList":
+                return $this->TopicListToJSON($d->options);
+            case "topicSave":
+                return $this->TopicSaveToJSON($d->data);
+
             case "config":
                 return $this->ConfigToJSON();
             case "configSave":
@@ -50,8 +65,6 @@ class BlogApp extends AbricosApplication {
 
             //////////////// old functions /////////////
 
-            case "topic":
-                return $this->TopicToAJAX($d->topicid);
             case "topicpreview":
                 return $this->TopicPreview($d->savedata);
             case "topicsave":
@@ -91,6 +104,30 @@ class BlogApp extends AbricosApplication {
     }
 
     /*********************************************************/
+    /*                      Attributes                       */
+    /*********************************************************/
+
+    public function AttributeGetter($model, $attrName){
+        if ($attrName === 'user'){
+            $userid = $model->userid;
+
+            if ($this->CacheExists('User', $userid)){
+                return $this->Cache('User', $userid);
+            }
+
+            /** @var UProfileApp $uprofileApp */
+            $uprofileApp = Abricos::GetApp('uprofile');
+
+            $user = $uprofileApp->User($userid);
+            $this->SetCache('User', $userid, $user);
+            return $user;
+        } else if ($attrName === 'blog'){
+            return $this->BlogList()->Get($model->blogid);
+        }
+    }
+
+
+    /*********************************************************/
     /*                          Blog                         */
     /*********************************************************/
 
@@ -101,31 +138,24 @@ class BlogApp extends AbricosApplication {
 
     public function Blog($blogid){
         $blogid = intval($blogid);
-        if ($this->CacheExists('Blog', $blogid)){
-            return $this->Cache('Blog', $blogid);
-        }
-        if (!$this->IsViewRole()){
-            return AbricosResponse::ERR_FORBIDDEN;
+
+        $blogList = $this->BlogList();
+        if (AbricosResponse::IsError($blogList)){
+            return $blogList;
         }
 
-        $d = BlogQuery::Blog($this->db, $blogid);
-        if (empty($d)){
+        $blog = $blogList->Get($blogid);
+        if (empty($blog)){
             return AbricosResponse::ERR_NOT_FOUND;
         }
 
-        /** @var Blog $blog */
-        $blog = $this->InstanceClass('Blog', $d);
-
-        $urData = BlogQuery::BlogUserRole($this->db, $blogid);
-        $blog->userRole = $this->InstanceClass('BlogUserRole', $urData);
-
-        /** @var URatingApp $uratingApp */
-        $uratingApp = Abricos::GetApp('urating');
-        if (!empty($uratingApp)){
-            $blog->voting = $uratingApp->Voting('blog', 'blog', $blogid);
+        if (!$blog->isEasyData){
+            return $blog;
         }
 
-        $this->SetCache('Blog', $blogid, $blog);
+        $d = BlogQuery::Blog($this->db, $blogid);
+        $blog->Update($d);
+
         return $blog;
     }
 
@@ -153,7 +183,7 @@ class BlogApp extends AbricosApplication {
         $blogids = $list->ToArray('id');
 
         /** @var BlogUserRoleList $userRoleList */
-        $userRoleList = $this->InstanceClass('UserRoleList');
+        $userRoleList = $this->InstanceClass('BlogUserRoleList');
         $rows = BlogQuery::BlogUserRoleList($this->db, $blogids);
         while (($d = $this->db->fetch_array($rows))){
             $userRoleList->Add($this->InstanceClass('BlogUserRole', $d));
@@ -283,6 +313,124 @@ class BlogApp extends AbricosApplication {
         return $this->ResultToJSON('blogLeave', $res);
     }
 
+    /*********************************************************/
+    /*                         Topic                         */
+    /*********************************************************/
+
+    public function TopicToJSON($topicid){
+        $res = $this->Topic($topicid);
+        return $this->ResultToJSON('topic', $res);
+    }
+
+    public function Topic($topicid){
+        if (!$this->IsViewRole()){
+            return AbricosResponse::ERR_FORBIDDEN;
+        }
+
+        $d = BlogQuery::Topic($this->db, $topicid);
+        if (empty($d)){
+            return AbricosResponse::ERR_NOT_FOUND;
+        }
+        /** @var BlogTopic $topic */
+        $topic = $this->InstanceClass('Topic', $d);
+
+
+        /** @var CommentApp $commentApp */
+        $commentApp = Abricos::GetApp('comment');
+
+        $topic->commentStatistic = $commentApp->Statistic(BlogTopic::GetCommentOwner($topicid));
+
+        /** @var URatingApp $uratingApp */
+        $uratingApp = Abricos::GetApp('urating');
+        if (!empty($uratingApp)){
+            $topic->voting = $uratingApp->Voting('blog', 'topic', $topicid);
+            $topic->voting->ownerDate = intval($topic->pubdate);
+            $topic->voting->userid = intval($topic->userid);
+        }
+
+        $tagList = $this->InstanceClass('TagList');
+        $rows = BlogQuery::TagList($this->db, $topic->id);
+        while (($d = $this->db->fetch_array($rows))){
+            $tagList->Add($this->InstanceClass('Tag', $d));
+        }
+        $topic->tagList = $tagList;
+
+        return $topic;
+    }
+
+    public function TopicListToJSON($options){
+        $res = $this->TopicList($options);
+        return $this->ResultToJSON('topicList', $res);
+    }
+
+    public function TopicList($optionsData){
+        if (!$this->IsViewRole()){
+            return AbricosResponse::ERR_FORBIDDEN;
+        }
+
+        /** @var BlogTopicListOptions $options */
+        $options = $this->InstanceClass('TopicListOptions', $optionsData);
+        $vars = $options->vars;
+        $vars->limit = min(max($vars->limit, 1), 100);
+        $vars->page = max($vars->page, 1);
+
+        /** @var BlogTopicList $list */
+        $list = $this->InstanceClass('TopicList');
+        $rows = BlogQuery::TopicList($this->db, $options);
+        while (($d = $this->db->fetch_array($rows))){
+            $list->Add($this->InstanceClass('Topic', $d));
+        }
+
+        $topicids = $list->ToArray('id');
+        $userids = $list->ToArray('userid');
+
+        /** @var UProfileApp $uprofileApp */
+        $uprofileApp = Abricos::GetApp('uprofile');
+        $uprofileApp->UserListByIds($userids);
+
+        /** @var URatingApp $uratingApp */
+        $uratingApp = Abricos::GetApp('urating');
+        $votingList = null;
+        if (!empty($uratingApp)){
+            $votingList = $uratingApp->VotingList('blog', 'topic', $topicids);
+        }
+
+        $count = $list->Count();
+        for ($i = 0; $i < $count; $i++){
+            $topic = $list->GetByIndex($i);
+
+            // $topic->user = $userList->Get($topic->userid);
+
+            if (!empty($votingList)){
+                $topic->voting = $votingList->GetByOwnerId($topic->id);
+                $topic->voting->ownerDate = intval($topic->pubdate);
+                $topic->voting->userid = intval($topic->userid);
+            }
+        }
+
+        /** @var CommentApp $commentApp */
+        $commentApp = Abricos::GetApp('comment');
+
+        $statList = $commentApp->StatisticList('blog', 'topic', $topicids);
+        $count = $statList->Count();
+        for ($i = 0; $i < $count; $i++){
+            $stat = $statList->GetByIndex($i);
+            $topic = $list->Get($stat->id);
+            if (empty($topic)){
+                continue; // what is it? %)
+            }
+            $topic->commentStatistic = $stat;
+        }
+
+
+        return $list;
+    }
+
+
+    /*********************************************************/
+    /*                       Topic Tag                       */
+    /*********************************************************/
+
 
     /*********************************************************/
     /*                         Config                        */
@@ -293,7 +441,7 @@ class BlogApp extends AbricosApplication {
     }
 
     /**
-     * @return BlogConfig
+     * @return BlogConfig|int
      */
     public function Config(){
         if ($this->CacheExists('Config')){
@@ -395,42 +543,13 @@ class BlogApp extends AbricosApplication {
         return $ret;
     }
 
-    private function TopicSetTags($topics){
-        $tids = array();
-
-        foreach ($topics as $topic){
-            array_push($tids, $topic->id);
-        }
-
-        $rows = BlogTopicQuery::TopicTagList($this->db, $tids);
-        $toptags = $this->ToArray($rows);
-
-        $rows = BlogTopicQuery::TagListByTopicIds($this->db, $tids);
-        $dbtags = $this->ToArrayId($rows);
-
-        for ($i = 0; $i < count($topics); $i++){
-            $topic = $topics[$i];
-            $tags = array();
-            for ($ii = 0; $ii < count($toptags); $ii++){
-                $tt = $toptags[$ii];
-                if ($tt['tid'] == $topic->id){
-                    array_push($tags, new BlogTopicTag($dbtags[$tt['tgid']]));
-                }
-            }
-            $topic->tags = $tags;
-        }
-    }
-
     /**
      * Список записей блога
      *
      * @param object $cfg параметры списка
      * @return BlogTopicList
      */
-    public function TopicList($cfg = array()){
-        if (!$this->IsViewRole()){
-            return null;
-        }
+    public function old_TopicList($cfg = array()){
 
         $cfg = $this->ParamToObject($cfg);
         $cfg->limit = isset($cfg->limit) ? intval($cfg->limit) : 10;
@@ -523,87 +642,9 @@ class BlogApp extends AbricosApplication {
         $uprofileApp = Abricos::GetApp('uprofile');
         $userList = $uprofileApp->UserListByIds($userids);
 
-        /** @var URatingApp $uratingApp */
-        $uratingApp = Abricos::GetApp('urating');
-        $votingList = null;
-        if (!empty($uratingApp)){
-            $votingList = $uratingApp->VotingList('blog', 'topic', $topicids);
-        }
-
-        $count = $list->Count();
-        for ($i = 0; $i < $count; $i++){
-            $topic = $list->GetByIndex($i);
-
-            $topic->user = $userList->Get($topic->userid);
-
-            if (!empty($votingList)){
-                $topic->voting = $votingList->GetByOwnerId($topic->id);
-                $topic->voting->ownerDate = intval($topic->publicDate);
-                $topic->voting->userid = intval($topic->userid);
-            }
-        }
-
-        /** @var CommentApp $commentApp */
-        $commentApp = Abricos::GetApp('comment');
-
-        $statList = $commentApp->StatisticList('blog', 'topic', $topicids);
-        $cnt = $statList->Count();
-        for ($i = 0; $i < $cnt; $i++){
-            $stat = $statList->GetByIndex($i);
-            $topic = $list->Get($stat->id);
-            if (empty($topic)){
-                continue; // what is it? %)
-            }
-            $topic->commentStatistic = $stat;
-        }
-
         return $list;
     }
 
-    public function TopicListToAJAX($cfg){
-        $topicList = $this->TopicList($cfg);
-        if (is_null($topicList)){
-            return null;
-        }
-        return $topicList->ToAJAX();
-    }
-
-    /**
-     * @return BlogTopic
-     */
-    public function Topic($topicid){
-        if (!$this->IsViewRole()){
-            return null;
-        }
-
-        $row = BlogTopicQuery::TopicById($this->db, $topicid);
-        if (empty($row)){
-            return null;
-        }
-        $topic = new BlogTopic($row);
-
-        /** @var UProfileApp $uprofileApp */
-        $uprofileApp = Abricos::GetApp('uprofile');
-
-        $topic->user = $uprofileApp->User($topic->userid);
-
-        /** @var CommentApp $commentApp */
-        $commentApp = Abricos::GetApp('comment');
-
-        $topic->commentStatistic = $commentApp->Statistic($topic->GetCommentOwner());
-
-        /** @var URatingApp $uratingApp */
-        $uratingApp = Abricos::GetApp('urating');
-        if (!empty($uratingApp)){
-            $topic->voting = $uratingApp->Voting('blog', 'topic', $topicid);
-            $topic->voting->ownerDate = intval($topic->publicDate);
-            $topic->voting->userid = intval($topic->userid);
-        }
-
-        $this->TopicSetTags(array($topic));
-
-        return $topic;
-    }
 
     public function TopicToAJAX($topicid){
         $topic = $this->Topic($topicid);
@@ -1220,8 +1261,6 @@ class BlogApp extends AbricosApplication {
             $topic->user = $userList->Get($topic->userid);
         }
 
-        $this->TopicSetTags($topics);
-
         /** @var CommentApp $commentApp */
         $commentApp = Abricos::GetApp('comment');
 
@@ -1238,65 +1277,6 @@ class BlogApp extends AbricosApplication {
         }
 
         return new BlogCommentLiveList($list);
-    }
-
-    public function CommentLiveListToAJAX($cfg){
-        $list = $this->CommentLiveList($cfg);
-        if (is_null($list)){
-            return null;
-        }
-        return $list->ToAJAX();
-    }
-
-    public function TagList($cfg){
-        if (!$this->IsViewRole()){
-            return null;
-        }
-
-        $cfg = $this->ParamToObject($cfg);
-
-        $cfg->limit = isset($cfg->limit) ? intval($cfg->limit) : 25;
-        $cfg->page = isset($cfg->page) ? intval($cfg->page) : 1;
-
-        $cfg->limit = max(min($cfg->limit, 100), 1);
-
-        $list = array();
-
-        $rows = BlogTopicQuery::TagList($this->db, $cfg->page, $cfg->limit);
-
-        while (($row = $this->db->fetch_array($rows))){
-            array_push($list, new BlogTopicTag($row));
-        }
-        return new BlogTopicTagList($list);
-    }
-
-    public function TagListToAJAX($cfg){
-        $list = $this->TagList($cfg);
-        if (is_null($list)){
-            return null;
-        }
-
-        return $list->ToAJAX();
-    }
-
-    /**
-     * Список тегов по запросу (автозаполение)
-     *
-     * @param string $query
-     */
-    public function TagListByLikeQuery($query){
-        if (empty($query) || !$this->IsViewRole()){
-            return null;
-        }
-
-        $ret = array();
-
-        $rows = BlogTopicQuery::TagListByLikeQuery($this->db, $query);
-        while (($row = $this->db->fetch_array($rows))){
-            array_push($ret, $row['tl']);
-        }
-
-        return $ret;
     }
 
     /* * * * * * * * * * * * * * * * * * * * * * * * * * * */

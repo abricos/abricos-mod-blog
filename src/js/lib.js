@@ -27,6 +27,8 @@ Component.entryPoint = function(NS){
             BlogList: {value: NS.BlogList},
             BlogUserRole: {value: NS.BlogUserRole},
             BlogUserRoleList: {value: NS.BlogUserRoleList},
+            Topic: {value: NS.Topic},
+            TopicList: {value: NS.TopicList},
             Config: {value: NS.Config},
         },
         REQS: {
@@ -47,6 +49,19 @@ Component.entryPoint = function(NS){
             blogLeave: {
                 args: ['blogid']
             },
+
+            topic: {
+                args: ['topicid'],
+                type: "model:Blog"
+            },
+            topicList: {
+                args: ['options'],
+                type: "modelList:TopicList"
+            },
+            topicSave: {
+                args: ['data']
+            },
+            
             config: {
                 attribute: true,
                 type: 'model:Config'

@@ -23,13 +23,13 @@ if (empty($topics)){
 $count = $topics->Count();
 for ($i = 0; $i < $count; $i++){
     $topic = $topics->GetByIndex($i);
-    $cat = $topic->Category();
+    $blog = $topic->blog;
 
     $lst .= Brick::ReplaceVarByData($brick->param->var['row'], array(
-        "cattl" => $cat->title,
-        "urlcat" => $cat->URL(),
+        "cattl" => $blog->title,
+        // "urlcat" => $cat->URL(),
         "toptl" => $topic->title,
-        "urltop" => $topic->URL()
+        // "urltop" => $topic->URL()
     ));
 }
 

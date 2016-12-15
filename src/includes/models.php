@@ -24,10 +24,14 @@ require_once 'old_models.php';
  * @property URatingVoting $voting
  * @property int $dateline
  * @property int $upddate
+ * @property bool $isEasyData
  */
 class Blog extends AbricosModel {
     protected $_structModule = 'blog';
     protected $_structName = 'Blog';
+
+    const TYPE_PUBLIC = 'public';
+    const TYPE_PERSONAL = 'personal';
 }
 
 /**
@@ -121,4 +125,162 @@ class BlogUserRoleList extends AbricosModelList {
         }
         return $this->_mapByBlogId[$blogid];
     }
+}
+
+/**
+ * Class BlogTopic
+ *
+ * @property BlogApp $app
+ *
+ * @property int $blogid
+ * @property int $userid
+ * @property string $title
+ * @property string $intro
+ * @property string $body
+ * @property string $metaDesc
+ * @property string $metaKeys
+ * @property bool $isDraft
+ * @property bool $isIndex
+ * @property bool $autoIndex
+ * @property int $pubdate
+ * @property int $views
+ * @property int $deliveryUserId
+ * @property bool $deliveryCompleted
+ * @property URatingVoting $voting
+ * @property CommentStatistic $commentStatistic
+ * @property BlogTagList $tagList
+ * @property int $dateline
+ * @property int $upddate
+ *
+ * @property UProfileUser $user
+ * @property Blog $blog
+ */
+class BlogTopic extends AbricosModel {
+    protected $_structModule = 'blog';
+    protected $_structName = 'Topic';
+
+    public static function GetCommentOwner($topicid){
+        /** @var CommentApp $commentApp */
+        $commentApp = Abricos::GetApp('comment');
+
+        return $commentApp->InstanceClass('Owner', array(
+            "module" => "blog",
+            "type" => "topic",
+            "ownerid" => $topicid
+        ));
+    }
+
+    public function __get($name){
+        switch ($name){
+            case 'user':
+            case 'blog':
+                return $this->app->AttributeGetter($this, $name);
+        }
+        return parent::__get($name);
+    }
+}
+
+/**
+ * Class BlogTopicList
+ *
+ * @method BlogTopic Get(int $id)
+ * @method BlogTopic GetByIndex(int $index)
+ */
+class BlogTopicList extends AbricosModelList {
+}
+
+/**
+ * Interface BlogTopicListOptionsVars
+ *
+ * @property int $limit
+ * @property int $page
+ * @property string $type
+ * @property string $blogid
+ * @property int $userid
+ * @property string $tag
+ * @property bool $onlyNew
+ */
+interface BlogTopicListOptionsVars {
+}
+
+/**
+ * Class BlogTopicListOptions
+ *
+ * @property BlogTopicListOptionsVars $vars
+ * @property int $total
+ */
+class BlogTopicListOptions extends AbricosResponse {
+    const CODE_OK = 1;
+
+    protected $_structModule = 'blog';
+    protected $_structName = 'TopicListOptions';
+}
+
+
+/**
+ * Interface BlogTopicSaveVars
+ *
+ * @property int $topicid
+ * @property int $blogid
+ * @property string $intro
+ * @property string $body
+ * @property bool $isDraft
+ * @property bool $autoIndex
+ */
+interface BlogTopicSaveVars {
+}
+
+/**
+ * Class BlogTopicSave
+ *
+ * @property BlogTopicSaveVars $vars
+ * @property int $blogid
+ */
+class BlogTopicSave extends AbricosResponse {
+    const CODE_OK = 1;
+    const CODE_EMPTY_TITLE = 2;
+
+    protected $_structModule = 'blog';
+    protected $_structName = 'TopicSave';
+}
+
+/**
+ * Class BlogTag
+ *
+ * @property string $title
+ * @property string $slug
+ * @property int $topicCount
+ */
+class BlogTag extends AbricosModel {
+    protected $_structModule = 'blog';
+    protected $_structName = 'Tag';
+}
+
+/**
+ * Class BlogTagList
+ *
+ * @method BlogTag Get(int $id)
+ * @method BlogTag GetByIndex(int $index)
+ */
+class BlogTagList extends AbricosModelList {
+}
+
+/**
+ * Class BlogTagInTopic
+ *
+ * @property int $topicid
+ * @property int $tagid
+ */
+class BlogTagInTopic extends AbricosModel {
+    protected $_structModule = 'blog';
+    protected $_structName = 'TagInTopic';
+}
+
+/**
+ * Class BlogTagInTopicList
+ *
+ * @method BlogTagInTopic Get(int $id)
+ * @method BlogTagInTopic GetByIndex(int $index)
+ */
+class BlogTagInTopicList extends AbricosModelList {
 }

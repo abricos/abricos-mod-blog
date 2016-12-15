@@ -1,0 +1,15 @@
+{
+  "version": "0.1.0",
+  "fields": {
+    "id": {
+      "type": "int",
+      "dbField": "tagInTopicId"
+    },
+    "topicid": {
+      "type": "int"
+    },
+    "tagid": {
+      "type": "int"
+    }
+  }
+}

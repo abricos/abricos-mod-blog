@@ -49,6 +49,15 @@
       "rolefn": "IsAdminRole",
       "type": "bool"
     },
+    "commentStatistic": {
+      "type": "model:comment:CommentStatistic"
+    },
+    "voting": {
+      "type": "model:urating:Voting"
+    },
+    "tagList": {
+      "type": "modelList:TagList"
+    },
     "dateline": {
       "type": "int"
     },

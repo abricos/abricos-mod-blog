@@ -121,24 +121,8 @@ class BlogTopicInfo {
         $this->bodyLength = intval($d['bdlen']);
     }
 
-    private $_commentOwner;
-
-    public function GetCommentOwner(){
-        if (!empty($this->_commentOwner)){
-            return $this->_commentOwner;
-        }
-        /** @var CommentApp $commentApp */
-        $commentApp = Abricos::GetApp('comment');
-
-        return $this->_commentOwner = $commentApp->InstanceClass('Owner', array(
-            "module" => "blog",
-            "type" => "topic",
-            "ownerid" => $this->id
-        ));
-    }
-
     /**
-     * @return BlogCategory
+     * @return BlogCategory|int
      */
     public function Category(){
         if ($this->catid == 0){
@@ -193,31 +177,8 @@ class BlogTopicInfo {
     }
 }
 
-/**
- * Запись в блоге
- */
-class BlogTopic extends BlogTopicInfo {
 
-    public $body;
-
-    public $metakeys;
-    public $metadesc;
-
-    public function __construct($d){
-        parent::__construct($d);
-        $this->body = strval($d['bd']);
-        $this->metakeys = isset($d['mtks']) ? strval($d['mtks']) : '';
-        $this->metadesc = isset($d['mtdsc']) ? strval($d['mtdsc']) : '';
-    }
-
-    public function ToAJAX(){
-        $ret = parent::ToAJAX();
-        $ret->bd = $this->body;
-        return $ret;
-    }
-}
-
-class BlogTopicList {
+class old_BlogTopicList {
 
     public $list;
 
