@@ -13,23 +13,23 @@ $v = &$brick->param->var;
 /** @var BlogApp $app */
 $app = Abricos::GetApp('blog');
 
-$cats = $app->CategoryList();
+$blogList = $app->BlogList();
 
 if (empty($cats)){
     $brick->content = "";
     return;
 }
 
-$count = min($cats->Count(), 10);
+$count = min($blogList->Count(), 10);
 
 $lst = "";
 for ($i = 0; $i < $count; $i++){
-    $cat = $cats->GetByIndex($i);
+    $blog = $blogList->GetByIndex($i);
 
     $lst .= Brick::ReplaceVarByData($v['row'], array(
-        "cattl" => $cat->title,
-        "urlcat" => $cat->URL(),
-        "topicCount" => $cat->topicCount
+        "cattl" => $blog->title,
+        "urlcat" => $blog->url,
+        "topicCount" => $blog->topicCount
     ));
 }
 

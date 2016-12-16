@@ -14,21 +14,22 @@ $p = &$brick->param->param;
 /** @var BlogApp $app */
 $app = Abricos::GetApp('blog');
 
-$tags = $app->TagList(array("limit" => intval($p['limit'])));
+$tagList = $app->TagList(array(
+    "limit" => intval($p['limit'])
+));
 
-if (empty($tags)){
+if (AbricosResponse::IsError($tagList)){
     $brick->content = "";
     return;
 }
 
-$tags->SortByTitle();
-$count = $tags->Count();
+$count = $tagList->Count();
 
 $min = 99999999;
 $max = 1;
 $stags = "";
 for ($i = 0; $i < $count; $i++){
-    $tag = $tags->GetByIndex($i);
+    $tag = $tagList->GetByIndex($i);
 
     $min = min($tag->topicCount, $min);
     $max = max($tag->topicCount, $max);
@@ -45,7 +46,7 @@ $g2 = log($max + 1);
 
 $lst = "";
 for ($i = 0; $i < $count; $i++){
-    $tag = $tags->GetByIndex($i);
+    $tag = $tagList->GetByIndex($i);
 
     $n1 = ($fmin + log($tag->topicCount + 1) - $g1) * $fmax;
     $n2 = $g2 - $g1;
@@ -53,7 +54,7 @@ for ($i = 0; $i < $count; $i++){
 
     $lst .= Brick::ReplaceVarByData($v['row'], array(
             "tagtl" => $tag->title,
-            "urltag" => $tag->URL(),
+            "urltag" => $tag->url,
             "sz" => $sz
         )).' ';
 }

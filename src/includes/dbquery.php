@@ -266,26 +266,26 @@ class BlogQuery {
         return $db->query_read($sql);
     }
 
-    public static function TagInTopicList(Ab_Database $db, $topicids){
-        $count = count($topicids);
-        if ($count === 0){
-            return null;
-        }
-        $wha = array();
-        for ($i = 0; $i < $count; $i++){
-            $wha[] = "topicid=".bkint($topicids[$i]);
-        }
-
+    public static function TagList(Ab_Database $db, BlogTagListOptions $options){
         $sql = "
-			SELECT *
-			FROM ".$db->prefix."blog_tagInTopic
-			WHERE ".implode(" OR ", $wha)."
-			ORDER BY topicid
+            SELECT *
+            FROM (
+                SELECT tag.*
+                FROM ".$db->prefix."blog_tag tag
+                INNER JOIN ".$db->prefix."blog_tagInTopic ti ON ti.tagid=tag.tagid
+                INNER JOIN ".$db->prefix."blog_topic t ON t.topicid=ti.tagid 
+                    AND t.deldate=0 AND t.isDraft=0
+                INNER JOIN ".$db->prefix."blog b ON b.blogid=t.blogid
+                    AND b.deldate=0
+                ORDER BY topicCount
+                LIMIT ".intval($options->vars->limit)."
+            )
+            ORDER BY title
 		";
         return $db->query_read($sql);
     }
 
-    public static function TagList(Ab_Database $db, $topicids){
+    public static function TagInTopicList(Ab_Database $db, $topicids){
         if (is_integer($topicids)){
             $topicids = array($topicids);
         }
@@ -299,9 +299,9 @@ class BlogQuery {
         }
 
         $sql = "
-			SELECT DISTINCT t.*
+			SELECT DISTINCT tag.*
 			FROM ".$db->prefix."blog_tagInTopic ti
-			INNER JOIN ".$db->prefix."blog_tag t ON t.tagid=ti.tagid
+			INNER JOIN ".$db->prefix."blog_tag tag ON tag.tagid=ti.tagid
 			WHERE ".implode(" OR ", $wha)."
 			ORDER BY topicid
 		";
@@ -320,7 +320,7 @@ class BlogQuery {
             INNER JOIN ".$db->prefix."blog_topic t ON oo.ownerid=t.topicid 
 			INNER JOIN ".$db->prefix."blog b ON b.blogid=t.blogid 
 			WHERE t.deldate=0 AND t.isDraft=0 AND b.deldate=0
-            ORDER BY lastCommentDate DESC
+ORDER BY lastCommentDate DESC
 			LIMIT ".bkint($options->vars->limit)."
 		";
         return $db->query_read($sql);

@@ -27,9 +27,9 @@ for ($i = 0; $i < $count; $i++){
 
     $lst .= Brick::ReplaceVarByData($brick->param->var['row'], array(
         "cattl" => $blog->title,
-        // "urlcat" => $cat->URL(),
+        "urlcat" => $blog->url,
         "toptl" => $topic->title,
-        // "urltop" => $topic->URL()
+        "urltop" => $topic->url
     ));
 }
 

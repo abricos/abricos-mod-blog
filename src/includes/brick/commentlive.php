@@ -32,10 +32,10 @@ for ($i = 0; $i < $count; $i++){
         "username" => $user->username,
         "userViewName" => $user->GetViewName(),
         "cattl" => $blog->title,
-        // "urlcat" => $cat->URL(),
+        "urlcat" => $blog->url,
         "toptl" => $topic->title,
-        // "urltop" => $topic->URL(),
-        // "urlcmt" => $topic->URL(),
+        "urltop" => $topic->url,
+        "urlcmt" => $topic->url,
         "cmtcnt" => $topic->commentStatistic->count
     ));
 }

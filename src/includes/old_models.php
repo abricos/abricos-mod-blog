@@ -345,88 +345,6 @@ class BlogAuthorList {
 }
 
 
-class BlogTopicTag {
-    public $id;
-    public $title;
-    public $name;
-    public $topicCount;
-
-    public function __construct($d){
-        $d = array_merge(array(
-            'id' => 0,
-            'tl' => '',
-            'nm' => '',
-            'cnt' => 0
-        ), $d);
-
-        $this->id = intval($d['id']);
-        $this->title = strval($d['tl']);
-        $this->name = strval($d['nm']);
-        $this->topicCount = intval($d['cnt']);
-    }
-
-    public function ToAJAX(){
-        $ret = new stdClass();
-        $ret->id = $this->id;
-        $ret->tl = $this->title;
-        $ret->nm = $this->name;
-        if ($this->topicCount > 0){
-            $ret->cnt = $this->topicCount;
-        }
-        return $ret;
-    }
-
-    public function URL(){
-        return "/blog/tag/".$this->title."/";
-    }
-}
-
-function BlogTopicTag_sortByTitle(BlogTopicTag $t1, BlogTopicTag $t2){
-    if ($t1->title < $t2->title){
-        return -1;
-    }
-    if ($t1->title > $t2->title){
-        return 1;
-    }
-    return 0;
-}
-
-
-class BlogTopicTagList {
-
-    private $list;
-
-    public function __construct($list){
-        $this->list = $list;
-    }
-
-    public function Count(){
-        return count($this->list);
-    }
-
-    public function SortByTitle(){
-        usort($this->list, "BlogTopicTag_sortByTitle");
-    }
-
-    /**
-     * @param integer $index
-     * @return BlogTopicTag
-     */
-    public function GetByIndex($index){
-        return $this->list[$index];
-    }
-
-    public function ToAJAX(){
-        $ret = new stdClass();
-        $ret->tags = array();
-        for ($i = 0; $i < count($this->list); $i++){
-            array_push($ret->tags, $this->list[$i]->ToAJAX());
-        }
-        return $ret;
-    }
-}
-
-
 class BlogCategory {
 
     /**
@@ -568,10 +486,6 @@ class BlogCategory {
         }
         return $this->isAdminFlag;
     }
-
-    public function URL(){
-        return "/blog/".$this->name."/";
-    }
 }
 
 class BlogPersonalCategory {
@@ -642,82 +556,4 @@ class BlogCategoryList {
         return $this->GetByIndex($index);
     }
 
-    public function ToAJAX(){
-        $ret = new stdClass();
-        $ret->categories = array();
-        for ($i = 0; $i < count($this->list); $i++){
-            $ret->categories[] = $this->list[$i]->ToAJAX();
-        }
-        return $ret;
-    }
-}
-
-class BlogCommentLive {
-    /**
-     * Идентификатор комментария
-     *
-     * @var integer
-     */
-    public $id;
-    public $topicid;
-    public $body;
-    public $date;
-
-    /**
-     * @var BlogUser
-     */
-    public $user;
-
-    /**
-     * @var BlogTopicInfo
-     */
-    public $topic;
-
-    public function __construct($d){
-        $this->id = $d['id'];
-        $this->topicid = $d['tid'];
-        $this->body = $d['body'];
-        $this->date = $d['dl'];
-        $this->user = new BlogUser($d);
-    }
-
-    public function ToAJAX(){
-        $ret = new stdClass();
-        $ret->id = $this->id;
-        $ret->bd = $this->body;
-        $ret->dl = $this->date;
-        $ret->topic = $this->topic->ToAJAX();
-        $ret->user = $this->user->ToAJAX();
-        return $ret;
-    }
-}
-
-class BlogCommentLiveList {
-
-    public $list;
-
-    public function __construct($list){
-        $this->list = $list;
-    }
-
-    public function ToAJAX(){
-        $ret = new stdClass();
-        $ret->comments = array();
-        for ($i = 0; $i < count($this->list); $i++){
-            array_push($ret->comments, $this->list[$i]->ToAJAX());
-        }
-        return $ret;
-    }
-
-    public function Count(){
-        return count($this->list);
-    }
-
-    /**
-     * @param integer $index
-     * @return BlogCommentLive
-     */
-    public function GetByIndex($index){
-        return $this->list[$index];
-    }
 }

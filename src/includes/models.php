@@ -25,6 +25,9 @@ require_once 'old_models.php';
  * @property int $dateline
  * @property int $upddate
  * @property bool $isEasyData
+ *
+ * @property UProfileUser $user
+ * @property string $url
  */
 class Blog extends AbricosModel {
     protected $_structModule = 'blog';
@@ -32,6 +35,29 @@ class Blog extends AbricosModel {
 
     const TYPE_PUBLIC = 'public';
     const TYPE_PERSONAL = 'personal';
+
+    public function __get($name){
+        if (isset($this->_data[$name])){
+            return $this->_data[$name];
+        }
+        switch ($name){
+            case 'user':
+                /** @var UProfileApp $uprofileApp */
+                $uprofileApp = Abricos::GetApp('uprofile');
+                return $this->_data[$name]
+                    = $uprofileApp->User($this->userid);
+            case 'url':
+                $val = '/blog/';
+                if ($this->type === Blog::TYPE_PERSONAL){
+                    $val .= 'author/'.$this->user->username."/";
+                } else {
+                    $val .= $this->slug."/";
+                }
+
+                return $this->_data[$name] = $val;
+        }
+        return parent::__get($name);
+    }
 }
 
 /**
@@ -154,6 +180,7 @@ class BlogUserRoleList extends AbricosModelList {
  *
  * @property UProfileUser $user
  * @property Blog $blog
+ * @property string $url
  */
 class BlogTopic extends AbricosModel {
     protected $_structModule = 'blog';
@@ -171,16 +198,26 @@ class BlogTopic extends AbricosModel {
     }
 
     public function __get($name){
+        if (isset($this->_data[$name])){
+            return $this->_data[$name];
+        }
+
         switch ($name){
             case 'user':
                 /** @var UProfileApp $uprofileApp */
                 $uprofileApp = Abricos::GetApp('uprofile');
-                return $uprofileApp->User($this->userid);
+                return $this->_data[$name]
+                    = $uprofileApp->User($this->userid);
             case 'blog':
-                return $this->app->AttributeGetter($this, $name);
+                return $this->_data[$name]
+                    = $this->app->BlogList()->Get($this->blogid);
+            case 'url':
+                return $this->_data['url']
+                    = $this->blog->url.$this->id.'/';
         }
         return parent::__get($name);
     }
+
 }
 
 /**
@@ -267,10 +304,25 @@ class BlogTopicSave extends AbricosResponse {
  * @property string $title
  * @property string $slug
  * @property int $topicCount
+ *
+ * @property string $url
  */
 class BlogTag extends AbricosModel {
     protected $_structModule = 'blog';
     protected $_structName = 'Tag';
+
+    public function __get($name){
+        if (isset($this->_data[$name])){
+            return $this->_data[$name];
+        }
+        switch ($name){
+            case 'url':
+                return $this->_data[$name]
+                    = '/blog/tag/'.urlencode($this->title).'/';
+        }
+        return parent::__get($name);
+    }
+
 }
 
 /**
@@ -281,6 +333,29 @@ class BlogTag extends AbricosModel {
  */
 class BlogTagList extends AbricosModelList {
 }
+
+/**
+ * Interface BlogTagListOptionsVars
+ *
+ * @property int $limit
+ * @property int $page
+ */
+interface BlogTagListOptionsVars {
+}
+
+/**
+ * Class BlogTagListOptions
+ *
+ * @property BlogTagListOptionsVars $vars
+ * @property int $total
+ */
+class BlogTagListOptions extends AbricosResponse {
+    const CODE_OK = 1;
+
+    protected $_structModule = 'blog';
+    protected $_structName = 'TagListOptions';
+}
+
 
 /**
  * Class BlogTagInTopic

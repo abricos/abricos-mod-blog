@@ -484,36 +484,6 @@ class BlogTopicQuery {
         $db->query_write($sql);
     }
 
-    public static function TagList(Ab_Database $db, $page, $limit){
-
-        $dmfilter = "AND (cat.deldate=0 OR t.catid=0)";
-        $dmfa = BlogTopicQuery::DomainFilterSQLExt();
-        if (!empty($dmfa)){
-            $dmfilter = " AND (
-				(cat.deldate=0 AND (".implode(" OR ", $dmfa['cat'])."))
-					OR
-				(t.catid=0 AND (".implode(" OR ", $dmfa['t'])."))
-			)";
-        }
-
-        $sql = "
-			SELECT
-				DISTINCT tg.tagid as id,
-				tg.name as nm,
-				tg.title as tl,
-				tg.topiccount as cnt
-			FROM ".$db->prefix."bg_tag tg
-			INNER JOIN ".$db->prefix."bg_toptag tgtp ON tg.tagid = tgtp.tagid
-			INNER JOIN ".$db->prefix."bg_topic t ON t.topicid = tgtp.topicid
-			INNER JOIN ".$db->prefix."bg_cat cat ON cat.catid = t.catid
-			WHERE t.deldate=0 AND t.isdraft=0 AND t.isindex=1 AND t.language='".bkstr(Abricos::$LNG)."'
-				".$dmfilter."
-			ORDER BY cnt DESC
-			LIMIT ".bkint($limit)."
-		";
-        return $db->query_read($sql);
-    }
-
     public static function Author(Ab_Database $db, $authorid){
         $sql = "
 			SELECT
@@ -728,23 +698,6 @@ class BlogTopicQuery {
 			LIMIT ".bkint($limit)."
 		";
         return $db->query_read($sql);
-    }
-
-    /**
-     * Обновить информацию о последнем пользователе которому было отправлено письмо по подписке
-     *
-     * @param Ab_Database $db
-     * @param integer $topicid
-     * @param integer $lastUserid
-     */
-    public static function SubscribeTopicUpdate(Ab_Database $db, $topicid, $lastUserid){
-        $sql = "
-			UPDATE ".$db->prefix."bg_topic
-			SET scblastuserid=".bkint($lastUserid)."
-			WHERE topicid=".bkint($topicid)."
-			LIMIT 1
-		";
-        $db->query_write($sql);
     }
 
     public static function SubscribeTopicComplete(Ab_Database $db, $topicid){
