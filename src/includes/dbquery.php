@@ -234,6 +234,19 @@ class BlogQuery {
             $limit = "LIMIT 1";
         }
 
+        if ($vars->idsUse){
+            $ids = explode(',', $vars->ids);
+            $count = min(count($ids), 100);
+            if ($count === 0){
+                return $isCount ? 0 : null;
+            }
+            $idsSQL = array();
+            for ($i = 0; $i < $count; $i++){
+                $idsSQL[] = "t.topicid=".intval($ids[$i]);
+            }
+            $where .= " AND (".implode(' OR ', $idsSQL).")";
+        }
+
         $sql = "
 			SELECT ".$fields."
 			FROM ".$db->prefix."blog_topic t
@@ -295,5 +308,21 @@ class BlogQuery {
         return $db->query_read($sql);
     }
 
-
+    public static function CommentLiveList(Ab_Database $db, BlogTopicListOptions $options){
+        $sql = "
+            SELECT t.topicid, oo.lastCommentDate
+			FROM (
+                SELECT o.ownerid, o.lastCommentDate
+                FROM ".$db->prefix."comment_ownerstat o
+                WHERE o.ownerModule='blog' AND o.ownerType='topic'
+			    ORDER BY o.lastCommentDate DESC
+			) oo
+            INNER JOIN ".$db->prefix."blog_topic t ON oo.ownerid=t.topicid 
+			INNER JOIN ".$db->prefix."blog b ON b.blogid=t.blogid 
+			WHERE t.deldate=0 AND t.isDraft=0 AND b.deldate=0
+            ORDER BY lastCommentDate DESC
+			LIMIT ".bkint($options->vars->limit)."
+		";
+        return $db->query_read($sql);
+    }
 }

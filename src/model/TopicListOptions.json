@@ -29,6 +29,16 @@
     },
     "onlyNew": {
       "type": "bool"
+    },
+    "ids": {
+      "type": "string",
+      "parse": "full"
+    },
+    "idsUse": {
+      "type": "bool"
+    },
+    "idsSort": {
+      "type": "bool"
     }
   },
   "codes": {

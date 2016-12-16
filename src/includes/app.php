@@ -108,20 +108,7 @@ class BlogApp extends AbricosApplication {
     /*********************************************************/
 
     public function AttributeGetter($model, $attrName){
-        if ($attrName === 'user'){
-            $userid = $model->userid;
-
-            if ($this->CacheExists('User', $userid)){
-                return $this->Cache('User', $userid);
-            }
-
-            /** @var UProfileApp $uprofileApp */
-            $uprofileApp = Abricos::GetApp('uprofile');
-
-            $user = $uprofileApp->User($userid);
-            $this->SetCache('User', $userid, $user);
-            return $user;
-        } else if ($attrName === 'blog'){
+        if ($attrName === 'blog'){
             return $this->BlogList()->Get($model->blogid);
         }
     }
@@ -358,6 +345,22 @@ class BlogApp extends AbricosApplication {
         return $topic;
     }
 
+    /**
+     * @param mixed $options
+     * @return BlogTopicListOptions
+     */
+    public function TopicListOptionsNormalize($options = array()){
+        if (!($options instanceof BlogTopicListOptions)){
+            /** @var BlogTopicListOptions $options */
+            $options = $this->InstanceClass('TopicListOptions', $options);
+        }
+
+        $vars = $options->vars;
+        $vars->limit = min(max($vars->limit, 1), 100);
+        $vars->page = max($vars->page, 1);
+        return $options;
+    }
+
     public function TopicListToJSON($options){
         $res = $this->TopicList($options);
         return $this->ResultToJSON('topicList', $res);
@@ -368,11 +371,7 @@ class BlogApp extends AbricosApplication {
             return AbricosResponse::ERR_FORBIDDEN;
         }
 
-        /** @var BlogTopicListOptions $options */
-        $options = $this->InstanceClass('TopicListOptions', $optionsData);
-        $vars = $options->vars;
-        $vars->limit = min(max($vars->limit, 1), 100);
-        $vars->page = max($vars->page, 1);
+        $options = $this->TopicListOptionsNormalize($optionsData);
 
         /** @var BlogTopicList $list */
         $list = $this->InstanceClass('TopicList');
@@ -383,10 +382,6 @@ class BlogApp extends AbricosApplication {
 
         $topicids = $list->ToArray('id');
         $userids = $list->ToArray('userid');
-
-        /** @var UProfileApp $uprofileApp */
-        $uprofileApp = Abricos::GetApp('uprofile');
-        $uprofileApp->UserListByIds($userids);
 
         /** @var URatingApp $uratingApp */
         $uratingApp = Abricos::GetApp('urating');
@@ -422,8 +417,50 @@ class BlogApp extends AbricosApplication {
             $topic->commentStatistic = $stat;
         }
 
+        $vars = $options->vars;
 
-        return $list;
+        if (!($vars->idsUse && $vars->idsSort)){
+            return $list;
+        }
+
+        /** @var BlogTopicList $retList */
+        $retList = $this->InstanceClass('TopicList');
+
+        $ids = explode(',', $vars->ids);
+        $count = count($ids);
+        for ($i = 0; $i < $count; $i++){
+            $topic = $list->Get(intval($ids[$i]));
+            if (!empty($topic)){
+                $retList->Add($topic);
+            }
+        }
+
+        return $retList;
+    }
+
+    /**
+     * @param array|BlogTopicListOptions $options
+     * @return BlogTopicList|int
+     */
+    public function CommentLiveList($options = array()){
+        if (!$this->IsViewRole()){
+            return AbricosResponse::ERR_FORBIDDEN;
+        }
+
+        $options = $this->TopicListOptionsNormalize($options);
+        $vars = $options->vars;
+        $vars->idsUse = true;
+        $vars->idsSort = true;
+
+        $arr = array();
+        $rows = BlogQuery::CommentLiveList($this->db, $options);
+        while (($d = $this->db->fetch_array($rows))){
+            $arr[] = intval($d['topicid']);
+        }
+
+        $vars->ids = implode(',', $arr);
+
+        return $this->TopicList($options);
     }
 
 
@@ -637,10 +674,6 @@ class BlogApp extends AbricosApplication {
         $this->TopicSetTags($topics);
 
         $list = new BlogTopicList($topics, $total, $totalNew);
-
-        /** @var UProfileApp $uprofileApp */
-        $uprofileApp = Abricos::GetApp('uprofile');
-        $userList = $uprofileApp->UserListByIds($userids);
 
         return $list;
     }
@@ -1205,79 +1238,7 @@ class BlogApp extends AbricosApplication {
         return $ret;
     }
 
-    /**
-     * Прямой эфир
-     *
-     * @param object $cfg
-     * @return BlogCommentLiveList
-     */
-    public function CommentLiveList($cfg = null){
-        if (!$this->IsViewRole()){
-            return null;
-        }
 
-        $cfg = $this->ParamToObject($cfg);
-        $cfg->limit = isset($cfg->limit) ? intval($cfg->limit) : 5;
-        $cfg->page = isset($cfg->page) ? intval($cfg->page) : 1;
-
-        $cfg->page = max(intval($cfg->page), 1);
-        $cfg->limit = max(min($cfg->limit, 25), 1);
-
-        $list = array();
-        $tids = array();
-
-        $rows = BlogTopicQuery::CommentLiveList($this->db, $cfg->page, $cfg->limit);
-        while (($row = $this->db->fetch_array($rows))){
-            $cmtLive = new BlogCommentLive($row);
-
-            array_push($list, $cmtLive);
-            array_push($tids, $cmtLive->topicid);
-        }
-        $topics = array();
-        $topicsById = array();
-        $userids = array();
-
-        $rows = BlogTopicQuery::TopicListByIds($this->db, $tids);
-        while (($row = $this->db->fetch_array($rows))){
-            $topic = new BlogTopicInfo($row);
-            $topicsById[$topic->id] = $topic;
-            $topics[] = $topic;
-            $userids[] = $topic->userid;
-
-            for ($i = 0; $i < count($list); $i++){
-                if ($list[$i]->topicid == $topic->id){
-                    $list[$i]->topic = $topic;
-                }
-            }
-        }
-
-        /** @var UProfileApp $uprofileApp */
-        $uprofileApp = Abricos::GetApp('uprofile');
-        $userList = $uprofileApp->UserListByIds($userids);
-
-        $count = count($topics);
-        for ($i = 0; $i < $count; $i++){
-            $topic = $topics[$i];
-            $topic->user = $userList->Get($topic->userid);
-        }
-
-        /** @var CommentApp $commentApp */
-        $commentApp = Abricos::GetApp('comment');
-
-        $statList = $commentApp->StatisticList('blog', 'topic', $tids);
-        $cnt = $statList->Count();
-        for ($i = 0; $i < $cnt; $i++){
-            $stat = $statList->GetByIndex($i);
-            $topic = $topicsById[$stat->id];
-
-            if (empty($topic)){
-                continue; // what is it? %)
-            }
-            $topic->commentStatistic = $stat;
-        }
-
-        return new BlogCommentLiveList($list);
-    }
 
     /* * * * * * * * * * * * * * * * * * * * * * * * * * * */
     /*                      URating                        */
@@ -1416,9 +1377,6 @@ class BlogApp extends AbricosApplication {
         /** @var NotifyApp $notifyApp */
         $notifyApp = Abricos::GetApp('notify');
 
-        /** @var UProfileApp $uprofileApp */
-        $uprofileApp = Abricos::GetApp('uprofile');
-
         $host = Ab_URI::Site();
         $tpLink = $host.$topic->URL();
 
@@ -1458,7 +1416,7 @@ class BlogApp extends AbricosApplication {
             return;
         }
 
-        $author = $uprofileApp->User($topic->user->id);
+        $author = $topic->user;
         $email = $author->email;
         if (empty($email) || isset($emails[$email])){
             return;

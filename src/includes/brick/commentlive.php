@@ -12,31 +12,30 @@ $brick = Brick::$builder->brick;
 /** @var BlogApp $app */
 $app = Abricos::GetApp('blog');
 
-$comms = $app->CommentLiveList();
+$topicList = $app->CommentLiveList(array('limit' => 5));
 
-if (empty($comms)){
+if (AbricosResponse::IsError($topicList)){
     $brick->content = "";
     return;
 }
 
 $lst = "";
-$count = $comms->Count();
+$count = $topicList->Count();
 for ($i = 0; $i < $count; $i++){
-    /** @var BlogCommentLive $comm */
-    $comm = $comms->GetByIndex($i);
-
-    $topic = $comm->topic;
-    $cat = $topic->Category();
+    $topic = $topicList->GetByIndex($i);
+    $blog = $topic->blog;
+    $commentStat  = $topic->commentStatistic;
+    $user  = $commentStat->lastUser;
 
     $lst .= Brick::ReplaceVarByData($brick->param->var['row'], array(
-        "urlusr" => $topic->user->URL(),
-        "uid" => $topic->user->id,
-        "username" => $topic->user->username,
-        "cattl" => $cat->title,
-        "urlcat" => $cat->URL(),
+        "urlusr" => $user->URL(),
+        "username" => $user->username,
+        "userViewName" => $user->GetViewName(),
+        "cattl" => $blog->title,
+        // "urlcat" => $cat->URL(),
         "toptl" => $topic->title,
-        "urltop" => $topic->URL(),
-        "urlcmt" => $topic->URL(),
+        // "urltop" => $topic->URL(),
+        // "urlcmt" => $topic->URL(),
         "cmtcnt" => $topic->commentStatistic->count
     ));
 }

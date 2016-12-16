@@ -173,6 +173,9 @@ class BlogTopic extends AbricosModel {
     public function __get($name){
         switch ($name){
             case 'user':
+                /** @var UProfileApp $uprofileApp */
+                $uprofileApp = Abricos::GetApp('uprofile');
+                return $uprofileApp->User($this->userid);
             case 'blog':
                 return $this->app->AttributeGetter($this, $name);
         }
@@ -187,6 +190,17 @@ class BlogTopic extends AbricosModel {
  * @method BlogTopic GetByIndex(int $index)
  */
 class BlogTopicList extends AbricosModelList {
+
+    /**
+     * @param BlogTopic $item
+     */
+    public function Add($item){
+        /** @var UProfileApp $uprofileApp */
+        $uprofileApp = Abricos::GetApp('uprofile');
+        $uprofileApp->UserAddToPreload($item->userid);
+
+        return parent::Add($item);
+    }
 }
 
 /**
@@ -199,6 +213,9 @@ class BlogTopicList extends AbricosModelList {
  * @property int $userid
  * @property string $tag
  * @property bool $onlyNew
+ * @property string $ids
+ * @property bool $idsUse
+ * @property bool $idsSort
  */
 interface BlogTopicListOptionsVars {
 }
