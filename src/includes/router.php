@@ -90,7 +90,7 @@ class BlogRouter {
                 'blogid' => intval($dir[4]),
             );
         } else if (($page = $this->PageConvert($dir[1])) > 1){ //blog/pageN/
-            $this->contentName = BlogRouter::PAGE_UNSUBSCRIBE;
+            $this->contentName = BlogRouter::PAGE_TOPIC_LIST;
             $this->options = array(
                 'page' => $page
             );
@@ -102,11 +102,16 @@ class BlogRouter {
             );
         } else if ($dir[1] === 'pub' || $dir[1] === 'pers'){ //blog/[pub|pers]/...
             $this->contentName = BlogRouter::PAGE_TOPIC_LIST;
+
             $this->options = array(
                 'type' => $dir[1] === 'pub' ? 'public' : 'personal',
                 'onlyNew' => $dir[2] === 'new',
                 'page' => $this->PageConvert($dir[3])
             );
+
+            if ($dir[2] !== 'new'){
+                $this->options['page'] = $this->PageConvert($dir[2]);
+            }
         } else if ($dir[1] === 'tag'){
             $page = $this->PageConvert($dir[2]);
             if (empty($dir[2]) || $page > 1){

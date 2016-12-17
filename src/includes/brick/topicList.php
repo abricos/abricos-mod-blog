@@ -99,10 +99,27 @@ Brick::$builder->LoadBrickS('sitemap', 'paginator', $brick, array(
     )
 ));
 
-if (!empty($pa->pageTitle)){
-    $meta_title = $pa->pageTitle." / ".SystemModule::$instance->GetPhrases()->Get('site_name');
-    Brick::$builder->SetGlobalVar('meta_title', $meta_title);
+$phraseKey = $options->vars->type;
+if ($options->vars->page > 1){
+    $phraseKey .= 'Page';
+}
+if ($options->vars->onlyNew){
+    $phraseKey .= 'New';
 }
 
+$i18n = $module->I18n();
+$phrase = $i18n->Translate('metaTitle.'.$phraseKey);
+
+$metaTitle = SystemModule::$instance->GetPhrases()->Get('site_name');
+if (!empty($phrase)){
+    $metaTitle = $phrase." / ".$metaTitle;
+}
+
+$metaTitle = Brick::ReplaceVarByData($metaTitle, array(
+    'page' => $options->vars->page
+));
+
+Brick::$builder->SetGlobalVar('meta_title', $metaTitle);
+
 // отправить сообщения рассылки из очереди (подобие крона)
-BlogManager::$instance->GetApp()->SubscribeTopicCheck();
+$app->SubscribeTopicCheck();
