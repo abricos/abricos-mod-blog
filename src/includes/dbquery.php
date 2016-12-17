@@ -192,7 +192,7 @@ class BlogQuery {
         return $db->query_first($sql);
     }
 
-    public static function TopicList(Ab_Database $db, BlogTopicListOptions $options, $isCount = false){
+    public static function TopicList(Ab_Database $db, BlogTopicListOptions $options, $isTotal = false){
         $vars = $options->vars;
         $newPeriod = TIMENOW - 60 * 60 * 24;
 
@@ -229,8 +229,11 @@ class BlogQuery {
         $limit = "LIMIT ".$from.",".bkint($vars->limit)."";
 
         $fields = "t.*";
-        if ($isCount){
-            $fields = "count(t.topicid) as cnt";
+        if ($isTotal){
+            $fields = "
+                SUM(1) as total,
+                SUM(IF(t.pubdate>".$newPeriod.",1,0)) as totalNew
+            ";
             $limit = "LIMIT 1";
         }
 
@@ -238,7 +241,7 @@ class BlogQuery {
             $ids = explode(',', $vars->ids);
             $count = min(count($ids), 100);
             if ($count === 0){
-                return $isCount ? 0 : null;
+                return $isTotal ? 0 : null;
             }
             $idsSQL = array();
             for ($i = 0; $i < $count; $i++){
@@ -258,9 +261,8 @@ class BlogQuery {
 			".$limit."
 		";
 
-        if ($isCount){
-            $row = $db->query_first($sql);
-            return intval($row['topicCount']);
+        if ($isTotal){
+            return $db->query_first($sql);
         }
 
         return $db->query_read($sql);
@@ -268,7 +270,7 @@ class BlogQuery {
 
     public static function TagList(Ab_Database $db, BlogTagListOptions $options){
         $sql = "
-            SELECT *
+            SELECT ttag.*
             FROM (
                 SELECT tag.*
                 FROM ".$db->prefix."blog_tag tag
@@ -279,7 +281,7 @@ class BlogQuery {
                     AND b.deldate=0
                 ORDER BY topicCount
                 LIMIT ".intval($options->vars->limit)."
-            )
+            ) ttag
             ORDER BY title
 		";
         return $db->query_read($sql);

@@ -348,6 +348,11 @@ class BlogApp extends AbricosApplication {
         }
 
         $vars = $options->vars;
+
+        if ($vars->limit === 0){
+            $vars->limit = 10;
+        }
+
         $vars->limit = min(max($vars->limit, 1), 100);
         $vars->page = max($vars->page, 1);
         return $options;
@@ -358,12 +363,16 @@ class BlogApp extends AbricosApplication {
         return $this->ResultToJSON('topicList', $res);
     }
 
-    public function TopicList($optionsData){
+    public function TopicList($options){
         if (!$this->IsViewRole()){
             return AbricosResponse::ERR_FORBIDDEN;
         }
 
-        $options = $this->TopicListOptionsNormalize($optionsData);
+        $options = $this->TopicListOptionsNormalize($options);
+
+        if (!empty($options->topicList)){
+            return $options->topicList;
+        }
 
         /** @var BlogTopicList $list */
         $list = $this->InstanceClass('TopicList');
@@ -371,9 +380,9 @@ class BlogApp extends AbricosApplication {
         while (($d = $this->db->fetch_array($rows))){
             $list->Add($this->InstanceClass('Topic', $d));
         }
+        $options->topicList = $list;
 
         $topicids = $list->ToArray('id');
-        $userids = $list->ToArray('userid');
 
         /** @var URatingApp $uratingApp */
         $uratingApp = Abricos::GetApp('urating');
@@ -385,8 +394,6 @@ class BlogApp extends AbricosApplication {
         $count = $list->Count();
         for ($i = 0; $i < $count; $i++){
             $topic = $list->GetByIndex($i);
-
-            // $topic->user = $userList->Get($topic->userid);
 
             if (!empty($votingList)){
                 $topic->voting = $votingList->GetByOwnerId($topic->id);
@@ -408,6 +415,11 @@ class BlogApp extends AbricosApplication {
             }
             $topic->commentStatistic = $stat;
         }
+
+        $sum = BlogQuery::TopicList($this->db, $options, true);
+
+        $list->total = $sum['total'];
+        $list->totalNew = $sum['totalNew'];
 
         $vars = $options->vars;
 
@@ -555,43 +567,6 @@ class BlogApp extends AbricosApplication {
     /*                       Old Function                    */
     /*********************************************************/
 
-    public function ParamToObject($o){
-        if (is_array($o)){
-            $ret = new stdClass();
-            foreach ($o as $key => $value){
-                $ret->$key = $value;
-            }
-            return $ret;
-        } else if (!is_object($o)){
-            return new stdClass();
-        }
-        return $o;
-    }
-
-    public function ToArray($rows, &$ids1 = "", $fnids1 = 'uid', &$ids2 = "", $fnids2 = '', &$ids3 = "", $fnids3 = ''){
-        $ret = array();
-        while (($row = $this->db->fetch_array($rows))){
-            array_push($ret, $row);
-            if (is_array($ids1)){
-                $ids1[$row[$fnids1]] = $row[$fnids1];
-            }
-            if (is_array($ids2)){
-                $ids2[$row[$fnids2]] = $row[$fnids2];
-            }
-            if (is_array($ids3)){
-                $ids3[$row[$fnids3]] = $row[$fnids3];
-            }
-        }
-        return $ret;
-    }
-
-    public function ToArrayId($rows, $field = "id"){
-        $ret = array();
-        while (($row = $this->db->fetch_array($rows))){
-            $ret[$row[$field]] = $row;
-        }
-        return $ret;
-    }
 
     /**
      * Список записей блога

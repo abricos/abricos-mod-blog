@@ -10,46 +10,37 @@
 $brick = Brick::$builder->brick;
 $v = &$brick->param->var;
 
-/** @var BlogModule $blogModule */
-$blogModule = Abricos::GetModule('blog');
-$blogManager = $blogModule->GetManager();
+/** @var BlogModule $module */
+$module = Abricos::GetModule('blog');
+$options = $module->router->topicListOptions;
 
-$pa = $blogModule->ParserAddress();
+/** @var BlogApp $app */
+$app = Abricos::GetApp('blog');
+$topicList = $app->TopicList($options);
 
-$f = explode("/", $pa->topicListFilter);
-$f0 = isset($f[0]) ? $f[0] : "";
-$f1 = isset($f[1]) ? $f[1] : "";
-
-$isNew = $f1 == 'new';
-
-$liwr = "";
 $mcur = "";
 $mcurpub = "";
 $mcurpers = "";
-switch ($f0){
-    case "pub":
+switch ($options->vars->type){
+    case Blog::TYPE_PUBLIC:
         $mcurpub = "active";
         break;
-    case "pers":
+    case Blog::TYPE_PERSONAL:
         $mcurpers = "active";
         break;
     default:
         $mcur = "active";
-        if ($blogManager->IsWriteRole()){
-            $liwr = $v['submenuindexwr'];
-        }
         break;
 }
 
 $lst = "";
-$topics = $pa->topicList;
 
 $brick->content = Brick::ReplaceVarByData($brick->content, array(
-    'submenu' => Brick::ReplaceVarByData($v['submenu'.$f0], array(
-        "newcnt" => $topics->totalNew > 0 ? "+".$topics->totalNew : "",
-        "f1sel" => !$isNew ? "active" : "",
-        "f2sel" => !$isNew ? "" : "active",
-        "liwr" => $liwr
+    'submenu' => Brick::ReplaceVarByData($v[$options->vars->type."Item"], array(
+        "newcnt" => $topicList->totalNew > 0 ? "+".$topicList->totalNew : "",
+        "f1sel" => !$options->vars->onlyNew ? "active" : "",
+        "f2sel" => !$options->vars->onlyNew ? "" : "active",
+        "liwr" => $app->IsWriteRole() ? $v['managerItem'] : ''
     )),
     "curr" => $mcur,
     "currpub" => $mcurpub,

@@ -228,6 +228,10 @@ class BlogTopic extends AbricosModel {
  */
 class BlogTopicList extends AbricosModelList {
 
+    public $total = 0;
+
+    public $totalNew = 0;
+
     /**
      * @param BlogTopic $item
      */
@@ -237,6 +241,15 @@ class BlogTopicList extends AbricosModelList {
         $uprofileApp->UserAddToPreload($item->userid);
 
         return parent::Add($item);
+    }
+
+    public function ToJSON(){
+        $ret = parent::ToJSON();
+
+        $ret->total = $this->total;
+        $ret->totalNew = $this->totalNew;
+
+        return $ret;
     }
 }
 
@@ -268,6 +281,11 @@ class BlogTopicListOptions extends AbricosResponse {
 
     protected $_structModule = 'blog';
     protected $_structName = 'TopicListOptions';
+
+    /**
+     * @var BlogTopicList
+     */
+    public $topicList;
 }
 
 

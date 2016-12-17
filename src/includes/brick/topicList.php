@@ -10,16 +10,16 @@
 $brick = Brick::$builder->brick;
 $v = &$brick->param->var;
 
+/** @var BlogModule $module */
+$module = Abricos::GetModule('blog');
+$options = $module->router->topicListOptions;
+
 /** @var BlogApp $app */
 $app = Abricos::GetApp('blog');
 
-$cats = $app->CategoryList();
+$topicList = $app->TopicList($options);
 
-$pa = BlogModule::$instance->ParserAddress();
-
-$lst = "";
-$topics = $pa->topicList;
-if (empty($topics)){
+if (AbricosResponse::IsError($topicList)){
     $brick->content = "";
     return;
 }
@@ -28,24 +28,25 @@ if (!empty($modSocialist)){
     $modSocialist->GetManager();
 }
 
-$count = $topics->Count();
+$count = $topicList->Count();
 
 /** @var URatingApp $uratingApp */
 $uratingApp = Abricos::GetApp('urating');
 
+$lst = "";
 for ($i = 0; $i < $count; $i++){
 
-    $topic = $topics->GetByIndex($i);
-    $cat = $topic->Category();
+    $topic = $topicList->GetByIndex($i);
+    $blog = $topic->blog;
 
     $vote = "";
     if (!empty($uratingApp)){
         $vote = $uratingApp->VotingHTML($topic->voting);
     }
-    $soclinetpl = "";
+    $socialTpl = "";
     if (!empty($modSocialist)){
-        $soclinetpl = SocialistManager::$instance->LikeLineHTML(array(
-            "uri" => $topic->URL(),
+        $socialTpl = SocialistManager::$instance->LikeLineHTML(array(
+            "uri" => $topic->url,
             "title" => $topic->title
         ));
     }
@@ -54,29 +55,29 @@ for ($i = 0; $i < $count; $i++){
     for ($ti = 0; $ti < count($topic->tags); $ti++){
         array_push($atags, Brick::ReplaceVarByData($v['tagrow'], array(
             "tl" => $topic->tags[$ti]->title,
-            "url" => $topic->tags[$ti]->URL()
+            "url" => $topic->tags[$ti]->url
         )));
     }
 
     $commentStat = $topic->commentStatistic;
 
     $lst .= Brick::ReplaceVarByData($v['row'], array(
-        "cattl" => $cat->title,
-        "urlcat" => $cat->URL(),
-        "socialist" => $soclinetpl,
+        "cattl" => $blog->title,
+        "urlcat" => $blog->url,
+        "socialist" => $socialTpl,
 
         "toptl" => $topic->title,
-        "urltop" => $topic->URL(),
-        "urlcmt" => $topic->URL(),
+        "urltop" => $topic->url,
+        "urlcmt" => $topic->url,
         "cmtcnt" => empty($commentStat) ? 0 : $commentStat->count,
-        "date" => rusDateTime($topic->publicDate),
+        "date" => rusDateTime($topic->pubdate),
         "taglist" => implode($v['tagdel'], $atags),
 
         "voting" => $vote,
 
         "intro" => $topic->intro,
         "readmore" => $topic->bodyLength == 0 ? "" : Brick::ReplaceVarByData($v['readmore'], array(
-            "urltop" => $topic->URL()
+            "urltop" => $topic->url
         )),
         "userURL" => $topic->user->URL(),
         "uid" => $topic->user->id,
@@ -91,10 +92,10 @@ $brick->content = Brick::ReplaceVarByData($brick->content, array(
 
 Brick::$builder->LoadBrickS('sitemap', 'paginator', $brick, array(
     "p" => array(
-        "total" => $topics->total,
-        "page" => $pa->page,
+        "total" => $topicList->total,
+        "page" => $options->vars->page,
         "perpage" => 10,
-        "uri" => $pa->uri
+        "uri" => $module->router->topicListURL
     )
 ));
 
