@@ -259,8 +259,10 @@ class BlogTopicList extends AbricosModelList {
  * @property int $limit
  * @property int $page
  * @property string $type
- * @property string $blogid
+ * @property int $blogid
+ * @property string $blogSlug
  * @property int $userid
+ * @property string $username
  * @property string $tag
  * @property bool $onlyNew
  * @property string $ids

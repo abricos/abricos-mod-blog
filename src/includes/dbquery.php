@@ -211,6 +211,9 @@ class BlogQuery {
         if ($vars->blogid > 0){
             $where .= " AND t.blogid=".intval($vars->blogid);
         }
+        if (!empty($vars->blogSlug)){
+            $where .= " AND b.slug='".bkstr($vars->blogSlug)."'";
+        }
         if ($vars->userid > 0){
             $where .= " AND t.userid=".intval($vars->userid);
         }
@@ -305,7 +308,7 @@ class BlogQuery {
 			FROM ".$db->prefix."blog_tagInTopic ti
 			INNER JOIN ".$db->prefix."blog_tag tag ON tag.tagid=ti.tagid
 			WHERE ".implode(" OR ", $wha)."
-			ORDER BY topicid
+			ORDER BY title
 		";
         return $db->query_read($sql);
     }

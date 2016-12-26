@@ -15,29 +15,28 @@ $v = &$brick->param->var;
 /** @var BlogModule $module */
 $module = Abricos::GetModule('blog');
 
-$pa = $module->ParserAddress();
-$f = explode("/", $pa->topicListFilter);
-
-$isNew = isset($f[2]) && $f[2] == 'new';
+$options = $module->router->topicListOptions;
 
 /** @var BlogApp $app */
 $app = Abricos::GetApp('blog');
 
-$cats = $app->CategoryList();
-$cat = $cats->GetByName($dir[1]);
+$blog = $app->BlogBySlug($options->vars->blogSlug);
 
-/** @var URatingApp $uratingApp */
-$uratingApp = Abricos::GetApp('urating');
-$voting = "";
-if (!empty($uratingApp) && !empty($cat->voting)){
-    $voting = $uratingApp->VotingHTML($cat->voting);
+if (AbricosResponse::IsError($blog)){
+    $brick->content = "";
+    return;
 }
 
-$topics = $pa->topicList;
+$votingHTML = "";
+if (!empty($blog->voting)){
+    /** @var URatingApp $uratingApp */
+    $uratingApp = Abricos::GetApp('urating');
+    $votingHTML = $uratingApp->VotingHTML($blog->voting);
+}
 
 $brick->content = Brick::ReplaceVarByData($brick->content, array(
-    'title' => $cat->title,
-    "voting" => $voting,
-    'mbrs' => $cat->memberCount,
-    'topics' => $cat->topicCount,
+    'title' => $blog->title,
+    "voting" => $votingHTML,
+    'mbrs' => $blog->memberCount,
+    'topics' => $blog->topicCount,
 ));

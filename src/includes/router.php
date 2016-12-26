@@ -50,16 +50,24 @@ class BlogRouter {
             case 'topicListURL':
                 $vars = $this->topicListOptions->vars;
                 $url = "/blog/";
-                switch ($vars->type){
-                    case Blog::TYPE_PUBLIC:
-                        $url .= 'pub/';
-                        break;
-                    case Blog::TYPE_PERSONAL:
-                        $url .= 'pers/';
-                        break;
-                }
-                if ($vars->onlyNew){
-                    $url .= "new/";
+                if (!empty($vars->username) && $vars->userid > 0){
+                    $url .= "author/".$vars->username."/";
+                } else {
+                    if (!empty($vars->blogSlug)){
+                        $url .= $vars->blogSlug."/";
+                    }
+                    switch ($vars->type){
+                        case Blog::TYPE_PUBLIC:
+                            $url .= 'pub/';
+                            break;
+                        case Blog::TYPE_PERSONAL:
+                            $url .= 'pers/';
+                            break;
+                    }
+
+                    if ($vars->onlyNew){
+                        $url .= "new/";
+                    }
                 }
 
                 return $this->_varsData[$name] = $url;
@@ -128,7 +136,7 @@ class BlogRouter {
         } else if ($dir[1] == 'author'){
             $page = $this->PageConvert($dir[2]);
 
-            if (!empty($dir[3])){ //blog/author/%username%/%topicid%/
+            if (!empty($dir[3]) && intval($dir[3]) > 0){ //blog/author/%username%/%topicid%/
                 $this->contentName = BlogRouter::PAGE_TOPIC_VIEWER;
                 $this->options = array(
                     'topicid' => intval($dir[3])
@@ -141,14 +149,26 @@ class BlogRouter {
             } else { //blog/author/%username%/
                 $this->contentName = BlogRouter::PAGE_AUTHOR_VIEWER;
                 $this->options = array(
-                    'username' => $dir[2]
+                    'username' => $dir[2],
+                    'page' => $this->PageConvert($dir[3])
                 );
             }
         } else if (!empty($dir[1])){ //blog/%category_name%/
-            $this->contentName = BlogRouter::PAGE_BLOG_VIEWER;
-            $this->options = array(
-                'slug' => $dir[2]
-            );
+
+            $topicid = intval($dir[2]);
+            if ($topicid > 0){
+                $this->contentName = BlogRouter::PAGE_TOPIC_VIEWER;
+                $this->options = array(
+                    'blogSlug' => $dir[1],
+                    'topicid' => $topicid
+                );
+            } else {
+                $this->contentName = BlogRouter::PAGE_BLOG_VIEWER;
+                $this->options = array(
+                    'blogSlug' => $dir[1],
+                    'page' => $this->PageConvert($dir[2])
+                );
+            }
         }
     }
 

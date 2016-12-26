@@ -1,34 +1,33 @@
 <!--[*]
-[script]brick/authorview.php[/script]
+[script]brick/authorViewer.php[/script]
 
 [mcss=blog]blog.css[/mcss]
 
 [mod=blog]topicList[/mod]
 
 [*]-->
-<div class="authorViewer panel panel-default">
-    <div class="panel-heading">
-        <h3 class="panel-title">
-            Автор
-        </h3>
-    </div>
-
-    <div class="panel-body author">
-        <div class="pull-left">
-            <img src="{v#avatar}" class="avatar img-rounded"/>
-        </div>
-        <div class="pull-left">
-            <h3>
-                <a href="{v#profileURL}">{v#viewName}</a>
+<div class="authorViewer">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">
+                Автор
             </h3>
-            <p>
-                Записей: {v#topics}
-            </p>
         </div>
-        <div class="clear"></div>
 
+        <div class="panel-body author">
+            <div class="pull-left">
+                <img src="{v#avatar}" class="avatar img-rounded"/>
+            </div>
+            <div class="pull-left">
+                <h3>
+                    <a href="{v#profileURL}">{v#viewName}</a>
+                </h3>
+                <p>
+                    Записей: {v#topics}
+                </p>
+            </div>
+            <div class="clear"></div>
+        </div>
     </div>
-    <div class="panel-body">
-        [mod]blog:topicList[/mod]
-    </div>
+    [mod]blog:topicList[/mod]
 </div>

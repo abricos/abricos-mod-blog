@@ -11,6 +11,8 @@
  * Class BlogApp
  *
  * @property BlogManager $manager
+ *
+ * @property BlogRouter $router
  */
 class BlogApp extends AbricosApplication {
 
@@ -93,6 +95,13 @@ class BlogApp extends AbricosApplication {
         return null;
     }
 
+    public function __get($name){
+        if ($name === 'router'){
+            return $this->manager->module->router;
+        }
+        return parent::__get($name);
+    }
+
     public function IsAdminRole(){
         return $this->manager->IsAdminRole();
     }
@@ -135,6 +144,23 @@ class BlogApp extends AbricosApplication {
         $blog->Update($d);
 
         return $blog;
+    }
+
+    public function BlogBySlug($slug){
+        $blogList = $this->BlogList();
+        if (AbricosResponse::IsError($blogList)){
+            return $blogList;
+        }
+
+        $count = $blogList->Count();
+        for ($i = 0; $i < $count; $i++){
+            $blog = $blogList->GetByIndex($i);
+            if ($blog->slug === $slug){
+                return $this->Blog($blog->id);
+            }
+        }
+
+        return AbricosResponse::ERR_NOT_FOUND;
     }
 
     public function BlogListToJSON(){
@@ -351,6 +377,17 @@ class BlogApp extends AbricosApplication {
 
         if ($vars->limit === 0){
             $vars->limit = 10;
+        }
+
+        if (!empty($vars->username)){
+            /** @var UProfileApp $uprofileApp */
+            $uprofileApp = Abricos::GetApp('uprofile');
+            $user = $uprofileApp->Profile($vars->username, true);
+            if (AbricosResponse::IsError($user)){
+                $vars->username = '';
+            } else {
+                $vars->userid = $user->id;
+            }
         }
 
         $vars->limit = min(max($vars->limit, 1), 100);

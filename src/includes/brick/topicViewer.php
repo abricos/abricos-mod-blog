@@ -10,68 +10,78 @@
 $brick = Brick::$builder->brick;
 $v = &$brick->param->var;
 
-/** @var BlogModule $blogModule */
-$blogModule = Abricos::GetModule('blog');
+/** @var BlogModule $module */
+$module = Abricos::GetModule('blog');
 
-/** @var BlogApp $blogApp */
-$blogApp = Abricos::GetApp('blog');
+$options = $module->router->options;
 
-$pa = $blogModule->ParserAddress();
-
-if (empty($pa->topic)){
+if (!isset($options['topicid'])){
     $brick->content = "";
     return;
 }
 
-$topic = $pa->topic;
-$cat = $topic->Category();
+/** @var BlogApp $app */
+$app = Abricos::GetApp('blog');
 
-$vote = "";
+$topic = $app->Topic($options['topicid']);
 
-/** @var URatingApp $uratingApp */
-$uratingApp = Abricos::GetApp('urating');
-if (!empty($uratingApp)){
-    $vote = $uratingApp->VotingHTML($topic->voting);
+if (AbricosResponse::IsError($topic)){
+    $brick->content = "";
+    return;
 }
 
-$modSocialist = Abricos::GetModule('socialist');
-if (!empty($modSocialist)){
-    $modSocialist->GetManager();
+$votingHTML = "";
+if (!empty($topic->voting)){
+    /** @var URatingApp $uratingApp */
+    $uratingApp = Abricos::GetApp('urating');
+    $votingHTML = $uratingApp->VotingHTML($topic->voting);
 }
-$soclinetpl = "";
-if (!empty($modSocialist)){
-    $soclinetpl = SocialistManager::$instance->LikeLineHTML(array(
-        "uri" => $topic->URL(),
+
+$socialistHTML = "";
+
+/** @var SocialistModule $socialistModule */
+$socialistModule = Abricos::GetModule('socialist');
+if (!empty($socialistModule)){
+    $socialistHTML = $socialistModule->GetManager()->LikeLineHTML(array(
+        "uri" => $topic->url,
         "title" => $topic->title
     ));
 }
 
-$atags = array();
-for ($ti = 0; $ti < count($topic->tags); $ti++){
-    array_push($atags, Brick::ReplaceVarByData($v['tagrow'], array(
-        "tl" => $topic->tags[$ti]->title,
-        "url" => $topic->tags[$ti]->URL()
-    )));
+$metaKeys = array();
+$tags = array();
+
+$count = $topic->tagList->Count();
+for ($ti = 0; $ti < $count; $ti++){
+    $tag = $topic->tagList->GetByIndex($ti);
+    $tags[] = Brick::ReplaceVarByData($v['tagrow'], array(
+        "tl" => $tag->title,
+        "url" => $tag->url
+    ));
+    $metaKeys[] = $tag->title;
 }
 
+$blog = $topic->blog;
+$user = $topic->user;
+
 $brick->content = Brick::ReplaceVarByData($brick->content, array(
-    "cattl" => $cat->title,
-    "urlcat" => $cat->URL(),
-    "socialist" => $soclinetpl,
+    "cattl" => $blog->title,
+    "urlcat" => $blog->url,
+    "socialist" => $socialistHTML,
 
     "toptl" => $topic->title,
-    "urltop" => $topic->URL(),
-    "urlcmt" => $topic->URL(),
+    "urltop" => $topic->url,
+    "urlcmt" => $topic->url,
     "cmtcnt" => !empty($topic->commentStatistic) ? $topic->commentStatistic->count : 0,
-    "date" => rusDateTime($topic->publicDate),
-    "taglist" => implode($v['tagdel'], $atags),
+    "date" => rusDateTime($topic->pubdate),
+    "taglist" => implode($v['tagdel'], $tags),
 
-    "voting" => $vote,
+    "voting" => $votingHTML,
 
-    "userURL" => $topic->user->URL(),
-    "uid" => $topic->user->id,
-    "userViewName" => $topic->user->GetViewName(),
-    "avatar" => $topic->user->GetAvatar24(),
+    "userURL" => $user->URL(),
+    "uid" => $user->id,
+    "userViewName" => $user->GetViewName(),
+    "avatar" => $user->GetAvatar24(),
 
     "intro" => $topic->intro,
     "body" => $topic->body
@@ -85,12 +95,8 @@ Brick::$builder->LoadBrickS('comment', 'tree', $brick, array(
     )
 ));
 
-
-$meta_title = $topic->title." / ".$cat->title." / ".SystemModule::$instance->GetPhrases()->Get('site_name');
+$meta_title = $topic->title." / ".$blog->title." / ".SystemModule::$instance->GetPhrases()->Get('site_name');
 
 Brick::$builder->SetGlobalVar('meta_title', $meta_title);
-
-$blogApp->TopicMetaTagBuild($topic);
-
-Brick::$builder->SetGlobalVar('meta_keys', $topic->metakeys);
-Brick::$builder->SetGlobalVar('meta_desc', $topic->metadesc);
+Brick::$builder->SetGlobalVar('meta_keys', implode(", ", $metaKeys));
+Brick::$builder->SetGlobalVar('meta_desc', $topic->metaDesc);

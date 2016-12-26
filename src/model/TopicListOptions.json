@@ -20,8 +20,15 @@
     "blogid": {
       "type": "int"
     },
+    "blogSlug": {
+      "type": "string",
+      "parse": "full"
+    },
     "userid": {
       "type": "int"
+    },
+    "username": {
+      "type": "string"
     },
     "tag": {
       "type": "string",
