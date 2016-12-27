@@ -277,12 +277,8 @@ class BlogQuery {
             FROM (
                 SELECT tag.*
                 FROM ".$db->prefix."blog_tag tag
-                INNER JOIN ".$db->prefix."blog_tagInTopic ti ON ti.tagid=tag.tagid
-                INNER JOIN ".$db->prefix."blog_topic t ON t.topicid=ti.tagid 
-                    AND t.deldate=0 AND t.isDraft=0
-                INNER JOIN ".$db->prefix."blog b ON b.blogid=t.blogid
-                    AND b.deldate=0
-                ORDER BY topicCount
+                WHERE tag.topicCount>0
+                ORDER BY topicCount DESC
                 LIMIT ".intval($options->vars->limit)."
             ) ttag
             ORDER BY title
@@ -325,7 +321,7 @@ class BlogQuery {
             INNER JOIN ".$db->prefix."blog_topic t ON oo.ownerid=t.topicid 
 			INNER JOIN ".$db->prefix."blog b ON b.blogid=t.blogid 
 			WHERE t.deldate=0 AND t.isDraft=0 AND b.deldate=0
-ORDER BY lastCommentDate DESC
+            ORDER BY lastCommentDate DESC
 			LIMIT ".bkint($options->vars->limit)."
 		";
         return $db->query_read($sql);

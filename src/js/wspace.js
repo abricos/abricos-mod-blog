@@ -14,24 +14,34 @@ Component.entryPoint = function(NS){
         SYS.ContainerWidgetExt
     ], {
         onInitAppWorkspace: function(err, appInstance){
-            var instance = this;
-            NS.initManager(function(){
-                instance.onInitOldManager.call(instance, NS.manager);
-            });
+            this.set('waiting', true);
+            appInstance.boxes({
+                commentLive: {limit: 10},
+                topicList: {limit: 5},
+                tagList: {limit: 35}
+            }, this._onLoadBoxes, this);
         },
-        onInitOldManager: function(){
+        _onLoadBoxes: function(err, result){
+            this.set('waiting', true);
+            if (err){
+                return;
+            }
+
             var tp = this.template;
 
             this.addWidget('commentLiveList', new NS.CommentLiveBoxWidget({
-                srcNode: tp.one('commentLive')
+                srcNode: tp.one('commentLive'),
+                commentLiveList: result.commentLiveList,
             }));
 
             this.addWidget('tagList', new NS.TagListBoxWidget({
-                srcNode: tp.one('tagList')
+                srcNode: tp.one('tagList'),
+                tagList: result.tagList
             }));
 
             this.addWidget('topicList', new NS.TopicListBoxWidget({
-                srcNode: tp.one('topicList')
+                srcNode: tp.one('topicList'),
+                topicList: result.topicList
             }));
 
             this.addWidget('blogList', new NS.CategoryListBoxWidget({

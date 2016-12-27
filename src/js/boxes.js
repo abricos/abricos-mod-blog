@@ -10,90 +10,96 @@ Component.entryPoint = function(NS){
         COMPONENT = this,
         SYS = Brick.mod.sys;
 
-    var OldManagerWidgetExt = function(){
-    };
-    OldManagerWidgetExt.prototype = {
+    NS.TopicListBoxWidget = Y.Base.create('TopicListBoxWidget', SYS.AppWidget, [], {
         onInitAppWidget: function(err, appInstance){
-            var instance = this;
-            NS.initManager(function(){
-                instance.onInitOldManager.call(instance, NS.manager);
-            });
-        },
-        onInitOldManager: function(manager){
-        }
-    };
-
-    NS.TopicListBoxWidget = Y.Base.create('TopicListBoxWidget', SYS.AppWidget, [
-        OldManagerWidgetExt
-    ], {
-        onInitOldManager: function(manager){
+            if (this.get('topicList')){
+                return this.renderList();
+            }
             this.set('waiting', true);
-            var instance = this;
-            manager.topicListLoad({limit: 5}, function(list){
-                instance.renderList.call(instance, list);
-            });
+            appInstance.topicList({limit: 5}, function(err, result){
+                this.set('waiting', false);
+                if (err){
+                    return;
+                }
+                this.set('topicList', result.topicList);
+                this.renderList();
+            }, this);
         },
-        renderList: function(list){
+        renderList: function(){
             this.set('waiting', false);
+            var list = this.get('topicList');
             if (!list){
                 return;
             }
             var tp = this.template,
                 lst = "";
 
-            list.foreach(function(topic){
-                var cat = topic.category();
+            list.each(function(topic){
+                var blog = topic.get('blog');
+
                 lst += tp.replace('toprow', {
-                    cattl: cat.title,
-                    urlcat: cat.url(),
-                    toptl: topic.title,
-                    urltop: topic.url()
+                    id: topic.get('id'),
+                    blogTitle: blog.get('title'),
+                    blogid: blog.get('id'),
+                    title: topic.get('title'),
                 });
-            });
-            tp.setHTML('list', tp.replace('toplist', {
+
+            }, this);
+
+            tp.setHTML('topicList', tp.replace('toplist', {
                 rows: lst
             }));
+
+            this.appURLUpdate();
         }
     }, {
         ATTRS: {
             component: {value: COMPONENT},
             templateBlockName: {value: 'topics,toplist,toprow'},
+            topicList: {value: null}
         },
     });
 
-    NS.CommentLiveBoxWidget = Y.Base.create('CommentLiveBoxWidget', SYS.AppWidget, [
-        OldManagerWidgetExt
-    ], {
-        onInitOldManager: function(manager){
+    NS.CommentLiveBoxWidget = Y.Base.create('CommentLiveBoxWidget', SYS.AppWidget, [], {
+        onInitAppWidget: function(err, appInstance){
+            if (this.get('commentLiveList')){
+                return this.renderList();
+            }
             this.set('waiting', true);
-            var instance = this;
-            manager.commentLiveListLoad({limit: 10}, function(list){
-                instance.renderList.call(instance, list);
-            });
+            appInstance.commentLiveList({limit: 10}, function(err, result){
+                this.set('waiting', false);
+                if (err){
+                    return;
+                }
+                this.set('commentLiveList', result.commentLiveList);
+                this.renderList();
+            }, this);
         },
-        renderList: function(list){
+        renderList: function(){
             this.set('waiting', false);
+            var list = this.get('commentLiveList');
             if (!list){
                 return;
             }
             var tp = this.template,
                 lst = "";
 
-            list.foreach(function(cmt){
-                var cat = cmt.topic.category(),
-                    user = cmt.user;
+            list.each(function(topic){
+                var blog = topic.get('blog'),
+                    user = topic.get('user');
 
                 lst += tp.replace('cmtrow', {
+                    topicid: topic.get('id'),
+                    blogid: blog.get('id'),
+                    blogTitle: blog.get('title'),
                     uid: user.get('id'),
                     login: user.get('username'),
                     unm: user.get('viewName'),
-                    cattl: cat.title,
-                    urlcat: cat.url(),
-                    toptl: cmt.topic.title,
-                    urlcmt: cmt.topic.url(),
-                    cmtcnt: cmt.topic.commentStatistic.get('count'),
+                    topicTitle: topic.get('title'),
+                    comments: topic.get('commentStatistic').get('count'),
                 });
-            });
+            }, this);
+
             tp.setHTML('list', tp.replace('cmtlist', {
                 rows: lst
             }));
@@ -103,21 +109,28 @@ Component.entryPoint = function(NS){
         ATTRS: {
             component: {value: COMPONENT},
             templateBlockName: {value: 'comments,cmtlist,cmtrow'},
+            commentLiveList: {value: null}
         },
     });
 
-    NS.TagListBoxWidget = Y.Base.create('TagListBoxWidget', SYS.AppWidget, [
-        OldManagerWidgetExt
-    ], {
-        onInitOldManager: function(manager){
+    NS.TagListBoxWidget = Y.Base.create('TagListBoxWidget', SYS.AppWidget, [], {
+        onInitAppWidget: function(err, appInstance){
+            if (this.get('tagList')){
+                return this.renderList();
+            }
             this.set('waiting', true);
-            var instance = this;
-            manager.tagListLoad({limit: 35}, function(list){
-                instance.renderList.call(instance, list);
-            });
+            appInstance.tagList({limit: 35}, function(err, result){
+                this.set('waiting', false);
+                if (err){
+                    return;
+                }
+                this.set('tagList', result.tagList);
+                this.renderList();
+            }, this);
         },
         renderList: function(list){
             this.set('waiting', false);
+            var list = this.get('tagList');
             if (!list){
                 return;
             }
@@ -126,20 +139,10 @@ Component.entryPoint = function(NS){
                 min = 999999,
                 max = 0;
 
-            list.foreach(function(tag){
+            list.each(function(tag){
                 arr[arr.length] = tag;
-                min = Math.min(min, tag.topicCount);
-                max = Math.max(max, tag.topicCount);
-            });
-
-            arr = arr.sort(function(t1, t2){
-                if (t1.title < t2.title){
-                    return -1;
-                }
-                if (t1.title > t2.title){
-                    return 1;
-                }
-                return 0;
+                min = Math.min(min, tag.get('topicCount'));
+                max = Math.max(max, tag.get('topicCount'));
             });
 
             var fmin = 0, fmax = 10;
@@ -149,37 +152,39 @@ Component.entryPoint = function(NS){
             var g1 = Math.log(min + 1),
                 g2 = Math.log(max + 1);
 
-            var lst = "",
-                tp = this.template,
+            var tp = this.template,
+                lst = "",
                 tag, cnt, n1, n2, v;
 
             for (var i = 0; i < arr.length; i++){
                 tag = arr[i];
-                cnt = tag.topicCount;
+                cnt = tag.get('topicCount');
                 n1 = (fmin + Math.log(cnt + 1) - g1) * fmax;
                 n2 = g2 - g1;
                 v = Math.ceil(n1 / n2);
 
                 lst += tp.replace('tagrow', {
-                        tagtl: tag.title,
-                        urltag: tag.url(),
-                        sz: v
-                    }) + ' ';
+                    id: tag.get('id'),
+                    slug: encodeURIComponent(tag.get('title')),
+                    title: tag.get('title'),
+                    sz: v
+                });
+                lst += ' ';
             }
             tp.setHTML('list', tp.replace('taglist', {
                 rows: lst
             }));
+            this.appURLUpdate();
         }
     }, {
         ATTRS: {
             component: {value: COMPONENT},
             templateBlockName: {value: 'tags,taglist,tagrow'},
+            tagList: {value: null}
         },
     });
 
-    NS.CategoryListBoxWidget = Y.Base.create('CategoryListBoxWidget', SYS.AppWidget, [
-        OldManagerWidgetExt
-    ], {
+    NS.CategoryListBoxWidget = Y.Base.create('CategoryListBoxWidget', SYS.AppWidget, [], {
         onInitOldManager: function(manager){
             this.set('waiting', true);
             this.renderList(manager.categoryList);

@@ -18,7 +18,7 @@ Component.entryPoint = function(NS){
                 p1 = this.get('param1'),
                 p2 = this.get('param2'),
                 instance = this;
-
+return;
             this.addWidget('topicList', new NS.TopicListWidget({
                 srcNode: tp.one('listWidget'),
                 config: {filter: p1 + '/' + p2},

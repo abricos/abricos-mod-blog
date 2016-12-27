@@ -50,7 +50,7 @@
       "type": "bool"
     },
     "commentStatistic": {
-      "type": "model:comment:CommentStatistic"
+      "type": "model:comment:Statistic"
     },
     "voting": {
       "type": "model:urating:Voting"

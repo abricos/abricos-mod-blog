@@ -9,16 +9,16 @@
 
         <div class="clearfix"></div>
     </div>
-    <div id="{i#list}" class="list-group"></div>
+    <div id="{i#topicList}" class="list-group"></div>
 </div>
 
 <!--{toplist}-->{v#rows}
 
 <!--{toprow}-->
 <li class="list-group-item">
-    <a href="{v#urlcat}" class="category">{v#cattl}</a>
+    <a data-url="blog.view({v#blogid})" class="blog">{v#blogTitle}</a>
     &nbsp;→&nbsp;
-    <a href="{v#urltop}" class="topic">{v#toptl}</a>
+    <a data-url="blog.view({v#id})" class="topic">{v#title}</a>
 </li>
 
 <!--{comments}-->
@@ -39,12 +39,12 @@
 
 <!--{cmtrow}-->
 <li class="list-group-item">
-    <a href="{v#urlcmt}" class="badge">{v#cmtcnt}</a>
+    <a data-url="topic.view({v#topicid})" class="badge">{v#comments}</a>
 
     <a data-url="uprofile:profile.view({v#uid})" class="user" title="{v#unm}">{v#login}</a>
-    <a href="{v#urlcat}" class="category">{v#cattl}</a>
+    <a data-url="blog.view({v#blogid})" class="blog">{v#blogTitle}</a>
     <span>→</span>
-    <a href="{v#urlcmt}" class="topic">{v#toptl}</a>
+    <a data-url="topic.view({v#topicid})" class="topic">{v#topicTitle}</a>
 </li>
 
 <!--{tags}-->
@@ -64,7 +64,7 @@
 <!--{taglist}-->{v#rows}
 
 <!--{tagrow}-->
-<a href="{v#urltag}" class="tag sz{v#sz}">{v#tagtl}</a>
+<a data-url="tag.view({v#slug})" class="tag sz{v#sz}">{v#title}</a>
 
 <!--{cats}-->
 <div class="aw-blog categoryListBox panel panel-default">

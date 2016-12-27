@@ -1,7 +1,7 @@
 var Component = new Brick.Component();
 Component.requires = {
     mod: [
-        {name: '{C#MODNAME}', files: ['model.js', 'old_lib.js']}
+        {name: '{C#MODNAME}', files: ['model.js']}
     ]
 };
 Component.entryPoint = function(NS){
@@ -29,9 +29,14 @@ Component.entryPoint = function(NS){
             BlogUserRoleList: {value: NS.BlogUserRoleList},
             Topic: {value: NS.Topic},
             TopicList: {value: NS.TopicList},
+            Tag: {value: NS.Tag},
+            TagList: {value: NS.TagList},
             Config: {value: NS.Config},
         },
         REQS: {
+            boxes: {
+                args: ['options']
+            },
             blog: {
                 args: ['blogid'],
                 type: "model:Blog"
@@ -56,12 +61,30 @@ Component.entryPoint = function(NS){
             },
             topicList: {
                 args: ['options'],
-                type: "modelList:TopicList"
+                type: "modelList:TopicList",
+                onResponse: function(topicList){
+                    var userids = topicList.toArray('userid', {distinct: true});
+                    return function(callback, context){
+                        this.getApp('uprofile').userListByIds(userids, function(err, result){
+                            callback.call(context || null);
+                        }, context);
+                    };
+                }
             },
             topicSave: {
                 args: ['data']
             },
-            
+
+            commentLiveList: {
+                args: ['options'],
+                type: "modelList:TopicList"
+            },
+
+            tagList: {
+                attribute: true,
+                type: "modelList:TagList"
+            },
+
             config: {
                 attribute: true,
                 type: 'model:Config'

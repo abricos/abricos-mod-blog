@@ -42,6 +42,9 @@ class BlogApp extends AbricosApplication {
 
     public function ResponseToJSON($d){
         switch ($d->do){
+            case "boxes":
+                return $this->BoxesToJSON($d->options);
+
             case "blog":
                 return $this->BlogToJSON($d->blogid);
             case "blogList":
@@ -60,6 +63,9 @@ class BlogApp extends AbricosApplication {
                 return $this->TopicListToJSON($d->options);
             case "topicSave":
                 return $this->TopicSaveToJSON($d->data);
+
+            case "commentLiveList":
+                return $this->CommentLiveListToJSON($d->options);
 
             case "tagList":
                 return $this->TagListToJSON($d->options);
@@ -112,6 +118,20 @@ class BlogApp extends AbricosApplication {
 
     public function IsViewRole(){
         return $this->manager->IsViewRole();
+    }
+
+    public function BoxesToJSON($options){
+
+        $res = new stdClass();
+        $res->ok = true;
+
+        return $this->ImplodeJSON(array(
+            $this->ResultToJSON('boxes', $res),
+            $this->BlogListToJSON(),
+            $this->TopicListToJSON($options->topicList),
+            $this->TagListToJSON($options->tagList),
+            $this->CommentLiveListToJSON($options->commentLive)
+        ));
     }
 
     /*********************************************************/
@@ -479,6 +499,11 @@ class BlogApp extends AbricosApplication {
         return $retList;
     }
 
+    public function CommentLiveListToJSON($options){
+        $res = $this->CommentLiveList($options);
+        return $this->ResultToJSON('commentLiveList', $res);
+    }
+
     /**
      * @param array|BlogTopicListOptions $options
      * @return BlogTopicList|int
@@ -508,6 +533,11 @@ class BlogApp extends AbricosApplication {
     /*********************************************************/
     /*                       Topic Tag                       */
     /*********************************************************/
+
+    public function TagListToJSON($options = null){
+        $res = $this->TagList($options);
+        return $this->ResultToJSON('tagList', $res);
+    }
 
     /**
      * @param null $options

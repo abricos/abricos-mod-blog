@@ -1,7 +1,7 @@
 var Component = new Brick.Component();
 Component.requires = {
     mod: [
-        {name: '{C#MODNAME}', files: ['base.js', 'old_model.js']}
+        {name: '{C#MODNAME}', files: ['base.js']}
     ]
 };
 Component.entryPoint = function(NS){
@@ -34,10 +34,23 @@ Component.entryPoint = function(NS){
 
     NS.Topic = Y.Base.create('topic', SYS.AppModel, [], {
         structureName: 'Topic'
+    }, {
+        ATTRS: {
+            blog: NS.ATTRIBUTE.blog,
+            user: NS.ATTRIBUTE.user
+        }
     });
 
     NS.TopicList = Y.Base.create('topicList', SYS.AppModelList, [], {
         appItem: NS.Topic
+    });
+
+    NS.Tag = Y.Base.create('tag', SYS.AppModel, [], {
+        structureName: 'Tag'
+    });
+
+    NS.TagList = Y.Base.create('tagList', SYS.AppModelList, [], {
+        appItem: NS.Tag
     });
 
     NS.Config = Y.Base.create('config', SYS.AppModel, [], {
