@@ -22,7 +22,7 @@ Component.entryPoint = function(NS){
             }, this._onLoadBoxes, this);
         },
         _onLoadBoxes: function(err, result){
-            this.set('waiting', true);
+            this.set('waiting', false);
             if (err){
                 return;
             }

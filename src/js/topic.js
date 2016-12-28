@@ -94,7 +94,7 @@ Component.entryPoint = function(NS){
             return {
                 id: topic.get('id'),
                 blogid: topic.get('blogid'),
-                title: topic.title,
+                title: topic.get('title'),
                 blogTitle: blog.get('title')
             };
         },
@@ -134,27 +134,21 @@ Component.entryPoint = function(NS){
         onInitAppWidget: function(err, appInstance){
             this.set('waiting', true);
 
-            var instance = this,
+            var tp = this.template,
                 topicid = this.get('topicid');
 
-            NS.manager.topicLoad(topicid, function(topic){
-                instance._renderTopic(topic);
-            });
+            appInstance.topic(topicid, function(err, result){
+                this.set('waiting', false);
+                if (err){
+                    return tp.show('nullItem');
+                }
+                this.set('topic', result.topic);
+                this.renderTopic();
+            }, this);
         },
-        destructor: function(){
-            if (this.viewWidget){
-                this.viewWidget.destroy();
-            }
-        },
-        _renderTopic: function(topic){
-            this.set('waiting', false);
-
-            var tp = this.template;
-
-            if (!topic){
-                tp.show('nullItem');
-                return;
-            }
+        renderTopic: function(){
+            var tp = this.template,
+                topic = this.get('topic');
 
             var widget = this.addWidget('view', new NS.TopicRowWidget({
                 srcNode: tp.gel('view'),
@@ -166,16 +160,16 @@ Component.entryPoint = function(NS){
             });
             widget.template.hide('readmore');
 
-            this._commentsWidget = new Brick.mod.comment.CommentTreeWidget({
+            widget.template.show('commentsBlock');
+            this.addWidget('comments', new Brick.mod.comment.CommentTreeWidget({
                 srcNode: widget.template.one('comments'),
                 commentOwner: {
                     module: 'blog',
                     type: 'topic',
-                    ownerid: topic.id
+                    ownerid: topic.get('id')
                 },
                 readOnly: !NS.roles.isWrite
-            });
-            widget.template.show('commentsBlock');
+            }));
         }
     }, {
         ATTRS: {

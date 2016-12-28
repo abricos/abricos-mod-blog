@@ -351,13 +351,4 @@ Component.entryPoint = function(NS){
             });
         }
     };
-    NS.manager = null;
-
-    NS.initManager = function(callback){
-        if (!NS.manager){
-            NS.manager = new Manager(callback);
-        } else {
-            NS.life(callback, NS.manager);
-        }
-    };
 };

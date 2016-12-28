@@ -57,7 +57,7 @@ Component.entryPoint = function(NS){
 
             topic: {
                 args: ['topicid'],
-                type: "model:Blog"
+                type: "model:Topic"
             },
             topicList: {
                 args: ['options'],
