@@ -40,4 +40,17 @@ Component.entryPoint = function(NS){
             }
         }
     };
+
+    NS.SITE = (function(){
+        var protocol = window.location.protocol,
+            host = window.location.host,
+            port = window.location.port | 0,
+            site = protocol + '//' + host;
+
+        if (port !== 80 && port !== 0){
+            site += ':' + port;
+        }
+
+        return site;
+    })();
 };

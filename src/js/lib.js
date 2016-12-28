@@ -62,7 +62,11 @@ Component.entryPoint = function(NS){
             topicList: {
                 args: ['options'],
                 type: "modelList:TopicList",
-                onResponse: function(topicList){
+                onResponse: function(topicList, data){
+                    topicList.set('options', data.options || {})
+                    topicList.set('total', data.total | 0);
+                    topicList.set('totalNew', data.totalNew | 0);
+
                     var userids = topicList.toArray('userid', {distinct: true});
                     return function(callback, context){
                         this.getApp('uprofile').userListByIds(userids, function(err, result){

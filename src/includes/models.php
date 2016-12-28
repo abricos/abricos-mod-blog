@@ -162,6 +162,7 @@ class BlogUserRoleList extends AbricosModelList {
  * @property int $userid
  * @property string $title
  * @property string $intro
+ * @property bool $isBody
  * @property string $body
  * @property string $metaDesc
  * @property string $metaKeys
@@ -229,8 +230,12 @@ class BlogTopic extends AbricosModel {
 class BlogTopicList extends AbricosModelList {
 
     public $total = 0;
-
     public $totalNew = 0;
+
+    /**
+     * @var BlogTopicListOptions
+     */
+    public $options;
 
     /**
      * @param BlogTopic $item
@@ -248,6 +253,10 @@ class BlogTopicList extends AbricosModelList {
 
         $ret->total = $this->total;
         $ret->totalNew = $this->totalNew;
+
+        if (!empty($this->options)){
+            $ret->options = $this->options->vars->ToJSON();
+        }
 
         return $ret;
     }

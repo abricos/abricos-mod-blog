@@ -18,6 +18,20 @@ Component.entryPoint = function(NS){
 
     NS.Blog = Y.Base.create('blog', SYS.AppModel, [], {
         structureName: 'Blog'
+    }, {
+        ATTRS: {
+            surl: {
+                getter: function(val, name){
+                    var data = this._state.data[name];
+                    if (data.value){
+                        return data.value;
+                    }
+                    return data.value =
+                        NS.SITE + '/blog/' + this.get('slug') + '/';
+                }
+            }
+
+        }
     });
 
     NS.BlogList = Y.Base.create('blogList', SYS.AppModelList, [], {
@@ -37,12 +51,28 @@ Component.entryPoint = function(NS){
     }, {
         ATTRS: {
             blog: NS.ATTRIBUTE.blog,
-            user: NS.ATTRIBUTE.user
+            user: NS.ATTRIBUTE.user,
+            surl: {
+                getter: function(val, name){
+                    var data = this._state.data[name];
+                    if (data.value){
+                        return data.value;
+                    }
+                    var blog = this.get('blog');
+                    return data.value = blog.get('surl') + this.get('id') + '/';
+                }
+            }
         }
     });
 
     NS.TopicList = Y.Base.create('topicList', SYS.AppModelList, [], {
         appItem: NS.Topic
+    }, {
+        ATTRS: {
+            options: {value: {}},
+            total: {value: 0},
+            totalNew: {value: 0}
+        }
     });
 
     NS.Tag = Y.Base.create('tag', SYS.AppModel, [], {

@@ -18,7 +18,7 @@ Component.entryPoint = function(NS){
                 p1 = this.get('param1'),
                 p2 = this.get('param2'),
                 instance = this;
-return;
+
             this.addWidget('topicList', new NS.TopicListWidget({
                 srcNode: tp.one('listWidget'),
                 config: {filter: p1 + '/' + p2},
@@ -94,11 +94,15 @@ return;
             var instance = this,
                 cfg = this.get('config');
 
-            NS.initManager(function(){
-                NS.manager.topicListLoad(cfg, function(list){
-                    instance.onLoadManager(list);
-                });
-            });
+            this.set('waiting', true);
+            appInstance.topicList(cfg, function(err, result){
+                this.set('waiting', false);
+                if (err){
+                    return;
+                }
+                this.set('topicList', result.topicList);
+                this.onLoadTopicList();
+            }, this);
         },
         destructor: function(){
             this.clearList();
@@ -112,16 +116,17 @@ return;
             }
             tp.setHTML('list', '');
         },
-        onLoadManager: function(list){
-            var onLoadCallback = this.get('onLoadCallback');
+        onLoadTopicList: function(){
+            var appInstance = this.get('appInstance'),
+                topicList = this.get('topicList'),
+                options = topicList.get('options'),
+                onLoadCallback = this.get('onLoadCallback');
+
             if (Y.Lang.isFunction(onLoadCallback)){
-                onLoadCallback.call(this, list);
+                onLoadCallback.call(this, topicList);
             }
 
-            this.renderList(list);
-            if (!list){
-                return;
-            }
+            this.renderList();
 
             var tp = this.template,
                 instance = this,
@@ -129,47 +134,51 @@ return;
 
             this.addWidget('nextButtons', new NS.NextWidget({
                 srcNode: tp.one('next'),
-                limit: list.limit,
-                loaded: list.count(),
-                total: list.total,
+                limit: options.limit | 10,
+                loaded: topicList.size(),
+                total: topicList.get('total'),
                 nextCallback: function(page, callback){
                     cfg.page = page;
                     cfg.list = list;
-                    NS.manager.topicListLoad(cfg, function(nlist){
+
+                    appInstance.topicList(cfg, function(err, result){
+                        if (err){
+                            return;
+                        }
+                        instance.set('topicList', result.topicList);
                         callback.call(instance, {
-                            loaded: nlist.count(),
-                            total: nlist.total
+                            loaded: result.topicList.size(),
+                            total: result.topicList.get('total')
                         });
-                        instance.renderList(nlist);
-                    });
+                        instance.clearList();
+                        instance.renderList();
+                    }, instance);
                 }
             }));
         },
-        renderList: function(list, isClear){
+        renderList: function(){
             this.set('waiting', false);
-            if (isClear){
-                this.clearList();
-            }
+
             var tp = this.template,
                 ws = this.wsList;
 
-            list.foreach(function(topic){
+            this.get('topicList').each(function(topic){
                 for (var i = 0; i < ws.length; i++){
-                    if (ws[i].get('topic').id == topic.id){
+                    if (ws[i].get('topic').get('id') === topic.get('id')){
                         return;
                     }
                 }
-
                 ws[ws.length] = new NS.TopicRowWidget({
                     srcNode: tp.append('list', '<div></div>'),
                     topic: topic
                 });
-            });
+            }, this);
         }
     }, {
         ATTRS: {
             component: {value: COMPONENT},
             templateBlockName: {value: 'topicList'},
+            topicList: {value: null},
             config: {
                 value: {},
                 setter: function(val){

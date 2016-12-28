@@ -140,20 +140,6 @@ Component.entryPoint = function(NS){
                 appInstance: commentApp
             }, d.commentStatistic || {}));
         },
-        url: function(){
-            return NS.navigator.topic.view(this.id);
-        },
-        surl: function(){
-            return '/blog/' + this.category().name + '/' + this.id + '/';
-        },
-        category: function(){
-            var catid = this.catid | 0;
-            if (catid == 0){ // персональный блог
-                return new CategoryPerson(this.user.get('id'));
-            } else {
-                return NS.manager.categoryList.get(catid);
-            }
-        },
         isEdit: function(){
             return this.user.id == UID || NS.roles.isAdmin;
         }

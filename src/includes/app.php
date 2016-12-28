@@ -438,6 +438,7 @@ class BlogApp extends AbricosApplication {
             $list->Add($this->InstanceClass('Topic', $d));
         }
         $options->topicList = $list;
+        $list->options = $options;
 
         $topicids = $list->ToArray('id');
 
@@ -486,6 +487,8 @@ class BlogApp extends AbricosApplication {
 
         /** @var BlogTopicList $retList */
         $retList = $this->InstanceClass('TopicList');
+
+        $retList->options = $options;
 
         $ids = explode(',', $vars->ids);
         $count = count($ids);

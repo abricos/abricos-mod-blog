@@ -17,6 +17,9 @@
     "intro": {
       "type": "string"
     },
+    "isBody": {
+      "type": "bool"
+    },
     "body": {
       "type": "string"
     },

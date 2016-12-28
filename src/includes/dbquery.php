@@ -179,7 +179,9 @@ class BlogQuery {
 
     public static function Topic(Ab_Database $db, $topicid){
         $sql = "
-			SELECT t.*
+			SELECT 
+			    t.*,
+			    IF(LENGTH(t.body)>10, 1, 0) as isBody
 			FROM ".$db->prefix."blog_topic t
 			INNER JOIN ".$db->prefix."blog b ON b.blogid=t.blogid AND b.deldate=0
 			WHERE t.topicid=".intval($topicid)." AND t.deldate=0
@@ -231,7 +233,10 @@ class BlogQuery {
         $from = $vars->limit * ($vars->page - 1);
         $limit = "LIMIT ".$from.",".bkint($vars->limit)."";
 
-        $fields = "t.*";
+        $fields = "
+            t.*,
+            IF(LENGTH(t.body)>10, 1, 0) as isBody
+        ";
         if ($isTotal){
             $fields = "
                 SUM(1) as total,

@@ -16,15 +16,18 @@ Component.entryPoint = function(NS){
     var SOCIALIST = Brick.mod.socialist || {},
         LNG = this.language;
 
+    var UID = Brick.env.user.id | 0;
+
     NS.TopicInfoLineWidget = Y.Base.create('TopicInfoLineWidget', SYS.AppWidget, [
         SYS.ContainerWidgetExt
     ], {
         buildTData: function(){
             var topic = this.get('topic'),
-                user = topic.user,
-                commentStat = topic.commentStatistic;
+                user = topic.get('user'),
+                commentStat = topic.get('commentStatistic');
+
             return {
-                date: !topic.date ? LNG.get('topic.draft') : Brick.dateExt.convert(topic.date),
+                date: !topic.get('date') ? LNG.get('topic.draft') : Brick.dateExt.convert(topic.get('date')),
                 userid: user.get('id'),
                 avatar: user.get('avatarSrc24'),
                 userViewName: user.get('viewName'),
@@ -35,18 +38,18 @@ Component.entryPoint = function(NS){
             var tp = this.template,
                 topic = this.get('topic');
 
-            if (topic.voting){
+            if (topic.get('voting')){
                 this.addWidget('voting', new Brick.mod.urating.VotingWidget({
                     boundingBox: this.gel('voting'),
-                    voting: topic.voting
+                    voting: topic.get('voting')
                 }));
                 tp.show('votingBlock');
             }
             if (SOCIALIST.LineWidget){
                 this.addWidget('socialist', new SOCIALIST.LineWidget({
                     srcNode: tp.one('socialist'),
-                    itemURL: topic.surl(),
-                    itemTitle: topic.title
+                    itemURL: topic.get('surl'),
+                    itemTitle: topic.get('title')
                 }));
                 tp.show('socialistBlock');
             }
@@ -64,12 +67,12 @@ Component.entryPoint = function(NS){
             var tp = this.template,
                 alst = [];
 
-            this.get('tagList').foreach(function(tag){
+            this.get('tagList').each(function(tag){
                 alst[alst.length] = tp.replace('tagRow', {
-                    tl: tag.title,
-                    url: tag.url()
+                    tl: tag.get('title'),
+                    url: tag.get('url')
                 });
-            });
+            }, this);
 
             tp.setHTML('tags', alst.join(tp.replace('tagRowDelim')));
         },
@@ -86,12 +89,13 @@ Component.entryPoint = function(NS){
     ], {
         buildTData: function(){
             var topic = this.get('topic'),
-                cat = topic.category();
+                blog = topic.get('blog');
+
             return {
-                id: topic.id,
-                catid: topic.catid,
+                id: topic.get('id'),
+                blogid: topic.get('blogid'),
                 title: topic.title,
-                catTitle: cat ? cat.title : ''
+                blogTitle: blog.get('title')
             };
         },
         onInitAppWidget: function(err, appInstance){
@@ -100,7 +104,7 @@ Component.entryPoint = function(NS){
 
             this.addWidget('tagList', new NS.TagListWidget({
                 srcNode: tp.one('taglist'),
-                tagList: topic.tagList
+                tagList: topic.get('tagList')
             }));
             this.addWidget('info', new NS.TopicInfoLineWidget({
                 boundingBox: tp.one('info'),
@@ -108,11 +112,13 @@ Component.entryPoint = function(NS){
             }));
 
             tp.setHTML({
-                intro: topic.intro
+                intro: topic.get('intro')
             });
 
-            tp.toggleView(topic.isEdit(), 'editButton');
-            tp.toggleView(topic.isBody, 'readmore');
+            var isEdit = topic.get('userid') === UID || NS.roles.isAdmin;
+
+            tp.toggleView(isEdit, 'editButton');
+            tp.toggleView(topic.get('isBody'), 'readmore');
         },
     }, {
         ATTRS: {
