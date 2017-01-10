@@ -16,6 +16,14 @@ Component.entryPoint = function(NS){
         isView: 10
     });
 
+    NS.Author = Y.Base.create('author', SYS.AppModel, [], {
+        structureName: 'Author'
+    });
+
+    NS.AuthorList = Y.Base.create('authorList', SYS.AppModelList, [], {
+        appItem: NS.Author
+    });
+
     NS.Blog = Y.Base.create('blog', SYS.AppModel, [], {
         structureName: 'Blog'
     }, {

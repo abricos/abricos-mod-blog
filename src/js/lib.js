@@ -23,6 +23,8 @@ Component.entryPoint = function(NS){
         },
         ATTRS: {
             isLoadAppStructure: {value: true},
+            Author: {value: NS.Author},
+            AuthorList: {value: NS.AuthorList},
             Blog: {value: NS.Blog},
             BlogList: {value: NS.BlogList},
             BlogUserRole: {value: NS.BlogUserRole},

@@ -15,6 +15,7 @@ Component.entryPoint = function(NS){
         onInitAppWidget: function(err, appInstance){
             this.set('waiting', true);
             var instance = this;
+
             NS.manager.authorListLoad(function(list){
                 instance.renderList(list);
             });

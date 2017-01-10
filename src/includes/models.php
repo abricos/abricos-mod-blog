@@ -7,7 +7,76 @@
  * @author Alexander Kuzmin <roosit@abricos.org>
  */
 
-require_once 'old_models.php';
+/**
+ * Class BlogListOptions
+ */
+class BlogListWithOptions extends AbricosModelList {
+
+    public $total = 0;
+
+    public $options;
+
+    public function __construct($options = null){
+        parent::__construct();
+    }
+
+    public function ToJSON(){
+        $ret = parent::ToJSON();
+
+        $ret->total = $this->total;
+
+        if (!empty($this->options)){
+            $ret->options = $this->options->vars->ToJSON();
+        }
+
+        return $ret;
+    }
+}
+
+/**
+ * Class BlogAuthor
+ *
+ * @property int $id User ID
+ * @property int $topicCount
+ */
+class BlogAuthor extends AbricosModel {
+    protected $_structModule = 'blog';
+    protected $_structName = 'Author';
+}
+
+/**
+ * Interface BlogAuthorListOptionsVars
+ *
+ * @property int $limit
+ * @property int $page
+ */
+interface BlogAuthorListOptionsVars {
+}
+
+/**
+ * Class BlogAuthorListOptions
+ *
+ * @property BlogAuthorListOptionsVars $vars
+ * @property int $total
+ */
+class BlogAuthorListOptions extends AbricosResponse {
+    const CODE_OK = 1;
+
+    protected $_structModule = 'blog';
+    protected $_structName = 'AuthorListOptions';
+}
+
+
+/**
+ * Class BlogAuthorList
+ *
+ * @property BlogAuthorListOptions $options
+ *
+ * @method BlogAuthor Get(int $id)
+ * @method BlogAuthor GetByIndex(int $index)
+ */
+class BlogAuthorList extends BlogListWithOptions {
+}
 
 /**
  * Class Blog
@@ -224,18 +293,14 @@ class BlogTopic extends AbricosModel {
 /**
  * Class BlogTopicList
  *
+ * @property BlogTopicListOptions $options
+ *
  * @method BlogTopic Get(int $id)
  * @method BlogTopic GetByIndex(int $index)
  */
-class BlogTopicList extends AbricosModelList {
+class BlogTopicList extends BlogListWithOptions {
 
-    public $total = 0;
     public $totalNew = 0;
-
-    /**
-     * @var BlogTopicListOptions
-     */
-    public $options;
 
     /**
      * @param BlogTopic $item
@@ -250,14 +315,7 @@ class BlogTopicList extends AbricosModelList {
 
     public function ToJSON(){
         $ret = parent::ToJSON();
-
-        $ret->total = $this->total;
         $ret->totalNew = $this->totalNew;
-
-        if (!empty($this->options)){
-            $ret->options = $this->options->vars->ToJSON();
-        }
-
         return $ret;
     }
 }
@@ -357,10 +415,12 @@ class BlogTag extends AbricosModel {
 /**
  * Class BlogTagList
  *
+ * @property BlogTagListOptions $options
+ *
  * @method BlogTag Get(int $id)
  * @method BlogTag GetByIndex(int $index)
  */
-class BlogTagList extends AbricosModelList {
+class BlogTagList extends BlogListWithOptions {
 }
 
 /**

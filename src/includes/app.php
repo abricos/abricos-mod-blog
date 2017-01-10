@@ -21,6 +21,9 @@ class BlogApp extends AbricosApplication {
             'Blog' => 'Blog',
             'BlogList' => 'BlogList',
             'BlogSave' => 'BlogSave',
+            'Author' => 'BlogAuthor',
+            'AuthorList' => 'BlogAuthorList',
+            'AuthorListOptions' => 'BlogAuthorListOptions',
             'BlogUserRole' => 'BlogUserRole',
             'BlogUserRoleList' => 'BlogUserRoleList',
             'Topic' => 'BlogTopic',
@@ -37,7 +40,7 @@ class BlogApp extends AbricosApplication {
     }
 
     protected function GetStructures(){
-        return 'Blog,BlogUserRole,Topic,Tag,TagInTopic,Config';
+        return 'Blog,BlogUserRole,Author,Topic,Tag,Config';
     }
 
     public function ResponseToJSON($d){
@@ -70,6 +73,11 @@ class BlogApp extends AbricosApplication {
             case "tagList":
                 return $this->TagListToJSON($d->options);
 
+            case "author":
+                return $this->AuthorToJSON($d->userid);
+            case "authorList":
+                return $this->AuthorListToJSON($d->options);
+
             case "config":
                 return $this->ConfigToJSON();
             case "configSave":
@@ -81,20 +89,12 @@ class BlogApp extends AbricosApplication {
                 return $this->TopicPreview($d->savedata);
             case "topicsave":
                 return $this->TopicSave($d->savedata);
-            case "topiclist":
-                return $this->TopicListToAJAX($d);
-            case "categorylist":
-                return $this->CategoryListToAJAX();
             case "categorysave":
                 return $this->CategorySave($d);
             case "categoryjoin":
                 return $this->CategoryJoin($d->catid);
             case "categoryremove":
                 return $this->CategoryRemove($d->catid);
-            case "author":
-                return $this->AuthorToAJAX($d->authorid);
-            case "authorlist":
-                return $this->AuthorListToAJAX($d);
             case "commentlivelist":
                 return $this->CommentLiveListToAJAX($d);
         }
@@ -560,6 +560,36 @@ class BlogApp extends AbricosApplication {
         $rows = BlogQuery::TagList($this->db, $options);
         while (($d = $this->db->fetch_array($rows))){
             $list->Add($this->InstanceClass('Tag', $d));
+        }
+        return $list;
+    }
+
+    /*********************************************************/
+    /*                         Author                        */
+    /*********************************************************/
+
+    public function AuthorListToJSON($options = null){
+        $res = $this->AuthorList($options);
+        return $this->ResultToJSON('authorList', $res);
+    }
+
+    /**
+     * @param null $options
+     * @return BlogAuthorList|int
+     */
+    public function AuthorList($options = null){
+        if (!$this->IsViewRole()){
+            return AbricosResponse::ERR_FORBIDDEN;
+        }
+
+        /** @var BlogAuthorListOptions $options */
+        $options = $this->InstanceClass('AuthorListOptions', $options);
+
+        /** @var BlogAuthorList $list */
+        $list = $this->InstanceClass('AuthorList');
+        $rows = BlogQuery::AuthorList($this->db, $options);
+        while (($d = $this->db->fetch_array($rows))){
+            $list->Add($this->InstanceClass('Author', $d));
         }
         return $list;
     }
@@ -1170,72 +1200,6 @@ class BlogApp extends AbricosApplication {
         return $ret;
     }
 
-    public function AuthorList($cfg){
-        if (!$this->IsViewRole()){
-            return null;
-        }
-
-        $cfg = $this->ParamToObject($cfg);
-        $cfg->page = max(intval($cfg->page), 1);
-
-        if (empty($cfg->limit)){
-            $cfg->limit = 5;
-        }
-        $cfg->limit = max(min($cfg->limit, 25), 1);
-
-
-        $list = array();
-
-        $rows = BlogTopicQuery::AuthorList($this->db, $cfg->page, $cfg->limit);
-        while (($row = $this->db->fetch_array($rows))){
-            array_push($list, new BlogAuthor($row));
-        }
-        return new BlogAuthorList($list);
-    }
-
-    public function AuthorListToAJAX($cfg){
-        $list = $this->AuthorList($cfg);
-        if (is_null($list)){
-            return null;
-        }
-
-        return $list->ToAJAX();
-    }
-
-    public function Author($authorid){
-        if (!$this->IsViewRole()){
-            return null;
-        }
-
-        $row = BlogTopicQuery::Author($this->db, $authorid);
-        if (empty($row)){
-            return null;
-        }
-        return new BlogAuthor($row);
-    }
-
-    public function AuthorByUserName($username){
-        if (!$this->IsViewRole()){
-            return null;
-        }
-
-        $row = BlogTopicQuery::AuthorByUserName($this->db, $username);
-
-        if (empty($row)){
-            return null;
-        }
-        return new BlogAuthor($row);
-    }
-
-    public function AuthorToAJAX($authorid){
-        $author = $this->Author($authorid);
-        if (is_null($author)){
-            return null;
-        }
-        $ret = new stdClass();
-        $ret->author = $author->ToAJAX();
-        return $ret;
-    }
 
 
 

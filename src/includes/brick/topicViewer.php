@@ -13,6 +13,17 @@ $v = &$brick->param->var;
 /** @var BlogModule $module */
 $module = Abricos::GetModule('blog');
 
+
+$struct = $module->GetStructure('Blog');
+print_r($struct->ToJSON());
+
+$struct = $module->GetStructure('Topic');
+print_r($struct->ToJSON());
+
+
+exit;
+
+
 $options = $module->router->options;
 
 if (!isset($options['topicid'])){

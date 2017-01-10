@@ -1,0 +1,63 @@
+{
+  "version": "0.1.0",
+  "type": "modelList",
+  "itemType": "Topic",
+  "vars": {
+    "limit": {
+      "type": "int",
+      "default": 25
+    },
+    "page": {
+      "type": "int",
+      "default": 1
+    },
+    "type": {
+      "default": "index",
+      "valid": "index,public,personal,draft",
+      "notNULL": true,
+      "type": "string",
+      "parse": "full"
+    },
+    "blogid": {
+      "type": "int"
+    },
+    "blogSlug": {
+      "type": "string",
+      "parse": "full"
+    },
+    "userid": {
+      "type": "int"
+    },
+    "username": {
+      "type": "string"
+    },
+    "tag": {
+      "type": "string",
+      "parse": "full"
+    },
+    "onlyNew": {
+      "type": "bool"
+    },
+    "ids": {
+      "type": "string",
+      "parse": "full"
+    },
+    "idsUse": {
+      "type": "bool"
+    },
+    "idsSort": {
+      "type": "bool"
+    }
+  },
+  "codes": {
+    "OK": 1
+  },
+  "fields": {
+    "total": {
+      "type": "int"
+    },
+    "totalNew": {
+      "type": "int"
+    }
+  }
+}
