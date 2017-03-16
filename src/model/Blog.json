@@ -1,5 +1,13 @@
 {
-  "version": "0.1.0",
+  "type": "model",
+  "args": {
+    "blogid": {
+      "type": "int"
+    }
+  },
+  "codes": {
+    "OK": 1
+  },
   "fields": {
     "id": {
       "type": "int",
@@ -12,7 +20,6 @@
       "type": "string",
       "default": "public",
       "valid": "public,personal",
-      "notNULL": true,
       "dbField": "blogType"
     },
     "title": {
@@ -34,10 +41,13 @@
       "type": "int"
     },
     "userRole": {
-      "type": "model:BlogUserRole"
+      "type": "model",
+      "class": "BlogUserRole"
     },
     "voting": {
-      "type": "model:urating:Voting"
+      "type": "model",
+      "module": "urating",
+      "class": "Voting"
     },
     "dateline": {
       "type": "int"

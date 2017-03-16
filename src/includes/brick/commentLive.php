@@ -24,8 +24,8 @@ $count = $topicList->Count();
 for ($i = 0; $i < $count; $i++){
     $topic = $topicList->GetByIndex($i);
     $blog = $topic->blog;
-    $commentStat  = $topic->commentStatistic;
-    $user  = $commentStat->lastUser;
+    $commentStat = $topic->commentStatistic;
+    $user = $commentStat->lastUser;
 
     $lst .= Brick::ReplaceVarByData($brick->param->var['row'], array(
         "urlusr" => $user->URL(),

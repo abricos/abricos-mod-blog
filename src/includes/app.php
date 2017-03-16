@@ -8,36 +8,34 @@
  */
 
 /**
- * Class BlogApp
+ * Class BlogAppNew
  *
+ * @property BlogModule $module
  * @property BlogManager $manager
- *
  * @property BlogRouter $router
  */
 class BlogApp extends AbricosApplication {
 
-    protected function GetClasses(){
-        return array(
-            'Blog' => 'Blog',
-            'BlogList' => 'BlogList',
-            'BlogSave' => 'BlogSave',
-            'Author' => 'BlogAuthor',
-            'AuthorList' => 'BlogAuthorList',
-            'AuthorListOptions' => 'BlogAuthorListOptions',
-            'BlogUserRole' => 'BlogUserRole',
-            'BlogUserRoleList' => 'BlogUserRoleList',
-            'Topic' => 'BlogTopic',
-            'TopicList' => 'BlogTopicList',
-            'TopicSave' => 'BlogTopicSave',
-            'TopicListOptions' => 'BlogTopicListOptions',
-            'Tag' => 'BlogTag',
-            'TagList' => 'BlogTagList',
-            'TagListOptions' => 'BlogTagListOptions',
-            'TagInTopic' => 'BlogTagInTopic',
-            'TagInTopicList' => 'BlogTagInTopicList',
-            'Config' => 'BlogConfig',
-        );
-    }
+    protected $_aliases = array(
+        'Blog' => 'Blog',
+        'BlogList' => 'BlogList',
+        'BlogSave' => 'BlogSave',
+        'Author' => 'BlogAuthor',
+        'AuthorList' => 'BlogAuthorList',
+        'AuthorListOptions' => 'BlogAuthorListOptions',
+        'BlogUserRole' => 'BlogUserRole',
+        'BlogUserRoleList' => 'BlogUserRoleList',
+        'Topic' => 'BlogTopic',
+        'TopicList' => 'BlogTopicList',
+        'TopicSave' => 'BlogTopicSave',
+        'TopicListOptions' => 'BlogTopicListOptions',
+        'Tag' => 'BlogTag',
+        'TagList' => 'BlogTagList',
+        'TagListOptions' => 'BlogTagListOptions',
+        'TagInTopic' => 'BlogTagInTopic',
+        'TagInTopicList' => 'BlogTagInTopicList',
+        'Config' => 'BlogConfig',
+    );
 
     protected function GetStructures(){
         return 'Blog,BlogUserRole,Author,Topic,Tag,Config';
@@ -121,7 +119,6 @@ class BlogApp extends AbricosApplication {
     }
 
     public function BoxesToJSON($options){
-
         $res = new stdClass();
         $res->ok = true;
 
@@ -144,31 +141,23 @@ class BlogApp extends AbricosApplication {
     }
 
     public function Blog($blogid){
-        $blogid = intval($blogid);
-
         $blogList = $this->BlogList();
-        if (AbricosResponse::IsError($blogList)){
+        if ($blogList->IsError()){
             return $blogList;
         }
 
         $blog = $blogList->Get($blogid);
-        if (empty($blog)){
-            return AbricosResponse::ERR_NOT_FOUND;
-        }
-
-        if (!$blog->isEasyData){
+        if ($blog->IsError()){
             return $blog;
         }
-
-        $d = BlogQuery::Blog($this->db, $blogid);
-        $blog->Update($d);
+        $blog->Fill($this);
 
         return $blog;
     }
 
     public function BlogBySlug($slug){
         $blogList = $this->BlogList();
-        if (AbricosResponse::IsError($blogList)){
+        if ($blogList->IsError()){
             return $blogList;
         }
 
@@ -193,55 +182,14 @@ class BlogApp extends AbricosApplication {
             return $this->Cache('BlogList');
         }
 
-        if (!$this->IsViewRole()){
-            return AbricosResponse::ERR_FORBIDDEN;
-        }
-
         /** @var BlogList $list */
-        $list = $this->InstanceClass('BlogList');
-        $rows = BlogQuery::BlogList($this->db);
-        while (($d = $this->db->fetch_array($rows))){
-            $list->Add($this->InstanceClass('Blog', $d));
-        }
-
-        $blogids = $list->ToArray('id');
-
-        /** @var BlogUserRoleList $userRoleList */
-        $userRoleList = $this->InstanceClass('BlogUserRoleList');
-        $rows = BlogQuery::BlogUserRoleList($this->db, $blogids);
-        while (($d = $this->db->fetch_array($rows))){
-            $userRoleList->Add($this->InstanceClass('BlogUserRole', $d));
-        }
-
-        /** @var URatingApp $uratingApp */
-        $uratingApp = Abricos::GetApp('urating');
-        if (!empty($uratingApp)){
-            $votingList = $uratingApp->VotingList('blog', 'blog', $blogids);
-        }
-
-        $count = $list->Count();
-        for ($i = 0; $i < $count; $i++){
-            $blog = $list->GetByIndex($i);
-
-            $userRole = $userRoleList->GetByBlogId($blog->id);
-            if (empty($userRole)){
-                $userRole = $this->InstanceClass('BlogUserRole', array(
-                    'blogid' => $blog->id,
-                    'userid' => Abricos::$user->id
-                ));
-            }
-
-            $blog->userRole = $userRole;
-
-            if (!empty($votingList)){
-                $blog->voting = $votingList->GetByOwnerId($blog->id);
-            }
-        }
+        $list = $this->CreateFilled('BlogList');
 
         $this->SetCache('BlogList', $list);
 
         return $list;
     }
+
 
     public function BlogSaveToJSON($d){
         $res = $this->BlogSave($d);

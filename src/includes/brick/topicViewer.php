@@ -13,16 +13,7 @@ $v = &$brick->param->var;
 /** @var BlogModule $module */
 $module = Abricos::GetModule('blog');
 
-
-$struct = $module->GetStructure('Blog');
-print_r($struct->ToJSON());
-
-$struct = $module->GetStructure('Topic');
-print_r($struct->ToJSON());
-
-
-exit;
-
+Abricos::GetApp('blog');
 
 $options = $module->router->options;
 
