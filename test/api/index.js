@@ -6,5 +6,6 @@ var should = require('should');
 describe('Blog API', function(){
 
     require('./init.js');
+    require('./blogs.js');
 
 });

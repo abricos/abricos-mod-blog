@@ -15,14 +15,10 @@
 class BlogApp_old extends AbricosApplication {
 
     protected $_aliases = array(
-        'Blog' => 'Blog',
-        'BlogList' => 'BlogList',
         'BlogSave' => 'BlogSave',
         'Author' => 'BlogAuthor',
         'AuthorList' => 'BlogAuthorList',
         'AuthorListOptions' => 'BlogAuthorListOptions',
-        'BlogUserRole' => 'BlogUserRole',
-        'BlogUserRoleList' => 'BlogUserRoleList',
         'Topic' => 'BlogTopic',
         'TopicList' => 'BlogTopicList',
         'TopicSave' => 'BlogTopicSave',
@@ -113,25 +109,6 @@ class BlogApp_old extends AbricosApplication {
     /*                          Blog                         */
     /*********************************************************/
 
-    public function BlogToJSON($blogid){
-        $res = $this->Blog($blogid);
-        return $this->ResultToJSON('blog', $res);
-    }
-
-    public function Blog($blogid){
-        $blogList = $this->BlogList();
-        if ($blogList->IsError()){
-            return $blogList;
-        }
-
-        $blog = $blogList->Get($blogid);
-        if ($blog->IsError()){
-            return $blog;
-        }
-        $blog->Fill($this);
-
-        return $blog;
-    }
 
     public function BlogBySlug($slug){
         $blogList = $this->BlogList();
@@ -150,23 +127,6 @@ class BlogApp_old extends AbricosApplication {
         return AbricosResponse::ERR_NOT_FOUND;
     }
 
-    public function BlogListToJSON(){
-        $res = $this->BlogList();
-        return $this->ResultToJSON('blogList', $res);
-    }
-
-    public function BlogList(){
-        if ($this->CacheExists('BlogList')){
-            return $this->Cache('BlogList');
-        }
-
-        /** @var BlogList $list */
-        $list = $this->CreateFilled('BlogList');
-
-        $this->SetCache('BlogList', $list);
-
-        return $list;
-    }
 
 
     public function BlogSaveToJSON($d){

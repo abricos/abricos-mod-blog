@@ -19,6 +19,12 @@ class BlogApp extends Ab_App {
         "config" => array(
             'Config' => 'BlogConfig',
         ),
+        "blog" => array(
+            'Blog' => 'Blog',
+            'BlogList' => 'BlogList',
+            'BlogUserRole' => 'BlogUserRole',
+            'BlogUserRoleList' => 'BlogUserRoleList',
+        ),
     );
 
     public function __get($name){
@@ -39,4 +45,33 @@ class BlogApp extends Ab_App {
     public function IsViewRole(){
         return $this->manager->IsViewRole();
     }
+
+    public function Blog($blogid){
+        $blogList = $this->BlogList();
+        if ($blogList->IsError()){
+            return $blogList;
+        }
+
+        $blog = $blogList->Get($blogid);
+        if ($blog->IsError()){
+            return $blog;
+        }
+        $blog->Fill($this);
+
+        return $blog;
+    }
+
+    public function BlogList(){
+        if ($this->CacheExists('BlogList')){
+            return $this->Cache('BlogList');
+        }
+
+        /** @var BlogList $list */
+        $list = $this->CreateFilled('BlogList');
+
+        $this->SetCache('BlogList', $list);
+
+        return $list;
+    }
+
 }

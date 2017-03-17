@@ -38,7 +38,10 @@ describe('Users and App info', function(){
         })
     });
 
-    it('should be configure users', function(done){
-        done();
+    it('should be get config by User (GET:/api/blog/v1/config)', function(done){
+        profiles.user.modules.blog.moduleConfig(function(err, result){
+            checkResponse(err, result);
+            done();
+        });
     });
 });

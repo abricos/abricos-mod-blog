@@ -1,0 +1,22 @@
+{
+  "name": "abricos-mod-blog",
+  "title": "Abricos Blog Module API",
+  "order": [
+    "BlogApp",
+    "GETConfig",
+    "POSTConfigUpdate",
+    "GETBlogList",
+    "GETBlog",
+    "GETBlogBySlug",
+    "POSTBlogAppend",
+    "POSTBlogUpdate",
+    "POSTBlogRemove",
+    "POSTBlogJoin",
+    "POSTBlogLeave",
+    "POSTTopicList",
+    "GETTopic",
+    "POSTTopicAppend",
+    "POSTTopicUpdate",
+    "POSTTopicRemove"
+  ]
+}
