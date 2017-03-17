@@ -80,17 +80,6 @@ class BlogAuthorListOptions extends AbricosResponse {
 class BlogAuthorList extends BlogListWithOptions {
 }
 
-/**
- * Class BlogConfig
- *
- * @property int $subscribeSendLimit Количество отправляемых писем за один раз
- * @property int $topicIndexRating Рейтинг топика для выхода на главную
- * @property int $categoryCreateRating Рейтинг пользователя необходимый для создания категории
- */
-class BlogConfig extends AbricosModel {
-    protected $_structModule = 'blog';
-    protected $_structName = 'Config';
-}
 
 /**
  * Interface BlogSaveVars

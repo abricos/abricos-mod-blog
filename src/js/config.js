@@ -30,14 +30,14 @@ Component.entryPoint = function(NS){
             tp.setValue({
                 subscribeSendLimit: config.get('subscribeSendLimit'),
                 topicIndexRating: config.get('topicIndexRating'),
-                categoryCreateRating: config.get('categoryCreateRating'),
+                blogCreateRating: config.get('blogCreateRating'),
             });
         },
         save: function(){
             this.set('waiting', true);
 
             var tp = this.template,
-                sd = tp.getValue('subscribeSendLimit,topicIndexRating,categoryCreateRating');
+                sd = tp.getValue('subscribeSendLimit,topicIndexRating,blogCreateRating');
 
             this.get('appInstance').configSave(sd, function(err, result){
                 this.set('waiting', false);

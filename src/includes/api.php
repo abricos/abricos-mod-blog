@@ -45,7 +45,22 @@ class BlogAPIMethodsV1 extends Ab_APIMethods {
     public function GetMethods(){
         return array(
             'config' => 'Config',
-            'blogList' => 'BlogList'
+            'configUpdate' => 'ConfigUpdate',
+
+            'blogList' => 'BlogList',
+            'blog' => 'Blog',
+            'blogBySlug' => 'BlogBySlug',
+            'blogAppend' => 'BlogAppend',
+            'blogUpdate' => 'BlogUpdate',
+            'blogRemove' => 'BlogRemove',
+            'blogJoin' => 'BlogJoin',
+            'blogLeave' => 'BlogLeave',
+
+            'topicList' => 'TopicList',
+            'topic' => 'Topic',
+            'topicAppend' => 'TopicAppend',
+            'topicUpdate' => 'TopicUpdate',
+            'topicRemove' => 'TopicRemove',
         );
     }
 

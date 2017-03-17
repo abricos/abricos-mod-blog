@@ -1,18 +1,25 @@
 {
   "type": "model",
-  "fields": {
+  "args": {
     "subscribeSendLimit": {
-      "rolefn": "IsAdminRole",
       "type": "int",
-      "default": 25
+      "default": 25,
+      "min": "3"
     },
     "topicIndexRating": {
       "type": "int",
-      "default": 5
+      "default": 5,
+      "min": "0"
     },
     "blogCreateRating": {
       "type": "int",
-      "default": 5
+      "default": 5,
+      "min": 0
     }
+  },
+  "codes": {
+    "OK": 1
+  },
+  "fields": {
   }
 }

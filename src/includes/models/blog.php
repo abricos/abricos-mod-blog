@@ -25,7 +25,6 @@ require_once 'db/blog.php';
  * @property URatingVoting $voting
  * @property int $dateline
  * @property int $upddate
- * @property bool $isEasyData
  *
  * @property UProfileUser $user
  * @property string $url
@@ -82,6 +81,12 @@ class BlogList extends Ab_ModelList {
     protected $_structModule = 'blog';
     protected $_structName = 'BlogList';
 
+    public function GetNotFound(){
+        $blog = $this->GetApp()->Create('Blog');
+        $blog->SetError(Ab_Response::ERR_NOT_FOUND);
+        return $blog;
+    }
+
     /**
      * @param int $blogid
      * @return Blog
@@ -91,26 +96,46 @@ class BlogList extends Ab_ModelList {
         $blog = parent::Get($blogid);
 
         if (empty($blog)){
-            $blog = $this->GetApp()->Create('Blog', array(
-                "blogid" => $blogid
-            ));
-            $blog->SetError(Ab_Response::ERR_NOT_FOUND);
+            return $this->GetNotFound();
         }
         return $blog;
+    }
+
+    private $_listBySlug = array();
+
+    /**
+     * @param $slug
+     * @return Blog
+     */
+    public function GetBySlug($slug){
+        $slug = trim($slug);
+        return isset($this->_listBySlug[$slug]) ?
+            $this->_listBySlug[$slug] : $this->GetNotFound();
+    }
+
+    /**
+     * @param Blog $blog
+     * @return mixed
+     */
+    public function Add($blog){
+        $this->_listBySlug[$blog->slug] = $blog;
+        return parent::Add($blog);
     }
 
     /**
      * @param BlogApp $app
      */
     public function Fill($app){
-        if (!$app->manager->IsViewRole()){
+        if (!$app->IsViewRole()){
             $this->SetError(Ab_Response::ERR_FORBIDDEN);
             return;
         }
 
         $rows = BlogQuery_Blog::BlogList($app->db);
         while (($d = $app->db->fetch_array($rows))){
-            $this->Add($d);
+            /** @var Blog $blog */
+            $blog = $app->Create('Blog', $d);
+            $this->Add($blog);
         }
 
         $blogids = $this->Ids();

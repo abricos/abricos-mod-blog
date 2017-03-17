@@ -3,6 +3,10 @@
   "args": {
     "blogid": {
       "type": "int"
+    },
+    "slug": {
+      "type": "string",
+      "parse": "full"
     }
   },
   "codes": {
@@ -55,9 +59,6 @@
     "upddate": {
       "rolefn": "IsAdminRole",
       "type": "date"
-    },
-    "isEasyData": {
-      "type": "bool"
     }
   }
 }

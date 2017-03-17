@@ -480,74 +480,6 @@ class BlogApp_old extends AbricosApplication {
         return $list;
     }
 
-    /*********************************************************/
-    /*                         Config                        */
-    /*********************************************************/
-
-    public function ConfigToJSON(){
-        return $this->ResultToJSON('config', $this->Config());
-    }
-
-    /**
-     * @return BlogConfig|int
-     */
-    public function Config(){
-        if ($this->CacheExists('Config')){
-            return $this->Cache('Config');
-        }
-        if (!$this->IsViewRole()){
-            return AbricosResponse::ERR_FORBIDDEN;
-        }
-
-        $d = array();
-        $phrases = Abricos::GetModule('blog')->GetPhrases();
-        for ($i = 0; $i < $phrases->Count(); $i++){
-            $ph = $phrases->GetByIndex($i);
-            $d[$ph->id] = $ph->value;
-        }
-
-        $d['subscribeSendLimit'] = isset($d['subscribeSendLimit'])
-            ? $d['subscribeSendLimit'] : 25;
-
-        $d['topicIndexRating'] = isset($d['topicIndexRating'])
-            ? $d['topicIndexRating'] : 5;
-
-        $d['categoryCreateRating'] = isset($d['categoryCreateRating'])
-            ? $d['categoryCreateRating'] : 5;
-
-        /** @var BlogConfig $config */
-        $config = $this->InstanceClass('Config', $d);
-
-        $this->SetCache('Config', $config);
-
-        return $config;
-    }
-
-    public function ConfigSaveToJSON($d){
-        $this->ConfigSave($d);
-        return $this->ConfigToJSON();
-    }
-
-    public function ConfigSave($d){
-        if (!$this->IsAdminRole()){
-            return AbricosResponse::ERR_FORBIDDEN;
-        }
-
-        $phs = Abricos::GetModule('blog')->GetPhrases();
-
-        if (isset($d->subscribeSendLimit)){
-            $phs->Set('subscribeSendLimit', $d->subscribeSendLimit);
-        }
-        if (isset($d->topicIndexRating)){
-            $phs->Set('topicIndexRating', $d->topicIndexRating);
-        }
-        if (isset($d->categoryCreateRating)){
-            $phs->Set('categoryCreateRating', $d->categoryCreateRating);
-        }
-        Abricos::$phrases->Save();
-        $this->CacheClear();
-    }
-
 
     /*********************************************************/
     /*                       Old Function                    */
@@ -997,7 +929,7 @@ class BlogApp_old extends AbricosApplication {
 
             if (false /*BlogManager::$isURating/**/){ // работает система репутации пользователя
                 $rep = $this->GetURatingManager()->UserReputation();
-                if ($rep->reputation < BlogConfig::$instance->categoryCreateRating){ // для создании/редактировании категории необходима репутация >= 5
+                if ($rep->reputation < BlogConfig::$instance->blogCreateRating){ // для создании/редактировании категории необходима репутация >= 5
                     $ret->error = 10;
                     return $ret;
                 }

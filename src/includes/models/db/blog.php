@@ -14,7 +14,7 @@ class BlogQuery_Blog {
 
     public static function Blog(Ab_Database $db, $blogid){
         $sql = "
-			SELECT *, 0 as isEasyData
+			SELECT *
 			FROM ".$db->prefix."blog
 			WHERE blogid=".intval($blogid)." AND deldate=0
 			LIMIT 1
@@ -24,15 +24,7 @@ class BlogQuery_Blog {
 
     public static function BlogList(Ab_Database $db){
         $sql = "
-			SELECT 
-			    blogid,
-			    userid,
-			    blogType,
-			    title,
-			    slug,
-			    topicCount,
-			    memberCount,
-			    1 as isEasyData
+			SELECT *
 			FROM ".$db->prefix."blog
 			WHERE deldate=0
 			ORDER BY topicCount DESC

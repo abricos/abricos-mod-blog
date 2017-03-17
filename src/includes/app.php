@@ -15,9 +15,13 @@
  * @property BlogRouter $router
  */
 class BlogApp extends Ab_App {
+
     protected $_aliases = array(
         "config" => array(
             'Config' => 'BlogConfig',
+        ),
+        "configAction" => array(
+            'ConfigUpdate' => 'BlogConfigUpdate',
         ),
         "blog" => array(
             'Blog' => 'Blog',
@@ -46,21 +50,45 @@ class BlogApp extends Ab_App {
         return $this->manager->IsViewRole();
     }
 
-    public function Blog($blogid){
-        $blogList = $this->BlogList();
-        if ($blogList->IsError()){
-            return $blogList;
+    /*********************************************************/
+    /*                         Config                        */
+    /*********************************************************/
+
+    /**
+     * @return BlogConfig
+     */
+    public function Config(){
+        if ($this->CacheExists('Config')){
+            return $this->Cache('Config');
         }
 
-        $blog = $blogList->Get($blogid);
-        if ($blog->IsError()){
-            return $blog;
-        }
-        $blog->Fill($this);
+        /** @var BlogConfig $config */
+        $config = $this->CreateFilled('Config');
 
-        return $blog;
+        $this->SetCache('Config', $config);
+
+        return $config;
     }
 
+    /**
+     * @param mixed $data
+     * @return BlogConfigUpdate
+     */
+    public function ConfigUpdate($data){
+        /** @var BlogConfigUpdate $update */
+        $update = $this->CreateFilled('ConfigUpdate', $data);
+
+        $this->CacheClear();
+        return $update;
+    }
+
+    /*********************************************************/
+    /*                          Blog                         */
+    /*********************************************************/
+
+    /**
+     * @return BlogList
+     */
     public function BlogList(){
         if ($this->CacheExists('BlogList')){
             return $this->Cache('BlogList');
@@ -73,5 +101,31 @@ class BlogApp extends Ab_App {
 
         return $list;
     }
+
+    /**
+     * @param int $blogid
+     * @return Blog
+     */
+    public function Blog($blogid){
+        $blogList = $this->BlogList();
+        if ($blogList->IsError()){
+            return $blogList->GetNotFound();
+        }
+        return $blogList->Get($blogid);
+    }
+
+    /**
+     * @param string $slug
+     * @return Blog
+     */
+    public function BlogBySlug($slug){
+        $blogList = $this->BlogList();
+        if ($blogList->IsError()){
+            return $blogList->GetNotFound();
+        }
+        return $blogList->GetBySlug($slug);
+    }
+
+
 
 }
