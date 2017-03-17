@@ -1,6 +1,5 @@
 {
-  "type": "response",
-  "version": "0.1.0",
+  "type": "model",
   "vars": {
     "blogid": {
       "type": "int"
@@ -22,7 +21,9 @@
       "parse": "standard"
     },
     "newTopicUserRep": {
-      "type": "int"
+      "type": "int",
+      "default": 5,
+      "min": 0
     }
   },
   "codes": {

@@ -7,7 +7,6 @@
  * @author Alexander Kuzmin <roosit@abricos.org>
  */
 
-
 /**
  * Interface BlogConfigUpdateArgs
  *

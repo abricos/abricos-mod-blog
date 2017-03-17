@@ -41,44 +41,7 @@ class BlogQuery {
         return $d;
     }
 
-    /**
-     * @param Ab_Database $db
-     * @param BlogUserRole $userRole
-     */
-    public static function BlogJoinLeaveUpdate(Ab_Database $db, $userRole){
-        $sql = "
-            INSERT INTO ".$db->prefix."blog_userRole
-            (blogid, userid, isMember, pubKey, dateline, upddate) VALUES (
-                ".intval($userRole->blogid).",
-                ".intval($userRole->userid).",
-                ".intval($userRole->isMember).",
-                '".bkstr($userRole->pubKey)."',
-                ".intval(TIMENOW).",
-                ".intval(TIMENOW)."
-            ) ON DUPLICATE KEY UPDATE
-                isMember=".intval($userRole->isMember).",
-                upddate=".intval(TIMENOW)."
-        ";
-        $db->query_write($sql);
-    }
 
-    public static function BlogMemberCountUpdate(Ab_Database $db, $blogid = 0){
-        $sql = "
-			UPDATE ".$db->prefix."blog b
-			SET b.memberCount = IFNULL((
-				SELECT count(*)
-				FROM ".$db->prefix."blog_userRole ur
-				WHERE b.blogid=ur.blogid AND ur.isMember
-				GROUP BY ur.blogid
-			), 0)
-		";
-        if ($blogid > 0){
-            $sql .= "
-				WHERE b.blogid=".bkint($blogid)."
-			";
-        }
-        $db->query_write($sql);
-    }
 
     /*********************************************************/
     /*                         Topic                         */

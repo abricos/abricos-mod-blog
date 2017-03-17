@@ -127,19 +127,6 @@ class BlogApp_old extends AbricosApplication {
         return AbricosResponse::ERR_NOT_FOUND;
     }
 
-
-
-    public function BlogSaveToJSON($d){
-        $res = $this->BlogSave($d);
-        if (AbricosResponse::IsError($res)){
-            return $res;
-        }
-        return $this->ImplodeJSON(array(
-            $this->ResultToJSON('blogSave', $res),
-            $this->BlogToJSON($res->blogid)
-        ));
-    }
-
     /**
      * @param mixed $d
      * @return BlogSave
@@ -180,48 +167,6 @@ class BlogApp_old extends AbricosApplication {
     /*                      Blog Subscribe                   */
     /*********************************************************/
 
-    private function BlogJoinLeaveUpdate($blogid, $isJoin){
-        if (!$this->IsViewRole()
-            || Abricos::$user->id === 0
-        ){
-            return AbricosResponse::ERR_FORBIDDEN;
-        }
-
-        $blog = $this->Blog($blogid);
-        if (AbricosResponse::IsError($blog)){
-            return $blog;
-        }
-
-        $userRole = $blog->userRole;
-        if (empty($userRole->pubKey)){
-            $userRole->pubKey = md5(TIMENOW.$blogid.$userRole->userid);
-        }
-        $userRole->isMember = $isJoin;
-
-        BlogQuery::BlogJoinLeaveUpdate($this->db, $userRole);
-        BlogQuery::BlogMemberCountUpdate($this->db, $blogid);
-
-        $this->CacheClear();
-
-        $blog = $this->Blog($blogid);
-
-        $ret = new stdClass();
-        $ret->blogid = $blogid;
-        $ret->isMember = $isJoin;
-        $ret->memberCount = $blog->memberCount;
-
-        return $ret;
-    }
-
-    public function BlogJoinToJSON($blogid){
-        $res = $this->BlogJoinLeaveUpdate($blogid, true);
-        return $this->ResultToJSON('blogJoin', $res);
-    }
-
-    public function BlogLeaveToJSON($blogid){
-        $res = $this->BlogJoinLeaveUpdate($blogid, false);
-        return $this->ResultToJSON('blogLeave', $res);
-    }
 
     /*********************************************************/
     /*                         Topic                         */

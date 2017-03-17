@@ -29,6 +29,12 @@ class BlogApp extends Ab_App {
             'BlogUserRole' => 'BlogUserRole',
             'BlogUserRoleList' => 'BlogUserRoleList',
         ),
+        "blogAction" => array(
+            'BlogAppend' => 'BlogAppend',
+            'BlogUpdate' => 'BlogUpdate',
+            'BlogRemove' => 'BlogRemove',
+            'BlogSubscribeUpdate' => 'BlogSubscribeUpdate'
+        ),
     );
 
     public function __get($name){
@@ -126,6 +132,59 @@ class BlogApp extends Ab_App {
         return $blogList->GetBySlug($slug);
     }
 
+    /**
+     * @param mixed $data
+     * @return BlogAppend
+     */
+    public function BlogAppend($data){
+        $ret = $this->CreateFilled('BlogAppend', $data);
+        $this->CacheClear();
+        return $ret;
+    }
+    
+    /**
+     * @param mixed $data
+     * @return BlogUpdate
+     */
+    public function BlogUpdate($data){
+        $ret = $this->CreateFilled('BlogUpdate', $data);
+        $this->CacheClear();
+        return $ret;
+    }
 
+    /**
+     * @param mixed $data
+     * @return BlogRemove
+     */
+    public function BlogRemove($data){
+        $ret = $this->CreateFilled('BlogRemove', $data);
+        $this->CacheClear();
+        return $ret;
+    }
+
+
+    /*********************************************************/
+    /*                      Blog Subscribe                   */
+    /*********************************************************/
+
+    /**
+     * @param mixed $data
+     * @return BlogSubscribeUpdate
+     */
+    public function BlogJoin($data){
+        $ret = $this->CreateFilled('BlogSubscribeUpdate', true, $data);
+        $this->CacheClear();
+        return $ret;
+    }
+
+    /**
+     * @param mixed $data
+     * @return BlogSubscribeUpdate
+     */
+    public function BlogLeave($data){
+        $ret = $this->CreateFilled('BlogSubscribeUpdate', false, $data);
+        $this->CacheClear();
+        return $ret;
+    }
 
 }

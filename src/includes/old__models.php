@@ -80,34 +80,6 @@ class BlogAuthorListOptions extends AbricosResponse {
 class BlogAuthorList extends BlogListWithOptions {
 }
 
-
-/**
- * Interface BlogSaveVars
- *
- * @property int $blogid
- * @property string $type
- * @property string $title
- * @property string $slug
- * @property string $descript
- * @property int $newTopicUserRep
- */
-interface BlogSaveVars {
-}
-
-/**
- * Class BlogSave
- *
- * @property BlogSaveVars $vars
- * @property int $blogid
- */
-class BlogSave extends AbricosResponse {
-    const CODE_OK = 1;
-    const CODE_EMPTY_TITLE = 2;
-
-    protected $_structModule = 'blog';
-    protected $_structName = 'BlogSave';
-}
-
 /**
  * Class BlogTopic
  *

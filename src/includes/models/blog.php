@@ -58,18 +58,6 @@ class Blog extends Ab_Model {
         }
         // return parent::__get($name);
     }
-
-    protected $_isFilled = false;
-
-    public function Fill($app){
-        if ($this->_isFilled){
-            return;
-        }
-        $this->_isFilled = true;
-
-        $d = BlogQuery::Blog($app->db, $this->id);
-        $this->Update($d);
-    }
 }
 
 /**

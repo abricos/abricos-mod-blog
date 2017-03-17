@@ -1,6 +1,5 @@
 {
   "type": "response",
-  "version": "0.1.0",
   "vars": {
     "limit": {
       "type": "int",

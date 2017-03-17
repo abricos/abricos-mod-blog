@@ -1,0 +1,16 @@
+{
+  "type": "model",
+  "vars": {
+    "blogid": {
+      "type": "int"
+    }
+  },
+  "codes": {
+    "OK": 1
+  },
+  "fields": {
+    "blogid": {
+      "type": "int"
+    }
+  }
+}
