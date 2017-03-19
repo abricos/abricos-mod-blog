@@ -1,6 +1,6 @@
 {
   "type": "model",
-  "vars": {
+  "args": {
     "blogid": {
       "type": "int"
     },

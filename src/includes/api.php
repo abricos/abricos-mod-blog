@@ -93,7 +93,7 @@ class BlogAPIMethodsV1 extends Ab_APIMethods {
      *  }
      */
     public function Config(){
-
+        return $this->app->Config();
     }
 
     /**
@@ -116,7 +116,8 @@ class BlogAPIMethodsV1 extends Ab_APIMethods {
      *  }
      */
     public function ConfigUpdate(){
-
+        $data = $this->POSTToJSON();
+        $this->app->ConfigUpdate($data);
     }
 
     /**
@@ -142,7 +143,7 @@ class BlogAPIMethodsV1 extends Ab_APIMethods {
      * @apiParam {Number} blogid BlogID
      */
     public function Blog($blogid){
-
+        return $this->app->Blog($blogid);
     }
 
     /**
@@ -160,7 +161,7 @@ class BlogAPIMethodsV1 extends Ab_APIMethods {
      *  }
      */
     public function BlogBySlug($slug){
-
+        return $this->app->BlogBySlug($slug);
     }
 
     /**
@@ -191,7 +192,8 @@ class BlogAPIMethodsV1 extends Ab_APIMethods {
      * @apiUse BlogSaveParam
      */
     public function BlogAppend(){
-
+        $data = $this->POSTToJSON();
+        return $this->app->BlogAppend($data);
     }
 
     /**
@@ -205,8 +207,9 @@ class BlogAPIMethodsV1 extends Ab_APIMethods {
      * @apiUse BlogSaveParam
      * @apiParam {Number} blogid
      */
-    public function BlogUpdate($blogid){
-
+    public function BlogUpdate(){
+        $data = $this->POSTToJSON();
+        return $this->app->BlogUpdate($data);
     }
 
     /**
@@ -224,7 +227,8 @@ class BlogAPIMethodsV1 extends Ab_APIMethods {
      *  }
      */
     public function BlogRemove(){
-
+        $data = $this->POSTToJSON();
+        return $this->app->BlogRemove($data);
     }
 
     /**
@@ -242,7 +246,8 @@ class BlogAPIMethodsV1 extends Ab_APIMethods {
      *  }
      */
     public function BlogJoin(){
-
+        $data = $this->POSTToJSON();
+        return $this->app->BlogJoin($data);
     }
 
     /**
@@ -260,7 +265,8 @@ class BlogAPIMethodsV1 extends Ab_APIMethods {
      *  }
      */
     public function BlogLeave(){
-
+        $data = $this->POSTToJSON();
+        return $this->app->BlogLeave($data);
     }
 
     /**
@@ -271,7 +277,7 @@ class BlogAPIMethodsV1 extends Ab_APIMethods {
      * @api {post} /api/blog/v1/topicList TopicList
      * @apiPermission Everyone
      */
-    public function TopicList(){ // POST
+    public function TopicList(){
 
     }
 

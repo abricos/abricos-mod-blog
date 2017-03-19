@@ -14,11 +14,11 @@ class BlogQuery_BlogAction {
 
     /**
      * @param Ab_Database $db
-     * @param BlogAppend $blogAppend
+     * @param BlogSave $blogSave
      * @return int
      */
-    public static function BlogAppend(Ab_Database $db, $blogAppend){
-        $args = $blogAppend->args;
+    public static function BlogAppend(Ab_Database $db, $blogSave){
+        $args = $blogSave->GetArgs();
         $sql = "
 			INSERT INTO ".$db->prefix."blog
 			(userid, blogType, title, slug, descript, newTopicUserRep, dateline, upddate) VALUES (
@@ -38,10 +38,10 @@ class BlogQuery_BlogAction {
 
     /**
      * @param Ab_Database $db
-     * @param BlogUpdate $blogUpdate
+     * @param BlogSave $blogSave
      */
-    public static function BlogUpdate(Ab_Database $db, $blogUpdate){
-        $args = $blogUpdate->args;
+    public static function BlogUpdate(Ab_Database $db, $blogSave){
+        $args = $blogSave->GetArgs();
         $sql = "
 			UPDATE ".$db->prefix."blog
 			SET

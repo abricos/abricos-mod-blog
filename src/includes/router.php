@@ -57,10 +57,10 @@ class BlogRouter {
                         $url .= $vars->blogSlug."/";
                     }
                     switch ($vars->type){
-                        case Blog::TYPE_PUBLIC:
+                        case BlogApp::BLOG_TYPE_PUBLIC:
                             $url .= 'pub/';
                             break;
-                        case Blog::TYPE_PERSONAL:
+                        case BlogApp::BLOG_TYPE_PERSONAL:
                             $url .= 'pers/';
                             break;
                     }

@@ -33,9 +33,6 @@ class Blog extends Ab_Model {
     protected $_structModule = 'blog';
     protected $_structName = 'Blog';
 
-    const TYPE_PUBLIC = 'public';
-    const TYPE_PERSONAL = 'personal';
-
     public function old__get($name){
         if (isset($this->_data[$name])){
             return $this->_data[$name];
@@ -48,7 +45,7 @@ class Blog extends Ab_Model {
                     = $uprofileApp->User($this->userid);
             case 'url':
                 $val = '/blog/';
-                if ($this->type === Blog::TYPE_PERSONAL){
+                if ($this->type === BlogApp::BLOG_TYPE_PERSONAL){
                     $val .= 'author/'.$this->user->username."/";
                 } else {
                     $val .= $this->slug."/";

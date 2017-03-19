@@ -7,9 +7,12 @@
  * @author Alexander Kuzmin <roosit@abricos.org>
  */
 
+require_once 'db/blogAction.php';
+
 /**
  * Interface BlogSaveArgs
  *
+ * @property int $blogid Blog ID for update method
  * @property string $type
  * @property string $title
  * @property string $slug
@@ -24,10 +27,13 @@ interface BlogSaveArgs extends Ab_IAttrsData {
  *
  * @property BlogSaveArgs $args
  *
+ * @property int $blogid
+ *
  * @method BlogApp GetApp()
  */
-abstract class BlogSave extends Ab_Model {
+class BlogSave extends Ab_Model {
     protected $_structModule = 'blog';
+    protected $_structName = 'BlogSave';
 
     const CODE_OK = 1;
     const CODE_EMPTY_TITLE = 2;
@@ -43,7 +49,7 @@ abstract class BlogSave extends Ab_Model {
             );
         }
 
-        $args->type = Blog::TYPE_PUBLIC;
+        $args->type = BlogApp::BLOG_TYPE_PUBLIC;
 
         if ($args->IsEmptyValue('slug')){
             $args->slug = translateruen($args->title);
@@ -51,73 +57,41 @@ abstract class BlogSave extends Ab_Model {
 
         return $args;
     }
-}
-
-/**
- * Class BlogAppend
- *
- * @property $blogid
- */
-class BlogAppend extends BlogSave {
-    protected $_structName = 'BlogAppend';
 
     /**
      * @param BlogApp $app
+     * @param $isAppend
      * @param mixed $data
      */
-    public function Fill($app, $data){
+    public function Fill($app, $isAppend, $data){
         if (!$app->IsAdminRole()){
             $this->SetError(Ab_Response::ERR_FORBIDDEN);
             return;
         }
 
-        $this->SetArgs($data);
-        if ($this->IsError()){
-            return;
-        }
-
-        $this->blogid = BlogQuery_BlogAction::BlogAppend($app->db, $this);
-
-        $app->CacheClear();
-
-        $app->BlogJoin(array(
-            "blogid" => $this->blogid
-        ));
-
-        $this->AddCode(BlogSave::CODE_OK);
-    }
-}
-
-/**
- * Class BlogUpdate
- *
- * @property int $blogid
- */
-class BlogUpdate extends BlogSave {
-    protected $_structName = 'BlogUpdate';
-
-    /**
-     * @param BlogApp $app
-     * @param mixed $data
-     */
-    public function Fill($app, $data){
-        if (!$app->IsAdminRole()){
-            $this->SetError(Ab_Response::ERR_FORBIDDEN);
-            return;
-        }
-        
         $args = $this->SetArgs($data);
         if ($this->IsError()){
             return;
         }
 
-        BlogQuery_BlogAction::BlogUpdate($app->db, $this);
+        if ($isAppend){
+            $this->blogid = BlogQuery_BlogAction::BlogAppend($app->db, $this);
+
+            $app->BlogJoin(array(
+                "blogid" => $this->blogid
+            ));
+        } else {
+            BlogQuery_BlogAction::BlogUpdate($app->db, $this);
+
+            $this->blogid = $args->blogid;
+        }
+
+        $app->CacheClear();
 
         $this->AddCode(BlogSave::CODE_OK);
-
-        $this->blogid = $args->blogid;
     }
 }
+
 
 /**
  * Interface BlogSubscribeUpdate

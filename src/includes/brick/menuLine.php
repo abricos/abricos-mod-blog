@@ -22,10 +22,10 @@ $mcur = "";
 $mcurpub = "";
 $mcurpers = "";
 switch ($options->vars->type){
-    case Blog::TYPE_PUBLIC:
+    case BlogApp::BLOG_TYPE_PUBLIC:
         $mcurpub = "active";
         break;
-    case Blog::TYPE_PERSONAL:
+    case BlogApp::BLOG_TYPE_PERSONAL:
         $mcurpers = "active";
         break;
     default:

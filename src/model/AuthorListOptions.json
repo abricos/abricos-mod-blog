@@ -1,6 +1,6 @@
 {
   "type": "response",
-  "vars": {
+  "args": {
     "limit": {
       "type": "int",
       "default": 25

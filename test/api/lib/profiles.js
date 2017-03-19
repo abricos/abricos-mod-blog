@@ -6,7 +6,6 @@ var randomInt = abricosREST.helper.randomInt;
 var async = abricosREST.helper.async;
 
 var Profiles = function(){
-
     this.admin = null;
     this.guest = null;
     this.user = null;

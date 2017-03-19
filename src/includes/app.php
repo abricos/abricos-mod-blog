@@ -16,6 +16,9 @@
  */
 class BlogApp extends Ab_App {
 
+    const BLOG_TYPE_PUBLIC = 'public';
+    const BLOG_TYPE_PERSONAL = 'personal';
+
     protected $_aliases = array(
         "config" => array(
             'Config' => 'BlogConfig',
@@ -30,8 +33,7 @@ class BlogApp extends Ab_App {
             'BlogUserRoleList' => 'BlogUserRoleList',
         ),
         "blogAction" => array(
-            'BlogAppend' => 'BlogAppend',
-            'BlogUpdate' => 'BlogUpdate',
+            'BlogSave' => 'BlogSave',
             'BlogRemove' => 'BlogRemove',
             'BlogSubscribeUpdate' => 'BlogSubscribeUpdate'
         ),
@@ -134,20 +136,20 @@ class BlogApp extends Ab_App {
 
     /**
      * @param mixed $data
-     * @return BlogAppend
+     * @return BlogSave
      */
     public function BlogAppend($data){
-        $ret = $this->CreateFilled('BlogAppend', $data);
+        $ret = $this->CreateFilled('BlogSave', true, $data);
         $this->CacheClear();
         return $ret;
     }
-    
+
     /**
      * @param mixed $data
-     * @return BlogUpdate
+     * @return BlogSave
      */
     public function BlogUpdate($data){
-        $ret = $this->CreateFilled('BlogUpdate', $data);
+        $ret = $this->CreateFilled('BlogSave', true, $data);
         $this->CacheClear();
         return $ret;
     }

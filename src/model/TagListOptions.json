@@ -1,7 +1,7 @@
 {
   "type": "response",
   "version": "0.1.0",
-  "vars": {
+  "args": {
     "limit": {
       "type": "int",
       "default": 30
