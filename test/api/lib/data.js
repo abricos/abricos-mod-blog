@@ -2,6 +2,7 @@
 
 var fs = require('fs');
 var path = require('path');
+var randomInt = require('abricos-rest').helper.randomInt;
 
 var Data = function(){
     this.data = {};
@@ -13,7 +14,15 @@ Data.prototype.get = function(name){
         return this.data[name];
     }
     var file = path.join(this.srcDir, name + '.json');
-    var json = JSON.parse(fs.readFileSync(file, 'utf8'));
+    if (!fs.existsSync(file)){
+        return null;
+    }
+
+    var body = fs.readFileSync(file, 'utf8');
+    var randNNN = randomInt(10, 99);
+    body.replace(/\{v#rand_nn\}/g, randNNN);
+
+    var json = JSON.parse(body);
 
     return this.data[name] = json;
 };

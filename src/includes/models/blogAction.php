@@ -25,11 +25,10 @@ interface BlogSaveArgs extends Ab_IAttrsData {
 /**
  * Class BlogSave
  *
- * @property BlogSaveArgs $args
- *
  * @property int $blogid
  *
  * @method BlogApp GetApp()
+ * @method BlogSaveArgs GetArgs()
  */
 class BlogSave extends Ab_Model {
     protected $_structModule = 'blog';
@@ -37,6 +36,7 @@ class BlogSave extends Ab_Model {
 
     const CODE_OK = 1;
     const CODE_EMPTY_TITLE = 2;
+    const CODE_SLUG_EXIST = 4;
 
     public function SetArgs($data){
         /** @var BlogSaveArgs $args */
@@ -58,6 +58,59 @@ class BlogSave extends Ab_Model {
         return $args;
     }
 
+    public function SlugExist($slug){
+        $app = $this->GetApp();
+        $blog = $app->BlogBySlug($slug);
+        return $blog->id > 0;
+    }
+
+    protected function SlugNewCheck($slug){
+        $exist = $this->SlugExist($slug);
+        if ($exist){
+            $this->SetError(
+                Ab_Response::ERR_BAD_REQUEST,
+                BlogSave::CODE_SLUG_EXIST
+            );
+            return false;
+        }
+        return true;
+    }
+
+    protected function BlogAppend(){
+        $app = $this->GetApp();
+        $args = $this->GetArgs();
+
+        if (!$this->SlugNewCheck($args->slug)){
+            return;
+        }
+
+        $this->blogid = BlogQuery_BlogAction::BlogAppend($app->db, $this);
+
+        $app->BlogJoin(array(
+            "blogid" => $this->blogid
+        ));
+    }
+
+    protected function BlogUpdate(){
+        $app = $this->GetApp();
+        $args = $this->GetArgs();
+
+        $curBlog = $app->Blog($args->blogid);
+        if ($curBlog->IsError()){
+            $this->SetError(Ab_Response::ERR_NOT_FOUND);
+            return;
+        }
+
+        if ($curBlog->slug !== $args->slug
+            && !$this->SlugNewCheck($args->slug)
+        ){
+            return;
+        }
+
+        BlogQuery_BlogAction::BlogUpdate($app->db, $this);
+        $this->blogid = $args->blogid;
+    }
+
     /**
      * @param BlogApp $app
      * @param $isAppend
@@ -69,25 +122,22 @@ class BlogSave extends Ab_Model {
             return;
         }
 
-        $args = $this->SetArgs($data);
+        $this->SetArgs($data);
         if ($this->IsError()){
             return;
         }
 
         if ($isAppend){
-            $this->blogid = BlogQuery_BlogAction::BlogAppend($app->db, $this);
-
-            $app->BlogJoin(array(
-                "blogid" => $this->blogid
-            ));
+            $this->BlogAppend();
         } else {
-            BlogQuery_BlogAction::BlogUpdate($app->db, $this);
+            $this->BlogUpdate();
+        }
 
-            $this->blogid = $args->blogid;
+        if ($this->IsError()){
+            return;
         }
 
         $app->CacheClear();
-
         $this->AddCode(BlogSave::CODE_OK);
     }
 }

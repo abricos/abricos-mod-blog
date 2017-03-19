@@ -28,7 +28,8 @@
   },
   "codes": {
     "OK": 1,
-    "EMPTY_TITLE": 2
+    "EMPTY_TITLE": 2,
+    "SLUG_EXIST": 4
   },
   "fields": {
     "blogid": {
