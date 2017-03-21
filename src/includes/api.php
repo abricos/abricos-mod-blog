@@ -65,13 +65,21 @@ class BlogAPIMethodsV1 extends Ab_APIMethods {
     }
 
     protected function GetStructures(){
-        return array(
+        $ret = array(
             'Config',
             'Blog',
             'BlogList',
             'BlogUserRole',
             'BlogUserRoleList'
         );
+
+        if ($this->app->IsAdminRole()){
+            $ret = array_merge($ret, array(
+                'BlogSave',
+            ));
+        }
+
+        return $ret;
     }
 
     /**

@@ -149,7 +149,7 @@ class BlogApp extends Ab_App {
      * @return BlogSave
      */
     public function BlogUpdate($data){
-        $ret = $this->CreateFilled('BlogSave', true, $data);
+        $ret = $this->CreateFilled('BlogSave', false, $data);
         $this->CacheClear();
         return $ret;
     }

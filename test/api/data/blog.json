@@ -1,5 +1,6 @@
 {
-  "title": "This is a random Blog ({v#rand_nn})",
+  "id": 0,
+  "title": "This is a random Blog N{v#rand_nn}",
   "slug": "blog{v#rand_nn}",
   "descript": ""
 }

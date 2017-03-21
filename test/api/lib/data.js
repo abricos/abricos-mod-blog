@@ -19,8 +19,8 @@ Data.prototype.get = function(name){
     }
 
     var body = fs.readFileSync(file, 'utf8');
-    var randNNN = randomInt(10, 99);
-    body.replace(/\{v#rand_nn\}/g, randNNN);
+    var randNN = randomInt(10, 99);
+    body = body.replace(/\{v\#rand_nn\}/g, randNN);
 
     var json = JSON.parse(body);
 

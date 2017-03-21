@@ -7,5 +7,6 @@ describe('Blog API', function(){
 
     require('./init.js');
     require('./blogs.js');
+    require('./topics.js');
 
 });
