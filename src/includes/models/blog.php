@@ -57,6 +57,15 @@ class Blog extends Ab_Model {
     }
 }
 
+
+/**
+ * Interface BlogListArgs
+ *
+ * @property int[] $ids
+ */
+interface BlogListArgs extends Ab_IAttrsData {
+}
+
 /**
  * Class BlogList
  *
@@ -66,24 +75,68 @@ class BlogList extends Ab_ModelList {
     protected $_structModule = 'blog';
     protected $_structName = 'BlogList';
 
-    public function GetNotFound(){
-        $blog = $this->GetApp()->Create('Blog');
-        $blog->SetError(Ab_Response::ERR_NOT_FOUND);
-        return $blog;
-    }
-
     /**
-     * @param int $blogid
-     * @return Blog
+     * @param BlogApp $app
+     * @param mixed $data
      */
-    public function Get($blogid){
-        $blogid = intval($blogid);
-        $blog = parent::Get($blogid);
-
-        if (empty($blog)){
-            return $this->GetNotFound();
+    public function Fill($app, $data){
+        if (!$app->IsViewRole()){
+            $this->SetError(Ab_Response::ERR_FORBIDDEN);
+            return;
         }
-        return $blog;
+
+        /** @var BlogListArgs $args */
+        $args = $this->SetArgs($data);
+
+        $blogIds = array();
+        $ids = $args->ids;
+        $count = min(count($ids), 50);
+        for ($i = 0; $i < $count; $i++){
+            $id = intval($ids[$i]);
+
+            $blog = $app->Cache('Blog', $id);
+            if (!empty($blog)){
+                $this->Add($blog);
+            } else {
+                $blogIds[] = $id;
+            }
+        }
+
+        if (count($blogIds) === 0){
+            return;
+        }
+
+        /** @var BlogUserRoleList $userRoleList */
+        $userRoleList = $app->CreateFilled('BlogUserRoleList', $blogIds);
+
+        /** @var URatingApp $uratingApp */
+        $uratingApp = Abricos::GetApp('urating');
+        if (!empty($uratingApp)){
+            $votingList = $uratingApp->VotingList('blog', 'blog', $blogIds);
+        }
+
+        $rows = BlogQuery_Blog::ListByIds($app->db, $blogIds);
+        while (($d = $app->db->fetch_array($rows))){
+            /** @var Blog $blog */
+            $blog = $app->Create('Blog', $d);
+
+            $userRole = $userRoleList->GetByBlogId($blog->id);
+            if (empty($userRole)){
+                $userRole = $app->Create('BlogUserRole', array(
+                    'blogid' => $blog->id,
+                    'userid' => Abricos::$user->id
+                ));
+            }
+            $blog->userRole = $userRole;
+
+            if (!empty($votingList)){
+                $blog->voting = $votingList->GetByOwnerId($blog->id);
+            }
+
+            $app->SetCache('Blog', $blog->id, $blog);
+
+            $this->Add($blog);
+        }
     }
 
     private $_listBySlug = array();
@@ -107,52 +160,26 @@ class BlogList extends Ab_ModelList {
         return parent::Add($blog);
     }
 
-    /**
-     * @param BlogApp $app
-     */
-    public function Fill($app){
-        if (!$app->IsViewRole()){
-            $this->SetError(Ab_Response::ERR_FORBIDDEN);
-            return;
-        }
-
-        $rows = BlogQuery_Blog::BlogList($app->db);
-        while (($d = $app->db->fetch_array($rows))){
-            /** @var Blog $blog */
-            $blog = $app->Create('Blog', $d);
-            $this->Add($blog);
-        }
-
-        $blogids = $this->Ids();
-
-        /** @var BlogUserRoleList $userRoleList */
-        $userRoleList = $app->CreateFilled('BlogUserRoleList', $blogids);
-
-        /** @var URatingApp $uratingApp */
-        $uratingApp = Abricos::GetApp('urating');
-        if (!empty($uratingApp)){
-            $votingList = $uratingApp->VotingList('blog', 'blog', $blogids);
-        }
-
-        $count = $this->Count();
-        for ($i = 0; $i < $count; $i++){
-            $blog = $this->GetByIndex($i);
-
-            $userRole = $userRoleList->GetByBlogId($blog->id);
-            if (empty($userRole)){
-                $userRole = $app->Create('BlogUserRole', array(
-                    'blogid' => $blog->id,
-                    'userid' => Abricos::$user->id
-                ));
-            }
-
-            $blog->userRole = $userRole;
-
-            if (!empty($votingList)){
-                $blog->voting = $votingList->GetByOwnerId($blog->id);
-            }
-        }
+    public function GetNotFound(){
+        $blog = $this->GetApp()->Create('Blog');
+        $blog->SetError(Ab_Response::ERR_NOT_FOUND);
+        return $blog;
     }
+
+    /**
+     * @param int $blogid
+     * @return Blog
+     */
+    public function Get($blogid){
+        $blogid = intval($blogid);
+        $blog = parent::Get($blogid);
+
+        if (empty($blog)){
+            return $this->GetNotFound();
+        }
+        return $blog;
+    }
+
 }
 
 
@@ -205,10 +232,10 @@ class BlogUserRoleList extends Ab_ModelList {
 
     /**
      * @param BlogApp $app
-     * @param int[] $blogids
+     * @param int[] $blogIds
      */
-    public function Fill($app, $blogids){
-        $rows = BlogQuery_Blog::BlogUserRoleList($app->db, $blogids);
+    public function Fill($app, $blogIds){
+        $rows = BlogQuery_Blog::BlogUserRoleList($app->db, $blogIds);
         while (($d = $app->db->fetch_array($rows))){
             $this->Add($d);
         }

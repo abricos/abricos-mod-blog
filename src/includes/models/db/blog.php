@@ -12,6 +12,24 @@
  */
 class BlogQuery_Blog {
 
+    public static function ListByIds(Ab_Database $db, $ids){
+        if (($count = count($ids)) === 0){
+            return null;
+        }
+
+        $wha = array();
+        for ($i = 0; $i < $count; $i++){
+            $wha[] = "blogid=".intval($ids[$i]);
+        }
+
+        $sql = "
+			SELECT *
+			FROM ".$db->prefix."blog
+			WHERE deldate=0 AND (".implode(" OR ", $wha).") 
+		";
+        return $db->query_read($sql);
+    }
+
     public static function Blog(Ab_Database $db, $blogid){
         $sql = "
 			SELECT *
@@ -20,16 +38,6 @@ class BlogQuery_Blog {
 			LIMIT 1
 		";
         return $db->query_first($sql);
-    }
-
-    public static function BlogList(Ab_Database $db){
-        $sql = "
-			SELECT *
-			FROM ".$db->prefix."blog
-			WHERE deldate=0
-			ORDER BY topicCount DESC
-		";
-        return $db->query_read($sql);
     }
 
     public static function BlogUserRoleList(Ab_Database $db, $blogids, $userid = 0){

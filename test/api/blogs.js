@@ -31,25 +31,25 @@ describe('Blogs', function(){
     });
 
     it('should be added blog if not exist (POST:/api/blog/v1/blogAppend)', function(done){
-        if (blog.id === 0){
-            var data = {
-                title: blog.title,
-                slug: blog.slug,
-                descript: blog.descript,
-            };
-            profiles.admin.modules.blog.blogAppend(data, function(err, result){
-                checkResponse(err, result);
-
-                result.should.have.property('blogid');
-                result.blogid.should.be.above(0);
-
-                blog.id = result.blogid;
-
-                done();
-            });
-        } else {
+        if (blog.id > 0){
             done();
+            return;
         }
+        var data = {
+            title: blog.title,
+            slug: blog.slug,
+            descript: blog.descript,
+        };
+        profiles.admin.modules.blog.blogAppend(data, function(err, result){
+            checkResponse(err, result);
+
+            result.should.have.property('blogid');
+            result.blogid.should.be.above(0);
+
+            blog.id = result.blogid;
+
+            done();
+        });
     });
 
     it('should be updated blog (POST:/api/blog/v1/blogUpdate)', function(done){
@@ -77,7 +77,7 @@ describe('Blogs', function(){
         });
     });
 
-    it('should be getting blog by Slug (GET:/api/blog/v1/blogBySlug/:id)', function(done){
+    it('should be getting blog by Slug (GET:/api/blog/v1/blogBySlug/:slug)', function(done){
         profiles.admin.modules.blog.blogBySlug(blog.slug, function(err, result){
             checkResponse(err, result);
             result.should.have.property('id', blog.id);
@@ -86,11 +86,34 @@ describe('Blogs', function(){
         });
     });
 
+    var blogTemp = srcData.get('blogTemp');
+
     it('should be added temp blog (POST:/api/blog/v1/blogAppend)', function(done){
-        done();
+        var data = {
+            title: blogTemp.title,
+            slug: blogTemp.slug,
+            descript: blogTemp.descript,
+        };
+        profiles.admin.modules.blog.blogAppend(data, function(err, result){
+            checkResponse(err, result);
+
+            result.should.have.property('blogid');
+            result.blogid.should.be.above(0);
+
+            blog.id = result.blogid;
+
+            done();
+        });
     });
 
     it('should be removed temp blog (POST:/api/blog/v1/blogRemove)', function(done){
-        done();
+        var data = {
+            blogid: blogTemp.id
+        };
+        profiles.admin.modules.blog.blogRemove(data, function(err, result){
+            checkResponse(err, result);
+            result.should.have.property('blogid', blogTemp.id);
+            done();
+        });
     });
 });

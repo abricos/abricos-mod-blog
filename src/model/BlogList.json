@@ -1,4 +1,9 @@
 {
   "type": "modelList",
-  "itemType": "Blog"
+  "itemType": "Blog",
+  "args": {
+    "ids": {
+      "type": "array"
+    }
+  }
 }

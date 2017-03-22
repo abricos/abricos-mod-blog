@@ -1,6 +1,6 @@
 {
-  "type": "response",
-  "version": "0.1.0",
+  "type": "modelList",
+  "itemType": "Tag",
   "args": {
     "limit": {
       "type": "int",
@@ -10,10 +10,5 @@
       "type": "int",
       "default": 1
     }
-  },
-  "codes": {
-    "OK": 1
-  },
-  "fields": {
   }
 }

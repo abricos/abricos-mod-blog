@@ -322,7 +322,6 @@ class BlogAPIMethodsV1 extends Ab_APIMethods {
      *  {
      *    "blogid": 123,
      *    "title": "My IoT Project",
-     *    "slug": "IoT",
      *    "intro": "&lt;p&gt; Intro text &lt;p\&gt;",
      *    "body": "&lt;p&gt; Body text &lt;p\&gt;",
      *    "isDraft": false

@@ -37,6 +37,20 @@ class BlogApp extends Ab_App {
             'BlogRemove' => 'BlogRemove',
             'BlogSubscribeUpdate' => 'BlogSubscribeUpdate'
         ),
+        "topic" => array(
+            'Topic' => 'BlogTopic',
+            'TopicList' => 'BlogTopicList',
+        ),
+        "topicAction" => array(
+            'TopicSave' => 'BlogTopicSave',
+            'TopicRemove' => 'BlogTopicRemove',
+        ),
+        "tag" => array(
+            'Tag' => 'BlogTag',
+            'TagList' => 'BlogTagList',
+            'TagInTopic' => 'BlogTagInTopic',
+            'TagInTopicList' => 'BlogTagInTopicList',
+        ),
     );
 
     public function __get($name){
@@ -59,53 +73,16 @@ class BlogApp extends Ab_App {
     }
 
     /*********************************************************/
-    /*                         Config                        */
-    /*********************************************************/
-
-    /**
-     * @return BlogConfig
-     */
-    public function Config(){
-        if ($this->CacheExists('Config')){
-            return $this->Cache('Config');
-        }
-
-        /** @var BlogConfig $config */
-        $config = $this->CreateFilled('Config');
-
-        $this->SetCache('Config', $config);
-
-        return $config;
-    }
-
-    /**
-     * @param mixed $data
-     * @return BlogConfigUpdate
-     */
-    public function ConfigUpdate($data){
-        /** @var BlogConfigUpdate $update */
-        $update = $this->CreateFilled('ConfigUpdate', $data);
-
-        $this->CacheClear();
-        return $update;
-    }
-
-    /*********************************************************/
     /*                          Blog                         */
     /*********************************************************/
 
     /**
+     * @param mixed $data List Options
      * @return BlogList
      */
-    public function BlogList(){
-        if ($this->CacheExists('BlogList')){
-            return $this->Cache('BlogList');
-        }
-
+    public function BlogList($data){
         /** @var BlogList $list */
-        $list = $this->CreateFilled('BlogList');
-
-        $this->SetCache('BlogList', $list);
+        $list = $this->CreateFilled('BlogList', $data);
 
         return $list;
     }
@@ -115,7 +92,14 @@ class BlogApp extends Ab_App {
      * @return Blog
      */
     public function Blog($blogid){
-        $blogList = $this->BlogList();
+        $blogid = intval($blogid);
+        if ($this->CacheExists('Blog', $blogid)){
+            return $this->Cache('Blog', $blogid);
+        }
+        $blogList = $this->BlogList(array(
+            "ids" => array($blogid)
+        ));
+
         if ($blogList->IsError()){
             return $blogList->GetNotFound();
         }
@@ -187,6 +171,56 @@ class BlogApp extends Ab_App {
         $ret = $this->CreateFilled('BlogSubscribeUpdate', false, $data);
         $this->CacheClear();
         return $ret;
+    }
+
+    /*********************************************************/
+    /*                         Topic                         */
+    /*********************************************************/
+
+    /**
+     * @param int $id
+     * @return BlogTopic
+     */
+    public function Topic($id){
+
+    }
+
+
+    /*********************************************************/
+    /*                          Tag                          */
+    /*********************************************************/
+
+
+    /*********************************************************/
+    /*                         Config                        */
+    /*********************************************************/
+
+    /**
+     * @return BlogConfig
+     */
+    public function Config(){
+        if ($this->CacheExists('Config')){
+            return $this->Cache('Config');
+        }
+
+        /** @var BlogConfig $config */
+        $config = $this->CreateFilled('Config');
+
+        $this->SetCache('Config', $config);
+
+        return $config;
+    }
+
+    /**
+     * @param mixed $data
+     * @return BlogConfigUpdate
+     */
+    public function ConfigUpdate($data){
+        /** @var BlogConfigUpdate $update */
+        $update = $this->CreateFilled('ConfigUpdate', $data);
+
+        $this->CacheClear();
+        return $update;
     }
 
 }
